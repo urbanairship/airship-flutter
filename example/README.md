@@ -1,6 +1,6 @@
 # airship_example
 
-Demonstrates how to use the airship plugin.
+Demonstrates how to use the Airship plugin.
 
 ## Getting Started
 
