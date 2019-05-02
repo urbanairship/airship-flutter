@@ -1,7 +1,74 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+
+class InboxMessageView extends StatefulWidget {
+  final InboxMessageViewCreatedCallback onViewCreated;
+
+  InboxMessageView({
+    Key key,
+    @required this.onViewCreated
+  });
+
+  @override
+  _InboxMessageViewState createState() => _InboxMessageViewState();
+}
+
+
+typedef void InboxMessageViewCreatedCallback(InboxMessageViewController controller);
+
+class InboxMessageViewController {
+
+  MethodChannel _channel;
+
+  InboxMessageViewController.init(int id) {
+    _channel =  new MethodChannel('com.airship.flutter/InboxMessageView_$id');
+  }
+
+  Future<void> loadMessage(InboxMessage message) async {
+    if (message == null) {
+      throw ArgumentError.notNull('message');
+    }
+
+    return _channel.invokeMethod('loadMessage', message.messageId);
+  }
+}
+
+
+class _InboxMessageViewState extends State<InboxMessageView> {
+
+  Future<void> onPlatformViewCreated(id) async {
+    if (widget.onViewCreated == null) {
+      return;
+    }
+    widget.onViewCreated(new InboxMessageViewController.init(id));
+  }
+
+  @override
+    Widget build(BuildContext context) {
+    if(defaultTargetPlatform == TargetPlatform.android) {
+      return AndroidView(
+        viewType: 'com.airship.flutter/InboxMessageView',
+        onPlatformViewCreated: onPlatformViewCreated,
+        creationParamsCodec: const StandardMessageCodec(),
+      );
+    } else if(defaultTargetPlatform == TargetPlatform.iOS) {
+      return UiKitView(
+        viewType: 'com.airship.flutter/InboxMessageView',
+        onPlatformViewCreated: onPlatformViewCreated,
+        creationParamsCodec: const StandardMessageCodec(),
+      );
+    }
+
+    return new Text('$defaultTargetPlatform is not yet supported by this plugin');
+  }
+}
+
+
+
 
 class InboxMessage {
 
@@ -30,8 +97,8 @@ class InboxMessage {
 
 class Airship {
 
-  static const MethodChannel _channel = const MethodChannel('airship');
-  static const EventChannel _eventChannel = const EventChannel('airship_events');
+  static const MethodChannel _channel = const MethodChannel('com.airship.flutter/airship');
+  static const EventChannel _eventChannel = const EventChannel('com.airship.flutter/airship_events');
 
   static Stream<Map<String, dynamic>> _eventStream;
 
@@ -115,6 +182,11 @@ class Airship {
 
   static Stream<String> get onShowInbox {
     return _onEvent.where((Map<String, dynamic> event) => event['event_type'] == "SHOW_INBOX")
+        .map((Map<String, dynamic> event) =>  null);
+  }
+
+  static Stream<String> get onShowInboxMessage {
+    return _onEvent.where((Map<String, dynamic> event) => event['event_type'] == "SHOW_INBOX_MESSAGE")
         .map((Map<String, dynamic> event) =>  event['data']);
   }
 
@@ -132,6 +204,12 @@ class Airship {
   static Stream<String> get onChannelCreated {
     return _onEvent
         .where((Map<String, dynamic> event) => event['event_type'] == "CHANNEL_CREATED")
+        .map((Map<String, dynamic> event) =>  event['data']);
+  }
+
+  static Stream<String> get onDeepLink {
+    return _onEvent
+        .where((Map<String, dynamic> event) => event['event_type'] == "DEEP_LINK")
         .map((Map<String, dynamic> event) =>  event['data']);
   }
 }

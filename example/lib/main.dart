@@ -13,8 +13,8 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   String _channelId = '';
   bool _notificationsEnabled = false;
-  List<String> _tags;
-  List<InboxMessage> _messages;
+  List<String> _tags = List(0);
+  List<InboxMessage> _messages = List(0);
 
   @override
   void initState() {
@@ -43,7 +43,6 @@ class _MyAppState extends State<MyApp> {
         _channelId = channelId;
       });
     });
-    
 
     // If the widget was removed from the tree while the asynchronous platform
     // message was in flight, we want to discard the reply rather than calling
@@ -56,8 +55,12 @@ class _MyAppState extends State<MyApp> {
       _tags = tags;
       _messages = messages;
     });
+  }
 
-
+  void onInboxMessageViewCreated(InboxMessageViewController controller) {
+    if (_messages.length > 0) {
+      controller.loadMessage(_messages[0]);
+    }
   }
 
   @override
@@ -67,58 +70,10 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Plugin example app'),
         ),
-        body: Wrap(children: <Widget>[
-          Row(children: <Widget>[
-            Text("Channel ID: $_channelId"),
-          ]),
-          Row(children: <Widget>[
-            Text("Enable Notitificaitons"),
-            Checkbox(
-                value: _notificationsEnabled,
-                onChanged: (value) {
-                  Airship.setUserNotificationsEnabled(value);
-                  setState(() {
-                    _notificationsEnabled = value;
-                  });
-                }),
-          ]),
-          Row(children: <Widget>[
-            Wrap(children: <Widget>[
-              Text("Tags"),
-              Container(
-                margin: const EdgeInsets.all(10.0),
-                width: 100.0,
-                height: 100.0,
-                child: ListView.builder(
-                  itemCount: _tags.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text('${_tags[index]}'),
-                    );
-                  },
-                ),
-              ),
-            ])
-          ]),
-          Row(children: <Widget>[
-            Wrap(children: <Widget>[
-              Text("Messages"),
-              Container(
-                margin: const EdgeInsets.all(10.0),
-                width: 300,
-                height: 100.0,
-                child: ListView.builder(
-                  itemCount: _messages.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text('${_messages[index].title} ${_messages[index].messageId}'),
-                    );
-                  },
-                ),
-              ),
-            ])
-          ]),
-        ]),
+        body:  Container(
+          child: InboxMessageView(onViewCreated: onInboxMessageViewCreated),
+          height: 300.0,
+        )
       ),
     );
   }

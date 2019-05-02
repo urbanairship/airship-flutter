@@ -5,7 +5,7 @@ import com.urbanairship.json.JsonSerializable
 import io.flutter.plugin.common.EventChannel
 
 enum class EventType {
-    PUSH_RECEIVED, CHANNEL_CREATED, CHANNEL_UPDATED, INBOX_UPDATED, SHOW_INBOX
+    PUSH_RECEIVED, CHANNEL_CREATED, CHANNEL_UPDATED, INBOX_UPDATED, SHOW_INBOX, SHOW_INBOX_MESSAGE, DEEP_LINK
 }
 
 class EventManager : EventChannel.StreamHandler {
@@ -17,7 +17,7 @@ class EventManager : EventChannel.StreamHandler {
     private var eventSink: EventChannel.EventSink? = null
     private val pendingEvents = mutableListOf<PendingEvent>()
 
-    fun notifyEvent(type: EventType, data: JsonSerializable?) {
+    fun notifyEvent(type: EventType, data: JsonSerializable? = null) {
         var sink = eventSink
         if (sink != null) {
             sink.success(JsonMap.newBuilder()

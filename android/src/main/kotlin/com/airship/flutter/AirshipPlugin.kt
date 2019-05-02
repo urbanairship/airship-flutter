@@ -1,26 +1,78 @@
 package com.airship.flutter
 
+import android.content.Context
+import android.view.View
 import com.urbanairship.UAirship
 import com.urbanairship.json.JsonMap
 import com.urbanairship.json.JsonValue
 import com.urbanairship.util.DateUtils
+import com.urbanairship.widget.UAWebView
+import com.urbanairship.widget.UAWebViewClient
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
+import io.flutter.plugin.common.StandardMessageCodec
+import io.flutter.plugin.platform.PlatformView
+import io.flutter.plugin.platform.PlatformViewFactory
+import android.R.id
 
+
+
+class InboxMessageViewFactory(private val registrar: Registrar) : PlatformViewFactory(StandardMessageCodec.INSTANCE) {
+    override fun create(context: Context, viewId: Int, arguments: Any?): PlatformView {
+        val view = FlutterInboxMessageView(context)
+        val channel = MethodChannel(registrar.messenger(), "com.airship.flutter/InboxMessageView_$viewId")
+        channel.setMethodCallHandler(view)
+        return view
+    }
+}
+
+class FlutterInboxMessageView(var context: Context) : PlatformView, MethodCallHandler {
+
+    private val webView: UAWebView by lazy {
+        val view = UAWebView(context)
+        view.webViewClient = UAWebViewClient()
+        view
+    }
+
+    override fun onMethodCall(call: MethodCall, result: Result) {
+        when (call.method) {
+            "loadMessage" -> loadMessage(call, result)
+            else -> result.notImplemented()
+        }
+    }
+
+    override fun getView(): View = webView
+
+    override fun dispose() {
+
+    }
+
+    private fun loadMessage(call: MethodCall, result: Result) {
+        val message = UAirship.shared().inbox.getMessage(call.arguments())
+        if (message != null) {
+            webView.loadRichPushMessage(message)
+            message.markRead()
+            result.success(true)
+        } else {
+            result.error("InvalidMessage", "Unable to load message: ${call.arguments}", null)
+        }
+    }
+}
 
 class AirshipPlugin : MethodCallHandler {
 
     companion object {
         @JvmStatic
         fun registerWith(registrar: Registrar) {
-            val channel = MethodChannel(registrar.messenger(), "airship")
+            val channel = MethodChannel(registrar.messenger(), "com.airship.flutter/airship")
             channel.setMethodCallHandler(AirshipPlugin())
-            val eventChannel = EventChannel(registrar.messenger(), "airship_events")
+            val eventChannel = EventChannel(registrar.messenger(), "com.airship.flutter/airship_events")
             eventChannel.setStreamHandler(EventManager.shared)
+            registrar.platformViewRegistry().registerViewFactory("com.airship.flutter/InboxMessageView", InboxMessageViewFactory(registrar))
         }
     }
 
