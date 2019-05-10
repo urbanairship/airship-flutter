@@ -16,7 +16,7 @@ class AirshipDeepLinkEvent : AirshipEvent {
 
     var data: Any? {
         get {
-            return deepLink;
+            return deepLink
         }
     }
 }

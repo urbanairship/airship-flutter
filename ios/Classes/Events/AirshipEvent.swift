@@ -1,11 +1,5 @@
-//
-//  Event.swift
-//  airship
-//
-//  Created by Ryan Lepinski on 5/9/19.
-//
-
 import Foundation
+import AirshipKit
 
 enum AirshipEventType: String {
     case PushReceived = "PUSH_RECEIVED"
@@ -24,3 +18,4 @@ protocol AirshipEvent {
     var eventType: AirshipEventType { get }
     var data: Any? { get}
 }
+

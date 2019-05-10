@@ -78,9 +78,6 @@ class _MyAppState extends State<MyApp> {
         debugPrint("Error message: ${messages}");
       }
     });
-
-
-
   }
 
   @override

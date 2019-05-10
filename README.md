@@ -7,24 +7,13 @@ major release.
 
 ## Status
 
-Android:
+Feature Status:
 - [x] Tags
 - [x] Notifications
 - [x] Deep links
 - [x] Inbox
 - [x] Named User
 - [x] Push Events
-- [ ] Custom events
-- [ ] Notification management
-- [ ] Tag Groups
-
-iOS:
-- [x] Tags
-- [ ] Notifications
-- [x] Deep links
-- [ ] Inbox
-- [x] Named User
-- [ ] Push Events
 - [ ] Custom events
 - [ ] Notification management
 - [ ] Tag Groups
@@ -69,6 +58,34 @@ place it inside the android/app/src/main/assets directory:
    notificationChannel = "customChannel"
 ```
 
+### iOS Setup
+
+1) Add the following capabilities for your application target:
+  - Push Notification
+  - Background Modes > Remote Notifications
+
+2) Create a plist `AirshipConfig.plist` and include it in your application’s target:
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>developmentAppKey</key>
+  <string>Your Development App Key</string>
+  <key>developmentAppSecret</key>
+  <string>Your Development App Secret</string>
+  <key>productionAppKey</key>
+  <string>Your Production App Key</string>
+  <key>productionAppSecret</key>
+  <string>Your Production App Secret</string>
+</dict>
+</plist>
+```
+
+3) Optional. In order to take advantage of iOS 10 notification attachments, such as images, animated gifs, and
+video, you will need to create a notification service extension by following the [iOS Notification Service Extension Guide](https://docs.urbanairship.com/platform/reference/ios-extension/)
+
+
 ### Example Usage
 
 ```
@@ -83,12 +100,15 @@ List<String> tags = await Airship.tags;
 // Channel ID
 String channelId = await Airship.channelId;
 
-// Enable notifications
+// Enable notifications (prompts on iOS)
 Airship.setUserNotificationsEnabled(true);
 
 // Events
 Airship.onPushReceived
     .listen((event) => debugPrint('Push Received $event'));
+
+Airship.onNotificationResponse
+    .listen((event) => debugPrint('Notification Response $event'));
 
 Airship.onChannelRegistration
     .listen((event) => debugPrint('Channel Registration $event'));
@@ -109,11 +129,10 @@ import 'package:airship/airship.dart';
 List<InboxMessage> messages = await Airship.inboxMessages;
 
 // Delete
-Airship.markMessageDeleted(messages[0]);
+Airship.deleteInboxMessage(messages[0]);
 
 // Read
-Airship.markMessageRead(messages[0]);
-
+Airship.markInboxMessageRead(messages[0]);
 
 // Events
 Airship.onInboxUpdated

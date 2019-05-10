@@ -44,31 +44,37 @@ UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
     }
 
     public func receivedForegroundNotification(_ notificationContent: UANotificationContent, completionHandler: @escaping () -> Void) {
-        // push event
+        let event = AirshipPushReceivedEvent(notificationContent)
+        AirshipEventManager.shared.notify(event)
         completionHandler()
     }
 
     public func receivedBackgroundNotification(_ notificationContent: UANotificationContent, completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        // push event
+        let event = AirshipPushReceivedEvent(notificationContent)
+        AirshipEventManager.shared.notify(event)
         completionHandler(.noData)
     }
 
     public func receivedNotificationResponse(_ notificationResponse: UANotificationResponse, completionHandler: @escaping () -> Void) {
-        // response event
+        let event = AirshipNotificationResponseEvent(notificationResponse)
+        AirshipEventManager.shared.notify(event)
         completionHandler()
     }
 
     @objc
     public func showInbox() {
-        // show inbox event
+        let event = AirshipShowInboxEvent()
+        AirshipEventManager.shared.notify(event)
     }
 
     public func showMessage(forID messageID: String) {
-        // show inbox message event
+        let event = AirshipShowInboxMessageEvent(messageID)
+        AirshipEventManager.shared.notify(event)
     }
 
     @objc public func inboxUpdated() {
-        // inbox updated
+        let event = AirshipInboxUpdatedEvent()
+        AirshipEventManager.shared.notify(event)
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -91,6 +97,10 @@ UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
             getNamedUser(call, result: result)
         case "getInboxMessages":
             getInboxMessages(call, result: result)
+        case "markInboxMessageRead":
+            markInboxMessageRead(call, result: result)
+        case "deletetInboxMessage":
+            deleteInboxMessage(call, result: result)
         default:
             result(FlutterError(code:"UNAVAILABLE",
                 message:"Unknown method: \(call.method)",
@@ -141,7 +151,6 @@ UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
         result(UAirship.namedUser()?.identifier)
     }
 
-
     private func getInboxMessages(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let messages = UAirship.inbox()?.messageList.messages.map { (message) -> String in
             var payload = ["title": message.title,
@@ -165,5 +174,19 @@ UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
         }
 
         result(messages)
+    }
+
+    private func markInboxMessageRead(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let message = UAirship.inbox().messageList.message(forID: call.arguments as! String)
+        UAirship.inbox().messageList.markMessagesRead([message as Any]) {
+            result(nil)
+        }
+    }
+
+    private func deleteInboxMessage(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let message = UAirship.inbox().messageList.message(forID: call.arguments as! String)
+        UAirship.inbox().messageList.markMessagesDeleted([message as Any]) {
+            result(nil)
+        }
     }
 }

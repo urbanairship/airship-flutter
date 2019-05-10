@@ -1,11 +1,9 @@
 package com.airship.flutter.events
 
-import com.airship.flutter.canonicalNotificationId
+import com.airship.flutter.eventData
 import com.urbanairship.AirshipReceiver
 import com.urbanairship.json.JsonMap
 import com.urbanairship.json.JsonValue
-import com.urbanairship.util.UAStringUtil
-
 
 class NotificationResponseEvent(notificationInfo: AirshipReceiver.NotificationInfo,
                                 actionButtonInfo: AirshipReceiver.ActionButtonInfo? = null) : Event {
@@ -14,8 +12,8 @@ class NotificationResponseEvent(notificationInfo: AirshipReceiver.NotificationIn
 
     override val eventBody: JsonValue? by lazy {
         JsonMap.newBuilder()
-                .put("notification_id", notificationInfo.canonicalNotificationId())
-                .put("notification_payload", notificationInfo.message.toJsonValue())
+                .put("notification", notificationInfo.eventData())
+                .put("payload", notificationInfo.message.toJsonValue())
                 .let {
                     if (actionButtonInfo != null) {
                         it.put("action_id", actionButtonInfo.buttonId)

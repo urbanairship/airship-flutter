@@ -98,68 +98,69 @@ class InboxMessage {
 
 class Notification {
   final String notificationId;
-  final Map<String, dynamic> payload;
+  final String alert;
+  final String title;
+  final Map<String, dynamic> extras;
 
-  String get title {
-    return payload["title"];
+  const Notification._internal(this.notificationId, this.alert, this.title, this.extras);
+
+  static Notification _fromJson(Map<String, dynamic> json) {
+    var notificationId = json["notificationId"];
+    var alert = json["alert"];
+    var title = json["title"];
+    var extras = json["extras"];
+    return Notification._internal(notificationId, alert, title, extras);
   }
 
-  String get alert {
-    return payload["alert"];
-  }
-
-  const Notification._internal(this.notificationId, this.payload);
 
   @override
   String toString() {
-    return "Notification(notificationId=$notificationId, payload=$payload)";
+    return "Notification(notificationId=$notificationId, alert=$alert, title=$title, extras=$extras)";
   }
 }
 
 class NotificationResponseEvent {
-  final Notification notification;
   final String actionId;
   final bool isForeground;
+  final Notification notification;
+  final Map<String, dynamic> payload;
 
-  const NotificationResponseEvent._internal(this.notification, this.actionId, this.isForeground);
+  const NotificationResponseEvent._internal(this.actionId, this.isForeground, this.notification, this.payload,);
 
   static NotificationResponseEvent _fromJson(Map<String, dynamic> json) {
-    var notificationId = json["notification_id"];
-    var payload = json["notification_payload"];
-    var notification = Notification._internal(notificationId, payload);
     var actionId = json["action_id"];
     var isForeground = json["is_foreground"];
-
-    return NotificationResponseEvent._internal(notification, actionId, isForeground);
+    var notification = Notification._fromJson(json["notification"]);
+    var payload = json["payload"];
+    return NotificationResponseEvent._internal(actionId, isForeground, notification, payload);
   }
 
   @override
   String toString() {
-    return "NotificationResponseEvent(notification=$notification, actionId=$actionId, isForeground=$isForeground)";
+    return "NotificationResponseEvent(actionId=$actionId, isForeground=$isForeground, notification=$notification, payload=$payload)";
   }
 }
 
 class PushReceivedEvent {
-  final Notification notification;
   final Map<String, dynamic> payload;
+  final Notification notification;
 
-  const PushReceivedEvent._internal(this.notification, this.payload);
+  const PushReceivedEvent._internal(this.payload, this.notification);
 
   static PushReceivedEvent _fromJson(Map<String, dynamic> json) {
-    var payload = json["push_payload"];
-    var notificationId = json["notification_id"];
+    var payload = json["payload"];
 
     var notification;
-    if (notificationId != null) {
-      notification = Notification._internal(notificationId, payload);
+    if (json["notification"] != null) {
+      notification = Notification._fromJson(json["notification"]);
     }
 
-    return PushReceivedEvent._internal(notification, payload);
+    return PushReceivedEvent._internal(payload, notification);
   }
 
   @override
   String toString() {
-    return "PushReceivedEvent(notification=$notification, payload=$payload)";
+    return "PushReceivedEvent(payload=$payload, notification=$notification)";
   }
 }
 
@@ -241,18 +242,18 @@ class Airship {
     return await _channel.invokeMethod('setNamedUser', namedUser);
   }
 
-  static Future<void> markMessageRead(InboxMessage message) async {
+  static Future<void> markInboxMessageRead(InboxMessage message) async {
     if (message == null) {
       throw ArgumentError.notNull('message');
     }
-    return await _channel.invokeMethod('markMessageRead', message.messageId);
+    return await _channel.invokeMethod('markInboxMessageRead', message.messageId);
   }
 
-  static Future<void> markMessageDeleted(InboxMessage message) async {
+  static Future<void> deleteInboxMessage(InboxMessage message) async {
     if (message == null) {
       throw ArgumentError.notNull('message');
     }
-    return await _channel.invokeMethod('markMessageDeleted', message.messageId);
+    return await _channel.invokeMethod('deleteInboxMessage', message.messageId);
   }
 
   static Future<String> get namedUser async {

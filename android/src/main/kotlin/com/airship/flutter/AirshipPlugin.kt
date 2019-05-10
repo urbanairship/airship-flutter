@@ -83,6 +83,8 @@ class AirshipPlugin : MethodCallHandler {
             "setNamedUser" -> setNamedUser(call, result)
             "getNamedUser" -> getNamedUser(result)
             "getInboxMessages" -> getInboxMessages(result)
+            "markInboxMessageRead" -> markInboxMessageRead(call, result)
+            "deleteInboxMessage" -> deleteInboxMessage(call, result)
             else -> result.notImplemented()
         }
     }
@@ -109,6 +111,18 @@ class AirshipPlugin : MethodCallHandler {
                 }
 
         result.success(messages)
+    }
+
+    private fun markInboxMessageRead(call: MethodCall, result: Result) {
+        val messageId = call.arguments as String?
+        UAirship.shared().inbox.markMessagesRead(setOf(messageId))
+        result.success(null)
+    }
+
+    private fun deleteInboxMessage(call: MethodCall, result: Result) {
+        val messageId = call.arguments as String?
+        UAirship.shared().inbox.deleteMessages(setOf(messageId))
+        result.success(null)
     }
 
     private fun addTags(call: MethodCall, result: Result) {
