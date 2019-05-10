@@ -19,11 +19,11 @@ Android:
 - [ ] Tag Groups
 
 iOS:
-- [ ] Tags
+- [x] Tags
 - [ ] Notifications
-- [ ] Deep links
+- [x] Deep links
 - [ ] Inbox
-- [ ] Named User
+- [x] Named User
 - [ ] Push Events
 - [ ] Custom events
 - [ ] Notification management
@@ -90,11 +90,8 @@ Airship.setUserNotificationsEnabled(true);
 Airship.onPushReceived
     .listen((event) => debugPrint('Push Received $event'));
 
-Airship.onChannelUpdated
-    .listen((event) => debugPrint('Channel Updated $event'));
-
-Airship.onChannelCreated
-    .listen((event) => debugPrint('Channel Created $event'));
+Airship.onChannelRegistration
+    .listen((event) => debugPrint('Channel Registration $event'));
 
 Airship.onDeepLink
     .listen((deepLink) => debugPrint('Deep link: $deeplink'));
