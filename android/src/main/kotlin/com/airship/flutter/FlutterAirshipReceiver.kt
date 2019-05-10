@@ -35,7 +35,7 @@ class FlutterAirshipReceiver : AirshipReceiver() {
 
     override fun onChannelUpdated(context: Context, channelId: String) {
         super.onChannelUpdated(context, channelId)
-        post(ChannelUpdatedEvent(channelId, UAirship.shared().pushManager.registrationToken))
+        post(ChannelRegistrationEvent(channelId, UAirship.shared().pushManager.registrationToken))
     }
 
     private fun post(event: Event) = EventManager.shared.notifyEvent(event)
