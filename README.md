@@ -1,6 +1,6 @@
 # Airship Plugin
 
-Preview of the Airship Flutter plugin. 
+Preview of the Airship Flutter plugin.
 
 This plugin is currently in development or published. APIs will most likely change before the first
 major release.
@@ -13,7 +13,7 @@ Android:
 - [x] Deep links
 - [x] Inbox
 - [x] Named User
-- [ ] Push Events
+- [x] Push Events
 - [ ] Custom events
 - [ ] Notification management
 - [ ] Tag Groups
@@ -31,11 +31,10 @@ iOS:
 
 ## Usage
 
-This plugin is not yet published, so you will need to clone the repo and add airship and its
-path as a [dependency in your pubspec.yaml file](https://flutter.io/platform-plugins/).
+This plugin is not yet published, so you will have to use the current master repo as a [dependency in your pubspec.yaml file](https://flutter.io/platform-plugins/).
 ```
   airship:
-    path: <AIRSHIP_FLUTTER_PATH>
+    git: git://github.com/urbanairship/airship-flutter.git
 ```
 
 ### Android Setup
@@ -92,10 +91,10 @@ Airship.onPushReceived
     .listen((event) => debugPrint('Push Received $event'));
 
 Airship.onChannelUpdated
-    .listen((channelId) => debugPrint('Channel Updated $channelId'));
-    
+    .listen((event) => debugPrint('Channel Updated $event'));
+
 Airship.onChannelCreated
-    .listen((channelId) => debugPrint('Channel Created $channelId'));
+    .listen((event) => debugPrint('Channel Created $event'));
 
 Airship.onDeepLink
     .listen((deepLink) => debugPrint('Deep link: $deeplink'));
@@ -125,9 +124,9 @@ Airship.onInboxUpdated
 
 Airship.onShowInbox
     .listen((event) => debugPrint('Navigate to app's inbox'));
-    
+
 Airship.onShowInboxMessage
-    .listen((messsage) => debugPrint('Navigate to message $message.messageId'));
+    .listen((messageId) => debugPrint('Navigate to message $messageId'));
 
 InboxMessage message = messages[0];
 
