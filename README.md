@@ -119,7 +119,13 @@ Airship.onDeepLink
 ```
 
 
-### Message Center Example Usage
+### Message Center
+
+Message Center support relies on Flutter's new mechanism for embedding Android and iOS views. As that mechanism is currently in a developers preview, the APIs may not be final.
+
+To use the InboxMessageView on iOS, you need to opt-in for the embedded views preview by adding a boolean property to the app's Info.plist file, with the key io.flutter.embedded_views_preview and the value YES.
+
+#### Example Usage
 
 ```
 // Import package
