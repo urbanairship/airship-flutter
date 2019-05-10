@@ -114,9 +114,15 @@ UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
 
     private func setUserNotificationsEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let enable = call.arguments as! Bool
-        UAirship.push()?.userPushNotificationsEnabled = enable
-        UAirship.push()?.updateRegistration()
-        result(nil)
+
+        if (enable) {
+            UAirship.push()?.enableUserPushNotifications({ (success) in
+                result(success)
+            })
+        } else {
+            UAirship.push()?.userPushNotificationsEnabled = false
+            result(true)
+        }
     }
 
     private func getUserNotificationsEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {

@@ -204,12 +204,12 @@ class Airship {
     return await _channel.invokeMethod('getChannelId');
   }
 
-  static Future<void> setUserNotificationsEnabled(bool enabled) async {
+  static Future<bool> setUserNotificationsEnabled(bool enabled) async {
     if (enabled == null) {
       throw ArgumentError.notNull('enabled');
     }
 
-    await _channel.invokeMethod('setUserNotificationsEnabled', enabled);
+    return await _channel.invokeMethod('setUserNotificationsEnabled', enabled);
   }
 
   static Future<List<String>> get tags async {

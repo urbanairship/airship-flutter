@@ -152,7 +152,7 @@ class AirshipPlugin : MethodCallHandler {
 
     private fun setUserNotificationsEnabled(call: MethodCall, result: Result) {
         UAirship.shared().pushManager.userNotificationsEnabled = call.arguments as Boolean
-        result.success(null)
+        result.success(true)
     }
 
     private fun getUserNotificationsEnabled(result: Result) {
