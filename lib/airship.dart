@@ -286,13 +286,8 @@ class Airship {
         .map((dynamic value) => NotificationResponseEvent._fromJson(jsonDecode(value)));
   }
 
-  static Stream<ChannelEvent> get onChannelUpdated {
-    return _getEventStream("CHANNEL_UPDATED")
-        .map((dynamic value) => ChannelEvent._fromJson(jsonDecode(value)));
-  }
-
-  static Stream<ChannelEvent> get onChannelCreated {
-    return _getEventStream("CHANNEL_CREATED")
+  static Stream<ChannelEvent> get onChannelRegistration {
+    return _getEventStream("CHANNEL_REGISTRATION")
         .map((dynamic value) => ChannelEvent._fromJson(jsonDecode(value)));
   }
 

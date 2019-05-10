@@ -3,9 +3,9 @@ package com.airship.flutter.events
 import com.urbanairship.json.JsonMap
 import com.urbanairship.json.JsonValue
 
-open class ChannelCreatedEvent(private val channelId: String, private val registrationToken: String?) : Event {
+open class ChannelRegistrationEvent(private val channelId: String, private val registrationToken: String?) : Event {
 
-    override val eventType: EventType = EventType.CHANNEL_CREATED
+    override val eventType: EventType = EventType.CHANNEL_REGISTRATION
 
     override val eventBody: JsonValue? by lazy {
         JsonMap.newBuilder()

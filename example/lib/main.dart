@@ -49,11 +49,8 @@ class _MyAppState extends State<MyApp> {
     Airship.onShowInboxMessage
         .listen((messageId) => debugPrint('Show inbox message $messageId'));
 
-    Airship.onChannelUpdated
-        .listen((event) => debugPrint('Channel Updated $event'));
-
-    Airship.onChannelCreated.listen((event) {
-      debugPrint('Channel Created $event');
+    Airship.onChannelRegistration.listen((event) {
+      debugPrint('Channel registration $event');
       setState(() {
         _channelId = event.channelId;
       });

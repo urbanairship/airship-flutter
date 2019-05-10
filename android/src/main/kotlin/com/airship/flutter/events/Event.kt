@@ -5,8 +5,7 @@ import com.urbanairship.json.JsonValue
 enum class EventType {
     PUSH_RECEIVED,
     NOTIFICATION_RESPONSE,
-    CHANNEL_CREATED,
-    CHANNEL_UPDATED,
+    CHANNEL_REGISTRATION,
     INBOX_UPDATED,
     SHOW_INBOX,
     SHOW_INBOX_MESSAGE,

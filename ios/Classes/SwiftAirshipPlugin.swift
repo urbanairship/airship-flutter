@@ -2,9 +2,7 @@ import Flutter
 import UIKit
 import AirshipKit
 
-public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
-
-    let jsonEncoder = JSONEncoder()
+public class SwiftAirshipPlugin: NSObject, FlutterPlugin, UARegistrationDelegate, UADeepLinkDelegate, UAPushNotificationDelegate {
 
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "com.airship.flutter/airship",
@@ -12,8 +10,39 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
 
         let instance = SwiftAirshipPlugin()
         registrar.addMethodCallDelegate(instance, channel: channel)
+        AirshipEventManager.shared.register(registrar)
+        instance.takeOff()
+    }
 
+    public func takeOff() {
         UAirship.takeOff()
+        UAirship.push()?.registrationDelegate = self
+        UAirship.shared()?.deepLinkDelegate = self
+        UAirship.push()?.pushNotificationDelegate = self
+
+    }
+
+    public func registrationSucceeded(forChannelID channelID: String, deviceToken: String) {
+        let event = AirshipChannelRegistrationEvent(channelID, registrationToken: deviceToken)
+        AirshipEventManager.shared.notify(event)
+    }
+
+    public func receivedDeepLink(_ url: URL, completionHandler: @escaping () -> Void) {
+        let event = AirshipDeepLinkEvent(url.absoluteString)
+        AirshipEventManager.shared.notify(event)
+        completionHandler()
+    }
+
+    public func receivedForegroundNotification(_ notificationContent: UANotificationContent, completionHandler: @escaping () -> Void) {
+        completionHandler()
+    }
+
+    public func receivedBackgroundNotification(_ notificationContent: UANotificationContent, completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        completionHandler(.noData)
+    }
+
+    public func receivedNotificationResponse(_ notificationResponse: UANotificationResponse, completionHandler: @escaping () -> Void) {
+        completionHandler()
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
