@@ -2,7 +2,8 @@ import Flutter
 import UIKit
 import AirshipKit
 
-public class SwiftAirshipPlugin: NSObject, FlutterPlugin, UARegistrationDelegate, UADeepLinkDelegate, UAPushNotificationDelegate {
+public class SwiftAirshipPlugin: NSObject, FlutterPlugin, UARegistrationDelegate,
+UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
 
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "com.airship.flutter/airship",
@@ -12,6 +13,8 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, UARegistrationDelegate
         registrar.addMethodCallDelegate(instance, channel: channel)
         AirshipEventManager.shared.register(registrar)
         instance.takeOff()
+
+        registrar.register(AirshipInboxMessageViewFactory(registrar), withId: "com.airship.flutter/InboxMessageView")
     }
 
     public func takeOff() {
@@ -19,7 +22,14 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, UARegistrationDelegate
         UAirship.push()?.registrationDelegate = self
         UAirship.shared()?.deepLinkDelegate = self
         UAirship.push()?.pushNotificationDelegate = self
+        UAirship.inbox()?.delegate = self
 
+        UAirship.push()?.defaultPresentationOptions = [.alert]
+
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(inboxUpdated),
+                                               name: NSNotification.Name.UAInboxMessageListUpdated,
+                                               object: nil)
     }
 
     public func registrationSucceeded(forChannelID channelID: String, deviceToken: String) {
@@ -34,15 +44,31 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, UARegistrationDelegate
     }
 
     public func receivedForegroundNotification(_ notificationContent: UANotificationContent, completionHandler: @escaping () -> Void) {
+        // push event
         completionHandler()
     }
 
     public func receivedBackgroundNotification(_ notificationContent: UANotificationContent, completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        // push event
         completionHandler(.noData)
     }
 
     public func receivedNotificationResponse(_ notificationResponse: UANotificationResponse, completionHandler: @escaping () -> Void) {
+        // response event
         completionHandler()
+    }
+
+    @objc
+    public func showInbox() {
+        // show inbox event
+    }
+
+    public func showMessage(forID messageID: String) {
+        // show inbox message event
+    }
+
+    @objc public func inboxUpdated() {
+        // inbox updated
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
