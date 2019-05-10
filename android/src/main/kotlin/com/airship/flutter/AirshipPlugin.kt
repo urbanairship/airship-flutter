@@ -8,7 +8,6 @@ import com.urbanairship.json.JsonValue
 import com.urbanairship.util.DateUtils
 import com.urbanairship.widget.UAWebView
 import com.urbanairship.widget.UAWebViewClient
-import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -17,8 +16,6 @@ import io.flutter.plugin.common.PluginRegistry.Registrar
 import io.flutter.plugin.common.StandardMessageCodec
 import io.flutter.plugin.platform.PlatformView
 import io.flutter.plugin.platform.PlatformViewFactory
-import android.R.id
-
 
 
 class InboxMessageViewFactory(private val registrar: Registrar) : PlatformViewFactory(StandardMessageCodec.INSTANCE) {
@@ -30,7 +27,7 @@ class InboxMessageViewFactory(private val registrar: Registrar) : PlatformViewFa
     }
 }
 
-class FlutterInboxMessageView(var context: Context) : PlatformView, MethodCallHandler {
+class FlutterInboxMessageView(private var context: Context) : PlatformView, MethodCallHandler {
 
     private val webView: UAWebView by lazy {
         val view = UAWebView(context)
@@ -70,28 +67,27 @@ class AirshipPlugin : MethodCallHandler {
         fun registerWith(registrar: Registrar) {
             val channel = MethodChannel(registrar.messenger(), "com.airship.flutter/airship")
             channel.setMethodCallHandler(AirshipPlugin())
-            val eventChannel = EventChannel(registrar.messenger(), "com.airship.flutter/airship_events")
-            eventChannel.setStreamHandler(EventManager.shared)
+            EventManager.shared.register(registrar)
             registrar.platformViewRegistry().registerViewFactory("com.airship.flutter/InboxMessageView", InboxMessageViewFactory(registrar))
         }
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {
         when (call.method) {
-            "getChannelId" -> getChannelId(call, result)
+            "getChannelId" -> getChannelId(result)
             "setUserNotificationsEnabled" -> setUserNotificationsEnabled(call, result)
-            "getUserNotificationsEnabled" -> getUserNotificationsEnabled(call, result)
+            "getUserNotificationsEnabled" -> getUserNotificationsEnabled(result)
             "addTags" -> addTags(call, result)
             "removeTags" -> removeTags(call, result)
-            "getTags" -> getTags(call, result)
+            "getTags" -> getTags(result)
             "setNamedUser" -> setNamedUser(call, result)
-            "getNamedUser" -> getNamedUser(call, result)
-            "getInboxMessages" -> getInboxMessages(call, result)
+            "getNamedUser" -> getNamedUser(result)
+            "getInboxMessages" -> getInboxMessages(result)
             else -> result.notImplemented()
         }
     }
 
-    private fun getInboxMessages(call: MethodCall, result: Result) {
+    private fun getInboxMessages(result: Result) {
         val messages = UAirship.shared().inbox.messages
                 .map { message ->
                     val extras = message.extras.keySet().map { key ->
@@ -127,7 +123,7 @@ class AirshipPlugin : MethodCallHandler {
         result.success(null)
     }
 
-    private fun getTags(call: MethodCall, result: Result) {
+    private fun getTags(result: Result) {
         result.success(ArrayList<String>(UAirship.shared().pushManager.tags))
     }
 
@@ -136,7 +132,7 @@ class AirshipPlugin : MethodCallHandler {
         result.success(null)
     }
 
-    private fun getNamedUser(call: MethodCall, result: Result) {
+    private fun getNamedUser(result: Result) {
         result.success(UAirship.shared().namedUser.id)
     }
 
@@ -145,11 +141,11 @@ class AirshipPlugin : MethodCallHandler {
         result.success(null)
     }
 
-    private fun getUserNotificationsEnabled(call: MethodCall, result: Result) {
+    private fun getUserNotificationsEnabled(result: Result) {
         result.success(UAirship.shared().pushManager.userNotificationsEnabled)
     }
 
-    fun getChannelId(call: MethodCall, result: Result) {
+    fun getChannelId(result: Result) {
         result.success(UAirship.shared().pushManager.channelId)
     }
 

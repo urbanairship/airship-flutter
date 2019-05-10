@@ -34,13 +34,28 @@ class _MyAppState extends State<MyApp> {
     Airship.onPushReceived
         .listen((event) => debugPrint('Push Received $event'));
 
+    Airship.onNotificationResponse
+        .listen((event) => debugPrint('Notification Response $event'));
+
+    Airship.onDeepLink
+        .listen((deepLink) => debugPrint('Deep link $deepLink'));
+
+    Airship.onInboxUpdated
+        .listen((event) => debugPrint('Inbox updated link'));
+
+    Airship.onShowInbox
+        .listen((event) => debugPrint('Show inbox'));
+
+    Airship.onShowInboxMessage
+        .listen((messageId) => debugPrint('Show inbox message $messageId'));
+
     Airship.onChannelUpdated
         .listen((event) => debugPrint('Channel Updated $event'));
 
-    Airship.onChannelCreated.listen((channelId) {
-      debugPrint('Channel Created $channelId');
+    Airship.onChannelCreated.listen((event) {
+      debugPrint('Channel Created $event');
       setState(() {
-        _channelId = channelId;
+        _channelId = event.channelId;
       });
     });
 

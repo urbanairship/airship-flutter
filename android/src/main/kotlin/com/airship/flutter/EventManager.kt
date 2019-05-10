@@ -1,47 +1,62 @@
 package com.airship.flutter
 
-import com.urbanairship.json.JsonMap
-import com.urbanairship.json.JsonSerializable
+import com.airship.flutter.events.Event
+import com.airship.flutter.events.EventType
 import io.flutter.plugin.common.EventChannel
+import io.flutter.plugin.common.PluginRegistry
 
-enum class EventType {
-    PUSH_RECEIVED, CHANNEL_CREATED, CHANNEL_UPDATED, INBOX_UPDATED, SHOW_INBOX, SHOW_INBOX_MESSAGE, DEEP_LINK
-}
 
-class EventManager : EventChannel.StreamHandler {
+class EventManager {
 
     companion object {
         val shared = EventManager()
     }
 
-    private var eventSink: EventChannel.EventSink? = null
-    private val pendingEvents = mutableListOf<PendingEvent>()
+    private val streams : Map<EventType, AirshipEventStream> by lazy {
+        EventType.values().map {
+            it to AirshipEventStream(it)
+        }.toMap()
+    }
 
-    fun notifyEvent(type: EventType, data: JsonSerializable? = null) {
-        var sink = eventSink
-        if (sink != null) {
-            sink.success(JsonMap.newBuilder()
-                    .put("event_type", type.name)
-                    .putOpt("data", data)
-                    .build().toString())
-
-        } else {
-            pendingEvents.add(PendingEvent(type, data))
+    fun register(registrar: PluginRegistry.Registrar) {
+        streams.values.forEach {
+            val eventChannel = EventChannel(registrar.messenger(), it.name)
+            eventChannel.setStreamHandler(it)
         }
     }
 
+    fun notifyEvent(event: Event) {
+        streams[event.eventType]?.notifyEvent(event)
+    }
+}
+
+internal class AirshipEventStream(eventType: EventType) : EventChannel.StreamHandler {
+
+    private var eventSink: EventChannel.EventSink? = null
+    private val pendingEvents = mutableListOf<Event>()
+
+    val name : String = "com.airship.flutter/event/${eventType.name}"
+
+    fun notifyEvent(event: Event) {
+        var sink = eventSink
+        if (sink != null) {
+            sink.success(event.eventBody?.toString())
+        } else {
+            pendingEvents.add(event)
+        }
+    }
+
+
     override fun onListen(arguments: Any?, eventSink: EventChannel.EventSink?) {
         this.eventSink = eventSink
-        pendingEvents.forEach {
-            notifyEvent(it.eventType, it.data)
+
+        if (eventSink != null) {
+            pendingEvents.forEach(::notifyEvent)
+            pendingEvents.clear()
         }
-        pendingEvents.clear()
     }
 
     override fun onCancel(p0: Any?) {
         this.eventSink = null
     }
 }
-
-internal data class PendingEvent(val eventType: EventType, val data : JsonSerializable?)
-

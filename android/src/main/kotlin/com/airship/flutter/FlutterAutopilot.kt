@@ -1,5 +1,9 @@
 package com.airship.flutter
 
+import com.airship.flutter.events.DeepLinkEvent
+import com.airship.flutter.events.InboxUpdatedEvent
+import com.airship.flutter.events.ShowInboxEvent
+import com.airship.flutter.events.ShowInboxMessageEvent
 import com.urbanairship.Autopilot
 import com.urbanairship.UAirship
 import com.urbanairship.actions.ActionArguments
@@ -15,7 +19,7 @@ class FlutterAutopilot : Autopilot() {
 
         // Register a listener for inbox update event
         airship.inbox.addListener {
-            EventManager.shared.notifyEvent(EventType.INBOX_UPDATED)
+            EventManager.shared.notifyEvent(InboxUpdatedEvent())
         }
 
         // Deep links
@@ -23,7 +27,7 @@ class FlutterAutopilot : Autopilot() {
             override fun perform(arguments: ActionArguments): ActionResult {
                 val deepLink = arguments.value.string
                 if (deepLink != null) {
-                    EventManager.shared.notifyEvent(EventType.DEEP_LINK, JsonValue.wrap(deepLink))
+                    EventManager.shared.notifyEvent(DeepLinkEvent(deepLink))
                 }
                 return ActionResult.newResult(arguments.value)
             }
@@ -34,9 +38,9 @@ class FlutterAutopilot : Autopilot() {
             override fun perform(arguments: ActionArguments): ActionResult {
                 val messageId = arguments.value.string
                 if (messageId != null) {
-                    EventManager.shared.notifyEvent(EventType.SHOW_INBOX_MESSAGE, JsonValue.wrap(messageId))
+                    EventManager.shared.notifyEvent(ShowInboxMessageEvent(messageId))
                 } else {
-                    EventManager.shared.notifyEvent(EventType.SHOW_INBOX)
+                    EventManager.shared.notifyEvent(ShowInboxEvent())
                 }
 
                 return ActionResult.newEmptyResult()

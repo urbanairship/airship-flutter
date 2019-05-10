@@ -67,11 +67,7 @@ class _InboxMessageViewState extends State<InboxMessageView> {
   }
 }
 
-
-
-
 class InboxMessage {
-
   final String title;
   final String messageId;
   final String sentDate;
@@ -93,21 +89,114 @@ class InboxMessage {
     var extras = json["extras"];
     return InboxMessage._internal(title, messageId, sentDate, expirationDate, listIcon, isRead, extras);
   }
+
+  @override
+  String toString() {
+    return "InboxMessage(title=$title, messageId=$messageId)";
+  }
+}
+
+class Notification {
+  final String notificationId;
+  final Map<String, dynamic> payload;
+
+  String get title {
+    return payload["title"];
+  }
+
+  String get alert {
+    return payload["alert"];
+  }
+
+  const Notification._internal(this.notificationId, this.payload);
+
+  @override
+  String toString() {
+    return "Notification(notificationId=$notificationId, payload=$payload)";
+  }
+}
+
+class NotificationResponseEvent {
+  final Notification notification;
+  final String actionId;
+  final bool isForeground;
+
+  const NotificationResponseEvent._internal(this.notification, this.actionId, this.isForeground);
+
+  static NotificationResponseEvent _fromJson(Map<String, dynamic> json) {
+    var notificationId = json["notification_id"];
+    var payload = json["notification_payload"];
+    var notification = Notification._internal(notificationId, payload);
+    var actionId = json["action_id"];
+    var isForeground = json["is_foreground"];
+
+    return NotificationResponseEvent._internal(notification, actionId, isForeground);
+  }
+
+  @override
+  String toString() {
+    return "NotificationResponseEvent(notification=$notification, actionId=$actionId, isForeground=$isForeground)";
+  }
+}
+
+class PushReceivedEvent {
+  final Notification notification;
+  final Map<String, dynamic> payload;
+
+  const PushReceivedEvent._internal(this.notification, this.payload);
+
+  static PushReceivedEvent _fromJson(Map<String, dynamic> json) {
+    var payload = json["push_payload"];
+    var notificationId = json["notification_id"];
+
+    var notification;
+    if (notificationId != null) {
+      notification = Notification._internal(notificationId, payload);
+    }
+
+    return PushReceivedEvent._internal(notification, payload);
+  }
+
+  @override
+  String toString() {
+    return "PushReceivedEvent(notification=$notification, payload=$payload)";
+  }
+}
+
+class ChannelEvent {
+  final String channelId;
+  final String registrationToken;
+
+  const ChannelEvent._internal(this.channelId, this.registrationToken);
+
+  static ChannelEvent _fromJson(Map<String, dynamic> json) {
+    var channelId = json["channel_id"];
+    var registrationToken = json["registration_token"];
+    return ChannelEvent._internal(channelId, registrationToken);
+  }
+
+  @override
+  String toString() {
+    return "ChannelEvent(channelId=$channelId, registrationToken=$registrationToken)";
+  }
 }
 
 class Airship {
-
   static const MethodChannel _channel = const MethodChannel('com.airship.flutter/airship');
-  static const EventChannel _eventChannel = const EventChannel('com.airship.flutter/airship_events');
+  static Map<String, EventChannel> _eventChannels = new Map();
+  static Map<String, Stream<dynamic>> _eventStreams = new Map();
 
-  static Stream<Map<String, dynamic>> _eventStream;
-
-  static Stream<Map<String, dynamic>> get _onEvent {
-    if (_eventStream == null) {
-      _eventStream = _eventChannel.receiveBroadcastStream()
-          .map((dynamic event) => jsonDecode(event));
+  static Stream<dynamic> _getEventStream(String eventType) {
+    if (_eventChannels[eventType] == null) {
+      String name = "com.airship.flutter/event/${eventType}";
+      _eventChannels[eventType] = EventChannel(name);
     }
-    return _eventStream;
+
+    if (_eventStreams[eventType] == null) {
+      _eventStreams[eventType] = _eventChannels[eventType].receiveBroadcastStream();
+    }
+
+    return _eventStreams[eventType];
   }
 
   static Future<String> get channelId async {
@@ -133,7 +222,6 @@ class Airship {
       return InboxMessage._fromJson(jsonDecode(payload));
     }).toList();
   }
-
 
   static Future<void> addTags(List<String> tags) async {
     if (tags == null) {
@@ -176,40 +264,40 @@ class Airship {
   }
 
   static Stream<void> get onInboxUpdated {
-    return _onEvent.where((Map<String, dynamic> event) => event['event_type'] == "INBOX_UPDATED")
-        .map((Map<String, dynamic> event) =>  null);
+    return _getEventStream("INBOX_UPDATED");
   }
 
-  static Stream<String> get onShowInbox {
-    return _onEvent.where((Map<String, dynamic> event) => event['event_type'] == "SHOW_INBOX")
-        .map((Map<String, dynamic> event) =>  null);
+  static Stream<void> get onShowInbox {
+    return _getEventStream("SHOW_INBOX");
   }
 
   static Stream<String> get onShowInboxMessage {
-    return _onEvent.where((Map<String, dynamic> event) => event['event_type'] == "SHOW_INBOX_MESSAGE")
-        .map((Map<String, dynamic> event) =>  event['data']);
+    return _getEventStream("SHOW_INBOX_MESSAGE")
+        .map((dynamic value) =>  value as String);
   }
 
-  static Stream<Map<String, dynamic>> get onPushReceived {
-    return _onEvent.where((Map<String, dynamic> event) => event['event_type'] == "PUSH_RECEIVED")
-        .map((Map<String, dynamic> event) =>  event['data']);
+  static Stream<PushReceivedEvent> get onPushReceived {
+    return _getEventStream("PUSH_RECEIVED")
+        .map((dynamic value) => PushReceivedEvent._fromJson(jsonDecode(value)));
   }
 
-  static Stream<String> get onChannelUpdated {
-    return _onEvent
-        .where((Map<String, dynamic> event) => event['event_type'] == "CHANNEL_UPDATED")
-        .map((Map<String, dynamic> event) =>  event['data']);
+  static Stream<NotificationResponseEvent> get onNotificationResponse {
+    return _getEventStream("NOTIFICATION_RESPONSE")
+        .map((dynamic value) => NotificationResponseEvent._fromJson(jsonDecode(value)));
   }
 
-  static Stream<String> get onChannelCreated {
-    return _onEvent
-        .where((Map<String, dynamic> event) => event['event_type'] == "CHANNEL_CREATED")
-        .map((Map<String, dynamic> event) =>  event['data']);
+  static Stream<ChannelEvent> get onChannelUpdated {
+    return _getEventStream("CHANNEL_UPDATED")
+        .map((dynamic value) => ChannelEvent._fromJson(jsonDecode(value)));
+  }
+
+  static Stream<ChannelEvent> get onChannelCreated {
+    return _getEventStream("CHANNEL_CREATED")
+        .map((dynamic value) => ChannelEvent._fromJson(jsonDecode(value)));
   }
 
   static Stream<String> get onDeepLink {
-    return _onEvent
-        .where((Map<String, dynamic> event) => event['event_type'] == "DEEP_LINK")
-        .map((Map<String, dynamic> event) =>  event['data']);
+    return _getEventStream("DEEP_LINK")
+        .map((dynamic value) =>  value as String);
   }
 }
