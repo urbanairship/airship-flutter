@@ -62,7 +62,13 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView {
         let messageId = call.arguments as! String
         if let message = UAirship.inbox()?.messageList.message(forID: messageId) {
             var request = URLRequest(url: message.messageBodyURL)
-            let auth = UAUtils.userAuthHeaderString()
+            guard let userData = UAirship.inboxUser().getDataSync() else {
+                result(FlutterError(code:"InvalidState",
+                                    message:"User not created.",
+                                    details:nil))
+                return
+            }
+            let auth = UAUtils.userAuthHeaderString(userData)
             request.addValue(auth, forHTTPHeaderField: "Authorization")
             webView.load(request)
             message.markRead(completionHandler: nil)
