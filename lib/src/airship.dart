@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/services.dart';
+import 'custom_event.dart';
+
 
 class InboxMessage {
   final String title;
@@ -157,6 +158,13 @@ class Airship {
     return inboxMessages.map((dynamic payload) {
       return InboxMessage._fromJson(jsonDecode(payload));
     }).toList();
+  }
+
+  static Future<void> addEvent(CustomEvent event) async {
+    if (event == null) {
+      throw ArgumentError.notNull('event');
+    }
+    return await _channel.invokeMethod('addEvent', event.toMap());
   }
 
   static Future<void> addTags(List<String> tags) async {
