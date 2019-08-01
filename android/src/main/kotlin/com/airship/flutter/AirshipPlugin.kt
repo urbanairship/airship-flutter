@@ -136,13 +136,13 @@ class AirshipPlugin : MethodCallHandler {
     private fun addEvent(call: MethodCall, result: Result) {
         val eventMap = call.arguments as HashMap<*, *>
 
-        var eventName = eventMap[CustomEvent.EVENT_NAME] as String? ?: run {
+        val eventName = eventMap[CustomEvent.EVENT_NAME] as String? ?: run {
             result.success(false)
             return
         }
 
         CustomEvent.Builder(eventName).let {
-            val eventVal = eventMap[CustomEvent.EVENT_VALUE] as Int?
+            val eventVal = (eventMap[CustomEvent.EVENT_VALUE] as Int?)
             if (eventVal != null) {
                 it.setEventValue(eventVal)
             }
@@ -176,21 +176,26 @@ class AirshipPlugin : MethodCallHandler {
 
     private fun parseProperties(map:HashMap<String, Any>, builder:CustomEvent.Builder) {
         for ((key, value) in map) {
-
             if (value is Int) {
                 builder.addProperty(key, value)
+                continue
             }
 
             if (value is Boolean) {
                 builder.addProperty(key, value)
+                continue
             }
 
             if (value is String) {
                 builder.addProperty(key, value)
+                continue
             }
 
             if (value is Collection<*>) {
-                builder.addProperty(key, value as Collection<String>)
+                value.filterIsInstance<String>().let {
+                    builder.addProperty(key, it)
+                }
+                continue
             }
         }
     }
