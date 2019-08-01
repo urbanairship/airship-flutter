@@ -3,6 +3,7 @@ package com.airship.flutter
 import android.content.Context
 import android.view.View
 import com.urbanairship.UAirship
+import com.urbanairship.analytics.CustomEvent
 import com.urbanairship.json.JsonMap
 import com.urbanairship.json.JsonValue
 import com.urbanairship.util.DateUtils
@@ -78,6 +79,7 @@ class AirshipPlugin : MethodCallHandler {
             "setUserNotificationsEnabled" -> setUserNotificationsEnabled(call, result)
             "getUserNotificationsEnabled" -> getUserNotificationsEnabled(result)
             "addTags" -> addTags(call, result)
+            "addEvent" -> addEvent(call, result)
             "removeTags" -> removeTags(call, result)
             "getTags" -> getTags(result)
             "setNamedUser" -> setNamedUser(call, result)
@@ -131,6 +133,68 @@ class AirshipPlugin : MethodCallHandler {
         result.success(null)
     }
 
+    private fun addEvent(call: MethodCall, result: Result) {
+        val eventMap = call.arguments as HashMap<*, *>
+
+        var eventName = eventMap[CustomEvent.EVENT_NAME] as String? ?: run {
+            result.success(false)
+            return
+        }
+
+        CustomEvent.Builder(eventName).let {
+            val eventVal = eventMap[CustomEvent.EVENT_VALUE] as Int?
+            if (eventVal != null) {
+                it.setEventValue(eventVal)
+            }
+
+            val properties = eventMap[CustomEvent.PROPERTIES] as HashMap<String, Any>?
+            if (properties != null) {
+                parseProperties(properties, it)
+            }
+
+            val transactionId = eventMap[CustomEvent.TRANSACTION_ID] as String?
+            if (transactionId != null) {
+                it.setTransactionId(transactionId)
+            }
+
+            val interactionId = eventMap[CustomEvent.INTERACTION_ID] as String?
+            val interactionType = eventMap[CustomEvent.INTERACTION_TYPE] as String?
+
+            if (interactionId != null && interactionType != null) {
+                it.setInteraction(interactionType, interactionId)
+            }
+
+            val event = it.build()
+            if (event.isValid) {
+                event.track()
+                result.success(true)
+            } else {
+                result.success(false)
+            }
+        }
+    }
+
+    private fun parseProperties(map:HashMap<String, Any>, builder:CustomEvent.Builder) {
+        for ((key, value) in map) {
+
+            if (value is Int) {
+                builder.addProperty(key, value)
+            }
+
+            if (value is Boolean) {
+                builder.addProperty(key, value)
+            }
+
+            if (value is String) {
+                builder.addProperty(key, value)
+            }
+
+            if (value is Collection<*>) {
+                builder.addProperty(key, value as Collection<String>)
+            }
+        }
+    }
+
     private fun removeTags(call: MethodCall, result: Result) {
         val tags = uncheckedCast<List<String>>(call.arguments).toSet()
         UAirship.shared().pushManager.editTags().removeTags(tags).apply()
@@ -167,5 +231,5 @@ class AirshipPlugin : MethodCallHandler {
     fun <T> uncheckedCast(value: Any): T {
         return value as T
     }
-}
 
+}
