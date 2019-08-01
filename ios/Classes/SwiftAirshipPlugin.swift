@@ -5,6 +5,13 @@ import AirshipKit
 public class SwiftAirshipPlugin: NSObject, FlutterPlugin, UARegistrationDelegate,
 UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
 
+    private let eventNameKey = "event_name";
+    private let eventValueKey = "event_value";
+    private let propertiesKey = "properties";
+    private let transactionIDKey = "transaction_id";
+    private let interactionIDKey = "interaction_id";
+    private let interactionTypeKey = "interaction_type";
+
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "com.airship.flutter/airship",
                                            binaryMessenger: registrar.messenger())
@@ -87,6 +94,8 @@ UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
             getUserNotificationsEnabled(call, result: result)
         case "addTags":
             addTags(call, result: result)
+        case "addEvent":
+            addEvent(call, result: result)
         case "removeTags":
             removeTags(call, result: result)
         case "getTags":
@@ -127,6 +136,49 @@ UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
 
     private func getUserNotificationsEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         result(UAirship.push()?.userPushNotificationsEnabled)
+    }
+
+    private func addEvent(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let event = call.arguments as? Dictionary<String, Any> else {
+            result(nil)
+            return
+        }
+
+        guard let name = event[eventNameKey] as? String else {
+            result(nil)
+            return
+        }
+
+        guard let value = event[eventValueKey] as? Int else {
+            result(nil)
+            return
+        }
+
+        // Decode event string
+        let customEvent = UACustomEvent(name:name, value:NSNumber(value: value))
+
+        if let properties = event[propertiesKey] as? Dictionary<String, Any> {
+            customEvent.parseProperties(properties:properties)
+        }
+
+        if let transactionID = event[transactionIDKey] as? String {
+            customEvent.transactionID = transactionID
+        }
+
+        if let interactionID = event[interactionIDKey] as? String {
+            customEvent.interactionID = interactionID
+        }
+
+        if let interactionType = event[interactionTypeKey] as? String {
+            customEvent.interactionType = interactionType
+        }
+
+        if customEvent.isValid() {
+            customEvent.track()
+            result(true)
+        } else {
+            result(false)
+        }
     }
 
     private func addTags(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -193,6 +245,32 @@ UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
         let message = UAirship.inbox().messageList.message(forID: call.arguments as! String)
         UAirship.inbox().messageList.markMessagesDeleted([message as Any]) {
             result(nil)
+        }
+    }
+}
+
+private extension UACustomEvent {
+    func parseProperties(properties:Dictionary<String, Any>) {
+        for (key, value) in properties {
+            if let numVal = value as? NSNumber, CFGetTypeID(numVal) == CFNumberGetTypeID() {
+                self.setNumberProperty(numVal, forKey: key)
+                continue
+            }
+
+            if let boolValue = value as? Bool, CFGetTypeID(value as? NSNumber) == CFBooleanGetTypeID() {
+                self.setBoolProperty(boolValue, forKey: key)
+                continue
+            }
+
+            if let stringValue = value as? String {
+                self.setStringProperty(stringValue, forKey: key)
+                continue
+            }
+
+            if let stringArray = value as? [String] {
+                self.setStringArrayProperty(stringArray, forKey: key)
+                continue
+            }
         }
     }
 }
