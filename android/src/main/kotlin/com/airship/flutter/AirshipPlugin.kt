@@ -141,36 +141,32 @@ class AirshipPlugin : MethodCallHandler {
             return
         }
 
-        CustomEvent.Builder(eventName).let {
-            val eventVal = (eventMap[CustomEvent.EVENT_VALUE] as Int?)
-            if (eventVal != null) {
-                it.setEventValue(eventVal)
+        val event = CustomEvent.Builder(eventName).apply {
+            (eventMap[CustomEvent.EVENT_VALUE] as Int?)?.let {
+                this.setEventValue(it)
             }
 
-            val properties = eventMap[CustomEvent.PROPERTIES] as HashMap<String, Any>?
-            if (properties != null) {
-                parseProperties(properties, it)
+            (eventMap[CustomEvent.PROPERTIES] as HashMap<String, Any>?)?.let {
+                parseProperties(it, this)
             }
 
-            val transactionId = eventMap[CustomEvent.TRANSACTION_ID] as String?
-            if (transactionId != null) {
-                it.setTransactionId(transactionId)
+            (eventMap[CustomEvent.TRANSACTION_ID] as String?)?.let {
+                this.setTransactionId(it)
             }
 
             val interactionId = eventMap[CustomEvent.INTERACTION_ID] as String?
             val interactionType = eventMap[CustomEvent.INTERACTION_TYPE] as String?
 
             if (interactionId != null && interactionType != null) {
-                it.setInteraction(interactionType, interactionId)
+                this.setInteraction(interactionType, interactionId)
             }
+        }.build()
 
-            val event = it.build()
-            if (event.isValid) {
-                event.track()
-                result.success(true)
-            } else {
-                result.success(false)
-            }
+        if (event.isValid) {
+            event.track()
+            result.success(true)
+        } else {
+            result.success(false)
         }
     }
 
