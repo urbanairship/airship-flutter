@@ -27,11 +27,7 @@ class CustomEvent {
    * @param value The property value.
    * @param key The property key.
    */
-  void setBoolProperty(bool value, String key) {
-    if (_properties == null) {
-      _properties = new Map<String, dynamic>();
-    }
-
+  void setBoolProperty(String key, bool value) {
     _properties[key] = value;
   }
 
@@ -42,7 +38,7 @@ class CustomEvent {
    * @param value The property value.
    * @param key The property key.
    */
-  void setStringProperty(String value, String key) {
+  void setStringProperty(String key, String value) {
     _properties[key] = value;
   }
 
@@ -52,7 +48,7 @@ class CustomEvent {
    * @param value The property value.
    * @param key The property key.
    */
-  void setNumberProperty(int value, String key) {
+  void setNumberProperty(String key, int value) {
     _properties[key] = value;
   }
 
@@ -63,7 +59,7 @@ class CustomEvent {
    * @param value The property value.
    * @param key The property key.
    */
-  void setStringArrayProperty(List<String> arr, String key) {
+  void setStringArrayProperty(String key, List<String> arr) {
     _properties[key] = arr;
   }
 
