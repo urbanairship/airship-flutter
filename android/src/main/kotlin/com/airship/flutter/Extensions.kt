@@ -1,10 +1,9 @@
 package com.airship.flutter
-
-import com.urbanairship.AirshipReceiver
 import com.urbanairship.json.JsonMap
+import com.urbanairship.push.NotificationInfo
 import com.urbanairship.util.UAStringUtil
 
-fun AirshipReceiver.NotificationInfo.canonicalNotificationId() : String {
+fun NotificationInfo.canonicalNotificationId() : String {
     var id = notificationId.toString()
     if (!UAStringUtil.isEmpty(notificationTag)) {
         id += ":$notificationTag"
@@ -13,7 +12,7 @@ fun AirshipReceiver.NotificationInfo.canonicalNotificationId() : String {
     return id
 }
 
-fun AirshipReceiver.NotificationInfo.eventData() : JsonMap {
+fun NotificationInfo.eventData() : JsonMap {
     return JsonMap.newBuilder()
             .putOpt("alert", message.alert)
             .putOpt("title", message.title)

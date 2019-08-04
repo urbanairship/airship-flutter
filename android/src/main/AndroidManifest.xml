@@ -5,18 +5,5 @@
         <meta-data android:name="com.urbanairship.autopilot"
         android:value="com.urbanairship.Autopilot"/>
 
-
-        <receiver android:name="com.airship.flutter.FlutterAirshipReceiver"
-            android:exported="false">
-
-            <intent-filter>
-                <action android:name="com.urbanairship.push.CHANNEL_UPDATED" />
-                <action android:name="com.urbanairship.push.OPENED" />
-                <action android:name="com.urbanairship.push.RECEIVED" />
-                <action android:name="com.urbanairship.push.DISMISSED" />
-                <category android:name="${applicationId}" />
-            </intent-filter>
-        </receiver>
-
     </application>
 </manifest>

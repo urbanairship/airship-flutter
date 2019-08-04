@@ -107,7 +107,7 @@ class AirshipPlugin : MethodCallHandler {
                             .putOpt("extras", JsonValue.wrap(extras))
                             .apply {
                                 if (message.expirationDateMS != null) {
-                                    putOpt("expiration_date", DateUtils.createIso8601TimeStamp(message.expirationDateMS))
+                                    putOpt("expiration_date", DateUtils.createIso8601TimeStamp(message.expirationDateMS!!))
                                 }
                             }.build().toString()
                 }
@@ -236,5 +236,4 @@ class AirshipPlugin : MethodCallHandler {
     fun <T> uncheckedCast(value: Any): T {
         return value as T
     }
-
 }
