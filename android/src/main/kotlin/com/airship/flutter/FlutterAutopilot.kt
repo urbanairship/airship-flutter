@@ -3,11 +3,9 @@ package com.airship.flutter
 import androidx.annotation.NonNull
 import com.urbanairship.Autopilot
 import com.urbanairship.UAirship
-import com.urbanairship.actions.ActionArguments
-import com.urbanairship.actions.ActionResult
-import com.urbanairship.actions.DeepLinkAction
-import com.urbanairship.actions.OpenRichPushInboxAction
 import com.airship.flutter.events.*
+import com.urbanairship.actions.*
+import com.urbanairship.messagecenter.MessageCenter
 import com.urbanairship.push.*
 
 
@@ -65,32 +63,21 @@ class FlutterAutopilot : Autopilot() {
             override fun onPushTokenUpdated(pushToken: String) {}
         })
 
-        // Deep links
-        airship.actionRegistry.getEntry(DeepLinkAction.DEFAULT_REGISTRY_NAME)?.let {
-            it.defaultAction = object : DeepLinkAction() {
-                override fun perform(arguments: ActionArguments): ActionResult {
-                    val deepLink = arguments.value.string
-                    if (deepLink != null) {
-                        EventManager.shared.notifyEvent(DeepLinkEvent(deepLink))
-                    }
-                    return ActionResult.newResult(arguments.value)
+        airship.messageCenter.setOnShowMessageCenterListener(object : MessageCenter.OnShowMessageCenterListener {
+            override fun onShowMessageCenter(messageId: String?): Boolean {
+                if (messageId != null) {
+                    EventManager.shared.notifyEvent(ShowInboxMessageEvent(messageId))
                 }
+
+                EventManager.shared.notifyEvent(ShowInboxEvent())
+                return true
             }
-        }
+        })
 
-        // Inbox
-        airship.actionRegistry.getEntry(OpenRichPushInboxAction.DEFAULT_REGISTRY_NAME)?.let {
-            it.defaultAction = object : OpenRichPushInboxAction() {
-                override fun perform(arguments: ActionArguments): ActionResult {
-                    val messageId = arguments.value.string
-                    if (messageId != null) {
-                        EventManager.shared.notifyEvent(ShowInboxMessageEvent(messageId))
-                    } else {
-                        EventManager.shared.notifyEvent(ShowInboxEvent())
-                    }
-
-                    return ActionResult.newEmptyResult()
-                }
+        airship.deepLinkListener = object : DeepLinkListener {
+            override fun onDeepLink(deepLink: String): Boolean {
+                EventManager.shared.notifyEvent(DeepLinkEvent(deepLink))
+                return true
             }
         }
     }
