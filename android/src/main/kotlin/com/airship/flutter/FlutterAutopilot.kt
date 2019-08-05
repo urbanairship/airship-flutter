@@ -26,7 +26,6 @@ class FlutterAutopilot : Autopilot() {
         }
 
         airship.pushManager.setNotificationListener(object : NotificationListener {
-
             override fun onNotificationPosted(@NonNull notificationInfo: NotificationInfo) {
                 post(PushReceivedEvent(notificationInfo.message, notificationInfo))
             }
@@ -67,6 +66,7 @@ class FlutterAutopilot : Autopilot() {
             override fun onShowMessageCenter(messageId: String?): Boolean {
                 if (messageId != null) {
                     EventManager.shared.notifyEvent(ShowInboxMessageEvent(messageId))
+                    return true
                 }
 
                 EventManager.shared.notifyEvent(ShowInboxEvent())
