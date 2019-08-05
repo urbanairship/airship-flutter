@@ -147,7 +147,7 @@ class AirshipPlugin : MethodCallHandler {
             }
 
             (eventMap[CustomEvent.PROPERTIES] as HashMap<String, Any>?)?.let {
-                parseProperties(it, this)
+                this.parseProperties(it)
             }
 
             (eventMap[CustomEvent.TRANSACTION_ID] as String?)?.let {
@@ -167,32 +167,6 @@ class AirshipPlugin : MethodCallHandler {
             result.success(true)
         } else {
             result.success(false)
-        }
-    }
-
-    private fun parseProperties(map:HashMap<String, Any>, builder:CustomEvent.Builder) {
-        for ((key, value) in map) {
-            if (value is Int) {
-                builder.addProperty(key, value)
-                continue
-            }
-
-            if (value is Boolean) {
-                builder.addProperty(key, value)
-                continue
-            }
-
-            if (value is String) {
-                builder.addProperty(key, value)
-                continue
-            }
-
-            if (value is Collection<*>) {
-                value.filterIsInstance<String>().let {
-                    builder.addProperty(key, it)
-                }
-                continue
-            }
         }
     }
 

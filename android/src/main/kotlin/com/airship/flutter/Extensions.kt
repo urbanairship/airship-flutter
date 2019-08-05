@@ -1,6 +1,7 @@
 package com.airship.flutter
 
 import com.urbanairship.AirshipReceiver
+import com.urbanairship.analytics.CustomEvent
 import com.urbanairship.json.JsonMap
 import com.urbanairship.util.UAStringUtil
 
@@ -20,4 +21,30 @@ fun AirshipReceiver.NotificationInfo.eventData() : JsonMap {
             .putOpt("extras", message.toJsonValue())
             .putOpt("notification_id", canonicalNotificationId())
             .build()
+}
+
+fun CustomEvent.Builder.parseProperties(map:HashMap<String, Any>) {
+    for ((key, value) in map) {
+        if (value is Int) {
+            this.addProperty(key, value)
+            continue
+        }
+
+        if (value is Boolean) {
+            this.addProperty(key, value)
+            continue
+        }
+
+        if (value is String) {
+            this.addProperty(key, value)
+            continue
+        }
+
+        if (value is Collection<*>) {
+            value.filterIsInstance<String>().let {
+                this.addProperty(key, it)
+            }
+            continue
+        }
+    }
 }
