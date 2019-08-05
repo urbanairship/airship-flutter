@@ -12,7 +12,6 @@ import com.urbanairship.push.*
 
 
 class FlutterAutopilot : Autopilot() {
-
     override fun onAirshipReady(airship: UAirship) {
         super.onAirshipReady(airship)
 
