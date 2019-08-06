@@ -12,7 +12,6 @@ enum class EventType {
     DEEP_LINK
 }
 
-
 interface Event {
     val eventBody : JsonValue?
     val eventType: EventType

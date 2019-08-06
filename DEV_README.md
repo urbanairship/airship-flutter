@@ -16,9 +16,9 @@
 
 2. Follow getting started guide to add the airship config and google-services.json to the `example` project
 
-2. To edit the iOS plugin, in Android Studio right click `iOS` and click flutter -> Open iOS module in Xcode
+3. To edit the iOS plugin, in Android Studio right click `ios` folder to open the menu and click Flutter -> Open iOS module in Xcode
 
-3. To edit Android plugin in Android Studio right click `android` and click flutter -> Open Android module in Android Studio
+4. To edit Android plugin in Android Studio right click `android` folder to open the menu and click Flutter -> Open Android module in Android Studio
 
 
 ### Plugin Structure
