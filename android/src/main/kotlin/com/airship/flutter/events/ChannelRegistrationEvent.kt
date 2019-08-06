@@ -12,7 +12,7 @@ open class ChannelRegistrationEvent(private val channelId: String, private val r
                 .put("channel_id", channelId)
                 .putOpt("registration_token", registrationToken)
                 .build()
-                .toJsonValue() as JsonValue
+                .toJsonValue()
     }
 
 }

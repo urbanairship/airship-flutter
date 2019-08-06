@@ -1,11 +1,12 @@
 name: airship
 description: Airship flutter plugin.
-version: 0.0.1
+version: 1.0.0
 author: Airship
 homepage: https://www.airship.com/
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
+  flutter: ">=1.7.8 <2.0.0"
 
 dependencies:
   flutter:

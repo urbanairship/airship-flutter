@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/airship.iml" filepath="$PROJECT_DIR$/airship.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/airship-flutter.iml" filepath="$PROJECT_DIR$/.idea/modules/airship-flutter.iml" />
       <module fileurl="file://$PROJECT_DIR$/android/airship_android.iml" filepath="$PROJECT_DIR$/android/airship_android.iml" />
       <module fileurl="file://$PROJECT_DIR$/example/android/airship_example_android.iml" filepath="$PROJECT_DIR$/example/android/airship_example_android.iml" />
     </modules>
