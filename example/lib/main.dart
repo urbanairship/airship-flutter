@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:scoped_model/scoped_model.dart';
-import 'package:airship_example/data/app_state.dart';
 import 'package:airship_example/styles.dart';
 
 import 'package:flutter/services.dart' show DeviceOrientation, SystemChrome;
@@ -8,6 +6,7 @@ import 'package:flutter/services.dart' show DeviceOrientation, SystemChrome;
 import 'package:airship_example/screens/home.dart';
 import 'package:airship_example/screens/settings.dart';
 import 'package:airship_example/screens/message_center.dart';
+import 'package:airship/airship.dart';
 
 void main() {
   SystemChrome.setPreferredOrientations([
@@ -15,12 +14,7 @@ void main() {
     DeviceOrientation.portraitDown,
   ]);
 
-  runApp(
-    ScopedModel<AppState>(
-      model: AppState(),
-      child: MyApp(),
-      ),
-  );
+  runApp(MyApp());
 }
 
 class MyApp extends StatefulWidget {
@@ -36,18 +30,22 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   void initState() {
     super.initState();
     controller = TabController(length: 3, vsync: this);
-    AppState.addFlutterTag();
+
+    addFlutterTag();
+  }
+
+  static void addFlutterTag() {
+    Airship.addTags(["flutter"]);
   }
 
   @override
   Widget build(BuildContext context) {
-    final model = ScopedModel.of<AppState>(context, rebuildOnChange: true);
-    model.initPlatformState();
-
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: "Airship Sample App",
       home: Scaffold(
         body: TabBarView(
-          children: <Widget>[Home(model:model), MessageCenter(model:model), Settings()],
+          children: <Widget>[Home(), MessageCenter(), Settings()],
           controller: controller,
         ),
         bottomNavigationBar: Material(

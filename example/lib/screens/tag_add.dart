@@ -2,16 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:airship_example/styles.dart';
 import 'package:airship/airship.dart';
 import 'package:airship_example/widgets/text_add_bar.dart';
+import 'package:airship_example/bloc/bloc.dart';
 
 class TagAdd extends StatelessWidget {
+  final AirshipBloc _airshipBloc = AirshipBloc();
+
   @override
   Widget build(BuildContext context) {
-    final controller = TextEditingController();
-    final focusNode = FocusNode();
-
     Widget _buildTagList(List<String> tags) {
-      tags = List<String>.from(tags);
-
       return ListView.builder(
         itemCount: tags != null ? tags.length : 0,
         itemBuilder: (context, index) {
@@ -25,11 +23,13 @@ class TagAdd extends StatelessWidget {
                   .of(context)
                   .showSnackBar(SnackBar(content: Text("tag \"$tag\" removed")));
               tags.remove(tag);
-
-              Airship.removeTags([tag]);
+              _airshipBloc.tagsRemovedSink.add([tag]);
             },
-            child: ListTile(
-              title: Text('$tag'),
+            child: Card(
+                elevation: 5.0,
+                child: ListTile(
+                  title: Text('$tag'),
+                )
             ),
           );
         },
@@ -41,9 +41,18 @@ class TagAdd extends StatelessWidget {
           title: Text("Add Tag"),
           backgroundColor: Styles.background,
         ),
-        body: FutureBuilder(
-          future: Airship.tags,
+        body: StreamBuilder<List<String>>(
+          stream: _airshipBloc.tagsStream,
           builder: (context, snapshot) {
+
+            Expanded expandedList;
+
+            if (snapshot.hasData) {
+              expandedList = Expanded(
+                  child: _buildTagList(snapshot.hasData ? List<String>.from(snapshot.data) : null)
+              );
+            }
+
             return SafeArea(
               bottom: false,
               child: Column(
@@ -51,17 +60,15 @@ class TagAdd extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: TextAddBar(
-                      controller: controller,
-                      focusNode: focusNode,
                       label: "Add a tag",
-                      onTap: (text){
-                        Airship.addTags([text]);
+                      onTap: (tagText){
+                        FocusScope.of(context).unfocus();
+
+                        _airshipBloc.tagsAddedSink.add([tagText]);
                       },
                     ),
                   ),
-                  Expanded(
-                      child: _buildTagList(List<String>.from(snapshot.data))
-                  ),
+                  expandedList,
                 ],
               ),
             );

@@ -14,7 +14,6 @@ dependencies:
 
 dev_dependencies:
   flutter:
-    scoped_model: ^1.0.1
   flutter_test:
     sdk: flutter
 

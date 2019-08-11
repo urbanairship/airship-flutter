@@ -1,18 +1,17 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:airship_example/styles.dart';
+import 'package:flutter/services.dart' show SystemChannels;
 
 typedef void TapCallback(String text);
 
 class TextAddBar extends StatelessWidget {
-  final TextEditingController controller;
-  final FocusNode focusNode;
   final String label;
   final TapCallback onTap;
+  final controller = TextEditingController();
+  final focusNode = FocusNode();
 
   TextAddBar({
-    @required this.controller,
-    @required this.focusNode,
     @required this.label,
     @required this.onTap,
   });
@@ -44,8 +43,8 @@ class TextAddBar extends StatelessWidget {
             ),
             GestureDetector(
               onTap: () {
+                SystemChannels.textInput.invokeMethod('TextInput.hide');
                 onTap(controller.text);
-
               },
               child: Icon(
                 Icons.add,

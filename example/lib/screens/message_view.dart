@@ -3,7 +3,6 @@ import 'package:airship/airship.dart';
 import 'package:airship_example/styles.dart';
 
 class MessageView extends StatelessWidget {
-
   InboxMessage message;
 
   MessageView({this.message});

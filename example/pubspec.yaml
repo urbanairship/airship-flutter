@@ -10,7 +10,6 @@ dependencies:
     sdk: flutter  
 
 dev_dependencies:
-  scoped_model: ^1.0.1
 
   flutter_test:
     sdk: flutter

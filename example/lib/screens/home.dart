@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:scoped_model/scoped_model.dart';
-import 'package:airship_example/data/app_state.dart';
 import 'package:airship_example/styles.dart';
+import 'package:airship_example/bloc/airship_bloc.dart';
 
-class Home extends StatelessWidget {
-  final AppState model;
-
-  Home({this.model});
+class _HomeState extends State<Home> {
+  final AirshipBloc _airshipBloc = AirshipBloc();
 
   @override
   Widget build(BuildContext context) {
-
-    return ScopedModel(
-      model: model,
-      child: Scaffold(
+    return Scaffold(
         backgroundColor: Styles.background,
         body: Center (
           child:Container(
@@ -23,9 +17,9 @@ class Home extends StatelessWidget {
                   'assets/airship.png',
                 ),
                   Center(
-                    child: FutureBuilder(
-                      future: model.notificationsEnabled,
-                      builder: (context, snapshot) {
+                    child: StreamBuilder(
+                      stream: _airshipBloc.notificationsEnabledStream,
+                      builder: (context, AsyncSnapshot<bool> snapshot) {
                         Center enableNotificationsButton;
                         bool pushEnabled = snapshot.data ?? false;
 
@@ -43,7 +37,9 @@ class Home extends StatelessWidget {
                               minWidth: 400,
                               padding: EdgeInsets.symmetric(vertical: 35),
                               onPressed: () {
-                                model.setUserNotificationsEnabled(true);
+                                // TODO
+                                //update state
+                                _airshipBloc.notificationsEnabledSetSink.add(true);
                               },),
                           )],
                         )
@@ -56,8 +52,8 @@ class Home extends StatelessWidget {
                     ),
                   ),
                   Center(
-                    child: FutureBuilder(
-                      future: model.channelId,
+                    child: StreamBuilder(
+                      stream: _airshipBloc.channelStream,
                       builder: (context, snapshot) {
                         return Text(
                           '${snapshot.hasData ? snapshot.data : "Channel not set"}',
@@ -70,8 +66,18 @@ class Home extends StatelessWidget {
 
                 ]),
           ),
-        ),
-      ),
+        )
     );
   }
+
+  @override
+  void dispose() {
+    _airshipBloc.dispose();
+    super.dispose();
+  }
+}
+
+class Home extends StatefulWidget {
+  @override
+  _HomeState createState() => _HomeState();
 }
