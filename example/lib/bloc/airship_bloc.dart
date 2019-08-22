@@ -86,7 +86,7 @@ class AirshipBloc implements BlocBase {
 
     _notificationsEnabledSetStreamController.stream.listen((enabled) {
       Airship.setUserNotificationsEnabled(enabled).then((val) {
-        notificationsEnabledSink.add(enabled);
+        notificationsEnabledSink.add(val);
       });
     });
 
