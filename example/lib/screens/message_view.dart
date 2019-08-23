@@ -26,7 +26,7 @@ class MessageView extends StatelessWidget {
         debugPrint("Loading message: ${message.title}");
         controller.loadMessage(message);
       } else {
-        debugPrint("Error message: $messages");
+        debugPrint("Attempted to load message view for null message");
       }
     });
   }

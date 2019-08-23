@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 
 class AirshipBloc implements BlocBase {
   final _channelStreamController = StreamController<String>();
-  final _channelUpdatedStreamController = StreamController<String>();
 
   final _namedUserStreamController = StreamController<String>.broadcast();
   final _namedUserSetStreamController = StreamController<String>();
@@ -22,7 +21,6 @@ class AirshipBloc implements BlocBase {
   final _messageRemovedStreamController = StreamController<InboxMessage>();
 
   Stream<String> get channelStream => _channelStreamController.stream;
-  StreamSink<String> get channelSink => _channelStreamController.sink;
 
   Stream<String> get namedUserStream => _namedUserStreamController.stream;
   StreamSink<String> get namedUserSink=> _namedUserStreamController.sink;
@@ -118,7 +116,6 @@ class AirshipBloc implements BlocBase {
     });
 
     Airship.onShowInboxMessage.listen((messageId) {
-      //MaterialPageRoute(builder: (context) => MessageView(message: message));
       debugPrint('Show inbox message $messageId');
       Airship.inboxMessages.then((messages) {
         messagesSink.add(messages);
@@ -126,7 +123,7 @@ class AirshipBloc implements BlocBase {
     });
 
     Airship.onChannelRegistration.listen((event) {
-      _channelUpdatedStreamController.add(event.channelId);
+      _channelStreamController.add(event.channelId);
       debugPrint('Channel registration $event');
     });
 

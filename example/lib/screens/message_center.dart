@@ -10,8 +10,6 @@ class MessageCenter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget _buildMessageList(List<InboxMessage> messages) {
-      //messages = List<InboxMessage>.from(messages);
-
       return ListView.builder(
         itemCount: messages != null ? messages.length : 0,
         itemBuilder: (context, index) {

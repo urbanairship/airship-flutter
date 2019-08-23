@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:airship_example/styles.dart';
 import 'package:airship_example/bloc/airship_bloc.dart';
+import 'package:airship_example/widgets/notifications_enabled_button.dart';
 
 class _HomeState extends State<Home> {
   final AirshipBloc _airshipBloc = AirshipBloc();
@@ -22,27 +23,7 @@ class _HomeState extends State<Home> {
                       builder: (context, AsyncSnapshot<bool> snapshot) {
                         Center enableNotificationsButton;
                         bool pushEnabled = snapshot.data ?? false;
-
-                        enableNotificationsButton = Center (child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[ Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: MaterialButton(
-                              child: Text( "Enable Push",
-                                style: Styles.homeButtonText,
-                              ),
-                              color: Styles.airshipRed,
-                              shape: StadiumBorder(),
-                              height: 40,
-                              minWidth: 400,
-                              padding: EdgeInsets.symmetric(vertical: 35),
-                              onPressed: () {
-                                // TODO
-                                //update state
-                                _airshipBloc.notificationsEnabledSetSink.add(true);
-                              },),
-                          )],
-                        )
+                        enableNotificationsButton = Center (child: NotificationsEnabledButton(bloc:_airshipBloc)
                         );
 
                         return Visibility(

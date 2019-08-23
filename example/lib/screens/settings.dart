@@ -22,7 +22,6 @@ class Settings extends StatelessWidget {
                 StreamBuilder(
                     stream: _airshipBloc.notificationsEnabledStream,
                     builder: (context, snapshot) { return SwitchListTile(
-                      //leading:Icon(Icons.settings_input_antenna),
                       title: Text('Push Enabled',
                         style: Styles.settingsPrimaryText,),
                       value: snapshot.hasData ? snapshot.data : false,
