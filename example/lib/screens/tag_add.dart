@@ -1,11 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:airship_example/styles.dart';
-import 'package:airship/airship.dart';
 import 'package:airship_example/widgets/text_add_bar.dart';
-import 'package:airship_example/bloc/bloc.dart';
+import 'package:airship/airship.dart';
 
-class TagAdd extends StatelessWidget {
-  final AirshipBloc _airshipBloc = AirshipBloc();
+class TagAdd extends StatefulWidget {
+  final updateParent;
+
+  TagAdd({this.updateParent});
+
+  @override
+  _TagAddState createState() => _TagAddState(updateParent:updateParent);
+}
+
+class _TagAddState extends State<TagAdd> {
+  final updateParent;
+
+  _TagAddState({this.updateParent});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +33,7 @@ class TagAdd extends StatelessWidget {
                   .of(context)
                   .showSnackBar(SnackBar(content: Text("tag \"$tag\" removed")));
               tags.remove(tag);
-              _airshipBloc.tagsRemovedSink.add([tag]);
+              Airship.removeTags([tag]);
             },
             child: Card(
                 elevation: 5.0,
@@ -41,15 +51,15 @@ class TagAdd extends StatelessWidget {
           title: Text("Add Tag"),
           backgroundColor: Styles.background,
         ),
-        body: StreamBuilder<List<String>>(
-          stream: _airshipBloc.tagsStream,
+        body: FutureBuilder<List<String>>(
+          future: Airship.tags,
           builder: (context, snapshot) {
 
             Expanded expandedList;
 
             if (snapshot.hasData) {
               expandedList = Expanded(
-                  child: _buildTagList(snapshot.hasData ? List<String>.from(snapshot.data) : null)
+                  child: _buildTagList(List<String>.from(snapshot.data))
               );
             }
 
@@ -63,12 +73,12 @@ class TagAdd extends StatelessWidget {
                       label: "Add a tag",
                       onTap: (tagText){
                         FocusScope.of(context).unfocus();
-
-                        _airshipBloc.tagsAddedSink.add([tagText]);
+                        Airship.addTags([tagText]);
+                        updateParent();
                       },
                     ),
                   ),
-                  expandedList,
+                  expandedList ?? Container(),
                 ],
               ),
             );

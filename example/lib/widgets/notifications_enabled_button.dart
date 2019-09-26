@@ -1,15 +1,14 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:airship_example/styles.dart';
-import 'package:airship_example/bloc/bloc.dart';
 
 typedef void TapCallback(String text);
 
 class NotificationsEnabledButton extends StatelessWidget {
-  final AirshipBloc bloc;
+  final onPressed;
 
   NotificationsEnabledButton({
-    @required this.bloc,
+    @required this.onPressed,
   });
 
   @override
@@ -25,10 +24,7 @@ class NotificationsEnabledButton extends StatelessWidget {
                 height: 40,
                 minWidth: 400,
                 padding: EdgeInsets.symmetric(vertical: 35),
-                onPressed: () {
-                  //update state
-                  bloc.notificationsEnabledSetSink.add(true);
-                }
+                onPressed:onPressed
             )
         )
     );
