@@ -1,6 +1,5 @@
 package com.airship.flutter
 
-import com.urbanairship.AirshipReceiver
 import com.urbanairship.analytics.CustomEvent
 import com.urbanairship.json.JsonMap
 import com.urbanairship.push.NotificationInfo
