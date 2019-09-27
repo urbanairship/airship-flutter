@@ -3,7 +3,7 @@
 
     <application>
         <meta-data android:name="com.urbanairship.autopilot"
-        android:value="com.urbanairship.Autopilot"/>
+            android:value="com.airship.flutter.FlutterAutopilot"/>
 
     </application>
 </manifest>
