@@ -6,6 +6,7 @@
 # Run locally to verify before committing your code.
 #
 # Options:
+#   -z to run Flutter Analysis
 #   -a to run Android CI tasks.
 #   -i to run iOS CI tasks.
 #####################################################
@@ -19,7 +20,7 @@ ANALYZE=true
 IOS=true
 
 # Parse arguments
-OPTS=`getopt hai $*`
+OPTS=`getopt haiz $*`
 if [ $? != 0 ] ; then echo "Failed parsing options." >&2 ; exit 1 ; fi
 eval set -- "$OPTS"
 
