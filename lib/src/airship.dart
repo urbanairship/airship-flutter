@@ -125,7 +125,7 @@ class Airship {
 
   static Stream<dynamic> _getEventStream(String eventType) {
     if (_eventChannels[eventType] == null) {
-      String name = "com.airship.flutter/event/${eventType}";
+      String name = "com.airship.flutter/event/$eventType";
       _eventChannels[eventType] = EventChannel(name);
     }
 
