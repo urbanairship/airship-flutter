@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'airship.dart';
+
 class CustomEvent {
   static const EVENT_NAME = "event_name";
   static const EVENT_VALUE = "event_value";

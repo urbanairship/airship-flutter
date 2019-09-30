@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.airship.airship">
+  package="com.airship.airship">
 
     <application>
         <meta-data android:name="com.urbanairship.autopilot"
