@@ -29,7 +29,6 @@ class EventManager {
     }
 
     fun notifyEvent(event: Event) {
-        streams[event.eventType]?.notifyEvent(event)
         GlobalScope.launch(Dispatchers.Main) {
             streams[event.eventType]?.notifyEvent(event)
         }
