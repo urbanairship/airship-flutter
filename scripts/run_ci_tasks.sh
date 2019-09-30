@@ -38,6 +38,7 @@ done
 # verify flutter is installed and correctly configured
 flutter --version
 flutter doctor
+flutter packages get
 
 # set up flutter project
 if [[ "$BITRISE_SOURCE_DIR" != "" ]]; then
