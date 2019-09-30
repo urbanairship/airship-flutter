@@ -4,6 +4,9 @@ import com.airship.flutter.events.Event
 import com.airship.flutter.events.EventType
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.PluginRegistry
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 
 class EventManager {
@@ -26,7 +29,9 @@ class EventManager {
     }
 
     fun notifyEvent(event: Event) {
-        streams[event.eventType]?.notifyEvent(event)
+        GlobalScope.launch(Dispatchers.Main) {
+            streams[event.eventType]?.notifyEvent(event)
+        }
     }
 }
 

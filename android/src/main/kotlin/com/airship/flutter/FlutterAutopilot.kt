@@ -1,5 +1,6 @@
 package com.airship.flutter
 
+import android.util.Log
 import androidx.annotation.NonNull
 import com.urbanairship.Autopilot
 import com.urbanairship.UAirship
@@ -12,6 +13,8 @@ import com.urbanairship.push.*
 class FlutterAutopilot : Autopilot() {
     override fun onAirshipReady(airship: UAirship) {
         super.onAirshipReady(airship)
+
+        Log.i("FlutterAutopilot", "onAirshipReady")
 
         // Register a listener for inbox update event
         airship.inbox.addListener {
@@ -31,19 +34,16 @@ class FlutterAutopilot : Autopilot() {
 
             override fun onNotificationOpened(@NonNull notificationInfo: NotificationInfo): Boolean {
                 post(NotificationResponseEvent(notificationInfo))
-
                 return false
             }
 
             override fun onNotificationForegroundAction(@NonNull notificationInfo: NotificationInfo, @NonNull notificationActionButtonInfo: NotificationActionButtonInfo): Boolean {
                 post(NotificationResponseEvent(notificationInfo, notificationActionButtonInfo))
-
                 return false
             }
 
             override fun onNotificationBackgroundAction(@NonNull notificationInfo: NotificationInfo, @NonNull notificationActionButtonInfo: NotificationActionButtonInfo) {
                 post(NotificationResponseEvent(notificationInfo, notificationActionButtonInfo))
-
             }
 
             override fun onNotificationDismissed(@NonNull notificationInfo: NotificationInfo) {}
@@ -51,6 +51,7 @@ class FlutterAutopilot : Autopilot() {
 
         airship.pushManager.addRegistrationListener(object : RegistrationListener {
             override fun onChannelCreated(channelId: String) {
+
                 post(ChannelRegistrationEvent(channelId, UAirship.shared().pushManager.registrationToken))
             }
 
