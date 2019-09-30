@@ -2,16 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:airship_example/screens/tag_add.dart';
 import 'package:airship_example/screens/named_user_add.dart';
 import 'package:airship_example/styles.dart';
-import 'package:airship/airship.dart';
+import 'package:airship_example/bloc/bloc.dart';
 
-class Settings extends StatefulWidget {
-  @override
-  _SettingsState createState() => _SettingsState();
-}
-
-class _SettingsState extends State<Settings> {
+class Settings extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final AirshipBloc _airshipBloc = AirshipBloc();
+
     return Scaffold(
         appBar: AppBar(
           title: const Text('Settings'),
@@ -21,19 +18,20 @@ class _SettingsState extends State<Settings> {
         body: ListView(
             children: ListTile.divideTiles(
               context: context,
-              tiles: [ FutureBuilder(
-                  future: Airship.userNotificationsEnabled,
-                  builder: (context, snapshot) {
-                    return SwitchListTile(
+              tiles: [
+                StreamBuilder(
+                    stream: _airshipBloc.notificationsEnabledStream,
+                    builder: (context, snapshot) { return SwitchListTile(
                       title: Text('Push Enabled',
                         style: Styles.settingsPrimaryText,),
-                      value: snapshot.data ?? false,
-                      onChanged: (bool enabled){
-                        Airship.setUserNotificationsEnabled(enabled);
-                      },
-                    );}),
-                FutureBuilder(
-                    future: Airship.namedUser,
+                      value: snapshot.hasData ? snapshot.data : false,
+                      onChanged: (bool value){
+                        _airshipBloc.notificationsEnabledSetSink.add(value);
+                        },
+                    );
+                    }),
+                StreamBuilder(
+                    stream: _airshipBloc.namedUserStream,
                     builder: (context, snapshot) {
                       return ListTile(
                         trailing:Icon(Icons.edit),
@@ -44,12 +42,12 @@ class _SettingsState extends State<Settings> {
                         onTap: (){
                           Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => NamedUserAdd(updateParent:updateState)));
+                              MaterialPageRoute(builder: (context) => NamedUserAdd()));
                         },
                       );
                     }),
-                FutureBuilder(
-                    future: Airship.tags,
+                StreamBuilder(
+                    stream: _airshipBloc.tagsStream,
                     builder: (context, snapshot) {
                       return ListTile(
                         trailing:Icon(Icons.edit),
@@ -60,16 +58,12 @@ class _SettingsState extends State<Settings> {
                         onTap: (){
                           Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => TagAdd(updateParent:updateState)));
+                              MaterialPageRoute(builder: (context) => TagAdd()));
                         },
                       );
                     }),
               ],
             ).toList())
     );
-  }
-
-  updateState() {
-    setState(() {});
   }
 }
