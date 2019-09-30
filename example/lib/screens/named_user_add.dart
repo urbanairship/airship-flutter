@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:airship_example/styles.dart';
 import 'package:airship_example/widgets/text_add_bar.dart';
-import 'package:airship/airship.dart';
+import 'package:airship_example/bloc/bloc.dart';
 
 class NamedUserAdd extends StatelessWidget {
-  final updateParent;
-
-  NamedUserAdd({this.updateParent});
+  final AirshipBloc _airshipBloc = AirshipBloc();
 
   @override
   Widget build(BuildContext context) {
@@ -15,8 +13,8 @@ class NamedUserAdd extends StatelessWidget {
           title: Text("Add Named User"),
           backgroundColor: Styles.background,
         ),
-        body: FutureBuilder(
-          future: Airship.namedUser,
+        body: StreamBuilder(
+          stream: _airshipBloc.namedUserStream,
           builder: (context, snapshot) {
             return SafeArea(
               bottom: false,
@@ -27,8 +25,7 @@ class NamedUserAdd extends StatelessWidget {
                     child: TextAddBar(
                       label: snapshot.hasData ? snapshot.data : "Not set",
                       onTap: (text){
-                        Airship.setNamedUser(text);
-                        updateParent();
+                        _airshipBloc.namedUserSetSink.add(text);
                         Navigator.pop(context);
                       },
                     ),

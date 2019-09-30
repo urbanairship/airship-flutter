@@ -37,6 +37,7 @@ class TextAddBar extends StatelessWidget {
                     border: InputBorder.none,
                     hintText: label
                 ),
+                //tyle: Styles,
                 cursorColor: Styles.airshipBlue,
               ),
             ),

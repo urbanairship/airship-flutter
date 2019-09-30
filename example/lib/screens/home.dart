@@ -1,28 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:airship_example/styles.dart';
+import 'package:airship_example/bloc/airship_bloc.dart';
 import 'package:airship_example/widgets/notifications_enabled_button.dart';
-import 'package:airship/airship.dart';
-
-class Home extends StatefulWidget {
-  @override
-  _HomeState createState() => _HomeState();
-}
 
 class _HomeState extends State<Home> {
-  @override
-  void initState() {
-    initAirshipListeners();
-    super.initState();
-  }
-
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initAirshipListeners() async {
-    Airship.onChannelRegistration.listen((event) {
-      if (mounted) {
-        setState(() {});
-      }
-    });
-  }
+  final AirshipBloc _airshipBloc = AirshipBloc();
 
   @override
   Widget build(BuildContext context) {
@@ -36,16 +18,14 @@ class _HomeState extends State<Home> {
                   'assets/airship.png',
                 ),
                   Center(
-                    child: FutureBuilder(
-                      future: Airship.userNotificationsEnabled,
+                    child: StreamBuilder(
+                      stream: _airshipBloc.notificationsEnabledStream,
                       builder: (context, AsyncSnapshot<bool> snapshot) {
                         Center enableNotificationsButton;
                         bool pushEnabled = snapshot.data ?? false;
-                        enableNotificationsButton = Center (child: NotificationsEnabledButton(onPressed:(){
-                          Airship.setUserNotificationsEnabled(true);
-                          setState(() {});
-                        },)
+                        enableNotificationsButton = Center (child: NotificationsEnabledButton(bloc:_airshipBloc)
                         );
+
                         return Visibility(
                             visible:!pushEnabled,
                             child:enableNotificationsButton);
@@ -53,8 +33,8 @@ class _HomeState extends State<Home> {
                     ),
                   ),
                   Center(
-                    child: FutureBuilder(
-                      future: Airship.channelId,
+                    child: StreamBuilder(
+                      stream: _airshipBloc.channelStream,
                       builder: (context, snapshot) {
                         return Text(
                           '${snapshot.hasData ? snapshot.data : "Channel not set"}',
@@ -70,4 +50,15 @@ class _HomeState extends State<Home> {
         )
     );
   }
+
+  @override
+  void dispose() {
+    _airshipBloc.dispose();
+    super.dispose();
+  }
+}
+
+class Home extends StatefulWidget {
+  @override
+  _HomeState createState() => _HomeState();
 }

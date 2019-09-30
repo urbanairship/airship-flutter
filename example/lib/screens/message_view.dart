@@ -3,10 +3,9 @@ import 'package:airship/airship.dart';
 import 'package:airship_example/styles.dart';
 
 class MessageView extends StatelessWidget {
-  final InboxMessage message;
-  final updateParent;
+  InboxMessage message;
 
-  MessageView({this.message, this.updateParent});
+  MessageView({this.message});
 
   @override
   Widget build(BuildContext context) {
@@ -26,9 +25,6 @@ class MessageView extends StatelessWidget {
       if (message != null) {
         debugPrint("Loading message: ${message.title}");
         controller.loadMessage(message);
-        Airship.markInboxMessageRead(message);
-        // Add to message updated sink to indicate message was read
-        updateParent();
       } else {
         debugPrint("Attempted to load message view for null message");
       }
