@@ -40,16 +40,6 @@ flutter --version
 flutter doctor
 flutter packages get
 
-# set up flutter project
-if [[ "$BITRISE_SOURCE_DIR" != "" ]]; then
-    REPO_PATH="${BITRISE_SOURCE_DIR}"
-else
-    REPO_PATH=`dirname "${0}"`/../
-fi
-
-cd $REPO_PATH
-pwd
-
 # Flutter Analysis
 if $ANALYZE; then
     flutter analyze
