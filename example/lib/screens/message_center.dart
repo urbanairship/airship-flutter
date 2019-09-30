@@ -2,10 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:airship/airship.dart';
 import 'package:airship_example/styles.dart';
 import 'package:airship_example/screens/message_view.dart';
-import 'package:airship_example/bloc/bloc.dart';
 
-class MessageCenter extends StatelessWidget {
-  final AirshipBloc _airshipBloc = AirshipBloc();
+class MessageCenter extends StatefulWidget {
+  @override
+  _MessageCenterState createState() => _MessageCenterState();
+}
+
+class _MessageCenterState extends State<MessageCenter> {
+  @override
+  void initState() {
+    initAirshipListeners();
+    super.initState();
+  }
+
+  // Platform messages are asynchronous, so we initialize in an async method.
+  Future<void> initAirshipListeners() async {
+    Airship.onInboxUpdated.listen((event) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,17 +40,18 @@ class MessageCenter extends StatelessWidget {
                   .of(context)
                   .showSnackBar(SnackBar(content: Text("Message \"${message.messageId}\" removed")));
               messages.remove(message);
-              _airshipBloc.messageRemovedSink.add(message);
+              Airship.deleteInboxMessage(message);
+              setState(() {});
             },
             // Add stream to check isRead
             child: ListTile(
               title: message.isRead ? Text('${message.title}') : Text('${message.title}', style:TextStyle(fontWeight: FontWeight.bold)),
               subtitle: Text('${message.sentDate}'),
-              leading: Icon(message.isRead ? Icons.markunread : Icons.check_circle) ,
+              leading: Icon(message.isRead ? Icons.check_circle: Icons.markunread),
               onTap: (){
                 Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => MessageView(message: message)));
+                    MaterialPageRoute(builder: (context) => MessageView(message: message, updateParent:updateState,)));
               },
             ),
           );
@@ -46,8 +64,8 @@ class MessageCenter extends StatelessWidget {
           title: const Text('Message Center'),
           backgroundColor: Styles.borders,
         ),
-        body: StreamBuilder(
-          stream: _airshipBloc.messagesStream,
+        body: FutureBuilder(
+          future: Airship.inboxMessages,
           builder: (context, snapshot) {
             List<InboxMessage> list = [];
 
@@ -69,15 +87,8 @@ class MessageCenter extends StatelessWidget {
         )
     );
   }
-}
 
-void onInboxMessageViewCreated(InboxMessageViewController controller) {
-  Airship.inboxMessages.then((List<InboxMessage> messages) {
-    if (messages.length > 0) {
-      debugPrint("Loading message: ${messages[0].messageId}");
-      controller.loadMessage(messages[0]);
-    } else {
-      debugPrint("Error message: $messages");
-    }
-  });
+  updateState() {
+    setState(() {});
+  }
 }
