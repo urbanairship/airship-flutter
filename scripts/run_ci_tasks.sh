@@ -35,8 +35,9 @@ while true; do
   shift
 done
 
-# verify flutter is installed
+# verify flutter is installed and correctly configured
 flutter --version
+flutter doctor
 
 # set up flutter project
 if [[ "$BITRISE_SOURCE_DIR" != "" ]]; then
