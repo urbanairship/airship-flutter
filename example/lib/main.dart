@@ -8,6 +8,11 @@ import 'package:airship_example/screens/settings.dart';
 import 'package:airship_example/screens/message_center.dart';
 import 'package:airship/airship.dart';
 
+// Supported deep links
+const String home_deep_link =  "home";
+const String message_center_deep_link =  "message_center";
+const String settings_deep_link =  "settings";
+
 void main() {
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -46,6 +51,27 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
 
     Airship.onNotificationResponse
         .listen((event) => debugPrint('Notification Response $event'));
+
+    Airship.onDeepLink.listen((event){
+      const home_tab =  0;
+      const message_tab =  1;
+      const settings_tab =  2;
+
+      switch(event) {
+        case home_deep_link: {
+          controller.animateTo(home_tab);
+          break;
+        }
+        case message_center_deep_link: {
+          controller.animateTo(message_tab);
+          break;
+        }
+        case settings_deep_link: {
+          controller.animateTo(settings_tab);
+          break;
+        }
+      }
+    });
 
     Airship.onInboxUpdated
         .listen((event) => debugPrint('Inbox updated link'));

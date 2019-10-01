@@ -74,12 +74,11 @@ class FlutterAutopilot : Autopilot() {
             }
         })
 
-        airship.deepLinkListener = object : DeepLinkListener {
-            override fun onDeepLink(deepLink: String): Boolean {
-                EventManager.shared.notifyEvent(DeepLinkEvent(deepLink))
-                return true
-            }
+        airship.setDeepLinkListener { deepLink ->
+            EventManager.shared.notifyEvent(DeepLinkEvent(deepLink))
+            true
         }
+
     }
 
     private fun post(event: Event) = EventManager.shared.notifyEvent(event)
