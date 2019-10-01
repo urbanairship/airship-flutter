@@ -108,7 +108,7 @@ UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
             getInboxMessages(call, result: result)
         case "markInboxMessageRead":
             markInboxMessageRead(call, result: result)
-        case "deletetInboxMessage":
+        case "deleteInboxMessage":
             deleteInboxMessage(call, result: result)
         default:
             result(FlutterError(code:"UNAVAILABLE",
