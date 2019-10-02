@@ -13,6 +13,7 @@ import com.urbanairship.util.DateUtils
 import com.urbanairship.util.UAStringUtil
 import com.urbanairship.widget.UAWebView
 import com.urbanairship.widget.UAWebViewClient
+import java.lang.NumberFormatException
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -21,8 +22,6 @@ import io.flutter.plugin.common.PluginRegistry.Registrar
 import io.flutter.plugin.common.StandardMessageCodec
 import io.flutter.plugin.platform.PlatformView
 import io.flutter.plugin.platform.PlatformViewFactory
-import java.lang.NumberFormatException
-
 
 class InboxMessageViewFactory(private val registrar: Registrar) : PlatformViewFactory(StandardMessageCodec.INSTANCE) {
     override fun create(context: Context, viewId: Int, arguments: Any?): PlatformView {
@@ -214,11 +213,10 @@ class AirshipPlugin : MethodCallHandler {
                 val statusBarNotifications = notificationManager.activeNotifications
 
                 for (statusBarNotification in statusBarNotifications) {
-
-                    val notification = HashMap<String, Any>()
-                    notification.put("notification_id", statusBarNotification.id.toString())
-
-                    notifications.add(notification)
+                    var message = Utils.shared.messageFromNotification(statusBarNotification)
+                    val tag = statusBarNotification.tag ?: ""
+                    val id = statusBarNotification.id.toString()
+                    notifications.add(Utils.shared.notificationObject(message, tag, id))
                 }
                 result.success(notifications)
             } else {
