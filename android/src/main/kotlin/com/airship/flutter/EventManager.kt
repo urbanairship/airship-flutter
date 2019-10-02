@@ -46,7 +46,7 @@ internal class AirshipEventStream(eventType: EventType) : EventChannel.StreamHan
     fun notifyEvent(event: Event) {
         var sink = eventSink
         if (sink != null) {
-            sink.success(event.eventBody?.getString(event.eventBody.toString()))
+            sink.success(event.eventBody?.optString())
         } else {
             pendingEvents.add(event)
         }
