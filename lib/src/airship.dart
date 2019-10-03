@@ -37,24 +37,26 @@ class Notification {
   final String notificationId;
   final String alert;
   final String title;
+  final String subtitle;
   final Map<String, dynamic> extras;
 
-  const Notification._internal(this.notificationId, this.alert, this.title, this.extras);
+  const Notification._internal(this.notificationId, this.alert, this.title, this.subtitle, this.extras);
 
   static Notification _fromJson(Map<String, dynamic> json) {
     var notificationId = json["notification_id"];
     var alert = json["alert"];
     var title = json["title"];
+    var subtitle = json["subtitle"];
     var extras;
     if (json["extras"] != null) {
       extras = Map<String, dynamic>.from(json["extras"]);
     }
-    return Notification._internal(notificationId, alert, title, extras);
+    return Notification._internal(notificationId, alert, title, subtitle, extras);
   }
 
   @override
   String toString() {
-    return "Notification(notificationId=$notificationId, alert=$alert, title=$title, extras=$extras)";
+    return "Notification(notificationId=$notificationId, alert=$alert, title=$title, subtitle=$subtitle, extras=$extras)";
   }
 }
 

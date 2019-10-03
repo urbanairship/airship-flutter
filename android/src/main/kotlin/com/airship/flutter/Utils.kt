@@ -49,7 +49,7 @@ class Utils {
         }
 
         if (message.alert != null) {
-            notification["message"] = message.alert!!
+            notification["alert"] = message.alert!!
         }
         if (message.title != null) {
             notification["title"] = message.title!!
