@@ -1,14 +1,19 @@
 package com.airship.flutter
 
 import android.util.Log
+import android.content.Context
 import androidx.annotation.NonNull
+import androidx.core.app.NotificationCompat
+import com.airship.flutter.events.*
 import com.urbanairship.Autopilot
 import com.urbanairship.UAirship
-import com.airship.flutter.events.*
 import com.urbanairship.actions.*
 import com.urbanairship.messagecenter.MessageCenter
 import com.urbanairship.push.*
+import com.urbanairship.push.notifications.AirshipNotificationProvider
+import com.urbanairship.push.notifications.NotificationArguments
 
+const val PUSH_MESSAGE_BUNDLE_EXTRA = "com.urbanairship.push_bundle"
 
 class FlutterAutopilot : Autopilot() {
     override fun onAirshipReady(airship: UAirship) {
@@ -19,6 +24,13 @@ class FlutterAutopilot : Autopilot() {
         // Register a listener for inbox update event
         airship.inbox.addListener {
             EventManager.shared.notifyEvent(InboxUpdatedEvent())
+        }
+
+        airship.pushManager.notificationProvider = object : AirshipNotificationProvider(UAirship.getApplicationContext(), airship.airshipConfigOptions) {
+            override fun onExtendBuilder(context: Context, builder: NotificationCompat.Builder, arguments: NotificationArguments): NotificationCompat.Builder {
+                builder.extras.putBundle(PUSH_MESSAGE_BUNDLE_EXTRA, arguments.message.pushBundle)
+                return super.onExtendBuilder(context, builder, arguments)
+            }
         }
 
         airship.pushManager.addPushListener{ message, notificationPosted ->
