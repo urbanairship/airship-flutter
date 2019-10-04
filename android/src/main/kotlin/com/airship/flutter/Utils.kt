@@ -1,9 +1,5 @@
 package com.airship.flutter
 
-import android.os.Build
-import android.os.Bundle
-import android.service.notification.StatusBarNotification
-import androidx.annotation.RequiresApi
 import com.urbanairship.util.UAStringUtil
 import com.urbanairship.push.PushMessage
 import org.json.JSONException
@@ -14,21 +10,9 @@ class Utils {
         val shared = Utils()
     }
 
-    @RequiresApi(Build.VERSION_CODES.KITKAT)
-    fun messageFromNotification(statusBarNotification: StatusBarNotification): PushMessage {
-        val extras = statusBarNotification.notification.extras ?: return PushMessage(Bundle())
-
-        val pushBundle = extras.getBundle(PUSH_MESSAGE_BUNDLE_EXTRA)
-        return if (pushBundle == null) {
-            PushMessage(Bundle())
-        } else {
-            PushMessage(pushBundle)
-        }
-    }
-
     @Throws(JSONException::class)
-    fun notificationObject(message: PushMessage, notificationTag: String, notificationId: String?): Map<String, Any> {
-        val notification = mutableMapOf<String, Any>()
+    fun notificationObject(message: PushMessage, notificationTag: String, notificationId: String?): Map<String, Any?> {
+        val notification = mutableMapOf<String, Any?>()
         val extras = mutableMapOf<String, String>()
         for (key in message.pushBundle.keySet()) {
             if ("android.support.content.wakelockid" == key) {
@@ -49,13 +33,13 @@ class Utils {
         }
 
         if (message.alert != null) {
-            notification["alert"] = message.alert!!
+            notification["alert"] = message.alert
         }
         if (message.title != null) {
-            notification["title"] = message.title!!
+            notification["title"] = message.title
         }
         if (message.summary != null) {
-            notification["subtitle"] = message.summary!!
+            notification["subtitle"] = message.summary
         }
         notification["extras"] = extras;
 

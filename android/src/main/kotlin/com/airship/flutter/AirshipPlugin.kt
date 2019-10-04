@@ -207,13 +207,13 @@ class AirshipPlugin : MethodCallHandler {
 
     private fun getActiveNotifications(result: Result) =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                val notifications = arrayListOf<Map<String, Any>>()
+                val notifications = arrayListOf<Map<String, Any?>>()
 
                 val notificationManager = UAirship.getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
                 val statusBarNotifications = notificationManager.activeNotifications
 
                 for (statusBarNotification in statusBarNotifications) {
-                    var message = Utils.shared.messageFromNotification(statusBarNotification)
+                    var message = statusBarNotification.pushMessage()
                     val tag = statusBarNotification.tag ?: ""
                     val id = statusBarNotification.id.toString()
                     notifications.add(Utils.shared.notificationObject(message, tag, id))
