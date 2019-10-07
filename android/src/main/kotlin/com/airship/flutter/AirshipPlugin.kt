@@ -227,11 +227,13 @@ class AirshipPlugin : MethodCallHandler {
         val identifier = call.arguments as String
 
         if (UAStringUtil.isEmpty(identifier)) {
+            result.error("InvalidIdentifierFormat", "Unable to clear notification", null)
             return;
         }
 
         val parts = identifier.split(":", ignoreCase = true, limit = 2)
         if (parts.size == 0) {
+            result.error("InvalidIdentifierFormat", "Unable to clear notification", null)
             return;
         }
 
@@ -241,6 +243,7 @@ class AirshipPlugin : MethodCallHandler {
         try {
             id = (parts[0]).toInt();
         } catch (e: NumberFormatException) {
+            result.error("InvalidIdentifierFormat", "Unable to clear notification", null)
             return;
         }
 

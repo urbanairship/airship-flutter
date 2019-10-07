@@ -56,7 +56,6 @@ fun CustomEvent.Builder.parseProperties(map:HashMap<String, Any>) {
 
 @RequiresApi(Build.VERSION_CODES.KITKAT)
 fun StatusBarNotification.pushMessage(): PushMessage {
-
     val extras = this.notification.extras ?: return PushMessage(Bundle())
 
     val pushBundle = extras.getBundle(PUSH_MESSAGE_BUNDLE_EXTRA)
