@@ -6,6 +6,7 @@ import com.urbanairship.UAirship
 import com.urbanairship.analytics.CustomEvent
 import com.urbanairship.json.JsonMap
 import com.urbanairship.json.JsonValue
+import com.urbanairship.push.TagGroupsEditor
 import com.urbanairship.util.DateUtils
 import com.urbanairship.widget.UAWebView
 import com.urbanairship.widget.UAWebViewClient
@@ -18,6 +19,12 @@ import io.flutter.plugin.common.StandardMessageCodec
 import io.flutter.plugin.platform.PlatformView
 import io.flutter.plugin.platform.PlatformViewFactory
 
+private val TAG_OPERATION_GROUP_NAME = "group"
+private val TAG_OPERATION_TYPE = "operationType"
+private val TAG_OPERATION_TAGS = "tags"
+private val TAG_OPERATION_ADD = "add"
+private val TAG_OPERATION_REMOVE = "remove"
+private val TAG_OPERATION_SET = "set"
 
 class InboxMessageViewFactory(private val registrar: Registrar) : PlatformViewFactory(StandardMessageCodec.INSTANCE) {
     override fun create(context: Context, viewId: Int, arguments: Any?): PlatformView {
@@ -82,6 +89,8 @@ class AirshipPlugin : MethodCallHandler {
             "addEvent" -> addEvent(call, result)
             "removeTags" -> removeTags(call, result)
             "getTags" -> getTags(result)
+            "editChannelTagGroups" -> editChannelTagGroups(call, result)
+            "editNamedUserTagGroups" -> editNamedUserTagGroups(call, result)
             "setNamedUser" -> setNamedUser(call, result)
             "getNamedUser" -> getNamedUser(result)
             "getInboxMessages" -> getInboxMessages(result)
@@ -178,6 +187,49 @@ class AirshipPlugin : MethodCallHandler {
 
     private fun getTags(result: Result) {
         result.success(ArrayList<String>(UAirship.shared().pushManager.tags))
+    }
+
+    private fun editChannelTagGroups(call: MethodCall, result: Result) {
+        var operations = call.arguments as ArrayList<Map<String, Any?>>
+        this.applyTagGroupOperations(UAirship.shared().getPushManager().editTagGroups(), operations)
+        result.success(null)
+    }
+
+    private fun editNamedUserTagGroups(call: MethodCall, result: Result) {
+        var operations = call.arguments as ArrayList<Map<String, Any?>>
+        this.applyTagGroupOperations(UAirship.shared().getNamedUser().editTagGroups(), operations)
+        result.success(null)
+    }
+
+    private fun applyTagGroupOperations(editor: TagGroupsEditor, operations: ArrayList<Map<String, Any?>>) {
+        for (i in 0 until operations.size) {
+            var operation = operations.get(i)
+            if (operation == null) {
+                continue;
+            }
+
+            var group = operation[TAG_OPERATION_GROUP_NAME] as String ?: continue
+            var tags = operation[TAG_OPERATION_TAGS] as ArrayList<String?> ?: continue
+            var operationType = operation[TAG_OPERATION_TYPE] as String ?: continue
+
+            var tagSet = mutableSetOf<String?>()
+            for (j in 0 until tags.size) {
+                var tag = tags[j] as String?
+                if (tag != null) {
+                    tagSet.add(tags[j])
+                }
+            }
+
+            if (TAG_OPERATION_ADD.equals(operationType)) {
+                editor.addTags(group, tagSet);
+            } else if (TAG_OPERATION_REMOVE.equals(operationType)) {
+                editor.removeTags(group, tagSet);
+            } else if (TAG_OPERATION_SET.equals(operationType)) {
+                editor.setTags(group, tagSet);
+            }
+        }
+
+        editor.apply();
     }
 
     private fun setNamedUser(call: MethodCall, result: Result) {
