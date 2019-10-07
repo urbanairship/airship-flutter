@@ -181,6 +181,20 @@ class Airship {
     return await _channel.invokeMethod('removeTags', tags);
   }
 
+  static Future<void> editChannelTagGroups(List<Map<String, dynamic>> operations) async {
+    if (operations == null) {
+      throw ArgumentError.notNull('operations');
+    }
+    return await _channel.invokeMethod('editChannelTagGroups', operations);
+  }
+
+  static Future<void> editNamedUserTagGroups(List<Map<String, dynamic>> operations) async {
+    if (operations == null) {
+      throw ArgumentError.notNull('operations');
+    }
+    return await _channel.invokeMethod('editNamedUserTagGroups', operations);
+  }
+
   static Future<void> setNamedUser(String namedUser) async {
     return await _channel.invokeMethod('setNamedUser', namedUser);
   }
