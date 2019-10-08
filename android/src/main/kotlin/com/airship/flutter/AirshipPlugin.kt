@@ -216,7 +216,7 @@ class AirshipPlugin : MethodCallHandler {
             for (j in 0 until tags.size) {
                 var tag = tags[j] as String?
                 if (tag != null) {
-                    tagSet.add(tags[j])
+                    tagSet.add(tag)
                 }
             }
 
