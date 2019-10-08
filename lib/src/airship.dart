@@ -37,21 +37,26 @@ class Notification {
   final String notificationId;
   final String alert;
   final String title;
+  final String subtitle;
   final Map<String, dynamic> extras;
 
-  const Notification._internal(this.notificationId, this.alert, this.title, this.extras);
+  const Notification._internal(this.notificationId, this.alert, this.title, this.subtitle, this.extras);
 
   static Notification _fromJson(Map<String, dynamic> json) {
     var notificationId = json["notification_id"];
     var alert = json["alert"];
     var title = json["title"];
-    var extras = json["extras"];
-    return Notification._internal(notificationId, alert, title, extras);
+    var subtitle = json["subtitle"];
+    var extras;
+    if (json["extras"] != null) {
+      extras = Map<String, dynamic>.from(json["extras"]);
+    }
+    return Notification._internal(notificationId, alert, title, subtitle, extras);
   }
 
   @override
   String toString() {
-    return "Notification(notificationId=$notificationId, alert=$alert, title=$title, extras=$extras)";
+    return "Notification(notificationId=$notificationId, alert=$alert, title=$title, subtitle=$subtitle, extras=$extras)";
   }
 }
 
@@ -148,6 +153,18 @@ class Airship {
     return await _channel.invokeMethod('setUserNotificationsEnabled', enabled);
   }
 
+  static Future<void> clearNotification(String notification) async {
+    if (notification == null) {
+      throw ArgumentError.notNull('notification');
+    }
+
+    return await _channel.invokeMethod('clearNotification', notification);
+  }
+
+  static Future<void> clearNotifications() async {
+    return await _channel.invokeMethod('clearNotifications');
+  }
+
   static Future<List<String>> get tags async {
     List tags = await _channel.invokeMethod("getTags");
     return tags.cast<String>();
@@ -205,6 +222,13 @@ class Airship {
 
   static Future<bool> get userNotificationsEnabled async {
     return await _channel.invokeMethod('getUserNotificationsEnabled');
+  }
+
+  static Future<List<Notification>> get activeNotifications async {
+    List notifications =  await _channel.invokeMethod('getActiveNotifications');
+    return notifications.map((dynamic payload) {
+      return Notification._fromJson(Map<String, dynamic>.from(payload));
+    }).toList();
   }
 
   static Stream<void> get onInboxUpdated {
