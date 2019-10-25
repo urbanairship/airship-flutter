@@ -1,8 +1,13 @@
 package com.airship.flutter
 
+import android.os.Build
+import android.os.Bundle
+import android.service.notification.StatusBarNotification
+import androidx.annotation.RequiresApi
 import com.urbanairship.analytics.CustomEvent
 import com.urbanairship.json.JsonMap
 import com.urbanairship.push.NotificationInfo
+import com.urbanairship.push.PushMessage
 import com.urbanairship.util.UAStringUtil
 
 fun NotificationInfo.canonicalNotificationId() : String {
@@ -47,4 +52,17 @@ fun CustomEvent.Builder.parseProperties(map:HashMap<String, Any>) {
             continue
         }
     }
+}
+
+@RequiresApi(Build.VERSION_CODES.KITKAT)
+fun StatusBarNotification.pushMessage(): PushMessage {
+    val extras = this.notification.extras ?: return PushMessage(Bundle())
+
+    val pushBundle = extras.getBundle(PUSH_MESSAGE_BUNDLE_EXTRA)
+    return if (pushBundle == null) {
+        PushMessage(Bundle())
+    } else {
+        PushMessage(pushBundle)
+    }
+
 }

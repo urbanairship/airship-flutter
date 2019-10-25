@@ -1,15 +1,20 @@
 package com.airship.flutter
 
+import android.app.NotificationManager
 import android.content.Context
 import android.view.View
+import android.os.Build
+import androidx.core.app.NotificationManagerCompat
 import com.urbanairship.UAirship
 import com.urbanairship.analytics.CustomEvent
 import com.urbanairship.json.JsonMap
 import com.urbanairship.json.JsonValue
 import com.urbanairship.push.TagGroupsEditor
 import com.urbanairship.util.DateUtils
+import com.urbanairship.util.UAStringUtil
 import com.urbanairship.widget.UAWebView
 import com.urbanairship.widget.UAWebViewClient
+import java.lang.NumberFormatException
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -85,6 +90,9 @@ class AirshipPlugin : MethodCallHandler {
             "getChannelId" -> getChannelId(result)
             "setUserNotificationsEnabled" -> setUserNotificationsEnabled(call, result)
             "getUserNotificationsEnabled" -> getUserNotificationsEnabled(result)
+            "clearNotification" -> clearNotification(call, result)
+            "clearNotifications" -> clearNotifications(result)
+            "getActiveNotifications" -> getActiveNotifications(result)
             "addTags" -> addTags(call, result)
             "addEvent" -> addEvent(call, result)
             "removeTags" -> removeTags(call, result)
@@ -248,6 +256,66 @@ class AirshipPlugin : MethodCallHandler {
 
     private fun getUserNotificationsEnabled(result: Result) {
         result.success(UAirship.shared().pushManager.userNotificationsEnabled)
+    }
+
+    private fun getActiveNotifications(result: Result) =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                val notifications = arrayListOf<Map<String, Any?>>()
+
+                val notificationManager = UAirship.getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                val statusBarNotifications = notificationManager.activeNotifications
+
+                for (statusBarNotification in statusBarNotifications) {
+                    var message = statusBarNotification.pushMessage()
+                    val tag = statusBarNotification.tag ?: ""
+                    val id = statusBarNotification.id.toString()
+                    notifications.add(Utils.shared.notificationObject(message, tag, id))
+                }
+                result.success(notifications)
+            } else {
+                result.error("UNSUPPORTED", "Getting active notifications is only supported on Marshmallow and newer devices.", null)
+            }
+
+    private fun clearNotification(call: MethodCall, result: Result) {
+        val identifier = call.arguments as String
+
+        if (UAStringUtil.isEmpty(identifier)) {
+            result.error("InvalidIdentifierFormat", "Unable to clear notification", null)
+            return;
+        }
+
+        val parts = identifier.split(":", ignoreCase = true, limit = 2)
+        if (parts.size == 0) {
+            result.error("InvalidIdentifierFormat", "Unable to clear notification", null)
+            return;
+        }
+
+        var tag = String()
+        var id = 0
+
+        try {
+            id = (parts[0]).toInt();
+        } catch (e: NumberFormatException) {
+            result.error("InvalidIdentifierFormat", "Unable to clear notification", null)
+            return;
+        }
+
+        if (parts.size == 2) {
+            tag = parts[1];
+        }
+
+        if (tag == "") {
+            NotificationManagerCompat.from(UAirship.getApplicationContext()).cancel(null, id);
+        } else {
+            NotificationManagerCompat.from(UAirship.getApplicationContext()).cancel(tag, id);
+        }
+
+        result.success(true)
+    }
+
+    private fun clearNotifications(result: Result) {
+        NotificationManagerCompat.from(UAirship.getApplicationContext()).cancelAll();
+        result.success(true)
     }
 
     fun getChannelId(result: Result) {

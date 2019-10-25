@@ -98,6 +98,12 @@ UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
             setUserNotificationsEnabled(call, result: result)
         case "getUserNotificationsEnabled":
             getUserNotificationsEnabled(call, result: result)
+        case "clearNotification":
+            clearNotification(call, result: result)
+        case "clearNotifications":
+            clearNotifications(call, result: result)
+        case "getActiveNotifications":
+            getActiveNotifications(call, result: result)
         case "addTags":
             addTags(call, result: result)
         case "addEvent":
@@ -146,6 +152,33 @@ UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
 
     private func getUserNotificationsEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         result(UAirship.push()?.userPushNotificationsEnabled)
+    }
+    
+    private func getActiveNotifications(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        UNUserNotificationCenter.current().getDeliveredNotifications { (notifications) in
+            
+            let airshipNotifications = NSMutableArray()
+            
+            for notification in notifications {
+                let content = UANotificationContent.notification(with:notification)
+                let pushBody = PushHelpers.pushBodyForNotificationContent(content: content)
+                airshipNotifications.add(pushBody)
+            }
+            
+            result(airshipNotifications)
+        }
+        
+    }
+    
+    private func clearNotification(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let identifier = call.arguments as! String
+        UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers:[identifier])
+        result(nil)
+    }
+    
+    private func clearNotifications(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        UNUserNotificationCenter.current().removeAllDeliveredNotifications()
+        result(nil)
     }
 
     private func addEvent(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -323,5 +356,31 @@ private extension UACustomEvent {
                 continue
             }
         }
+    }
+}
+
+class PushHelpers{
+    static func pushBodyForNotificationContent(content:UANotificationContent) -> NSMutableDictionary {
+        let pushBody : NSMutableDictionary = NSMutableDictionary()
+        pushBody.setValue(content.alertBody, forKey:"alert")
+        pushBody.setValue(content.alertTitle, forKey:"title")
+        
+        var extras = content.notificationInfo as Dictionary
+        let keys = Array(extras.keys)
+        
+        if keys.contains("aps") {
+            extras.removeValue(forKey:"aps")
+        }
+        if keys.contains("_") {
+            extras.removeValue(forKey:"_")
+        }
+        if extras.count != 0 {
+            pushBody.setValue(extras, forKey:"extras")
+        }
+        
+        let identifier = content.notification?.request.identifier
+        pushBody.setValue(identifier, forKey:"notification_id")
+        
+        return pushBody
     }
 }
