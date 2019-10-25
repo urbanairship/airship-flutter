@@ -37,6 +37,8 @@ UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
                                                selector: #selector(inboxUpdated),
                                                name: NSNotification.Name.UAInboxMessageListUpdated,
                                                object: nil)
+        
+        self.loadCustomNotificationCategories()
     }
 
     public func registrationSucceeded(forChannelID channelID: String, deviceToken: String) {
@@ -278,6 +280,16 @@ UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
         let message = UAirship.inbox().messageList.message(forID: call.arguments as! String)
         UAirship.inbox().messageList.markMessagesDeleted([message as Any]) {
             result(nil)
+        }
+    }
+    
+    private func loadCustomNotificationCategories() {
+        guard let categoriesPath = Bundle.main.path(forResource: "UACustomNotificationCategories", ofType: "plist") else { return }
+        let customNotificationCategories = UANotificationCategories.createCategories(fromFile: categoriesPath) as! Set<UANotificationCategory>
+    
+        if customNotificationCategories.count != 0 {
+            UAirship.push()?.customCategories = customNotificationCategories
+            UAirship.push()?.updateRegistration()
         }
     }
 }
