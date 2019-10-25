@@ -12,6 +12,7 @@ import com.urbanairship.messagecenter.MessageCenter
 import com.urbanairship.push.*
 import com.urbanairship.push.notifications.AirshipNotificationProvider
 import com.urbanairship.push.notifications.NotificationArguments
+import androidx.annotation.XmlRes
 
 const val PUSH_MESSAGE_BUNDLE_EXTRA = "com.urbanairship.push_bundle"
 
@@ -91,6 +92,26 @@ class FlutterAutopilot : Autopilot() {
             true
         }
 
+        loadCustomNotificationChannels(UAirship.getApplicationContext(), airship)
+        loadCustomNotificationButtonGroups(UAirship.getApplicationContext(), airship)
+    }
+
+    private fun loadCustomNotificationChannels(context: Context, airship: UAirship) {
+        val packageName = UAirship.getPackageName()
+        @XmlRes val resId = context.resources.getIdentifier("ua_custom_notification_channels", "xml", packageName)
+
+        if (resId != 0) {
+            airship.pushManager.notificationChannelRegistry.createNotificationChannels(resId)
+        }
+    }
+
+    private fun loadCustomNotificationButtonGroups(context: Context, airship: UAirship) {
+        val packageName = UAirship.getPackageName()
+        @XmlRes val resId = context.resources.getIdentifier("ua_custom_notification_buttons", "xml", packageName)
+
+        if (resId != 0) {
+            airship.pushManager.addNotificationActionButtonGroups(context, resId)
+        }
     }
 
     private fun post(event: Event) = EventManager.shared.notifyEvent(event)
