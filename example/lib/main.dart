@@ -6,6 +6,8 @@ import 'package:flutter/services.dart' show DeviceOrientation, SystemChrome;
 import 'package:airship_example/screens/home.dart';
 import 'package:airship_example/screens/settings.dart';
 import 'package:airship_example/screens/message_center.dart';
+import 'package:airship_example/screens/message_view.dart';
+
 import 'package:airship/airship.dart';
 
 // Supported deep links
@@ -30,6 +32,8 @@ class MyApp extends StatefulWidget {
 // SingleTickerProviderStateMixin is used for animation
 class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   TabController controller;
+
+  final GlobalKey<NavigatorState> key = GlobalKey();
 
   @override
   void initState() {
@@ -79,8 +83,20 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
     Airship.onShowInbox
         .listen((event) => debugPrint('Show inbox'));
 
-    Airship.onShowInboxMessage
-        .listen((messageId) => debugPrint('Show inbox message $messageId'));
+    Airship.onShowInboxMessage.listen((messageId){
+      Airship.inboxMessages.then((List<InboxMessage> messages) {
+        InboxMessage toShow = messages.firstWhere((thisMessage) =>
+        messageId == thisMessage.messageId,
+            orElse: () => null);
+
+        if (toShow != null) {
+          key.currentState.push(MaterialPageRoute<Null>(builder: (BuildContext context) {
+            return MessageView(message: null,);
+          }));
+        }
+      });
+    });
+
 
     Airship.onChannelRegistration.listen((event) {
       debugPrint('Channel registration $event');
@@ -91,34 +107,48 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      navigatorKey:key,
       title: "Airship Sample App",
-      home: Scaffold(
-        body: TabBarView(
-          children: <Widget>[Home(), MessageCenter(), Settings()],
-          controller: controller,
-        ),
-        bottomNavigationBar: Material(
-          // set the color of the bottom navigation bar
-          color: Styles.borders,
-          // set the tab bar as the child of bottom navigation bar
-          child: TabBar(
-            indicatorColor: Styles.airshipRed,
-            tabs: <Tab>[
-              Tab(
-                // set icon to the tab
-                icon: Icon(Icons.home),
-              ),
-              Tab(
-                icon: Icon(Icons.inbox),
-              ),
-              Tab(
-                icon: Icon(Icons.settings),
-              ),
-            ],
-            // setup the controller
+      initialRoute: "/",
+      routes: {
+        '/': (context) => tabBarView(),
+      },
+    );
+  }
+
+  Widget tabBarView() {
+    return WillPopScope(
+        onWillPop: null,
+        child: Scaffold(
+          body: TabBarView(
+            children: <Widget>[Home(), MessageCenter(), Settings()],
             controller: controller,
           ),
-        ),
+          bottomNavigationBar: bottomNavigationBar(),
+        ));
+  }
+
+  Widget bottomNavigationBar() {
+    return Material(
+      // set the color of the bottom navigation bar
+      color: Styles.borders,
+      // set the tab bar as the child of bottom navigation bar
+      child: TabBar(
+        indicatorColor: Styles.airshipRed,
+        tabs: <Tab>[
+          Tab(
+            // set icon to the tab
+            icon: Icon(Icons.home),
+          ),
+          Tab(
+            icon: Icon(Icons.inbox),
+          ),
+          Tab(
+            icon: Icon(Icons.settings),
+          ),
+        ],
+        // setup the controller
+        controller: controller,
       ),
     );
   }
