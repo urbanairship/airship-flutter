@@ -84,9 +84,6 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
         .listen((event) => debugPrint('Show inbox'));
 
     Airship.onShowInboxMessage.listen((messageId){
-      const message_tab =  1;
-      controller.animateTo(message_tab);
-
       Airship.inboxMessages.then((List<InboxMessage> messages) {
         InboxMessage toShow = messages.firstWhere((thisMessage) =>
         messageId == thisMessage.messageId,
@@ -118,13 +115,15 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   }
 
   Widget tabBarView() {
-    return WillPopScope( child: Scaffold(
-      body: TabBarView(
-        children: <Widget>[Home(), MessageCenter(), Settings()],
-        controller: controller,
-      ),
-      bottomNavigationBar: bottomNavigationBar(),
-    ));
+    return WillPopScope(
+        onWillPop: null,
+        child: Scaffold(
+          body: TabBarView(
+            children: <Widget>[Home(), MessageCenter(), Settings()],
+            controller: controller,
+          ),
+          bottomNavigationBar: bottomNavigationBar(),
+        ));
   }
 
   Widget bottomNavigationBar() {
