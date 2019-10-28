@@ -89,9 +89,11 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
         messageId == thisMessage.messageId,
             orElse: () => null);
 
-        key.currentState.push(MaterialPageRoute<Null>(builder: (BuildContext context) {
-          return MessageView(message: toShow,);
-        }));
+        if (toShow != null) {
+          key.currentState.push(MaterialPageRoute<Null>(builder: (BuildContext context) {
+            return MessageView(message: null,);
+          }));
+        }
       });
     });
 
