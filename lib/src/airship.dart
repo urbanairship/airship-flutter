@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'custom_event.dart';
-import 'tag_group_operation.dart';
+import 'tag_group_editor.dart';
 
 class InboxMessage {
   final String title;
@@ -198,22 +198,12 @@ class Airship {
     return await _channel.invokeMethod('removeTags', tags);
   }
 
-  static Future<void> editChannelTagGroups(List<TagGroupOperation> operations) async {
-    if (operations == null) {
-      throw ArgumentError.notNull('operations');
-    }
-    List<Map<String, dynamic>> finalOperations = new List();
-    operations.forEach((operation) => finalOperations.add(operation.toMap()));
-    return await _channel.invokeMethod('editChannelTagGroups', finalOperations);
+  static TagGroupEditor editChannelTagGroups() {
+    return TagGroupEditor('editChannelTagGroups', _channel);
   }
 
-  static Future<void> editNamedUserTagGroups(List<TagGroupOperation> operations) async {
-    if (operations == null) {
-      throw ArgumentError.notNull('operations');
-    }
-    List<Map<String, dynamic>> finalOperations = new List();
-    operations.forEach((operation) => finalOperations.add(operation.toMap()));
-    return await _channel.invokeMethod('editNamedUserTagGroups', finalOperations);
+  static TagGroupEditor editNamedUserTagGroups() {
+    return TagGroupEditor('editNamedUserTagGroups', _channel);
   }
 
   static Future<void> setNamedUser(String namedUser) async {
