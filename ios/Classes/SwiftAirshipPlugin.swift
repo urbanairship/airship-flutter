@@ -11,6 +11,12 @@ UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
     private let transactionIDKey = "transaction_id";
     private let interactionIDKey = "interaction_id";
     private let interactionTypeKey = "interaction_type";
+    private let tagOperationGroupName = "group";
+    private let tagOperationType = "operationType";
+    private let tagOperationTags = "tags";
+    private let tagOperationAdd = "add";
+    private let tagOperationRemove = "remove";
+    private let tagOperationSet = "set";
 
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "com.airship.flutter/airship",
@@ -106,6 +112,10 @@ UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
             removeTags(call, result: result)
         case "getTags":
             getTags(call, result: result)
+        case "editNamedUserTagGroups":
+            editNamedUserTagGroups(call, result: result)
+        case "editChannelTagGroups":
+            editChannelTagGroups(call, result: result)
         case "setNamedUser":
             setNamedUser(call, result: result)
         case "getNamedUser":
@@ -232,6 +242,47 @@ UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
         result(UAirship.push()?.tags)
     }
 
+    private func editNamedUserTagGroups(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let operations = call.arguments as! [Dictionary<String, Any>]
+        let namedUser = UAirship.namedUser()
+        
+        for operation in operations {
+            let group = operation[tagOperationGroupName] as! String
+            let operationType = operation[tagOperationType] as! String
+            let tags = operation[tagOperationTags] as! [String]
+            if (operationType == tagOperationAdd) {
+                namedUser?.addTags(tags, group: group)
+            } else if (operationType == tagOperationRemove) {
+                namedUser?.removeTags(tags, group: group)
+            } else if (operationType == tagOperationSet) {
+                namedUser?.setTags(tags, group: group)
+            }
+        }
+        
+        namedUser?.updateTags()
+        result(nil)
+    }
+    
+    private func editChannelTagGroups(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let operations = call.arguments as! [Dictionary<String, Any>]
+        
+        for operation in operations {
+            let group = operation[tagOperationGroupName] as! String
+            let operationType = operation[tagOperationType] as! String
+            let tags = operation[tagOperationTags] as! [String]
+            if (operationType == tagOperationAdd) {
+                UAirship.push()?.addTags(tags, group: group)
+            } else if (operationType == tagOperationRemove) {
+                UAirship.push()?.removeTags(tags, group: group)
+            } else if (operationType == tagOperationSet) {
+                UAirship.push()?.setTags(tags, group: group)
+            }
+        }
+       
+        UAirship.push()?.updateRegistration()
+        result(nil)
+    }
+    
     private func setNamedUser(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let namedUser = call.arguments as? String
         UAirship.namedUser()?.identifier = namedUser
