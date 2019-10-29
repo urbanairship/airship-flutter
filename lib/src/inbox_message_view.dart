@@ -6,43 +6,51 @@ import 'package:flutter/widgets.dart';
 import 'airship.dart';
 
 class InboxMessageView extends StatefulWidget {
-  final InboxMessageViewCreatedCallback onViewCreated;
+  final InboxMessage message;
+  final onLoadStarted;
+  final onLoadFinished;
+  final onLoadError;
+  final onClose;
+
 
   InboxMessageView({
     Key key,
-    @required this.onViewCreated
+    @required this.message,
+    this.onLoadStarted,
+    this.onLoadFinished,
+    this.onLoadError,
+    this.onClose,
   });
 
   @override
   _InboxMessageViewState createState() => _InboxMessageViewState();
 }
 
-typedef void InboxMessageViewCreatedCallback(InboxMessageViewController controller);
-
-class InboxMessageViewController {
-
+class _InboxMessageViewState extends State<InboxMessageView> {
   MethodChannel _channel;
 
-  InboxMessageViewController.init(int id) {
+  Future<void> onPlatformViewCreated(id) async {
     _channel =  new MethodChannel('com.airship.flutter/InboxMessageView_$id');
+    if (widget.onLoadStarted != null) {
+      widget.onLoadStarted();
+    }
+    loadMessage(widget.message).then((message) {
+      if (widget.onLoadFinished != null) {
+        widget.onLoadFinished();
+      }
+    });
   }
 
   Future<void> loadMessage(InboxMessage message) async {
     if (message == null) {
+      if (widget.onLoadError != null) {
+        widget.onLoadError(ArgumentError.notNull('message'));
+      }
       throw ArgumentError.notNull('message');
     }
 
+
     return _channel.invokeMethod('loadMessage', message.messageId);
-  }
-}
-
-class _InboxMessageViewState extends State<InboxMessageView> {
-
-  Future<void> onPlatformViewCreated(id) async {
-    if (widget.onViewCreated == null) {
-      return;
-    }
-    widget.onViewCreated(new InboxMessageViewController.init(id));
   }
 
   @override
@@ -62,5 +70,13 @@ class _InboxMessageViewState extends State<InboxMessageView> {
     }
 
     return new Text('$defaultTargetPlatform is not yet supported by this plugin');
+  }
+
+  dispose() {
+    super.dispose();
+
+    if (widget.onClose != null) {
+      widget.onClose();
+    }
   }
 }
