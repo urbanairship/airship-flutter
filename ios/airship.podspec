@@ -3,7 +3,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'airship'
-  s.version          = '0.0.1'
+  s.version          = '1.0.0'
   s.summary          = 'A new flutter plugin project.'
   s.description      = <<-DESC
 A new flutter plugin project.
@@ -16,7 +16,7 @@ A new flutter plugin project.
   s.public_header_files = 'Classes/**/*.h'
   s.dependency 'Flutter'
 
-  s.ios.deployment_target   = "10.0"
-  s.dependency              'UrbanAirship-iOS-SDK', '~> 11.0.0'
+  s.ios.deployment_target   = "11.0"
+  s.dependency              'UrbanAirship-iOS-SDK', '~> 12.0.0'
 end
 
