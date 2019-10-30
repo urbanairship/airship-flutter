@@ -104,6 +104,8 @@ class AirshipPlugin : MethodCallHandler {
             "getInboxMessages" -> getInboxMessages(result)
             "markInboxMessageRead" -> markInboxMessageRead(call, result)
             "deleteInboxMessage" -> deleteInboxMessage(call, result)
+            "setInAppAutomationPaused" -> setInAppAutomationPaused(call, result)
+            "getInAppAutomationPaused" -> getInAppAutomationPaused(call, result)
             else -> result.notImplemented()
         }
     }
@@ -258,23 +260,24 @@ class AirshipPlugin : MethodCallHandler {
         result.success(UAirship.shared().pushManager.userNotificationsEnabled)
     }
 
-    private fun getActiveNotifications(result: Result) =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                val notifications = arrayListOf<Map<String, Any?>>()
+    private fun getActiveNotifications(result: Result) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val notifications = arrayListOf<Map<String, Any?>>()
 
-                val notificationManager = UAirship.getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                val statusBarNotifications = notificationManager.activeNotifications
+            val notificationManager = UAirship.getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val statusBarNotifications = notificationManager.activeNotifications
 
-                for (statusBarNotification in statusBarNotifications) {
-                    var message = statusBarNotification.pushMessage()
-                    val tag = statusBarNotification.tag ?: ""
-                    val id = statusBarNotification.id.toString()
-                    notifications.add(Utils.shared.notificationObject(message, tag, id))
-                }
-                result.success(notifications)
-            } else {
-                result.error("UNSUPPORTED", "Getting active notifications is only supported on Marshmallow and newer devices.", null)
+            for (statusBarNotification in statusBarNotifications) {
+                var message = statusBarNotification.pushMessage()
+                val tag = statusBarNotification.tag ?: ""
+                val id = statusBarNotification.id.toString()
+                notifications.add(Utils.shared.notificationObject(message, tag, id))
             }
+            result.success(notifications)
+        } else {
+            result.error("UNSUPPORTED", "Getting active notifications is only supported on Marshmallow and newer devices.", null)
+        }
+    }
 
     private fun clearNotification(call: MethodCall, result: Result) {
         val identifier = call.arguments as String
@@ -316,6 +319,17 @@ class AirshipPlugin : MethodCallHandler {
     private fun clearNotifications(result: Result) {
         NotificationManagerCompat.from(UAirship.getApplicationContext()).cancelAll();
         result.success(true)
+    }
+
+    private fun setInAppAutomationPaused(call: MethodCall, result: Result) {
+        val paused = call.arguments as Boolean
+
+        UAirship.shared().inAppMessagingManager.isPaused = paused
+        result.success(true)
+    }
+
+    private fun getInAppAutomationPaused(call: MethodCall, result: Result) {
+        result.success(UAirship.shared().inAppMessagingManager.isPaused)
     }
 
     fun getChannelId(result: Result) {

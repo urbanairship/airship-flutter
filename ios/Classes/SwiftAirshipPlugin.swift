@@ -43,7 +43,7 @@ UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
                                                selector: #selector(inboxUpdated),
                                                name: NSNotification.Name.UAInboxMessageListUpdated,
                                                object: nil)
-        
+
         self.loadCustomNotificationCategories()
     }
 
@@ -128,6 +128,10 @@ UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
             markInboxMessageRead(call, result: result)
         case "deleteInboxMessage":
             deleteInboxMessage(call, result: result)
+        case "setInAppAutomationPaused":
+            setInAppAutomationPaused(call, result: result)
+        case "getInAppAutomationPaused":
+            getInAppAutomationPaused(call, result: result)
         default:
             result(FlutterError(code:"UNAVAILABLE",
                 message:"Unknown method: \(call.method)",
@@ -155,29 +159,29 @@ UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
     private func getUserNotificationsEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         result(UAirship.push()?.userPushNotificationsEnabled)
     }
-    
+
     private func getActiveNotifications(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         UNUserNotificationCenter.current().getDeliveredNotifications { (notifications) in
-            
+
             let airshipNotifications = NSMutableArray()
-            
+
             for notification in notifications {
                 let content = UANotificationContent.notification(with:notification)
                 let pushBody = PushHelpers.pushBodyForNotificationContent(content: content)
                 airshipNotifications.add(pushBody)
             }
-            
+
             result(airshipNotifications)
         }
-        
+
     }
-    
+
     private func clearNotification(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let identifier = call.arguments as! String
         UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers:[identifier])
         result(nil)
     }
-    
+
     private func clearNotifications(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         UNUserNotificationCenter.current().removeAllDeliveredNotifications()
         result(nil)
@@ -247,7 +251,7 @@ UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
     private func editNamedUserTagGroups(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let operations = call.arguments as! [Dictionary<String, Any>]
         let namedUser = UAirship.namedUser()
-        
+
         for operation in operations {
             let group = operation[tagOperationGroupName] as! String
             let operationType = operation[tagOperationType] as! String
@@ -260,14 +264,14 @@ UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
                 namedUser?.setTags(tags, group: group)
             }
         }
-        
+
         namedUser?.updateTags()
         result(nil)
     }
-    
+
     private func editChannelTagGroups(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let operations = call.arguments as! [Dictionary<String, Any>]
-        
+
         for operation in operations {
             let group = operation[tagOperationGroupName] as! String
             let operationType = operation[tagOperationType] as! String
@@ -280,11 +284,11 @@ UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
                 UAirship.push()?.setTags(tags, group: group)
             }
         }
-       
+
         UAirship.push()?.updateRegistration()
         result(nil)
     }
-    
+
     private func setNamedUser(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let namedUser = call.arguments as? String
         UAirship.namedUser()?.identifier = namedUser
@@ -333,15 +337,26 @@ UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
             result(nil)
         }
     }
-    
+
     private func loadCustomNotificationCategories() {
         guard let categoriesPath = Bundle.main.path(forResource: "UACustomNotificationCategories", ofType: "plist") else { return }
         let customNotificationCategories = UANotificationCategories.createCategories(fromFile: categoriesPath) as! Set<UANotificationCategory>
-    
+
         if customNotificationCategories.count != 0 {
             UAirship.push()?.customCategories = customNotificationCategories
             UAirship.push()?.updateRegistration()
         }
+    }
+
+    private func setInAppAutomationPaused(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let paused = call.arguments as! Bool
+
+        UAirship.inAppMessageManager()?.isPaused = paused
+        result(true)
+    }
+
+    private func getInAppAutomationPaused(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        result(UAirship.inAppMessageManager()?.isPaused)
     }
 }
 
@@ -371,15 +386,15 @@ private extension UACustomEvent {
     }
 }
 
-class PushHelpers{
+class PushHelpers {
     static func pushBodyForNotificationContent(content:UANotificationContent) -> NSMutableDictionary {
         let pushBody : NSMutableDictionary = NSMutableDictionary()
         pushBody.setValue(content.alertBody, forKey:"alert")
         pushBody.setValue(content.alertTitle, forKey:"title")
-        
+
         var extras = content.notificationInfo as Dictionary
         let keys = Array(extras.keys)
-        
+
         if keys.contains("aps") {
             extras.removeValue(forKey:"aps")
         }
@@ -389,10 +404,10 @@ class PushHelpers{
         if extras.count != 0 {
             pushBody.setValue(extras, forKey:"extras")
         }
-        
+
         let identifier = content.notification?.request.identifier
         pushBody.setValue(identifier, forKey:"notification_id")
-        
+
         return pushBody
     }
 }

@@ -271,4 +271,17 @@ class Airship {
     return _getEventStream("DEEP_LINK")
         .map((dynamic value) =>  value as String);
   }
+
+  static Future<void> setInAppAutomationPaused(bool paused) async {
+    if (paused == null) {
+      throw ArgumentError.notNull('paused');
+    }
+
+    return await _channel.invokeMethod('setInAppAutomationPaused', paused);
+  }
+
+  static Future<void> get getInAppAutomationPaused async {
+    return await _channel.invokeMethod('getInAppAutomationPaused');
+  }
+
 }
