@@ -4,8 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-class InboxMessageView extends StatefulWidget {
-  final String messageId;
+class InboxMessageView extends StatelessWidget {
+  String messageId;
   final onLoadStarted;
   final onLoadFinished;
   final onLoadError;
@@ -20,16 +20,11 @@ class InboxMessageView extends StatefulWidget {
     this.onClose,
   });
 
-  @override
-  _InboxMessageViewState createState() => _InboxMessageViewState();
-}
-
-class _InboxMessageViewState extends State<InboxMessageView> {
   MethodChannel _channel;
 
   Future<void> onPlatformViewCreated(id) async {
     _channel =  new MethodChannel('com.airship.flutter/InboxMessageView_$id');
-    loadMessage(widget.messageId);
+    loadMessage(messageId);
   }
 
   Future<void> loadMessage(String messageId) async {
@@ -41,7 +36,7 @@ class _InboxMessageViewState extends State<InboxMessageView> {
   }
 
   @override
-    Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     if(defaultTargetPlatform == TargetPlatform.android) {
       return AndroidView(
         viewType: 'com.airship.flutter/InboxMessageView',
