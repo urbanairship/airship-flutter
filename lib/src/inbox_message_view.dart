@@ -6,16 +6,15 @@ import 'package:flutter/widgets.dart';
 import 'airship.dart';
 
 class InboxMessageView extends StatefulWidget {
-  final InboxMessage message;
+  final String messageId;
   final onLoadStarted;
   final onLoadFinished;
   final onLoadError;
   final onClose;
 
-
   InboxMessageView({
     Key key,
-    @required this.message,
+    @required this.messageId,
     this.onLoadStarted,
     this.onLoadFinished,
     this.onLoadError,
@@ -31,26 +30,15 @@ class _InboxMessageViewState extends State<InboxMessageView> {
 
   Future<void> onPlatformViewCreated(id) async {
     _channel =  new MethodChannel('com.airship.flutter/InboxMessageView_$id');
-    if (widget.onLoadStarted != null) {
-      widget.onLoadStarted();
-    }
-    loadMessage(widget.message).then((message) {
-      if (widget.onLoadFinished != null) {
-        widget.onLoadFinished();
-      }
-    });
+    loadMessage(widget.messageId);
   }
 
-  Future<void> loadMessage(InboxMessage message) async {
-    if (message == null) {
-      if (widget.onLoadError != null) {
-        widget.onLoadError(ArgumentError.notNull('message'));
-      }
-      throw ArgumentError.notNull('message');
+  Future<void> loadMessage(String messageId) async {
+    if (messageId == null) {
+      throw ArgumentError.notNull('messageId');
     }
 
-
-    return _channel.invokeMethod('loadMessage', message.messageId);
+    return _channel.invokeMethod('loadMessage', messageId);
   }
 
   @override
@@ -70,13 +58,5 @@ class _InboxMessageViewState extends State<InboxMessageView> {
     }
 
     return new Text('$defaultTargetPlatform is not yet supported by this plugin');
-  }
-
-  dispose() {
-    super.dispose();
-
-    if (widget.onClose != null) {
-      widget.onClose();
-    }
   }
 }

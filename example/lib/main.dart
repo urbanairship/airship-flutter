@@ -84,17 +84,9 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
         .listen((event) => debugPrint('Show inbox'));
 
     Airship.onShowInboxMessage.listen((messageId){
-      Airship.inboxMessages.then((List<InboxMessage> messages) {
-        InboxMessage toShow = messages.firstWhere((thisMessage) =>
-        messageId == thisMessage.messageId,
-            orElse: () => null);
-
-        if (toShow != null) {
-          key.currentState.push(MaterialPageRoute<Null>(builder: (BuildContext context) {
-            return MessageView(message: null,);
-          }));
-        }
-      });
+      key.currentState.push(MaterialPageRoute<Null>(builder: (BuildContext context) {
+        return MessageView(messageId: messageId,);
+      }));
     });
 
 

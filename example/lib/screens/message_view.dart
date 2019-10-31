@@ -3,9 +3,9 @@ import 'package:airship/airship.dart';
 import 'package:airship_example/styles.dart';
 
 class MessageView extends StatefulWidget {
-  final InboxMessage message;
+  final String messageId;
 
-  MessageView({this.message});
+  MessageView({this.messageId});
 
   @override
   _MessageViewState createState() => _MessageViewState();
@@ -16,18 +16,37 @@ class _MessageViewState extends State<MessageView>  {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: isLoading ?  Text("Loading...") : Text("${widget.message.title}"),
+    return FutureBuilder<List<InboxMessage>>(
+        future: Airship.inboxMessages,
+        builder: (context, snapshot) {
+          InboxMessage message;
 
-          backgroundColor: Styles.background,
-        ),
-        body: Stack(
-              children: <Widget>[isLoading ? Center(child:CircularProgressIndicator()) : Container(), InboxMessageView(message: widget.message,
-                onLoadStarted: onStarted,
-                onLoadFinished: onLoadFinished)
-        ]),
-    );
+          List<InboxMessage> list = [];
+
+          if (snapshot.hasData) {
+            list = List<InboxMessage>.from(snapshot.data);
+          }
+
+          message = list.firstWhere((thisMessage) =>
+          widget.messageId == thisMessage.messageId,
+              orElse: () => null);
+
+          return Scaffold(
+            appBar: AppBar(
+              title: Text("${message.title}"),
+              backgroundColor: Styles.background,
+            ),
+            body: Stack(
+                children: <Widget>[
+                  isLoading
+                      ? Center(child: CircularProgressIndicator())
+                      : Container(),
+                  InboxMessageView(messageId: widget.messageId,
+                      onLoadStarted: onStarted,
+                      onLoadFinished: onLoadFinished)
+                ]),
+          );
+        });
   }
 
   onStarted() {
