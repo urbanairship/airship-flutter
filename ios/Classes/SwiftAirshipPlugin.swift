@@ -140,7 +140,7 @@ UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
     }
 
     private func getChannelId(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        result(UAirship.push()?.channelID)
+        result(UAirship.channel().identifier)
     }
 
     private func setUserNotificationsEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -232,20 +232,20 @@ UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
 
     private func addTags(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let tags = call.arguments as! [String]
-        UAirship.push()?.addTags(tags)
-        UAirship.push()?.updateRegistration()
+        UAirship.channel().addTags(tags)
+        UAirship.channel().updateRegistration()
         result(nil)
     }
 
     private func removeTags(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let tags = call.arguments as! [String]
-        UAirship.push()?.removeTags(tags)
-        UAirship.push()?.updateRegistration()
+        UAirship.channel().removeTags(tags)
+        UAirship.channel().updateRegistration()
         result(nil)
     }
 
     private func getTags(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        result(UAirship.push()?.tags)
+        result(UAirship.channel().tags)
     }
 
     private func editNamedUserTagGroups(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -277,11 +277,11 @@ UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
             let operationType = operation[tagOperationType] as! String
             let tags = operation[tagOperationTags] as! [String]
             if (operationType == tagOperationAdd) {
-                UAirship.push()?.addTags(tags, group: group)
+                UAirship.channel().addTags(tags, group: group)
             } else if (operationType == tagOperationRemove) {
-                UAirship.push()?.removeTags(tags, group: group)
+                UAirship.channel().removeTags(tags, group: group)
             } else if (operationType == tagOperationSet) {
-                UAirship.push()?.setTags(tags, group: group)
+                UAirship.channel().setTags(tags, group: group)
             }
         }
 
