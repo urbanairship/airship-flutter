@@ -1,6 +1,6 @@
 # Airship Plugin
 
-Airship Flutter plugin allows using Airship's native iOS and Android APIs with Flutter apps written in Dart.
+The Airship Flutter plugin allows using Airship's native iOS and Android APIs with Flutter apps written in Dart.
 
 ## Usage
 
