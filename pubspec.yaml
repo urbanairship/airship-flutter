@@ -1,7 +1,7 @@
 name: airship
 description: Airship flutter plugin.
 version: 1.0.0
-author: Airship
+author: Airship <support@airship.com>
 homepage: https://www.airship.com/
 
 environment:

@@ -1,29 +1,26 @@
 # Airship Plugin
 
-Preview of the Airship Flutter plugin.
-
-This plugin is currently in development or published. APIs will most likely change before the first
-major release.
-
-## Status
-
-Feature Status:
-- [x] Tags
-- [x] Notifications
-- [x] Deep links
-- [x] Inbox
-- [x] Named User
-- [x] Push Events
-- [ ] Custom events
-- [ ] Notification management
-- [ ] Tag Groups
+The Airship Flutter plugin allows using Airship's native iOS and Android APIs with Flutter apps written in Dart.
 
 ## Usage
 
-This plugin is not yet published, so you will have to use the current master repo as a [dependency in your pubspec.yaml file](https://flutter.io/platform-plugins/).
+1. Add the airship dependency to your package's pubspec.yaml file:
+
 ```
-  airship:
-    git: git://github.com/urbanairship/airship-flutter.git
+dependencies:
+  airship: ^1.0.0
+```
+
+2. Install your flutter package dependencies by running the following in the command line at your project's root directory:
+
+```
+$ flutter pub get
+```
+
+3. Import airship into your project:
+
+```
+import 'package:airship/airship.dart';
 ```
 
 ### Android Setup
