@@ -33,7 +33,7 @@ class _MessageViewState extends State<MessageView>  {
 
           return Scaffold(
             appBar: AppBar(
-              title: Text("${message.title}"),
+              title: message != null ? Text("${message.title}") : Container(),
               backgroundColor: Styles.background,
             ),
             body: Stack(
@@ -41,9 +41,7 @@ class _MessageViewState extends State<MessageView>  {
                   isLoading
                       ? Center(child: CircularProgressIndicator())
                       : Container(),
-                  InboxMessageView(messageId: widget.messageId,
-                      onLoadStarted: onStarted,
-                      onLoadFinished: onLoadFinished)
+                  InboxMessageView(messageId: widget.messageId)
                 ]),
           );
         });

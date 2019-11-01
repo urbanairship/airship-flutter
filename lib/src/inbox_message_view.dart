@@ -5,34 +5,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 class InboxMessageView extends StatelessWidget {
-  String messageId;
-  final onLoadStarted;
-  final onLoadFinished;
-  final onLoadError;
-  final onClose;
+  final String messageId;
 
   InboxMessageView({
-    Key key,
     @required this.messageId,
-    this.onLoadStarted,
-    this.onLoadFinished,
-    this.onLoadError,
-    this.onClose,
   });
 
-  MethodChannel _channel;
-
   Future<void> onPlatformViewCreated(id) async {
-    _channel =  new MethodChannel('com.airship.flutter/InboxMessageView_$id');
-    loadMessage(messageId);
-  }
-
-  Future<void> loadMessage(String messageId) async {
-    if (messageId == null) {
-      throw ArgumentError.notNull('messageId');
-    }
-
-    return _channel.invokeMethod('loadMessage', messageId);
+    MethodChannel _channel =  new MethodChannel('com.airship.flutter/InboxMessageView_$id');
+    _channel.invokeMethod('loadMessage', messageId);
   }
 
   @override
