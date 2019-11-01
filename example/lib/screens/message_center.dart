@@ -51,7 +51,7 @@ class _MessageCenterState extends State<MessageCenter> {
               onTap: (){
                 Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => MessageView(message: message,)));
+                    MaterialPageRoute(builder: (context) => MessageView(messageId: message.messageId,)));
               },
             ),
           );
