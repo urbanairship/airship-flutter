@@ -1,3 +1,3 @@
-## 0.0.1
-
-* TODO: Describe initial release.
+Version 1.0.0 - November 1, 2019
+================================
+- Initial release
