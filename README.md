@@ -149,21 +149,18 @@ Airship.onShowInboxMessage
 
 InboxMessage message = messages[0];
 
-void onInboxMessageViewCreated(InboxMessageViewController controller) {
-    controller.loadMessage(message);
-}
-
 @override
 Widget build(BuildContext context) {
     return MaterialApp(
-        home: Scaffold(
-            appBar: AppBar(
-            title: const Text('Message: $message.title'),
-        ),
-        body:  Container(
-            child: InboxMessageView(onViewCreated: onInboxMessageViewCreated),
-            height: 300.0,
+            home: Scaffold(
+                appBar: AppBar(
+                title: const Text('Message: $message.title'),
+            ),
+            body:  Container(
+                child: InboxMessageView(messageId: message.messageId),
+                height: 300.0,
+            )
         )
-    ));
+    );
 }
 ```
