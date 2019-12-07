@@ -249,7 +249,7 @@ class Airship {
 
   static Stream<String> get onShowInboxMessage {
     return _getEventStream("SHOW_INBOX_MESSAGE")
-        .map((dynamic value) =>  value as String);
+        .map((dynamic value) =>  jsonDecode(value) as String);
   }
 
   static Stream<PushReceivedEvent> get onPushReceived {
@@ -269,7 +269,7 @@ class Airship {
 
   static Stream<String> get onDeepLink {
     return _getEventStream("DEEP_LINK")
-        .map((dynamic value) =>  value as String);
+        .map((dynamic value) =>  jsonDecode(value) as String);
   }
 
   static Future<void> setInAppAutomationPaused(bool paused) async {
