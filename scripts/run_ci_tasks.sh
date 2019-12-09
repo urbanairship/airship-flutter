@@ -53,7 +53,9 @@ fi
 # iOS
 if $IOS; then
     cd example
-    touch ios/AirshipConfig.plist
+    if [ ! -f ios/AirshipConfig.plist ]; then
+      cp ios/AirshipConfig.plist.sample ios/AirshipConfig.plist
+    fi
     flutter build ios --release --no-codesign
     cd ..
 fi
