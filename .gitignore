@@ -10,24 +10,7 @@ airshipconfig.properties
 AirshipConfig.plist
 google-services.json
 
-.idea/**/checkstyle-idea.xml
-.idea/**/workspace.xml
-.idea/**/tasks.xml
-.idea/**/usage.statistics.xml
-.idea/**/dictionaries
-.idea/**/shelf
-.idea/**/contentModel.xml
-.idea/**/dataSources/
-.idea/**/dataSources.ids
-.idea/**/dataSources.local.xml
-.idea/**/sqlDataSources.xml
-.idea/**/dynamic.xml
-.idea/**/uiDesigner.xml
-.idea/**/dbnavigator.xml
-
-# Gradle
-.idea/**/gradle.xml
-.idea/**/libraries
+.idea
 
 GeneratedPluginRegistrant.h
 GeneratedPluginRegistrant.m
@@ -46,5 +29,4 @@ lib/*.jar
 Podfile.lock
 Pods/
 .symlinks/
-
 xcuserdata/

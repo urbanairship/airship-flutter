@@ -35,9 +35,6 @@ while true; do
   shift
 done
 
-# verify flutter is installed and correctly configured
-flutter --version
-flutter doctor
 flutter packages get
 
 # Flutter Analysis
@@ -48,26 +45,15 @@ fi
 # Android
 if $ANDROID ; then
     cd example
-
-    # build Android
-    PROJECT_PLATFORM_PATH="$(pwd)"
-
-    # Make sure airshipconfig.properties exists
-    if [[ ! -f ${PROJECT_PLATFORM_PATH}/app/src/main/assets/airshipconfig.properties ]]; then
-      cp -np ${PROJECT_PLATFORM_PATH}/app/src/main/assets/airshipconfig.properties.sample ${PROJECT_PLATFORM_PATH}/app/src/main/assets/airshipconfig.properties || true
-    fi
-
     # Build sample using flutter tool
     flutter build apk --release
-
     cd ..
 fi
 
 # iOS
 if $IOS; then
     cd example
-
+    touch ios/AirshipConfig.plist
     flutter build ios --release --no-codesign
-
     cd ..
 fi
