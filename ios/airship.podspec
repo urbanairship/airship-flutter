@@ -17,6 +17,6 @@ A new flutter plugin project.
   s.dependency 'Flutter'
 
   s.ios.deployment_target   = "11.0"
-  s.dependency              'UrbanAirship-iOS-SDK', '~> 12.0.1'
+  s.dependency              'UrbanAirship-iOS-SDK', '~> 12.1.2'
 end
 
