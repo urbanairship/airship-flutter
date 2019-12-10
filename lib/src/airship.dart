@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:airship/src/attribute_editor.dart';
 import 'package:flutter/services.dart';
 import 'custom_event.dart';
 import 'tag_group_editor.dart';
@@ -196,6 +197,10 @@ class Airship {
       throw ArgumentError.notNull('tags');
     }
     return await _channel.invokeMethod('removeTags', tags);
+  }
+
+  static AttributeEditor editAttributes() {
+    return AttributeEditor('editAttributes', _channel);
   }
 
   static TagGroupEditor editChannelTagGroups() {

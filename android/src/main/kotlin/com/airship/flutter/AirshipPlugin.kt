@@ -9,7 +9,8 @@ import com.urbanairship.UAirship
 import com.urbanairship.analytics.CustomEvent
 import com.urbanairship.json.JsonMap
 import com.urbanairship.json.JsonValue
-import com.urbanairship.push.TagGroupsEditor
+import com.urbanairship.channel.TagGroupsEditor
+import com.urbanairship.channel.AttributeEditor
 import com.urbanairship.util.DateUtils
 import com.urbanairship.util.UAStringUtil
 import com.urbanairship.widget.UAWebView
@@ -30,6 +31,12 @@ private val TAG_OPERATION_TAGS = "tags"
 private val TAG_OPERATION_ADD = "add"
 private val TAG_OPERATION_REMOVE = "remove"
 private val TAG_OPERATION_SET = "set"
+
+private val ATTRIBUTE_MUTATION_TYPE = "action"
+private val ATTRIBUTE_MUTATION_KEY = "key"
+private val ATTRIBUTE_MUTATION_VALUE = "value"
+private val ATTRIBUTE_MUTATION_REMOVE = "remove"
+private val ATTRIBUTE_MUTATION_SET = "set"
 
 class InboxMessageViewFactory(private val registrar: Registrar) : PlatformViewFactory(StandardMessageCodec.INSTANCE) {
     override fun create(context: Context, viewId: Int, arguments: Any?): PlatformView {
@@ -99,6 +106,7 @@ class AirshipPlugin : MethodCallHandler {
             "getTags" -> getTags(result)
             "editChannelTagGroups" -> editChannelTagGroups(call, result)
             "editNamedUserTagGroups" -> editNamedUserTagGroups(call, result)
+            "editAttributes" -> editAttributes(call, result)
             "setNamedUser" -> setNamedUser(call, result)
             "getNamedUser" -> getNamedUser(result)
             "getInboxMessages" -> getInboxMessages(result)
@@ -240,6 +248,31 @@ class AirshipPlugin : MethodCallHandler {
         }
 
         editor.apply();
+    }
+
+    private fun editAttributes(call: MethodCall, result: Result) {
+        val mutations = call.arguments as ArrayList<Map<String, Any?>>
+        this.applyAttributesOperations(UAirship.shared().channel.editAttributes(), mutations)
+        result.success(null)
+    }
+
+    private fun applyAttributesOperations(editor: AttributeEditor, operations: ArrayList<Map<String, Any?>>) {
+        for (i in 0 until operations.size) {
+            val operation = operations[i]
+
+            val action = operation[ATTRIBUTE_MUTATION_TYPE] as? String ?: continue
+            val key = operation[ATTRIBUTE_MUTATION_KEY] as? String ?: continue
+
+            if (ATTRIBUTE_MUTATION_SET == action) {
+                // Only strings are currently supported as attribute values
+                val value = operation[ATTRIBUTE_MUTATION_VALUE] as? String ?: continue
+                editor.setAttribute(value, key)
+            } else if (ATTRIBUTE_MUTATION_REMOVE == action) {
+                editor.removeAttribute(key)
+            }
+        }
+
+        editor.apply()
     }
 
     private fun setNamedUser(call: MethodCall, result: Result) {
