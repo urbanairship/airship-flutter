@@ -1,5 +1,5 @@
 import Foundation
-import AirshipKit
+import Airship
 
 class AirshipNotificationResponseEvent : AirshipPushReceivedEvent {
     let notificationResponse: UANotificationResponse

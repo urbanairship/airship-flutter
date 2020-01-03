@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:airship/airship.dart';
+import 'package:airship_flutter/airship.dart';
 import 'package:airship_example/styles.dart';
 import 'package:airship_example/screens/message_view.dart';
 
