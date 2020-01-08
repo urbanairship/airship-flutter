@@ -257,9 +257,7 @@ class AirshipPlugin : MethodCallHandler {
     }
 
     private fun applyAttributesOperations(editor: AttributeEditor, operations: ArrayList<Map<String, Any?>>) {
-        for (i in 0 until operations.size) {
-            val operation = operations[i]
-
+        for (operation in operations) {
             val action = operation[ATTRIBUTE_MUTATION_TYPE] as? String ?: continue
             val key = operation[ATTRIBUTE_MUTATION_KEY] as? String ?: continue
 
