@@ -7,12 +7,14 @@ import androidx.core.app.NotificationCompat
 import com.airship.flutter.events.*
 import com.urbanairship.Autopilot
 import com.urbanairship.UAirship
-import com.urbanairship.actions.*
 import com.urbanairship.messagecenter.MessageCenter
 import com.urbanairship.push.*
 import com.urbanairship.push.notifications.AirshipNotificationProvider
 import com.urbanairship.push.notifications.NotificationArguments
 import androidx.annotation.XmlRes
+import com.airship.airship.BuildConfig.PLUGIN_VERSION
+import com.urbanairship.analytics.Analytics
+
 
 const val PUSH_MESSAGE_BUNDLE_EXTRA = "com.urbanairship.push_bundle"
 
@@ -91,6 +93,8 @@ class FlutterAutopilot : Autopilot() {
             EventManager.shared.notifyEvent(DeepLinkEvent(deepLink))
             true
         }
+
+        airship.getAnalytics().registerSDKExtension(Analytics.EXTENSION_FLUTTER, PLUGIN_VERSION);
 
         loadCustomNotificationChannels(UAirship.getApplicationContext(), airship)
         loadCustomNotificationButtonGroups(UAirship.getApplicationContext(), airship)

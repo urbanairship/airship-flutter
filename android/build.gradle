@@ -1,6 +1,8 @@
 group 'com.airship.airship'
 version '1.0-SNAPSHOT'
 
+import org.yaml.snakeyaml.Yaml
+
 buildscript {
     ext.kotlin_version = '1.3.61'
     ext.coroutine_version = '1.0.0'
@@ -11,9 +13,19 @@ buildscript {
     }
 
     dependencies {
+        classpath 'org.yaml:snakeyaml:1.17'
         classpath 'com.android.tools.build:gradle:3.5.3'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
+}
+
+
+def getPluginVersion() {
+    Yaml yamlParser = new Yaml()
+
+    Map<String, Object> yaml = yamlParser.load(("../../pubspec.yaml" as File).text)
+
+    return yaml["version"].toString()
 }
 
 rootProject.allprojects {
@@ -35,6 +47,7 @@ android {
     defaultConfig {
         minSdkVersion 16
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "PLUGIN_VERSION", "\"${getPluginVersion()}\"")
     }
     lintOptions {
         disable 'InvalidPackage'
