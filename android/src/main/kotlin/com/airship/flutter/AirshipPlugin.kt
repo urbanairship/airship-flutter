@@ -114,6 +114,7 @@ class AirshipPlugin : MethodCallHandler {
             "deleteInboxMessage" -> deleteInboxMessage(call, result)
             "setInAppAutomationPaused" -> setInAppAutomationPaused(call, result)
             "getInAppAutomationPaused" -> getInAppAutomationPaused(result)
+            "enableChannelCreation" -> enableChannelCreation(result)
             else -> result.notImplemented()
         }
     }
@@ -361,6 +362,12 @@ class AirshipPlugin : MethodCallHandler {
 
     fun getChannelId(result: Result) {
         result.success(UAirship.shared().channel.id)
+    }
+
+
+    private fun enableChannelCreation(result: Result) {
+        UAirship.shared().channel.enableChannelCreation()
+        result.success(null)
     }
 
     @Suppress("UNCHECKED_CAST")
