@@ -1,5 +1,5 @@
 #import "AirshipPlugin.h"
-#import <airship/airship-Swift.h>
+#import <airship_flutter/airship_flutter-Swift.h>
 
 @implementation AirshipPlugin
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {

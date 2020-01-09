@@ -1,5 +1,4 @@
 import Foundation
-import AirshipKit
 
 enum AirshipEventType: String {
     case PushReceived = "PUSH_RECEIVED"
@@ -12,7 +11,6 @@ enum AirshipEventType: String {
 }
 
 extension AirshipEventType: CaseIterable {}
-
 
 protocol AirshipEvent {
     var eventType: AirshipEventType { get }

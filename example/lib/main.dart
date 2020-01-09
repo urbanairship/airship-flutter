@@ -8,7 +8,7 @@ import 'package:airship_example/screens/settings.dart';
 import 'package:airship_example/screens/message_center.dart';
 import 'package:airship_example/screens/message_view.dart';
 
-import 'package:airship/airship.dart';
+import 'package:airship_flutter/airship.dart';
 
 // Supported deep links
 const String home_deep_link =  "home";

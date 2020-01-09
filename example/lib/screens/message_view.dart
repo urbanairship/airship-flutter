@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:airship/airship.dart';
+import 'package:airship_flutter/airship.dart';
 import 'package:airship_example/styles.dart';
 
 class MessageView extends StatefulWidget {

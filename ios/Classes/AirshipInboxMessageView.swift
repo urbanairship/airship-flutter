@@ -1,5 +1,5 @@
-import AirshipKit
 import Foundation
+import Airship
 
 class AirshipInboxMessageViewFactory : NSObject, FlutterPlatformViewFactory {
 
@@ -18,16 +18,14 @@ class AirshipInboxMessageViewFactory : NSObject, FlutterPlatformViewFactory {
     }
 }
 
-class AirshipInboxMessageView : NSObject, FlutterPlatformView {
-
+class AirshipInboxMessageView : NSObject, FlutterPlatformView, UANativeBridgeDelegate, WKNavigationDelegate {
     let webView : WKWebView
-    let nativeBridge = UAWKWebViewNativeBridge()
+    let nativeBridge = UANativeBridge()
     let channel : FlutterMethodChannel
 
     init(frame: CGRect, viewId: Int64, registrar: FlutterPluginRegistrar) {
         self.webView = WKWebView(frame: frame)
-        self.webView.navigationDelegate = self.nativeBridge
-        self.webView.allowsLinkPreview = !UAirship.messageCenter().disableMessageLinkPreviewAndCallouts
+        self.webView.allowsLinkPreview = !UAMessageCenter.shared().defaultUI.disableMessageLinkPreviewAndCallouts
         self.webView.configuration.dataDetectorTypes = [.all]
 
         let channelName = "com.airship.flutter/InboxMessageView_\(viewId)"
@@ -35,6 +33,9 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView {
 
         super.init()
 
+        self.webView.navigationDelegate = self.nativeBridge
+        self.nativeBridge.forwardNavigationDelegate = self
+        self.nativeBridge.nativeBridgeDelegate = self
         weak var weakSelf = self
         channel.setMethodCallHandler { (call, result) in
             if let strongSelf = weakSelf {
@@ -60,27 +61,36 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView {
 
     private func loadMessage(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let messageId = call.arguments as! String
-        if let message = UAirship.inbox()?.messageList.message(forID: messageId) {
+        if let message = UAMessageCenter.shared().messageList.message(forID: messageId) {
             var request = URLRequest(url: message.messageBodyURL)
-            guard let userData = UAirship.inboxUser().getDataSync() else {
+            guard let user = UAMessageCenter.shared().user else {
                 result(FlutterError(code:"InvalidState",
-                                    message:"User not created.",
-                                    details:nil))
+                                 message:"User not created.",
+                                 details:nil))
                 return
             }
-            let auth = UAUtils.userAuthHeaderString(userData)
-            request.addValue(auth, forHTTPHeaderField: "Authorization")
-            webView.load(request)
-            message.markRead(completionHandler: nil)
-            result(nil)
+
+            user.getData({ (userData) in
+                let auth = UAUtils.authHeaderString(withName: userData.username, password: userData.password)
+                request.addValue(auth, forHTTPHeaderField: "Authorization")
+                DispatchQueue.main.async {
+                    self.webView.load(request)
+                    message.markRead(completionHandler: nil)
+                }
+
+            })
         } else {
             result(FlutterError(code:"InvalidMessage",
-                                message:"Unable to load message: \(messageId)",
-                details:nil))
-        }
+                             message:"Unable to load message: \(messageId)",
+                             details:nil))
+       }
     }
 
     func view() -> UIView {
         return webView
+    }
+
+    func close() {
+        // In the future we should send a close event to the dart layer
     }
 }

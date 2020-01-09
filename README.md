@@ -4,11 +4,11 @@ The Airship Flutter plugin allows using Airship's native iOS and Android APIs wi
 
 ## Usage
 
-1. Add the airship dependency to your package's pubspec.yaml file:
+1. Add the airship_flutter dependency to your package's pubspec.yaml file:
 
 ```
 dependencies:
-  airship: ^1.0.0
+  airship_flutter: ^2.0.0
 ```
 
 2. Install your flutter package dependencies by running the following in the command line at your project's root directory:
@@ -20,7 +20,7 @@ $ flutter pub get
 3. Import airship into your project:
 
 ```
-import 'package:airship/airship.dart';
+import 'package:airship_flutter/airship.dart';
 ```
 
 ### Android Setup
@@ -87,7 +87,7 @@ video, you will need to create a notification service extension by following the
 
 ```
 // Import package
-import 'package:airship/airship.dart';
+import 'package:airship_flutter/airship.dart';
 
 // Tags
 Airship.addTags(["flutter"]);
@@ -126,7 +126,7 @@ To use the InboxMessageView on iOS, you need to opt-in for the embedded views pr
 
 ```
 // Import package
-import 'package:airship/airship.dart';
+import 'package:airship_flutter/airship.dart';
 
 // Messages
 List<InboxMessage> messages = await Airship.inboxMessages;

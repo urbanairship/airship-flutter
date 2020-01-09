@@ -2,11 +2,11 @@
 # To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html
 #
 Pod::Spec.new do |s|
-  s.name             = 'airship'
-  s.version          = '1.0.0'
-  s.summary          = 'A new flutter plugin project.'
+  s.name             = 'airship_flutter'
+  s.version          = '2.0.0'
+  s.summary          = 'A flutter plugin for Airship.'
   s.description      = <<-DESC
-A new flutter plugin project.
+Airship flutter plugin.
                        DESC
   s.homepage         = 'http://airship.com'
   s.license          = { :file => '../LICENSE' }
@@ -17,6 +17,6 @@ A new flutter plugin project.
   s.dependency 'Flutter'
 
   s.ios.deployment_target   = "11.0"
-  s.dependency              'UrbanAirship-iOS-SDK', '~> 12.1.2'
+  s.dependency              'Airship', '~> 13.0.4'
 end
 
