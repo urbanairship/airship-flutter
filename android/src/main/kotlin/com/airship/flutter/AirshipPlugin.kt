@@ -26,18 +26,18 @@ import io.flutter.plugin.common.StandardMessageCodec
 import io.flutter.plugin.platform.PlatformView
 import io.flutter.plugin.platform.PlatformViewFactory
 
-private val TAG_OPERATION_GROUP_NAME = "group"
-private val TAG_OPERATION_TYPE = "operationType"
-private val TAG_OPERATION_TAGS = "tags"
-private val TAG_OPERATION_ADD = "add"
-private val TAG_OPERATION_REMOVE = "remove"
-private val TAG_OPERATION_SET = "set"
+private const val TAG_OPERATION_GROUP_NAME = "group"
+private const val TAG_OPERATION_TYPE = "operationType"
+private const val TAG_OPERATION_TAGS = "tags"
+private const val TAG_OPERATION_ADD = "add"
+private const val TAG_OPERATION_REMOVE = "remove"
+private const val TAG_OPERATION_SET = "set"
 
-private val ATTRIBUTE_MUTATION_TYPE = "action"
-private val ATTRIBUTE_MUTATION_KEY = "key"
-private val ATTRIBUTE_MUTATION_VALUE = "value"
-private val ATTRIBUTE_MUTATION_REMOVE = "remove"
-private val ATTRIBUTE_MUTATION_SET = "set"
+private const val ATTRIBUTE_MUTATION_TYPE = "action"
+private const val ATTRIBUTE_MUTATION_KEY = "key"
+private const val ATTRIBUTE_MUTATION_VALUE = "value"
+private const val ATTRIBUTE_MUTATION_REMOVE = "remove"
+private const val ATTRIBUTE_MUTATION_SET = "set"
 
 class InboxMessageViewFactory(private val registrar: Registrar) : PlatformViewFactory(StandardMessageCodec.INSTANCE) {
     override fun create(context: Context, viewId: Int, arguments: Any?): PlatformView {
@@ -114,7 +114,8 @@ class AirshipPlugin : MethodCallHandler {
             "markInboxMessageRead" -> markInboxMessageRead(call, result)
             "deleteInboxMessage" -> deleteInboxMessage(call, result)
             "setInAppAutomationPaused" -> setInAppAutomationPaused(call, result)
-            "getInAppAutomationPaused" -> getInAppAutomationPaused(call, result)
+            "getInAppAutomationPaused" -> getInAppAutomationPaused(result)
+            "enableChannelCreation" -> enableChannelCreation(result)
             else -> result.notImplemented()
         }
     }
@@ -200,51 +201,47 @@ class AirshipPlugin : MethodCallHandler {
 
     private fun removeTags(call: MethodCall, result: Result) {
         val tags = uncheckedCast<List<String>>(call.arguments).toSet()
-        UAirship.shared().pushManager.editTags().removeTags(tags).apply()
+        UAirship.shared().channel.editTags().removeTags(tags).apply()
         result.success(null)
     }
 
     private fun getTags(result: Result) {
-        result.success(ArrayList<String>(UAirship.shared().pushManager.tags))
+        result.success(ArrayList<String>(UAirship.shared().channel.tags))
     }
 
     private fun editChannelTagGroups(call: MethodCall, result: Result) {
         var operations = call.arguments as ArrayList<Map<String, Any?>>
-        this.applyTagGroupOperations(UAirship.shared().getPushManager().editTagGroups(), operations)
+        this.applyTagGroupOperations(UAirship.shared().channel.editTagGroups(), operations)
         result.success(null)
     }
 
     private fun editNamedUserTagGroups(call: MethodCall, result: Result) {
         var operations = call.arguments as ArrayList<Map<String, Any?>>
-        this.applyTagGroupOperations(UAirship.shared().getNamedUser().editTagGroups(), operations)
+        this.applyTagGroupOperations(UAirship.shared().namedUser.editTagGroups(), operations)
         result.success(null)
     }
 
     private fun applyTagGroupOperations(editor: TagGroupsEditor, operations: ArrayList<Map<String, Any?>>) {
         for (i in 0 until operations.size) {
-            var operation = operations.get(i)
-            if (operation == null) {
-                continue;
-            }
+            val operation: Map<String, Any?> = operations[i]
+            val group = operation[TAG_OPERATION_GROUP_NAME] as String
+            val tags = operation[TAG_OPERATION_TAGS] as ArrayList<String?>
+            val operationType = operation[TAG_OPERATION_TYPE] as String
 
-            var group = operation[TAG_OPERATION_GROUP_NAME] as String ?: continue
-            var tags = operation[TAG_OPERATION_TAGS] as ArrayList<String?> ?: continue
-            var operationType = operation[TAG_OPERATION_TYPE] as String ?: continue
-
-            var tagSet = mutableSetOf<String?>()
+            val tagSet = mutableSetOf<String?>()
             for (j in 0 until tags.size) {
-                var tag = tags[j] as String?
+                val tag = tags[j]
                 if (tag != null) {
                     tagSet.add(tag)
                 }
             }
 
-            if (TAG_OPERATION_ADD.equals(operationType)) {
-                editor.addTags(group, tagSet);
-            } else if (TAG_OPERATION_REMOVE.equals(operationType)) {
-                editor.removeTags(group, tagSet);
-            } else if (TAG_OPERATION_SET.equals(operationType)) {
-                editor.setTags(group, tagSet);
+            if (TAG_OPERATION_ADD == operationType) {
+                editor.addTags(group, tagSet)
+            } else if (TAG_OPERATION_REMOVE == operationType) {
+                editor.removeTags(group, tagSet)
+            } else if (TAG_OPERATION_SET == operationType) {
+                editor.setTags(group, tagSet)
             }
         }
 
@@ -316,33 +313,33 @@ class AirshipPlugin : MethodCallHandler {
 
         if (UAStringUtil.isEmpty(identifier)) {
             result.error("InvalidIdentifierFormat", "Unable to clear notification", null)
-            return;
+            return
         }
 
         val parts = identifier.split(":", ignoreCase = true, limit = 2)
-        if (parts.size == 0) {
+        if (parts.isEmpty()) {
             result.error("InvalidIdentifierFormat", "Unable to clear notification", null)
-            return;
+            return
         }
 
         var tag = String()
-        var id = 0
+        var id: Int
 
         try {
-            id = (parts[0]).toInt();
+            id = (parts[0]).toInt()
         } catch (e: NumberFormatException) {
             result.error("InvalidIdentifierFormat", "Unable to clear notification", null)
-            return;
+            return
         }
 
         if (parts.size == 2) {
-            tag = parts[1];
+            tag = parts[1]
         }
 
         if (tag == "") {
-            NotificationManagerCompat.from(UAirship.getApplicationContext()).cancel(null, id);
+            NotificationManagerCompat.from(UAirship.getApplicationContext()).cancel(null, id)
         } else {
-            NotificationManagerCompat.from(UAirship.getApplicationContext()).cancel(tag, id);
+            NotificationManagerCompat.from(UAirship.getApplicationContext()).cancel(tag, id)
         }
 
         result.success(true)
@@ -360,12 +357,18 @@ class AirshipPlugin : MethodCallHandler {
         result.success(true)
     }
 
-    private fun getInAppAutomationPaused(call: MethodCall, result: Result) {
+    private fun getInAppAutomationPaused(result: Result) {
         result.success(UAirship.shared().inAppMessagingManager.isPaused)
     }
 
     fun getChannelId(result: Result) {
-        result.success(UAirship.shared().pushManager.channelId)
+        result.success(UAirship.shared().channel.id)
+    }
+
+
+    private fun enableChannelCreation(result: Result) {
+        UAirship.shared().channel.enableChannelCreation()
+        result.success(null)
     }
 
     @Suppress("UNCHECKED_CAST")

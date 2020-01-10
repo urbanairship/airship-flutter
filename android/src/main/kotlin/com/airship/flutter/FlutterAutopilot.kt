@@ -14,7 +14,7 @@ import com.urbanairship.push.notifications.NotificationArguments
 import androidx.annotation.XmlRes
 import com.airship.airship.BuildConfig.PLUGIN_VERSION
 import com.urbanairship.analytics.Analytics
-
+import com.urbanairship.channel.AirshipChannelListener
 
 const val PUSH_MESSAGE_BUNDLE_EXTRA = "com.urbanairship.push_bundle"
 
@@ -64,17 +64,14 @@ class FlutterAutopilot : Autopilot() {
             override fun onNotificationDismissed(@NonNull notificationInfo: NotificationInfo) {}
         })
 
-        airship.pushManager.addRegistrationListener(object : RegistrationListener {
+        airship.channel.addChannelListener(object : AirshipChannelListener {
             override fun onChannelCreated(channelId: String) {
-
-                post(ChannelRegistrationEvent(channelId, UAirship.shared().pushManager.registrationToken))
+                post(ChannelRegistrationEvent(channelId, UAirship.shared().pushManager.pushToken))
             }
 
             override fun onChannelUpdated(channelId: String) {
-                post(ChannelRegistrationEvent(channelId, UAirship.shared().pushManager.registrationToken))
+                post(ChannelRegistrationEvent(channelId, UAirship.shared().pushManager.pushToken))
             }
-
-            override fun onPushTokenUpdated(pushToken: String) {}
         })
 
         airship.messageCenter.setOnShowMessageCenterListener(object : MessageCenter.OnShowMessageCenterListener {
