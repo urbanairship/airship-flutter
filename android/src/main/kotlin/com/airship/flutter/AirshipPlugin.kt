@@ -6,7 +6,6 @@ import android.view.View
 import android.os.Build
 import androidx.core.app.NotificationManagerCompat
 import com.urbanairship.UAirship
-import com.urbanairship.analytics.Analytics
 import com.urbanairship.analytics.CustomEvent
 import com.urbanairship.json.JsonMap
 import com.urbanairship.json.JsonValue

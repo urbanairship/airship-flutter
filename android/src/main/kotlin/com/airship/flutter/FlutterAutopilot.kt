@@ -12,7 +12,6 @@ import com.urbanairship.push.*
 import com.urbanairship.push.notifications.AirshipNotificationProvider
 import com.urbanairship.push.notifications.NotificationArguments
 import androidx.annotation.XmlRes
-import com.airship.airship.BuildConfig.PLUGIN_VERSION
 import com.urbanairship.analytics.Analytics
 import com.urbanairship.channel.AirshipChannelListener
 
@@ -91,7 +90,7 @@ class FlutterAutopilot : Autopilot() {
             true
         }
 
-        airship.getAnalytics().registerSDKExtension(Analytics.EXTENSION_FLUTTER, PLUGIN_VERSION);
+        airship.getAnalytics().registerSDKExtension(Analytics.EXTENSION_FLUTTER, AirshipPluginVersion.AIRSHIP_PLUGIN_VERSION);
 
         loadCustomNotificationChannels(UAirship.getApplicationContext(), airship)
         loadCustomNotificationButtonGroups(UAirship.getApplicationContext(), airship)
