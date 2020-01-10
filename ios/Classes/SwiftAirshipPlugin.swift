@@ -1,10 +1,9 @@
 import Flutter
 import UIKit
-import AirshipKit
+import Airship
 
 public class SwiftAirshipPlugin: NSObject, FlutterPlugin, UARegistrationDelegate,
-UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
-
+UADeepLinkDelegate, UAPushNotificationDelegate {
     private let eventNameKey = "event_name";
     private let eventValueKey = "event_value";
     private let propertiesKey = "properties";
@@ -17,6 +16,12 @@ UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
     private let tagOperationAdd = "add";
     private let tagOperationRemove = "remove";
     private let tagOperationSet = "set";
+
+    private let attributeOperationType = "action"
+    private let attributeOperationSet = "set"
+    private let attributeOperationRemove = "remove"
+    private let attributeOperationKey = "key"
+    private let attributeOperationValue = "value"
 
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "com.airship.flutter/airship",
@@ -35,7 +40,6 @@ UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
         UAirship.push()?.registrationDelegate = self
         UAirship.shared()?.deepLinkDelegate = self
         UAirship.push()?.pushNotificationDelegate = self
-        UAirship.inbox()?.delegate = self
 
         UAirship.push()?.defaultPresentationOptions = [.alert]
 
@@ -114,6 +118,8 @@ UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
             removeTags(call, result: result)
         case "getTags":
             getTags(call, result: result)
+        case "editAttributes":
+            editAttributes(call, result: result)
         case "editNamedUserTagGroups":
             editNamedUserTagGroups(call, result: result)
         case "editChannelTagGroups":
@@ -248,6 +254,25 @@ UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
         result(UAirship.channel().tags)
     }
 
+    private func editAttributes(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let operations = call.arguments as! [Dictionary<String, Any>]
+        let mutations:UAAttributeMutations = UAAttributeMutations()
+        for operation in operations {
+            guard let operationType = operation[attributeOperationType] as? String else { continue }
+            guard let name = operation[attributeOperationKey] as? String else { continue }
+
+            if (operationType == attributeOperationSet) {
+                // Only strings are currently supported
+                guard let value = operation[attributeOperationValue] as? String else { continue }
+                mutations.setString(value, forAttribute: name)
+            } else if (operationType == attributeOperationRemove) {
+                mutations.removeAttribute(name)
+            }
+        }
+
+        result(nil)
+    }
+
     private func editNamedUserTagGroups(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let operations = call.arguments as! [Dictionary<String, Any>]
         let namedUser = UAirship.namedUser()
@@ -300,7 +325,7 @@ UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
     }
 
     private func getInboxMessages(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let messages = UAirship.inbox()?.messageList.messages.map { (message) -> String in
+        let messages = UAMessageCenter.shared().messageList.messages.map { (message) -> String in
             var payload = ["title": message.title,
                            "message_id": message.messageID,
                            "sent_date": UAUtils.isoDateFormatterUTCWithDelimiter().string(from: message.messageSent),
@@ -325,15 +350,15 @@ UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
     }
 
     private func markInboxMessageRead(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let message = UAirship.inbox().messageList.message(forID: call.arguments as! String)
-        UAirship.inbox().messageList.markMessagesRead([message as Any]) {
+        let message = UAMessageCenter.shared().messageList.message(forID: call.arguments as! String)
+        UAMessageCenter.shared().messageList.markMessagesRead([message as Any]) {
             result(nil)
         }
     }
 
     private func deleteInboxMessage(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let message = UAirship.inbox().messageList.message(forID: call.arguments as! String)
-        UAirship.inbox().messageList.markMessagesDeleted([message as Any]) {
+        let message = UAMessageCenter.shared().messageList.message(forID: call.arguments as! String)
+        UAMessageCenter.shared().messageList.markMessagesDeleted([message as Any]) {
             result(nil)
         }
     }
@@ -351,12 +376,12 @@ UADeepLinkDelegate, UAPushNotificationDelegate, UAInboxDelegate {
     private func setInAppAutomationPaused(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let paused = call.arguments as! Bool
 
-        UAirship.inAppMessageManager()?.isPaused = paused
+        UAInAppMessageManager.shared().isPaused = paused
         result(true)
     }
 
     private func getInAppAutomationPaused(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        result(UAirship.inAppMessageManager()?.isPaused)
+        result(UAInAppMessageManager.shared().isPaused)
     }
 }
 

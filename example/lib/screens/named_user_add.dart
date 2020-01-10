@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:airship_example/styles.dart';
 import 'package:airship_example/widgets/text_add_bar.dart';
-import 'package:airship/airship.dart';
+import 'package:airship_flutter/airship.dart';
 
 class NamedUserAdd extends StatelessWidget {
   final updateParent;

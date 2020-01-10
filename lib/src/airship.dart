@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:airship/src/attribute_editor.dart';
+import 'package:airship_flutter/src/attribute_editor.dart';
 import 'package:flutter/services.dart';
 import 'custom_event.dart';
 import 'tag_group_editor.dart';
