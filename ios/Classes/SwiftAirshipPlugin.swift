@@ -4,8 +4,6 @@ import Airship
 
 public class SwiftAirshipPlugin: NSObject, FlutterPlugin, UARegistrationDelegate,
 UADeepLinkDelegate, UAPushNotificationDelegate {
-    private let pluginVersion = "2.0.0"
-
     private let eventNameKey = "event_name"
     private let eventValueKey = "event_value"
     private let propertiesKey = "properties"
