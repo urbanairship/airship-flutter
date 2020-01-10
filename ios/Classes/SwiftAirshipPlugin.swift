@@ -138,6 +138,8 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
             setInAppAutomationPaused(call, result: result)
         case "getInAppAutomationPaused":
             getInAppAutomationPaused(call, result: result)
+        case "enableChannelCreation":
+            enableChannelCreation(call, result: result)
         default:
             result(FlutterError(code:"UNAVAILABLE",
                 message:"Unknown method: \(call.method)",
@@ -382,6 +384,11 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
 
     private func getInAppAutomationPaused(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         result(UAInAppMessageManager.shared().isPaused)
+    }
+
+    private func enableChannelCreation(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        UAirship.channel()?.enableCreation()
+        result(nil)
     }
 }
 

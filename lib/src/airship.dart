@@ -244,6 +244,10 @@ class Airship {
     }).toList();
   }
 
+  static Future<void> enableChannelCreation() async {
+    return await _channel.invokeMethod('enableChannelCreation');
+  }
+
   static Stream<void> get onInboxUpdated {
     return _getEventStream("INBOX_UPDATED");
   }
