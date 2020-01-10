@@ -10,5 +10,5 @@ if [ -z "$1" ]
     exit
 fi
 
-# Update UARCTModuleVersion.m for current install
+# Update AirshipPluginVersion.m with current plugin version
 sed -i '' "s/\(pluginVersion *= *\)\".*\"/\1\"$VERSION\"/g" $ROOT_PATH/ios/Classes/AirshipPluginVersion.swift
