@@ -43,7 +43,7 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
         UAirship.shared()?.deepLinkDelegate = self
         UAirship.push()?.pushNotificationDelegate = self
 
-        UAirship.analytics()?.register(UASDKExtension.flutter, version: pluginVersion)
+        UAirship.analytics()?.register(UASDKExtension.flutter, version: AirshipPluginVersion.pluginVersion)
 
         UAirship.push()?.defaultPresentationOptions = [.alert]
         NotificationCenter.default.addObserver(self,
