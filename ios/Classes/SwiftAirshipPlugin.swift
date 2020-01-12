@@ -331,7 +331,7 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
             var payload = ["title": message.title,
                            "message_id": message.messageID,
                            "sent_date": UAUtils.isoDateFormatterUTCWithDelimiter().string(from: message.messageSent),
-                           "is_read": message.unread] as [String : Any]
+                           "is_read": !message.unread] as [String : Any]
 
 
             if let icons = message.rawMessageObject["icons"] as? [String:Any] {
