@@ -20,6 +20,13 @@
 
 4. To edit Android plugin in Android Studio right click `android` folder to open the menu and click Flutter -> Open Android module in Android Studio
 
+### Updating Plugin Version
+
+To update the plugin version, use the update_version script by running the following command at the project root directory:
+
+Replace NEW_VERSION with your semantic version (i.e. 2.0.0):
+
+`./scripts/update_version NEW_VERSION`
 
 ### Plugin Structure
 

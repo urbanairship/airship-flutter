@@ -4,18 +4,18 @@ import Airship
 
 public class SwiftAirshipPlugin: NSObject, FlutterPlugin, UARegistrationDelegate,
 UADeepLinkDelegate, UAPushNotificationDelegate {
-    private let eventNameKey = "event_name";
-    private let eventValueKey = "event_value";
-    private let propertiesKey = "properties";
-    private let transactionIDKey = "transaction_id";
-    private let interactionIDKey = "interaction_id";
-    private let interactionTypeKey = "interaction_type";
-    private let tagOperationGroupName = "group";
-    private let tagOperationType = "operationType";
-    private let tagOperationTags = "tags";
-    private let tagOperationAdd = "add";
-    private let tagOperationRemove = "remove";
-    private let tagOperationSet = "set";
+    private let eventNameKey = "event_name"
+    private let eventValueKey = "event_value"
+    private let propertiesKey = "properties"
+    private let transactionIDKey = "transaction_id"
+    private let interactionIDKey = "interaction_id"
+    private let interactionTypeKey = "interaction_type"
+    private let tagOperationGroupName = "group"
+    private let tagOperationType = "operationType"
+    private let tagOperationTags = "tags"
+    private let tagOperationAdd = "add"
+    private let tagOperationRemove = "remove"
+    private let tagOperationSet = "set"
 
     private let attributeOperationType = "action"
     private let attributeOperationSet = "set"
@@ -41,8 +41,9 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
         UAirship.shared()?.deepLinkDelegate = self
         UAirship.push()?.pushNotificationDelegate = self
 
-        UAirship.push()?.defaultPresentationOptions = [.alert]
+        UAirship.analytics()?.register(UASDKExtension.flutter, version: AirshipPluginVersion.pluginVersion)
 
+        UAirship.push()?.defaultPresentationOptions = [.alert]
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(inboxUpdated),
                                                name: NSNotification.Name.UAInboxMessageListUpdated,

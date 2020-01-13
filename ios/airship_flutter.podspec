@@ -1,9 +1,12 @@
+AIRSHIP_FLUTTER_VERSION="2.0.0"
+
 #
 # To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html
 #
+
 Pod::Spec.new do |s|
   s.name             = 'airship_flutter'
-  s.version          = '2.0.0'
+  s.version          = AIRSHIP_FLUTTER_VERSION
   s.summary          = 'A flutter plugin for Airship.'
   s.description      = <<-DESC
 Airship flutter plugin.
