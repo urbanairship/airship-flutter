@@ -1,4 +1,4 @@
-Version 2.0.1 - January 10, 2020
+Version 2.0.0 - January 13, 2020
 ================================
 - Renamed plugin package name from airship to airship_flutter
 - Updated iOS SDK to 13.0.4
