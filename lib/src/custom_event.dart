@@ -60,15 +60,14 @@ class CustomEvent {
     _properties[key] = arr;
   }
 
-
   Map<String, dynamic> toMap() {
     return {
-      EVENT_NAME:name,
-      EVENT_VALUE:value,
-      PROPERTIES:_properties,
-      TRANSACTION_ID:transactionId,
-      INTERACTION_ID:interactionId,
-      INTERACTION_TYPE:interactionType
+      EVENT_NAME: name,
+      EVENT_VALUE: value,
+      PROPERTIES: _properties,
+      TRANSACTION_ID: transactionId,
+      INTERACTION_ID: interactionId,
+      INTERACTION_TYPE: interactionType
     };
   }
 }

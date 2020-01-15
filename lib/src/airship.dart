@@ -15,7 +15,8 @@ class InboxMessage {
   final bool isRead;
   final Map<String, dynamic> extras;
 
-  const InboxMessage._internal(this.title, this.messageId, this.sentDate, this.expirationDate, this.listIcon, this.isRead, this.extras);
+  const InboxMessage._internal(this.title, this.messageId, this.sentDate,
+      this.expirationDate, this.listIcon, this.isRead, this.extras);
 
   static InboxMessage _fromJson(Map<String, dynamic> json) {
     var title = json["title"];
@@ -25,7 +26,8 @@ class InboxMessage {
     var listIcon = json["list_icon"];
     var isRead = json["is_read"];
     var extras = json["extras"];
-    return InboxMessage._internal(title, messageId, sentDate, expirationDate, listIcon, isRead, extras);
+    return InboxMessage._internal(
+        title, messageId, sentDate, expirationDate, listIcon, isRead, extras);
   }
 
   @override
@@ -41,7 +43,8 @@ class Notification {
   final String subtitle;
   final Map<String, dynamic> extras;
 
-  const Notification._internal(this.notificationId, this.alert, this.title, this.subtitle, this.extras);
+  const Notification._internal(
+      this.notificationId, this.alert, this.title, this.subtitle, this.extras);
 
   static Notification _fromJson(Map<String, dynamic> json) {
     var notificationId = json["notification_id"];
@@ -52,7 +55,8 @@ class Notification {
     if (json["extras"] != null) {
       extras = Map<String, dynamic>.from(json["extras"]);
     }
-    return Notification._internal(notificationId, alert, title, subtitle, extras);
+    return Notification._internal(
+        notificationId, alert, title, subtitle, extras);
   }
 
   @override
@@ -67,14 +71,20 @@ class NotificationResponseEvent {
   final Notification notification;
   final Map<String, dynamic> payload;
 
-  const NotificationResponseEvent._internal(this.actionId, this.isForeground, this.notification, this.payload,);
+  const NotificationResponseEvent._internal(
+    this.actionId,
+    this.isForeground,
+    this.notification,
+    this.payload,
+  );
 
   static NotificationResponseEvent _fromJson(Map<String, dynamic> json) {
     var actionId = json["action_id"];
     var isForeground = json["is_foreground"];
     var notification = Notification._fromJson(json["notification"]);
     var payload = json["payload"];
-    return NotificationResponseEvent._internal(actionId, isForeground, notification, payload);
+    return NotificationResponseEvent._internal(
+        actionId, isForeground, notification, payload);
   }
 
   @override
@@ -125,7 +135,8 @@ class ChannelEvent {
 }
 
 class Airship {
-  static const MethodChannel _channel = const MethodChannel('com.airship.flutter/airship');
+  static const MethodChannel _channel =
+      const MethodChannel('com.airship.flutter/airship');
   static Map<String, EventChannel> _eventChannels = new Map();
   static Map<String, Stream<dynamic>> _eventStreams = new Map();
 
@@ -136,7 +147,8 @@ class Airship {
     }
 
     if (_eventStreams[eventType] == null) {
-      _eventStreams[eventType] = _eventChannels[eventType].receiveBroadcastStream();
+      _eventStreams[eventType] =
+          _eventChannels[eventType].receiveBroadcastStream();
     }
 
     return _eventStreams[eventType];
@@ -219,7 +231,8 @@ class Airship {
     if (message == null) {
       throw ArgumentError.notNull('message');
     }
-    return await _channel.invokeMethod('markInboxMessageRead', message.messageId);
+    return await _channel.invokeMethod(
+        'markInboxMessageRead', message.messageId);
   }
 
   static Future<void> deleteInboxMessage(InboxMessage message) async {
@@ -238,7 +251,7 @@ class Airship {
   }
 
   static Future<List<Notification>> get activeNotifications async {
-    List notifications =  await _channel.invokeMethod('getActiveNotifications');
+    List notifications = await _channel.invokeMethod('getActiveNotifications');
     return notifications.map((dynamic payload) {
       return Notification._fromJson(Map<String, dynamic>.from(payload));
     }).toList();
@@ -258,7 +271,7 @@ class Airship {
 
   static Stream<String> get onShowInboxMessage {
     return _getEventStream("SHOW_INBOX_MESSAGE")
-        .map((dynamic value) =>  jsonDecode(value) as String);
+        .map((dynamic value) => jsonDecode(value) as String);
   }
 
   static Stream<PushReceivedEvent> get onPushReceived {
@@ -267,8 +280,8 @@ class Airship {
   }
 
   static Stream<NotificationResponseEvent> get onNotificationResponse {
-    return _getEventStream("NOTIFICATION_RESPONSE")
-        .map((dynamic value) => NotificationResponseEvent._fromJson(jsonDecode(value)));
+    return _getEventStream("NOTIFICATION_RESPONSE").map((dynamic value) =>
+        NotificationResponseEvent._fromJson(jsonDecode(value)));
   }
 
   static Stream<ChannelEvent> get onChannelRegistration {
@@ -278,7 +291,7 @@ class Airship {
 
   static Stream<String> get onDeepLink {
     return _getEventStream("DEEP_LINK")
-        .map((dynamic value) =>  jsonDecode(value) as String);
+        .map((dynamic value) => jsonDecode(value) as String);
   }
 
   static Future<void> setInAppAutomationPaused(bool paused) async {
@@ -292,5 +305,4 @@ class Airship {
   static Future<void> get getInAppAutomationPaused async {
     return await _channel.invokeMethod('getInAppAutomationPaused');
   }
-
 }

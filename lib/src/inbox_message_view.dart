@@ -12,19 +12,20 @@ class InboxMessageView extends StatelessWidget {
   });
 
   Future<void> onPlatformViewCreated(id) async {
-    MethodChannel _channel =  new MethodChannel('com.airship.flutter/InboxMessageView_$id');
+    MethodChannel _channel =
+        new MethodChannel('com.airship.flutter/InboxMessageView_$id');
     _channel.invokeMethod('loadMessage', messageId);
   }
 
   @override
   Widget build(BuildContext context) {
-    if(defaultTargetPlatform == TargetPlatform.android) {
+    if (defaultTargetPlatform == TargetPlatform.android) {
       return AndroidView(
         viewType: 'com.airship.flutter/InboxMessageView',
         onPlatformViewCreated: onPlatformViewCreated,
         creationParamsCodec: const StandardMessageCodec(),
       );
-    } else if(defaultTargetPlatform == TargetPlatform.iOS) {
+    } else if (defaultTargetPlatform == TargetPlatform.iOS) {
       return UiKitView(
         viewType: 'com.airship.flutter/InboxMessageView',
         onPlatformViewCreated: onPlatformViewCreated,
@@ -32,6 +33,7 @@ class InboxMessageView extends StatelessWidget {
       );
     }
 
-    return new Text('$defaultTargetPlatform is not yet supported by this plugin');
+    return new Text(
+        '$defaultTargetPlatform is not yet supported by this plugin');
   }
 }
