@@ -141,6 +141,8 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
             getInAppAutomationPaused(call, result: result)
         case "enableChannelCreation":
             enableChannelCreation(call, result: result)
+        case "trackScreen":
+            trackScreen(call, result: result)
         default:
             result(FlutterError(code:"UNAVAILABLE",
                 message:"Unknown method: \(call.method)",
@@ -389,6 +391,13 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
 
     private func enableChannelCreation(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         UAirship.channel()?.enableCreation()
+        result(nil)
+    }
+    
+    private func trackScreen(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let screen = call.arguments as! String
+        
+        UAirship.analytics()?.trackScreen(screen)
         result(nil)
     }
 }
