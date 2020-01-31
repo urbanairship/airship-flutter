@@ -18,11 +18,18 @@ class AttributeEditor {
         this.channel = channel;
 
   void removeAttribute(String name) {
-    operations.add({ATTRIBUTE_OPERATION_TYPE:ATTRIBUTE_OPERATION_REMOVE, ATTRIBUTE_OPERATION_KEY:name});
+    operations.add({
+      ATTRIBUTE_OPERATION_TYPE: ATTRIBUTE_OPERATION_REMOVE,
+      ATTRIBUTE_OPERATION_KEY: name
+    });
   }
 
   void setAttribute(String name, String value) {
-    operations.add({ATTRIBUTE_OPERATION_TYPE:ATTRIBUTE_OPERATION_SET, ATTRIBUTE_OPERATION_KEY:name, ATTRIBUTE_OPERATION_VALUE:value});
+    operations.add({
+      ATTRIBUTE_OPERATION_TYPE: ATTRIBUTE_OPERATION_SET,
+      ATTRIBUTE_OPERATION_KEY: name,
+      ATTRIBUTE_OPERATION_VALUE: value
+    });
   }
 
   Future<void> apply() async {
