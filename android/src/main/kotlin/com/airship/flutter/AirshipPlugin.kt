@@ -115,7 +115,7 @@ class AirshipPlugin : MethodCallHandler {
             "setInAppAutomationPaused" -> setInAppAutomationPaused(call, result)
             "getInAppAutomationPaused" -> getInAppAutomationPaused(result)
             "enableChannelCreation" -> enableChannelCreation(result)
-            "trackScreen" -> trackScreen(result)
+            "trackScreen" -> trackScreen(call, result)
             else -> result.notImplemented()
         }
     }
