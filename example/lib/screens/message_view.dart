@@ -15,6 +15,12 @@ class _MessageViewState extends State<MessageView>  {
   bool isLoading = true;
 
   @override
+  void initState() {
+    Airship.trackScreen('Message View');
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<InboxMessage>>(
         future: Airship.inboxMessages,

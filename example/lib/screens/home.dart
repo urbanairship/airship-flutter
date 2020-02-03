@@ -12,6 +12,7 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     initAirshipListeners();
+    Airship.trackScreen('Home');
     super.initState();
   }
 

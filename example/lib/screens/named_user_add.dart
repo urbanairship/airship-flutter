@@ -3,10 +3,25 @@ import 'package:airship_example/styles.dart';
 import 'package:airship_example/widgets/text_add_bar.dart';
 import 'package:airship_flutter/airship.dart';
 
-class NamedUserAdd extends StatelessWidget {
+class NamedUserAdd extends StatefulWidget {
   final updateParent;
 
   NamedUserAdd({this.updateParent});
+
+  @override
+  _NamedUserAddState createState() => _NamedUserAddState(updateParent:updateParent);
+}
+
+class _NamedUserAddState extends State<NamedUserAdd> {
+  final updateParent;
+
+  _NamedUserAddState({this.updateParent});
+
+  @override
+  void initState() {
+    Airship.trackScreen('Add Named User');
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
