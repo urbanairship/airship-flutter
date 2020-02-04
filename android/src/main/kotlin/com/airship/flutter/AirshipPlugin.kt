@@ -115,6 +115,7 @@ class AirshipPlugin : MethodCallHandler {
             "setInAppAutomationPaused" -> setInAppAutomationPaused(call, result)
             "getInAppAutomationPaused" -> getInAppAutomationPaused(result)
             "enableChannelCreation" -> enableChannelCreation(result)
+            "trackScreen" -> trackScreen(call, result)
             else -> result.notImplemented()
         }
     }
@@ -367,6 +368,12 @@ class AirshipPlugin : MethodCallHandler {
 
     private fun enableChannelCreation(result: Result) {
         UAirship.shared().channel.enableChannelCreation()
+        result.success(null)
+    }
+
+    private fun trackScreen(call: MethodCall, result: Result) {
+        val screen = call.arguments as String
+        UAirship.shared().analytics.trackScreen(screen)
         result.success(null)
     }
 

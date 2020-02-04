@@ -305,4 +305,12 @@ class Airship {
   static Future<void> get getInAppAutomationPaused async {
     return await _channel.invokeMethod('getInAppAutomationPaused');
   }
+
+  static Future<void> trackScreen(String screen) async {
+    if (screen == null) {
+      throw ArgumentError.notNull('screen');
+    }
+
+    return await _channel.invokeMethod('trackScreen', screen);
+  }
 }

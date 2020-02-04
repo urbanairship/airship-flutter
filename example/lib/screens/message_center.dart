@@ -12,6 +12,7 @@ class _MessageCenterState extends State<MessageCenter> {
   @override
   void initState() {
     initAirshipListeners();
+    Airship.trackScreen('Message Center');
     super.initState();
   }
 

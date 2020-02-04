@@ -18,6 +18,12 @@ class _TagAddState extends State<TagAdd> {
   _TagAddState({this.updateParent});
 
   @override
+  void initState() {
+    Airship.trackScreen('Add Tag');
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     Widget _buildTagList(List<String> tags) {
       return ListView.builder(
