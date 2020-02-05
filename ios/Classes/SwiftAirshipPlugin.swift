@@ -267,9 +267,14 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
             guard let name = operation[attributeOperationKey] as? String else { continue }
 
             if (operationType == attributeOperationSet) {
-                // Only strings are currently supported
-                guard let value = operation[attributeOperationValue] as? String else { continue }
-                mutations.setString(value, forAttribute: name)
+                if let value = operation[attributeOperationValue] as? String {
+                    mutations.setString(value, forAttribute: name)
+                    continue
+                }
+                if let value = operation[attributeOperationValue] as? NSNumber, CFGetTypeID(value) == CFNumberGetTypeID() {
+                    mutations.setNumber(value, forAttribute: name)
+                    continue
+                }
             } else if (operationType == attributeOperationRemove) {
                 mutations.removeAttribute(name)
             }
