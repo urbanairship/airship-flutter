@@ -260,9 +260,27 @@ class AirshipPlugin : MethodCallHandler {
             val key = operation[ATTRIBUTE_MUTATION_KEY] as? String ?: continue
 
             if (ATTRIBUTE_MUTATION_SET == action) {
-                // Only strings are currently supported as attribute values
-                val value = operation[ATTRIBUTE_MUTATION_VALUE] as? String ?: continue
-                editor.setAttribute(value, key)
+                val value = operation[ATTRIBUTE_MUTATION_VALUE]
+                if (value is String) {
+                    editor.setAttribute(key, value)
+                    continue
+                }
+                if (value is Int) {
+                    editor.setAttribute(key, value)
+                    continue
+                }
+                if (value is Long) {
+                    editor.setAttribute(key, value)
+                    continue
+                }
+                if (value is Double) {
+                    editor.setAttribute(key, value)
+                    continue
+                }
+                if (value is Float) {
+                    editor.setAttribute(key, value)
+                    continue
+                }
             } else if (ATTRIBUTE_MUTATION_REMOVE == action) {
                 editor.removeAttribute(key)
             }

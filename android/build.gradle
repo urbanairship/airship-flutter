@@ -46,5 +46,5 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutine_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutine_version"
-    implementation 'com.urbanairship.android:urbanairship-fcm:12.1.0'
+    implementation 'com.urbanairship.android:urbanairship-fcm:12.2.0'
 }
