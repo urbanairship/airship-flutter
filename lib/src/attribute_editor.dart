@@ -23,7 +23,7 @@ class AttributeEditor {
       ATTRIBUTE_OPERATION_KEY: name
     });
   }
-
+  
   void setAttribute(String name, String value) {
     operations.add({
       ATTRIBUTE_OPERATION_TYPE: ATTRIBUTE_OPERATION_SET,
@@ -32,6 +32,14 @@ class AttributeEditor {
     });
   }
 
+  void setNumberAttribute(String name, num value) {
+    operations.add({
+      ATTRIBUTE_OPERATION_TYPE: ATTRIBUTE_OPERATION_SET,
+      ATTRIBUTE_OPERATION_KEY: name,
+      ATTRIBUTE_OPERATION_VALUE: value
+    });
+  }
+  
   Future<void> apply() async {
     if (operations == null) {
       throw ArgumentError.notNull('operations');
