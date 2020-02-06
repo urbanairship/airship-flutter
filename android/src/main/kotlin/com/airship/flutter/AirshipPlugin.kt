@@ -116,6 +116,11 @@ class AirshipPlugin : MethodCallHandler {
             "getInAppAutomationPaused" -> getInAppAutomationPaused(result)
             "enableChannelCreation" -> enableChannelCreation(result)
             "trackScreen" -> trackScreen(call, result)
+            "getDataCollectionEnabled" -> getDataCollectionEnabled(result)
+            "getPushTokenRegistrationEnabled" -> getPushTokenRegistrationEnabled(result)
+            "setDataCollectionEnabled" -> setDataCollectionEnabled(call, result)
+            "setPushTokenRegistrationEnabled" -> setPushTokenRegistrationEnabled(call, result)
+
             else -> result.notImplemented()
         }
     }
@@ -300,6 +305,24 @@ class AirshipPlugin : MethodCallHandler {
 
     private fun setUserNotificationsEnabled(call: MethodCall, result: Result) {
         UAirship.shared().pushManager.userNotificationsEnabled = call.arguments as Boolean
+        result.success(true)
+    }
+
+    private fun getDataCollectionEnabled(result: Result) {
+        result.success(UAirship.shared().isDataCollectionEnabled)
+    }
+
+    private fun getPushTokenRegistrationEnabled(result: Result) {
+        result.success(UAirship.shared().pushManager.isPushTokenRegistrationEnabled)
+    }
+
+    private fun setDataCollectionEnabled(call: MethodCall, result: Result) {
+        UAirship.shared().isDataCollectionEnabled = (call.arguments as Boolean)
+        result.success(true)
+    }
+
+    private fun setPushTokenRegistrationEnabled(call: MethodCall, result: Result) {
+        UAirship.shared().pushManager.pushTokenRegistrationEnabled = (call.arguments as Boolean)
         result.success(true)
     }
 
