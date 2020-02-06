@@ -143,6 +143,10 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
             enableChannelCreation(call, result: result)
         case "trackScreen":
             trackScreen(call, result: result)
+        case "getDataCollectionEnabled":
+            getDataCollectionEnabled(call, result: result)
+        case "getPushTokenRegistrationEnabled":
+            getPushTokenRegistrationEnabled(call, result: result)
         case "setDataCollectionEnabled":
             setDataCollectionEnabled(call, result: result)
         case "setPushTokenRegistrationEnabled":
@@ -156,6 +160,14 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
 
     private func getChannelId(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         result(UAirship.channel().identifier)
+    }
+
+    private func getDataCollectionEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        result(UAirship.shared().isDataCollectionEnabled)
+    }
+
+    private func getPushTokenRegistrationEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        result(UAPush.shared().pushTokenRegistrationEnabled)
     }
 
     private func setDataCollectionEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
