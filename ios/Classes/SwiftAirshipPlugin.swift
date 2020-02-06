@@ -143,6 +143,10 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
             enableChannelCreation(call, result: result)
         case "trackScreen":
             trackScreen(call, result: result)
+        case "setDataCollectionEnabled":
+            setDataCollectionEnabled(call, result: result)
+        case "setPushTokenRegistrationEnabled":
+            setPushTokenRegistrationEnabled(call, result: result)
         default:
             result(FlutterError(code:"UNAVAILABLE",
                 message:"Unknown method: \(call.method)",
@@ -152,6 +156,18 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
 
     private func getChannelId(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         result(UAirship.channel().identifier)
+    }
+
+    private func setDataCollectionEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let enable = call.arguments as! Bool
+        UAirship.shared().isDataCollectionEnabled = enable
+        result(true)
+    }
+
+    private func setPushTokenRegistrationEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let enable = call.arguments as! Bool
+        UAPush.shared().pushTokenRegistrationEnabled = enable
+        result(true)
     }
 
     private func setUserNotificationsEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {

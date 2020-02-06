@@ -313,4 +313,20 @@ class Airship {
 
     return await _channel.invokeMethod('trackScreen', screen);
   }
+
+  static Future<bool> setDataCollectionEnabled(bool enabled) async {
+    if (enabled == null) {
+      throw ArgumentError.notNull('enabled');
+    }
+
+    return await _channel.invokeMethod('setDataCollectionEnabled', enabled);
+  }
+
+  static Future<bool> setPushTokenRegistrationEnabled(bool enabled) async {
+    if (enabled == null) {
+      throw ArgumentError.notNull('enabled');
+    }
+
+    return await _channel.invokeMethod('setPushTokenRegistrationEnabled', enabled);
+  }
 }
