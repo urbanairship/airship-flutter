@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:airship_flutter/airship.dart';
 import 'package:airship_example/styles.dart';
+import 'package:flutter/services.dart';
 
 class MessageView extends StatefulWidget {
   final String messageId;
@@ -17,7 +18,29 @@ class _MessageViewState extends State<MessageView>  {
   @override
   void initState() {
     Airship.trackScreen('Message View');
+    this.initAirshipListeners();
     super.initState();
+  }
+
+  Future<void> initAirshipListeners() async {
+    Airship.onWebviewLoadStarted.listen((event) {
+      if (mounted) {
+        setState(() {});
+        this.onLoadStarted();
+      }
+    });
+    Airship.onWebviewLoadFinished.listen((event) {
+      if (mounted) {
+        setState(() {});
+        this.onLoadFinished();
+      }
+    });
+    Airship.onWebviewClosed.listen((event) {
+      if (mounted) {
+        setState(() {});
+        this.onClose();
+      }
+    });
   }
 
   @override
@@ -47,7 +70,7 @@ class _MessageViewState extends State<MessageView>  {
                   isLoading
                       ? Center(child: CircularProgressIndicator())
                       : Container(),
-                  InboxMessageView(messageId: widget.messageId)
+                  InboxMessageView(messageId: widget.messageId, errorCallback:onLoadError)
                 ]),
           );
         });
@@ -59,7 +82,32 @@ class _MessageViewState extends State<MessageView>  {
     });
   }
 
+  onLoadStarted() {
+    setState(() {
+      isLoading = true;
+    });
+  }
+
   onLoadFinished() {
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  onLoadError(PlatformException e) {
+    setState(() {
+      isLoading = false;
+      showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text(e.message != null ? e.message : ""),
+            content: Text(e.details != null ? e.details : ""),
+          )
+      );
+    });
+  }
+
+  onClose() {
     setState(() {
       isLoading = false;
     });
