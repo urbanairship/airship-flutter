@@ -6,7 +6,7 @@ import 'package:flutter/widgets.dart';
 
 class InboxMessageView extends StatelessWidget {
   final String messageId;
-  void Function(PlatformException) errorCallback;
+  final void Function(PlatformException) errorCallback;
 
   InboxMessageView({
     @required this.messageId, this.errorCallback
