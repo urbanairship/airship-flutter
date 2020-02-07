@@ -19,9 +19,13 @@ class AirshipInboxMessageViewFactory : NSObject, FlutterPlatformViewFactory {
 }
 
 class AirshipInboxMessageView : NSObject, FlutterPlatformView, UANativeBridgeDelegate, WKNavigationDelegate {
+    let loadStartedEvent = AirshipWebviewLoadStartedEvent()
+    let loadFinishedEvent = AirshipWebviewLoadFinishedEvent()
+    let closeEvent = AirshipWebviewClosedEvent()
     let webView : WKWebView
     let nativeBridge = UANativeBridge()
     let channel : FlutterMethodChannel
+    var webviewResult : FlutterResult
 
     init(frame: CGRect, viewId: Int64, registrar: FlutterPluginRegistrar) {
         self.webView = WKWebView(frame: frame)
@@ -30,7 +34,8 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView, UANativeBridgeDel
 
         let channelName = "com.airship.flutter/InboxMessageView_\(viewId)"
         self.channel = FlutterMethodChannel(name: channelName, binaryMessenger: registrar.messenger())
-
+        self.webviewResult = { result in print(result!) }
+        
         super.init()
 
         self.webView.navigationDelegate = self.nativeBridge
@@ -60,6 +65,8 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView, UANativeBridgeDel
     }
 
     private func loadMessage(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        webviewResult = result
+        AirshipEventManager.shared.notify(loadStartedEvent)
         let messageId = call.arguments as! String
         if let message = UAMessageCenter.shared().messageList.message(forID: messageId) {
             var request = URLRequest(url: message.messageBodyURL)
@@ -91,6 +98,40 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView, UANativeBridgeDel
     }
 
     func close() {
-        // In the future we should send a close event to the dart layer
+        AirshipEventManager.shared.notify(closeEvent)
+    }
+    
+    func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse,
+                 decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
+
+        if let response = navigationResponse.response as? HTTPURLResponse {
+            if (response.statusCode >= 400 && response.statusCode <= 599) {
+                decisionHandler(.cancel)
+                if (response.statusCode == 410) {
+                    webviewResult(FlutterError(code:"MessageLoadFailed",
+                           message:"Unable to load message",
+                           details:"Message not available"))
+                } else {
+                    webviewResult(FlutterError(code:"MessageLoadFailed",
+                           message:"Unable to load message",
+                           details:"Message load failed"))
+                }
+            }
+        }
+        decisionHandler(.allow)
+    }
+    
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        AirshipEventManager.shared.notify(loadFinishedEvent)
+    }
+    
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        webviewResult(FlutterError(code:"MessageLoadFailed",
+        message:"Unable to load message",
+        details:error.localizedDescription))
+    }
+    
+    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        webView.navigationDelegate?.webView?(webView, didFail: navigation, withError: error)
     }
 }

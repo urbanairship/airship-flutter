@@ -8,6 +8,9 @@ enum AirshipEventType: String {
     case ShowInbox = "SHOW_INBOX"
     case ShowInboxMessage = "SHOW_INBOX_MESSAGE"
     case DeepLink = "DEEP_LINK"
+    case WebviewLoadStarted = "WEBVIEW_LOAD_STARTED"
+    case WebviewLoadFinished = "WEBVIEW_LOAD_FINISHED"
+    case WebviewClosed = "WEBVIEW_CLOSED"
 }
 
 extension AirshipEventType: CaseIterable {}

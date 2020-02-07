@@ -6,15 +6,17 @@ import 'package:flutter/widgets.dart';
 
 class InboxMessageView extends StatelessWidget {
   final String messageId;
+  void Function(PlatformException) errorCallback;
 
   InboxMessageView({
-    @required this.messageId,
+    @required this.messageId, this.errorCallback
   });
 
   Future<void> onPlatformViewCreated(id) async {
-    MethodChannel _channel =
-        new MethodChannel('com.airship.flutter/InboxMessageView_$id');
-    _channel.invokeMethod('loadMessage', messageId);
+    MethodChannel _channel = new MethodChannel('com.airship.flutter/InboxMessageView_$id');
+    _channel.invokeMethod('loadMessage', messageId).catchError( (error) {
+      errorCallback(error);
+    });
   }
 
   @override
