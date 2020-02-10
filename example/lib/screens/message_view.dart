@@ -100,7 +100,7 @@ class _MessageViewState extends State<MessageView>  {
       showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: Text(e.message != null ? e.message : ""),
+            title: Text(e.message != null ? e.message : "Unable to load message"),
             content: Text(e.details != null ? e.details : ""),
           )
       );

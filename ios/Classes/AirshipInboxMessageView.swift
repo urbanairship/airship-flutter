@@ -21,7 +21,7 @@ class AirshipInboxMessageViewFactory : NSObject, FlutterPlatformViewFactory {
 class AirshipInboxMessageView : NSObject, FlutterPlatformView, UANativeBridgeDelegate, WKNavigationDelegate {
     let loadStartedEvent = AirshipWebviewLoadStartedEvent()
     let loadFinishedEvent = AirshipWebviewLoadFinishedEvent()
-    let closeEvent = AirshipWebviewClosedEvent()
+    let closedEvent = AirshipWebviewClosedEvent()
     let webView : WKWebView
     let nativeBridge = UANativeBridge()
     let channel : FlutterMethodChannel
@@ -98,7 +98,7 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView, UANativeBridgeDel
     }
 
     func close() {
-        AirshipEventManager.shared.notify(closeEvent)
+        AirshipEventManager.shared.notify(closedEvent)
     }
     
     func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse,
@@ -127,8 +127,8 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView, UANativeBridgeDel
     
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         webviewResult(FlutterError(code:"MessageLoadFailed",
-        message:"Unable to load message",
-        details:error.localizedDescription))
+                                   message:"Unable to load message",
+                                   details:error.localizedDescription))
     }
     
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
