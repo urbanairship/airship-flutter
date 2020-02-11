@@ -9,7 +9,10 @@ enum class EventType {
     INBOX_UPDATED,
     SHOW_INBOX,
     SHOW_INBOX_MESSAGE,
-    DEEP_LINK
+    DEEP_LINK,
+    WEBVIEW_LOAD_STARTED,
+    WEBVIEW_LOAD_FINISHED,
+    WEBVIEW_CLOSED
 }
 
 interface Event {
