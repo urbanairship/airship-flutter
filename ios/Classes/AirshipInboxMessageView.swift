@@ -19,9 +19,6 @@ class AirshipInboxMessageViewFactory : NSObject, FlutterPlatformViewFactory {
 }
 
 class AirshipInboxMessageView : NSObject, FlutterPlatformView, UANativeBridgeDelegate, WKNavigationDelegate {
-    let loadStartedEvent = AirshipWebviewLoadStartedEvent()
-    let loadFinishedEvent = AirshipWebviewLoadFinishedEvent()
-    let closedEvent = AirshipWebviewClosedEvent()
     let webView : WKWebView
     let nativeBridge = UANativeBridge()
     let channel : FlutterMethodChannel
@@ -66,7 +63,7 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView, UANativeBridgeDel
 
     private func loadMessage(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         webviewResult = result
-        AirshipEventManager.shared.notify(loadStartedEvent)
+        channel.invokeMethod("onLoadStarted", arguments: nil)
         let messageId = call.arguments as! String
         if let message = UAMessageCenter.shared().messageList.message(forID: messageId) {
             var request = URLRequest(url: message.messageBodyURL)
@@ -98,7 +95,7 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView, UANativeBridgeDel
     }
 
     func close() {
-        AirshipEventManager.shared.notify(closedEvent)
+        channel.invokeMethod("onClose", arguments: nil)
     }
     
     func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse,
@@ -122,7 +119,7 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView, UANativeBridgeDel
     }
     
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        AirshipEventManager.shared.notify(loadFinishedEvent)
+        channel.invokeMethod("onLoadFinished", arguments: nil)
     }
     
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {

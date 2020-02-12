@@ -6,12 +6,7 @@ import android.app.NotificationManager
 import android.content.Context
 import android.view.View
 import android.os.Build
-import android.webkit.WebResourceError
-import android.webkit.WebResourceRequest
 import androidx.core.app.NotificationManagerCompat
-import com.airship.flutter.events.WebviewLoadStartedEvent
-import com.airship.flutter.events.WebviewLoadFinishedEvent
-import com.airship.flutter.events.WebviewClosedEvent
 import com.urbanairship.UAirship
 import com.urbanairship.analytics.CustomEvent
 import com.urbanairship.json.JsonMap
@@ -47,14 +42,14 @@ private const val ATTRIBUTE_MUTATION_SET = "set"
 
 class InboxMessageViewFactory(private val registrar: Registrar) : PlatformViewFactory(StandardMessageCodec.INSTANCE) {
     override fun create(context: Context, viewId: Int, arguments: Any?): PlatformView {
-        val view = FlutterInboxMessageView(context)
         val channel = MethodChannel(registrar.messenger(), "com.airship.flutter/InboxMessageView_$viewId")
+        val view = FlutterInboxMessageView(context, channel)
         channel.setMethodCallHandler(view)
         return view
     }
 }
 
-class FlutterInboxMessageView(private var context: Context) : PlatformView, MethodCallHandler {
+class FlutterInboxMessageView(private var context: Context, channel: MethodChannel) : PlatformView, MethodCallHandler {
 
     lateinit private var webviewResult:Result
 
@@ -63,17 +58,17 @@ class FlutterInboxMessageView(private var context: Context) : PlatformView, Meth
         view.webViewClient = object: UAWebViewClient() {
             override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
                 super.onPageStarted(view, url, favicon)
-                EventManager.shared.notifyEvent(WebviewLoadStartedEvent())
+                channel.invokeMethod("onLoadStarted", null)
             }
 
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
-                EventManager.shared.notifyEvent(WebviewLoadFinishedEvent())
+                channel.invokeMethod("onLoadFinished", null)
             }
 
             override fun onClose(webView: WebView) {
                 super.onClose(webView)
-                EventManager.shared.notifyEvent(WebviewClosedEvent())
+                channel.invokeMethod("onClose", null)
             }
 
             override fun onReceivedError(view: WebView?, errorCode: Int, description: String?, failingUrl: String?) {
