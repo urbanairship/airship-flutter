@@ -6,30 +6,34 @@ import 'package:flutter/widgets.dart';
 
 class InboxMessageView extends StatelessWidget {
   final String messageId;
-  final void Function(String, PlatformException) callback;
+  final void Function() handleLoadStarted;
+  final void Function() handleLoadFinished;
+  final void Function(PlatformException) handleLoadError;
+  final void Function() handleClose;
 
   InboxMessageView({
-    @required this.messageId, this.callback
+    @required this.messageId, this.handleLoadStarted, this.handleLoadFinished, this.handleLoadError, this.handleClose
   });
 
   Future<void> onPlatformViewCreated(id) async {
+
     MethodChannel _channel = new MethodChannel('com.airship.flutter/InboxMessageView_$id');
     _channel.setMethodCallHandler(methodCallHandler);
     _channel.invokeMethod('loadMessage', messageId).catchError( (error) {
-      callback('onLoadError', error);
+      handleLoadError(error);
     });
   }
 
   Future<void> methodCallHandler(MethodCall call) async {
     switch (call.method) {
       case 'onLoadStarted':
-        callback('onLoadStarted', null);
+        handleLoadStarted();
         break;
       case 'onLoadFinished':
-        callback('onLoadFinished', null);
+        handleLoadFinished();
         break;
       case 'onClose':
-        callback('onClose', null);
+        handleClose();
         break;
       default:
         print('Unknown method.');

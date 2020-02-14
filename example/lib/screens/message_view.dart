@@ -48,7 +48,7 @@ class _MessageViewState extends State<MessageView>  {
                   isLoading
                       ? Center(child: CircularProgressIndicator())
                       : Container(),
-                  InboxMessageView(messageId: widget.messageId, callback:onLoadEventReceived)
+                  InboxMessageView(messageId: widget.messageId, handleLoadStarted: onLoadStarted, handleLoadFinished: onLoadFinished, handleLoadError: onLoadError, handleClose: onClose)
                 ]),
           );
         });
@@ -57,32 +57,6 @@ class _MessageViewState extends State<MessageView>  {
   onStarted() {
     setState(() {
       isLoading = true;
-    });
-  }
-
-  onLoadEventReceived(String method, PlatformException e) {
-    setState(() {
-      switch (method) {
-        case 'onLoadStarted':
-          this.onLoadStarted();
-          break;
-        case 'onLoadFinished':
-          this.onLoadFinished();
-          break;
-        case 'onClose':
-          this.onClose();
-          break;
-        case 'onLoadError':
-          isLoading = false;
-          showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: Text(e.message != null ? e.message : "Unable to load message"),
-                content: Text(e.details != null ? e.details : ""),
-              )
-          );
-          break;
-      }
     });
   }
 
@@ -95,6 +69,19 @@ class _MessageViewState extends State<MessageView>  {
   onLoadFinished() {
     setState(() {
       isLoading = false;
+    });
+  }
+
+  onLoadError(PlatformException e) {
+    setState(() {
+      isLoading = false;
+      showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text(e.message != null ? e.message : "Unable to load message"),
+            content: Text(e.details != null ? e.details : ""),
+          )
+      );
     });
   }
 

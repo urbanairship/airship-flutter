@@ -268,18 +268,6 @@ class Airship {
   static Stream<void> get onShowInbox {
     return _getEventStream("SHOW_INBOX");
   }
-
-  static Stream<void> get onWebviewLoadStarted {
-    return _getEventStream("WEBVIEW_LOAD_STARTED");
-  }
-
-  static Stream<void> get onWebviewLoadFinished {
-    return _getEventStream("WEBVIEW_LOAD_FINISHED");
-  }
-
-  static Stream<void> get onWebviewClosed {
-    return _getEventStream("WEBVIEW_CLOSED");
-  }
   
   static Stream<String> get onShowInboxMessage {
     return _getEventStream("SHOW_INBOX_MESSAGE")
