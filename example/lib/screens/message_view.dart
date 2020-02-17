@@ -48,7 +48,7 @@ class _MessageViewState extends State<MessageView>  {
                   isLoading
                       ? Center(child: CircularProgressIndicator())
                       : Container(),
-                  InboxMessageView(messageId: widget.messageId, handleLoadStarted: onLoadStarted, handleLoadFinished: onLoadFinished, handleLoadError: onLoadError, handleClose: onClose)
+                  InboxMessageView(messageId: widget.messageId, onLoadStarted: handleLoadStarted, onLoadFinished: handleLoadFinished, onLoadError: handleLoadError, onClose: handleClose)
                 ]),
           );
         });
@@ -60,19 +60,19 @@ class _MessageViewState extends State<MessageView>  {
     });
   }
 
-  onLoadStarted() {
+  handleLoadStarted() {
     setState(() {
       isLoading = true;
     });
   }
 
-  onLoadFinished() {
+  handleLoadFinished() {
     setState(() {
       isLoading = false;
     });
   }
 
-  onLoadError(PlatformException e) {
+  handleLoadError(PlatformException e) {
     setState(() {
       isLoading = false;
       showDialog(
@@ -85,7 +85,7 @@ class _MessageViewState extends State<MessageView>  {
     });
   }
 
-  onClose() {
+  handleClose() {
     setState(() {
       isLoading = false;
     });

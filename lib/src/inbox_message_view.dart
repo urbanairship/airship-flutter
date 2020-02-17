@@ -6,13 +6,13 @@ import 'package:flutter/widgets.dart';
 
 class InboxMessageView extends StatelessWidget {
   final String messageId;
-  final void Function() handleLoadStarted;
-  final void Function() handleLoadFinished;
-  final void Function(PlatformException) handleLoadError;
-  final void Function() handleClose;
+  final void Function() onLoadStarted;
+  final void Function() onLoadFinished;
+  final void Function(PlatformException) onLoadError;
+  final void Function() onClose;
 
   InboxMessageView({
-    @required this.messageId, this.handleLoadStarted, this.handleLoadFinished, this.handleLoadError, this.handleClose
+    @required this.messageId, this.onLoadStarted, this.onLoadFinished, this.onLoadError, this.onClose
   });
 
   Future<void> onPlatformViewCreated(id) async {
@@ -20,20 +20,20 @@ class InboxMessageView extends StatelessWidget {
     MethodChannel _channel = new MethodChannel('com.airship.flutter/InboxMessageView_$id');
     _channel.setMethodCallHandler(methodCallHandler);
     _channel.invokeMethod('loadMessage', messageId).catchError( (error) {
-      handleLoadError(error);
+      onLoadError(error);
     });
   }
 
   Future<void> methodCallHandler(MethodCall call) async {
     switch (call.method) {
       case 'onLoadStarted':
-        handleLoadStarted();
+        onLoadStarted();
         break;
       case 'onLoadFinished':
-        handleLoadFinished();
+        onLoadFinished();
         break;
       case 'onClose':
-        handleClose();
+        onClose();
         break;
       default:
         print('Unknown method.');
