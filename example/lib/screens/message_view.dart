@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:airship_flutter/airship.dart';
 import 'package:airship_example/styles.dart';
+import 'package:flutter/services.dart';
 
 class MessageView extends StatefulWidget {
   final String messageId;
@@ -47,7 +48,7 @@ class _MessageViewState extends State<MessageView>  {
                   isLoading
                       ? Center(child: CircularProgressIndicator())
                       : Container(),
-                  InboxMessageView(messageId: widget.messageId)
+                  InboxMessageView(messageId: widget.messageId, onLoadStarted: handleLoadStarted, onLoadFinished: handleLoadFinished, onLoadError: handleLoadError, onClose: handleClose)
                 ]),
           );
         });
@@ -59,7 +60,32 @@ class _MessageViewState extends State<MessageView>  {
     });
   }
 
-  onLoadFinished() {
+  handleLoadStarted() {
+    setState(() {
+      isLoading = true;
+    });
+  }
+
+  handleLoadFinished() {
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  handleLoadError(PlatformException e) {
+    setState(() {
+      isLoading = false;
+      showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text(e.message != null ? e.message : "Unable to load message"),
+            content: Text(e.details != null ? e.details : ""),
+          )
+      );
+    });
+  }
+
+  handleClose() {
     setState(() {
       isLoading = false;
     });

@@ -1,5 +1,7 @@
 package com.airship.flutter
 
+import android.graphics.Bitmap
+import android.webkit.WebView
 import android.app.NotificationManager
 import android.content.Context
 import android.view.View
@@ -40,18 +42,44 @@ private const val ATTRIBUTE_MUTATION_SET = "set"
 
 class InboxMessageViewFactory(private val registrar: Registrar) : PlatformViewFactory(StandardMessageCodec.INSTANCE) {
     override fun create(context: Context, viewId: Int, arguments: Any?): PlatformView {
-        val view = FlutterInboxMessageView(context)
         val channel = MethodChannel(registrar.messenger(), "com.airship.flutter/InboxMessageView_$viewId")
+        val view = FlutterInboxMessageView(context, channel)
         channel.setMethodCallHandler(view)
         return view
     }
 }
 
-class FlutterInboxMessageView(private var context: Context) : PlatformView, MethodCallHandler {
+class FlutterInboxMessageView(private var context: Context, channel: MethodChannel) : PlatformView, MethodCallHandler {
+
+    lateinit private var webviewResult:Result
 
     private val webView: UAWebView by lazy {
         val view = UAWebView(context)
-        view.webViewClient = UAWebViewClient()
+        view.webViewClient = object: UAWebViewClient() {
+            override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
+                super.onPageStarted(view, url, favicon)
+                channel.invokeMethod("onLoadStarted", null)
+            }
+
+            override fun onPageFinished(view: WebView?, url: String?) {
+                super.onPageFinished(view, url)
+                channel.invokeMethod("onLoadFinished", null)
+            }
+
+            override fun onClose(webView: WebView) {
+                super.onClose(webView)
+                channel.invokeMethod("onClose", null)
+            }
+
+            override fun onReceivedError(view: WebView?, errorCode: Int, description: String?, failingUrl: String?) {
+                super.onReceivedError(view, errorCode, description, failingUrl)
+                if (errorCode == 410) {
+                    webviewResult.error("InvalidMessage", "Unable to load message", "Message not available")
+                } else {
+                    webviewResult.error("InvalidMessage", "Unable to load message", "Message load failed")
+                }
+            }
+        }
         view
     }
 
@@ -69,11 +97,11 @@ class FlutterInboxMessageView(private var context: Context) : PlatformView, Meth
     }
 
     private fun loadMessage(call: MethodCall, result: Result) {
+        webviewResult = result
         val message = UAirship.shared().inbox.getMessage(call.arguments())
         if (message != null) {
             webView.loadRichPushMessage(message)
             message.markRead()
-            result.success(true)
         } else {
             result.error("InvalidMessage", "Unable to load message: ${call.arguments}", null)
         }

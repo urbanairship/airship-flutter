@@ -268,7 +268,7 @@ class Airship {
   static Stream<void> get onShowInbox {
     return _getEventStream("SHOW_INBOX");
   }
-
+  
   static Stream<String> get onShowInboxMessage {
     return _getEventStream("SHOW_INBOX_MESSAGE")
         .map((dynamic value) => jsonDecode(value) as String);
