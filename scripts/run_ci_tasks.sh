@@ -40,6 +40,8 @@ flutter packages get
 # Flutter Analysis
 if $ANALYZE; then
     flutter analyze
+    # Perform publish dry run to ensure the package can be published
+    flutter pub pub publish --dry-run
 fi
 
 # Android
