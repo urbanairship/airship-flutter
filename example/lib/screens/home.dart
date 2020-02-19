@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:airship_example/styles.dart';
 import 'package:airship_example/widgets/notifications_enabled_button.dart';
-import 'package:airship_flutter/airship.dart';
+import 'package:airship_flutter/airship_flutter.dart';
 
 class Home extends StatefulWidget {
   @override

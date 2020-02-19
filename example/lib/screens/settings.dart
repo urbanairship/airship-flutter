@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:airship_example/screens/tag_add.dart';
 import 'package:airship_example/screens/named_user_add.dart';
 import 'package:airship_example/styles.dart';
-import 'package:airship_flutter/airship.dart';
+import 'package:airship_flutter/airship_flutter.dart';
 
 class Settings extends StatefulWidget {
   @override

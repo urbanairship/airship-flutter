@@ -1,3 +1,7 @@
+Version 3.0.0 - February 19, 2020
+================================
+- Refactored airship class name to airship_flutter to resolve publish warning
+
 Version 2.1.0 - February 7, 2020
 ================================
 - Updated iOS SDK to 13.1.0

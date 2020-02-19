@@ -24,7 +24,7 @@
 
 To update the plugin version, use the update_version script by running the following command at the project root directory:
 
-Replace NEW_VERSION with your semantic version (i.e. 2.1.0):
+Replace NEW_VERSION with your semantic version (i.e. 3.0.0):
 
 `./scripts/update_version NEW_VERSION`
 
