@@ -1,6 +1,6 @@
 Version 3.0.0 - February 19, 2020
 ================================
-- Refactored airship class name to airship_flutter to resolve publish warning. Customers upgrading to 3.0.0 will have to update their plugin imports accordingly, see readme for import instructions.
+- Refactored airship.dart to airship_flutter.dart to resolve publish warning. Customers upgrading to 3.0.0 will have to update their plugin imports accordingly, see readme for import instructions.
 
 Version 2.1.0 - February 7, 2020
 ================================
