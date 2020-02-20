@@ -8,7 +8,7 @@ The Airship Flutter plugin allows using Airship's native iOS and Android APIs wi
 
 ```
 dependencies:
-  airship_flutter: ^2.1.0
+  airship_flutter: ^3.0.0
 ```
 
 2. Install your flutter package dependencies by running the following in the command line at your project's root directory:
@@ -20,7 +20,7 @@ $ flutter pub get
 3. Import airship into your project:
 
 ```
-import 'package:airship_flutter/airship.dart';
+import 'package:airship_flutter/airship_flutter.dart';
 ```
 
 ### Android Setup
