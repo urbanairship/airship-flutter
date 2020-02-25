@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - "[0-9]+.[0-9]+.[0-9]+*"
+    branches:
+      - MOBILE-1320
 
 jobs:
   analyze:
@@ -42,24 +44,47 @@ jobs:
           channel: "stable"
       - name: Run CI
         run: bash ./scripts/run_ci_tasks.sh -i
-  publish:
+  upload-docs:
     runs-on: ubuntu-latest
     needs: [analyze, android, ios]
     steps:
       - uses: actions/checkout@v1
-      - name: Publish Dart/Flutter package
-        uses: sakebook/actions-flutter-pub-publisher@v1.2.1
+      - run: dartdoc
+      - name: Download docs tar
+        uses: actions/download-artifact@v1
         with:
-          # Google Account credential JSON
-          credential:  ${{ secrets.PUB_DEV_CREDENTIALS }}
-  finished:
-    runs-on: ubuntu-latest
-    needs: [analyze, android, ios, publish]
-    steps:
-      - name: Slack Notification
-        uses: homoluctus/slatify@master
-        if: always()
+          name: docs
+          path: ./doc/api/
+      - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
         with:
-          type: ${{ job.status }}
-          job_name: ":raised_hands: Airship Flutter Plugin Released! :raised_hands:"
-          url: ${{ secrets.MOBILE_SLACK_WEBHOOK }}
+          version: "270.0.0"
+          service_account_email: ${{ secrets.GCP_SA_EMAIL }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+#      - name: Slack Notification
+#        uses: homoluctus/slatify@master
+#        if: always()
+#        with:
+#          type: ${{ job.status }}
+#          job_name: "Uploaded flutter API docs"
+#          url: ${{ secrets.MOBILE_SLACK_WEBHOOK }}
+#  publish:
+#    runs-on: ubuntu-latest
+#    needs: [analyze, android, ios]
+#    steps:
+#      - uses: actions/checkout@v1
+#      - name: Publish Dart/Flutter package
+#        uses: sakebook/actions-flutter-pub-publisher@v1.2.1
+#        with:
+#          # Google Account credential JSON
+#          credential:  ${{ secrets.PUB_DEV_CREDENTIALS }}
+#  finished:
+#    runs-on: ubuntu-latest
+#    needs: [analyze, android, ios, publish]
+#    steps:
+#      - name: Slack Notification
+#        uses: homoluctus/slatify@master
+#        if: always()
+#        with:
+#          type: ${{ job.status }}
+#          job_name: ":raised_hands: Airship Flutter Plugin Released! :raised_hands:"
+#          url: ${{ secrets.MOBILE_SLACK_WEBHOOK }}
