@@ -50,7 +50,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Install Homebrew
-        run: /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+        run: sh -c "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install.sh)"
       - name: Generate documentation
         run: |
           brew tap dart-lang/dart
