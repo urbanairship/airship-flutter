@@ -49,12 +49,14 @@ jobs:
 #    needs: [analyze, android, ios]
     steps:
       - uses: actions/checkout@v1
-      - name: Install Homebrew
-        run: sh -c "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install.sh)"
+      - name: Install dart
+        run: |
+          sudo apt-get update
+          sudo apt-get install apt-transport-https
+          sudo sh -c 'wget -qO- https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -'
+          sudo sh -c 'wget -qO- https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list > /etc/apt/sources.list.d/dart_stable.list'
       - name: Generate documentation
         run: |
-          brew tap dart-lang/dart
-          brew install dart
           dartdoc
       - name: Download docs tar
         uses: actions/download-artifact@v1
