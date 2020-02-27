@@ -56,14 +56,13 @@ jobs:
         uses: subosito/flutter-action@v1
         with:
           flutter-version: '1.12.13+hotfix.8'
-      #- run: export PATH="$PATH:[PATH_TO_FLUTTER_GIT_DIRECTORY]/flutter/bin"
       - run: flutter pub get
-      - run: export FLUTTER_ROOT=/Users/runner/hostedtoolcache/flutter/1.12.13-hotfix.8-stable/x64
+      #- run: export FLUTTER_ROOT=/Users/runner/hostedtoolcache/flutter/1.12.13-hotfix.8-stable/x64
       - name: Generate documentation
         env:
           FLUTTER_ROOT: /Users/runner/hostedtoolcache/flutter/1.12.13-hotfix.8-stable/x64
         run: |
-          /Users/runner/hostedtoolcache/flutter/1.12.13-hotfix.8-stable/x64/bin/cache/dart-sdk/bin/dartdoc
+          $FLUTTER_ROOT/x64/bin/cache/dart-sdk/bin/dartdoc
       - name: Download docs tar
         uses: actions/download-artifact@v1
         with:
