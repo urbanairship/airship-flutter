@@ -45,7 +45,7 @@ jobs:
 #      - name: Run CI
 #        run: bash ./scripts/run_ci_tasks.sh -i
   upload-docs:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 #    needs: [analyze, android, ios]
     steps:
       - uses: actions/checkout@v1
@@ -57,6 +57,14 @@ jobs:
         with:
           channel: 'stable'
       - run: which flutter
+      #- run: export PATH="$PATH:[PATH_TO_FLUTTER_GIT_DIRECTORY]/flutter/bin"
+      - name: Install Homebrew
+        run: /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+      - name: Install dart
+        run: |
+          brew tap dart-lang/dart
+          brew install dart
+          brew info dart
       - name: Generate documentation
         run: |
           dartdoc
