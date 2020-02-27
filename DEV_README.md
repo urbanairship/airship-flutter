@@ -28,6 +28,12 @@ Replace NEW_VERSION with your semantic version (i.e. 3.0.0):
 
 `./scripts/update_version NEW_VERSION`
 
+### Generate documentations
+
+To generate the API documentations for flutter, use the generate_docs script by running the following command at the project root directory:
+
+`./scripts/generate_docs.sh`
+
 ### Plugin Structure
 
 `android` android library module
