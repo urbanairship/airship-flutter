@@ -65,8 +65,8 @@ jobs:
       - name: Download docs tar
         uses: actions/download-artifact@v1
         with:
-          name: docs
-          path: ./doc/api/
+          name: api
+          path: ./doc/
       - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
         with:
           version: "270.0.0"
