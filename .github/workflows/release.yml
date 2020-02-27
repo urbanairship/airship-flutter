@@ -56,10 +56,9 @@ jobs:
         uses: subosito/flutter-action@v1
         with:
           flutter-version: '1.12.13+hotfix.8'
-      - run: which flutter
       #- run: export PATH="$PATH:[PATH_TO_FLUTTER_GIT_DIRECTORY]/flutter/bin"
       - run: flutter pub get
-      - run: export FLUTTER_ROOT=$FLUTTER_HOME
+      - run: export FLUTTER_ROOT=/Users/runner/hostedtoolcache/flutter/1.12.13-hotfix.8-stable/x64
       - name: Generate documentation
         run: |
           $FLUTTER_ROOT/bin/cache/dart-sdk/bin/dartdoc
