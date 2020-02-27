@@ -57,12 +57,11 @@ jobs:
         with:
           flutter-version: '1.12.13+hotfix.8'
       - run: flutter pub get
-      #- run: export FLUTTER_ROOT=/Users/runner/hostedtoolcache/flutter/1.12.13-hotfix.8-stable/x64
       - name: Generate documentation
         env:
           FLUTTER_ROOT: /Users/runner/hostedtoolcache/flutter/1.12.13-hotfix.8-stable/x64
         run: |
-          $FLUTTER_ROOT/bin/cache/dart-sdk/bin/dartdoc
+          $FLUTTER_ROOT/bin/cache/dart-sdk/bin/dartdoc  --exclude 'dart:async,dart:collection,dart:convert,dart:core,dart:developer,dart:ffi,dart:html,dart:io,dart:isolate,dart:js,dart:js_util,dart:math,dart:typed_data,dart:ui'
       - name: Download docs tar
         uses: actions/download-artifact@v1
         with:
