@@ -60,6 +60,8 @@ jobs:
       - run: flutter pub get
       - run: export FLUTTER_ROOT=/Users/runner/hostedtoolcache/flutter/1.12.13-hotfix.8-stable/x64
       - name: Generate documentation
+        env:
+          FLUTTER_ROOT: /Users/runner/hostedtoolcache/flutter/1.12.13-hotfix.8-stable/x64
         run: |
           /Users/runner/hostedtoolcache/flutter/1.12.13-hotfix.8-stable/x64/bin/cache/dart-sdk/bin/dartdoc
       - name: Download docs tar
