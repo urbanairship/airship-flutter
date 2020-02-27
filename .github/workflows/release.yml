@@ -61,7 +61,7 @@ jobs:
       - run: export FLUTTER_ROOT=/Users/runner/hostedtoolcache/flutter/1.12.13-hotfix.8-stable/x64
       - name: Generate documentation
         run: |
-          $FLUTTER_ROOT/bin/cache/dart-sdk/bin/dartdoc
+          /Users/runner/hostedtoolcache/flutter/1.12.13-hotfix.8-stable/x64/bin/cache/dart-sdk/bin/dartdoc
       - name: Download docs tar
         uses: actions/download-artifact@v1
         with:
