@@ -58,18 +58,11 @@ jobs:
           flutter-version: '1.12.13+hotfix.8'
       - run: which flutter
       #- run: export PATH="$PATH:[PATH_TO_FLUTTER_GIT_DIRECTORY]/flutter/bin"
-      - name: Install Homebrew
-        run: /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-      - name: Install dart
-        run: |
-          brew tap dart-lang/dart
-          brew install dart
-          brew info dart
       - run: flutter pub get
-      - run: export FLUTTER_ROOT=/Users/runner/hostedtoolcache/flutter/1.12.13+hotfix.8/x64/bin/flutter
+      - run: export FLUTTER_ROOT=$FLUTTER_HOME
       - name: Generate documentation
         run: |
-          dartdoc
+          $FLUTTER_ROOT/bin/cache/dart-sdk/bin/dartdoc
       - name: Download docs tar
         uses: actions/download-artifact@v1
         with:
