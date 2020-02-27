@@ -62,7 +62,7 @@ jobs:
         env:
           FLUTTER_ROOT: /Users/runner/hostedtoolcache/flutter/1.12.13-hotfix.8-stable/x64
         run: |
-          $FLUTTER_ROOT/x64/bin/cache/dart-sdk/bin/dartdoc
+          $FLUTTER_ROOT/bin/cache/dart-sdk/bin/dartdoc
       - name: Download docs tar
         uses: actions/download-artifact@v1
         with:
