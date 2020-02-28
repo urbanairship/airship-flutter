@@ -72,9 +72,10 @@ jobs:
           version: "270.0.0"
           service_account_email: ${{ secrets.GCP_SA_EMAIL }}
           service_account_key: ${{ secrets.GCP_SA_KEY }}
-       - run: gcloud info
-       - name: Upload docs to GoogleCloudPlatform
-         run: |
+      
+      - run: gcloud info
+      - name: Upload docs to GoogleCloudPlatform
+        run: |
            ./scripts/docs.sh -u ${GITHUB_REF/refs\/tags\//} doc/api
 #      - name: Slack Notification
 #        uses: homoluctus/slatify@master
