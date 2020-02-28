@@ -62,11 +62,11 @@ jobs:
           FLUTTER_ROOT: /Users/runner/hostedtoolcache/flutter/1.12.13-hotfix.8-stable/x64
         run: |
           ./scripts/generate_docs.sh
-      - name: Download docs tar
-        uses: actions/download-artifact@v1
+      - name: Upload docs
+        uses: actions/upload-artifact@v1.0.0
         with:
-          name: api
-          path: ./doc/
+          name: docs
+          path: ./doc/api
       - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
         with:
           version: "270.0.0"
