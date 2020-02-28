@@ -36,7 +36,7 @@ To generate the API documentations for flutter, use the docs script by running t
 
 To upload the API documentations to google cloud, use the docs script by running the following command at the project root directory:
 
-`./scripts/docs.sh -u`
+`./scripts/docs.sh -u NEW_VERSION PATH_TO_DOCS`
 
 
 ### Plugin Structure
