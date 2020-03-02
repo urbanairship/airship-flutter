@@ -6,7 +6,7 @@
 # Run locally to verify before committing your code.
 #
 # Options:
-#   -g to generate documentations.
+#   -g to generate documentation.
 #   -u to upload documentation to google cloud.
 #
 #####################################################
@@ -55,4 +55,3 @@ if $UPLOAD; then
     gsutil cp $ROOT_PATH/doc/$TAR_NAME gs://ua-web-ci-prod-docs-transfer/libraries/flutter/$TAR_NAME
 
 fi
-
