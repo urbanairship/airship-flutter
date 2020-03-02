@@ -21,7 +21,7 @@ UPLOAD=false
 while true; do
   case "$1" in
     -g  ) GENERATE=true;;
-    -u  ) UPLOAD=true;GENERATE=false;;
+    -u  ) UPLOAD=true;;
     *   ) break ;;
   esac
   shift
