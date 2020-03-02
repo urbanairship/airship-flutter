@@ -38,7 +38,7 @@ To upload the API documentations to google cloud, use the docs script by running
 
 Replace NEW_VERSION with your semantic version (i.e. 3.0.0):
 
-Replace PATH_TO_DOCS with your path to the generated docs version (i.e. doc/api):
+Replace PATH_TO_DOCS with your path to the generated docs version (i.e. doc):
 
 `./scripts/docs.sh -u NEW_VERSION PATH_TO_DOCS`
 
