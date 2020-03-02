@@ -20,8 +20,8 @@ UPLOAD=false
 
 while true; do
   case "$1" in
-    -g  ) GENERATE=true;UPLOAD=false;;
-    -u  ) UPLOAD=true;GENERATE=false;;
+    -g  ) GENERATE=true;;
+    -u  ) UPLOAD=true;;
     *   ) break ;;
   esac
   shift
@@ -48,10 +48,10 @@ if $UPLOAD; then
     ROOT_PATH=`dirname "${0}"`/..
     TAR_NAME="$1.tar.gz"
 
-    cd doc/
+    cd "$2"
     tar -czf $TAR_NAME *
     cd -
 
-    gsutil cp $ROOT_PATH/doc/$TAR_NAME gs://ua-web-ci-prod-docs-transfer/libraries/flutter/$TAR_NAME
+    gsutil cp "$ROOT_PATH/$2/$TAR_NAME" gs://ua-web-ci-prod-docs-transfer/libraries/flutter/$TAR_NAME
 
 fi
