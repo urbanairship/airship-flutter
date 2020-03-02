@@ -20,7 +20,7 @@ UPLOAD=false
 
 while true; do
   case "$1" in
-    -g  ) GENERATE=true;UPLOAD=false;;
+    -g  ) GENERATE=true;;
     -u  ) UPLOAD=true;GENERATE=false;;
     *   ) break ;;
   esac
