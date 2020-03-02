@@ -52,6 +52,6 @@ if $UPLOAD; then
     tar -czf $TAR_NAME *
     cd -
 
-    gsutil cp $ROOT_PATH/doc/$TAR_NAME gs://ua-web-ci-prod-docs-transfer/libraries/flutter/$TAR_NAME
+    gsutil cp "$ROOT_PATH/$2/$TAR_NAME" gs://ua-web-ci-prod-docs-transfer/libraries/flutter/$TAR_NAME
 
 fi
