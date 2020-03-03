@@ -28,6 +28,21 @@ Replace NEW_VERSION with your semantic version (i.e. 3.0.0):
 
 `./scripts/update_version NEW_VERSION`
 
+### Documentations
+
+To generate the API documentations for flutter, use the docs script by running the following command at the project root directory:
+
+`./scripts/docs.sh -g`
+
+To upload the API documentations to google cloud, use the docs script by running the following command at the project root directory:
+
+Replace NEW_VERSION with your semantic version (i.e. 3.0.0):
+
+Replace PATH_TO_DOCS with your path to the generated docs version (i.e. doc):
+
+`./scripts/docs.sh -u NEW_VERSION PATH_TO_DOCS`
+
+
 ### Plugin Structure
 
 `android` android library module
