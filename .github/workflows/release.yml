@@ -25,50 +25,63 @@ jobs:
     needs: [ci]
     steps:
       - uses: actions/checkout@v2
+
       - name: Get the version
         id: get_version
         run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+
       - name: Get the release notes
         id: get_release_notes
         run: |
           VERSION=${{ steps.get_version.outputs.VERSION }}
-          NOTES=$(awk "/## Version $VERSION/{flag=1;next}/## Version/{flag=0}flag" CHANGELOG.md)
-          echo ::set-output name=NOTES::$NOTES
+          NOTES="$(awk "/## Version $VERSION/{flag=1;next}/## Version/{flag=0}flag" CHANGELOG.md)"
+          NOTES="${NOTES//'%'/'%25'}"
+          NOTES="${NOTES//$'\n'/'%0A'}"
+          NOTES="${NOTES//$'\r'/'%0D'}"
+          echo ::set-output name=NOTES::"$NOTES"
+
       - uses: actions/setup-java@v1
         with:
           java-version: "12.x"
+
       - name: Flutter action
         uses: subosito/flutter-action@v1
         with:
           flutter-version: "1.12.13+hotfix.8"
+
       - run: flutter pub get
       - name: Generate documentation
         env:
           FLUTTER_ROOT: /Users/runner/hostedtoolcache/flutter/1.12.13-hotfix.8-stable/x64
         run: |
           ./scripts/docs.sh -g
+
       - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
         with:
           version: "270.0.0"
           service_account_email: ${{ secrets.GCP_SA_EMAIL }}
           service_account_key: ${{ secrets.GCP_SA_KEY }}
+
       - name: Upload docs to GoogleCloudPlatform
         run: |
           ./scripts/docs.sh -u ${GITHUB_REF/refs\/tags\//} doc
+
       - name: Publish Dart/Flutter package
         uses: sakebook/actions-flutter-pub-publisher@v1.2.1
         with:
           credential: ${{ secrets.PUB_DEV_CREDENTIALS }}
+
       - name: Github Release
-        uses: actions/create-release@v1.0.0
+        uses: actions/create-release@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.get_version.outputs.VERSION }}
-          release_name: Release ${{ steps.get_version.outputs.VERSION }}
+          release_name: ${{ steps.get_version.outputs.VERSION }}
           body: ${{ steps.get_release_notes.outputs.NOTES }}
           draft: false
           prerelease: false
+
       - name: Slack Notification
         uses: homoluctus/slatify@master
         if: failed()
@@ -76,6 +89,7 @@ jobs:
           type: ${{ job.status }}
           job_name: "Failed to release Flutter :("
           url: ${{ secrets.MOBILE_SLACK_WEBHOOK }}
+
       - name: Slack Notification
         uses: homoluctus/slatify@master
         if: always()
