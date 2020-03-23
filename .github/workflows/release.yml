@@ -49,21 +49,6 @@ jobs:
           flutter-version: "1.12.13+hotfix.8"
 
       - run: flutter pub get
-      - name: Generate documentation
-        env:
-          FLUTTER_ROOT: /Users/runner/hostedtoolcache/flutter/1.12.13-hotfix.8-stable/x64
-        run: |
-          ./scripts/docs.sh -g
-
-      - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
-        with:
-          version: "270.0.0"
-          service_account_email: ${{ secrets.GCP_SA_EMAIL }}
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
-
-      - name: Upload docs to GoogleCloudPlatform
-        run: |
-          ./scripts/docs.sh -u ${GITHUB_REF/refs\/tags\//} doc
 
       - name: Publish Dart/Flutter package
         uses: sakebook/actions-flutter-pub-publisher@v1.2.1
