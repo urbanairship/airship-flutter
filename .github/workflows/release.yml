@@ -18,8 +18,9 @@ jobs:
           channel: "stable"
       - name: Run CI
         run: bash ./scripts/run_ci_tasks.sh
-  release:
-    runs-on: macos-latest
+
+  release-plugin:
+    runs-on: ubuntu-latest
     needs: [ci]
     steps:
       - uses: actions/checkout@v2
@@ -88,9 +89,45 @@ jobs:
           job_name: "Failed to release Flutter :("
           url: ${{ secrets.MOBILE_SLACK_WEBHOOK }}
 
+  release-docs:
+    runs-on: macos-latest
+    needs: [ci, release-plugin]
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+
+      - uses: actions/setup-java@v1
+        with:
+          java-version: "12.x"
+
+      - name: Flutter action
+        uses: subosito/flutter-action@v1
+        with:
+          flutter-version: "1.12.13+hotfix.8"
+
+      - run: flutter pub get
+
+      - name: Generate documentation
+        env:
+          FLUTTER_ROOT: /Users/runner/hostedtoolcache/flutter/1.12.13-hotfix.8-stable/x64
+        run: |
+          ./scripts/docs.sh -g
+
+      - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        with:
+          version: "270.0.0"
+          service_account_email: ${{ secrets.GCP_SA_EMAIL }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Upload docs to GoogleCloudPlatform
+        run: |
+          ./scripts/docs.sh -u ${GITHUB_REF/refs\/tags\//} doc
+
       - name: Slack Notification
         uses: homoluctus/slatify@master
-        if: always()
         with:
           type: ${{ job.status }}
           job_name: ":raised_hands: Airship Flutter Plugin Released! :raised_hands:"
