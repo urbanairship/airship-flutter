@@ -10,8 +10,6 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Check Version
-        run: bash ./scripts/check_version.sh ${GITHUB_REF/refs\/tags\//}
       - uses: actions/setup-java@v1
         with:
           java-version: "12.x"
