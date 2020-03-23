@@ -84,7 +84,7 @@ jobs:
 
       - name: Slack Notification
         uses: homoluctus/slatify@master
-        if: failed()
+        if: failure()
         with:
           type: ${{ job.status }}
           job_name: "Failed to release Flutter :("
