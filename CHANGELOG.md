@@ -1,5 +1,12 @@
 # Flutter Plugin Changelog
 
+## Version 3.0.1 - March 23, 2020
+Patch addressing a regression in iOS SDK 13.1.0 causing channel tag loss
+when upgrading from iOS SDK versions prior to 13.0.1. Apps upgrading from airship_flutter plugin
+1.0.1 or below should avoid plugin versions 2.1.0 and 3.0.0 in favor of version 3.0.1.
+
+- Updated iOS SDK to 13.1.1
+
 ## Version 3.0.0 - February 19, 2020
 - Refactored airship.dart to airship_flutter.dart to resolve publish warning. Customers upgrading to 3.0.0 will have to update their plugin imports accordingly, see readme for import instructions.
 
