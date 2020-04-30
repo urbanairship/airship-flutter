@@ -113,6 +113,8 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
             getActiveNotifications(call, result: result)
         case "addTags":
             addTags(call, result: result)
+        case "updateRegistration":
+            updateRegistration(call, result: result)
         case "addEvent":
             addEvent(call, result: result)
         case "removeTags":
@@ -272,6 +274,11 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
     private func addTags(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let tags = call.arguments as! [String]
         UAirship.channel().addTags(tags)
+        UAirship.channel().updateRegistration()
+        result(nil)
+    }
+
+    private func updateRegistration(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         UAirship.channel().updateRegistration()
         result(nil)
     }

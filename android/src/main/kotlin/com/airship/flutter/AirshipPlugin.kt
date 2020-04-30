@@ -129,6 +129,7 @@ class AirshipPlugin : MethodCallHandler {
             "clearNotifications" -> clearNotifications(result)
             "getActiveNotifications" -> getActiveNotifications(result)
             "addTags" -> addTags(call, result)
+            "updateRegistration" -> updateRegistration(call, result)
             "addEvent" -> addEvent(call, result)
             "removeTags" -> removeTags(call, result)
             "getTags" -> getTags(result)
@@ -192,6 +193,11 @@ class AirshipPlugin : MethodCallHandler {
     private fun addTags(call: MethodCall, result: Result) {
         val tags = uncheckedCast<List<String>>(call.arguments).toSet()
         UAirship.shared().pushManager.editTags().addTags(tags).apply()
+        result.success(null)
+    }
+
+    private fun updateRegistration(call: MethodCall, result: Result) {
+        UAirship.shared().getChannel().updateRegistration()
         result.success(null)
     }
 

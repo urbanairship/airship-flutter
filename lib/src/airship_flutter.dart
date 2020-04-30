@@ -204,6 +204,10 @@ class Airship {
     return await _channel.invokeMethod('addTags', tags);
   }
 
+  static Future<String> get updateRegistration async {
+    return await _channel.invokeMethod('updateRegistration');
+  }
+
   static Future<void> removeTags(List<String> tags) async {
     if (tags == null) {
       throw ArgumentError.notNull('tags');
