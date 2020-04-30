@@ -204,7 +204,7 @@ class Airship {
     return await _channel.invokeMethod('addTags', tags);
   }
 
-  static Future<String> get updateRegistration async {
+  static Future<String> updateRegistration() async {
     return await _channel.invokeMethod('updateRegistration');
   }
 
