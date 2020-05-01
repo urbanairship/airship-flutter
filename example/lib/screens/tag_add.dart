@@ -40,6 +40,7 @@ class _TagAddState extends State<TagAdd> {
                   .showSnackBar(SnackBar(content: Text("tag \"$tag\" removed")));
               tags.remove(tag);
               Airship.removeTags([tag]);
+              updateState();
             },
             child: Card(
                 elevation: 5.0,
@@ -80,7 +81,7 @@ class _TagAddState extends State<TagAdd> {
                       onTap: (tagText){
                         FocusScope.of(context).unfocus();
                         Airship.addTags([tagText]);
-                        updateParent();
+                        updateState();
                       },
                     ),
                   ),
@@ -90,5 +91,10 @@ class _TagAddState extends State<TagAdd> {
             );
           },
         ));
+  }
+
+  updateState() {
+    updateParent();
+    setState(() {});
   }
 }

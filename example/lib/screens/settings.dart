@@ -36,6 +36,7 @@ class _SettingsState extends State<Settings> {
                       value: snapshot.data ?? false,
                       onChanged: (bool enabled){
                         Airship.setUserNotificationsEnabled(enabled);
+                        updateState();
                       },
                     );}),
                 FutureBuilder(
