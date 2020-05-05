@@ -246,7 +246,7 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
         let customEvent = UACustomEvent(name:name, value:NSNumber(value: value))
 
         if let properties = event[propertiesKey] as? Dictionary<String, Any> {
-            customEvent.parseProperties(properties:properties)
+            customEvent.properties = properties
         }
 
         if let transactionID = event[transactionIDKey] as? String {
@@ -432,32 +432,6 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
         
         UAirship.analytics()?.trackScreen(screen)
         result(nil)
-    }
-}
-
-private extension UACustomEvent {
-    func parseProperties(properties:Dictionary<String, Any>) {
-        for (key, value) in properties {
-            if let numVal = value as? NSNumber, CFGetTypeID(numVal) == CFNumberGetTypeID() {
-                self.setNumberProperty(numVal, forKey: key)
-                continue
-            }
-
-            if let boolValue = value as? Bool, CFGetTypeID(value as? NSNumber) == CFBooleanGetTypeID() {
-                self.setBoolProperty(boolValue, forKey: key)
-                continue
-            }
-
-            if let stringValue = value as? String {
-                self.setStringProperty(stringValue, forKey: key)
-                continue
-            }
-
-            if let stringArray = value as? [String] {
-                self.setStringArrayProperty(stringArray, forKey: key)
-                continue
-            }
-        }
     }
 }
 
