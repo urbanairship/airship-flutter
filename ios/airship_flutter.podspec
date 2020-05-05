@@ -1,4 +1,4 @@
-AIRSHIP_FLUTTER_VERSION="3.0.1"
+AIRSHIP_FLUTTER_VERSION="3.0.2"
 
 #
 # To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html
