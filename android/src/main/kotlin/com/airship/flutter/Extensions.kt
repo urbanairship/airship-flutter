@@ -28,32 +28,6 @@ fun NotificationInfo.eventData() : JsonMap {
             .build()
 }
 
-fun CustomEvent.Builder.parseProperties(map:HashMap<String, Any>) {
-    for ((key, value) in map) {
-        if (value is Int) {
-            this.addProperty(key, value)
-            continue
-        }
-
-        if (value is Boolean) {
-            this.addProperty(key, value)
-            continue
-        }
-
-        if (value is String) {
-            this.addProperty(key, value)
-            continue
-        }
-
-        if (value is Collection<*>) {
-            value.filterIsInstance<String>().let {
-                this.addProperty(key, it)
-            }
-            continue
-        }
-    }
-}
-
 @RequiresApi(Build.VERSION_CODES.KITKAT)
 fun StatusBarNotification.pushMessage(): PushMessage {
     val extras = this.notification.extras ?: return PushMessage(Bundle())

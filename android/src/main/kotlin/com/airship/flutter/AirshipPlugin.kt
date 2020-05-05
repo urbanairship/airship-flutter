@@ -13,10 +13,12 @@ import com.urbanairship.json.JsonMap
 import com.urbanairship.json.JsonValue
 import com.urbanairship.channel.TagGroupsEditor
 import com.urbanairship.channel.AttributeEditor
+import com.urbanairship.iam.InAppMessageManager
+import com.urbanairship.messagecenter.MessageCenter
 import com.urbanairship.util.DateUtils
 import com.urbanairship.util.UAStringUtil
-import com.urbanairship.widget.UAWebView
-import com.urbanairship.widget.UAWebViewClient
+import com.urbanairship.messagecenter.webkit.MessageWebView
+import com.urbanairship.messagecenter.webkit.MessageWebViewClient
 import java.lang.NumberFormatException
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -53,9 +55,9 @@ class FlutterInboxMessageView(private var context: Context, channel: MethodChann
 
     lateinit private var webviewResult:Result
 
-    private val webView: UAWebView by lazy {
-        val view = UAWebView(context)
-        view.webViewClient = object: UAWebViewClient() {
+    private val webView: MessageWebView by lazy {
+        val view = MessageWebView(context)
+        view.webViewClient = object: MessageWebViewClient() {
             override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
                 super.onPageStarted(view, url, favicon)
                 channel.invokeMethod("onLoadStarted", null)
@@ -98,9 +100,9 @@ class FlutterInboxMessageView(private var context: Context, channel: MethodChann
 
     private fun loadMessage(call: MethodCall, result: Result) {
         webviewResult = result
-        val message = UAirship.shared().inbox.getMessage(call.arguments())
+        val message = MessageCenter.shared().inbox.getMessage(call.arguments())
         if (message != null) {
-            webView.loadRichPushMessage(message)
+            webView.loadMessage(message)
             message.markRead()
         } else {
             result.error("InvalidMessage", "Unable to load message: ${call.arguments}", null)
@@ -154,7 +156,7 @@ class AirshipPlugin : MethodCallHandler {
     }
 
     private fun getInboxMessages(result: Result) {
-        val messages = UAirship.shared().inbox.messages
+        val messages = MessageCenter.shared().inbox.messages
                 .map { message ->
                     val extras = message.extras.keySet().map { key ->
                         key to message.extras.getString(key)
@@ -179,19 +181,19 @@ class AirshipPlugin : MethodCallHandler {
 
     private fun markInboxMessageRead(call: MethodCall, result: Result) {
         val messageId = call.arguments as String?
-        UAirship.shared().inbox.markMessagesRead(setOf(messageId))
+        MessageCenter.shared().inbox.markMessagesRead(setOf(messageId))
         result.success(null)
     }
 
     private fun deleteInboxMessage(call: MethodCall, result: Result) {
         val messageId = call.arguments as String?
-        UAirship.shared().inbox.deleteMessages(setOf(messageId))
+        MessageCenter.shared().inbox.deleteMessages(setOf(messageId))
         result.success(null)
     }
 
     private fun addTags(call: MethodCall, result: Result) {
         val tags = uncheckedCast<List<String>>(call.arguments).toSet()
-        UAirship.shared().pushManager.editTags().addTags(tags).apply()
+        UAirship.shared().channel.editTags().addTags(tags).apply()
         result.success(null)
     }
 
@@ -208,9 +210,7 @@ class AirshipPlugin : MethodCallHandler {
                 this.setEventValue(it)
             }
 
-            (eventMap[CustomEvent.PROPERTIES] as HashMap<String, Any>?)?.let {
-                this.parseProperties(it)
-            }
+            this.setProperties(JsonValue.wrapOpt(eventMap[CustomEvent.PROPERTIES]).optMap())
 
             (eventMap[CustomEvent.TRANSACTION_ID] as String?)?.let {
                 this.setTransactionId(it)
@@ -350,7 +350,7 @@ class AirshipPlugin : MethodCallHandler {
     }
 
     private fun setPushTokenRegistrationEnabled(call: MethodCall, result: Result) {
-        UAirship.shared().pushManager.pushTokenRegistrationEnabled = (call.arguments as Boolean)
+        UAirship.shared().pushManager.isPushTokenRegistrationEnabled = (call.arguments as Boolean)
         result.success(true)
     }
 
@@ -422,12 +422,12 @@ class AirshipPlugin : MethodCallHandler {
     private fun setInAppAutomationPaused(call: MethodCall, result: Result) {
         val paused = call.arguments as Boolean
 
-        UAirship.shared().inAppMessagingManager.isPaused = paused
+        InAppMessageManager.shared().isPaused = paused
         result.success(true)
     }
 
     private fun getInAppAutomationPaused(result: Result) {
-        result.success(UAirship.shared().inAppMessagingManager.isPaused)
+        result.success(InAppMessageManager.shared().isPaused)
     }
 
     fun getChannelId(result: Result) {

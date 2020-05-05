@@ -24,7 +24,7 @@ class FlutterAutopilot : Autopilot() {
         Log.i("FlutterAutopilot", "onAirshipReady")
 
         // Register a listener for inbox update event
-        airship.inbox.addListener {
+        MessageCenter.shared().inbox.addListener {
             EventManager.shared.notifyEvent(InboxUpdatedEvent())
         }
 
@@ -73,7 +73,7 @@ class FlutterAutopilot : Autopilot() {
             }
         })
 
-        airship.messageCenter.setOnShowMessageCenterListener(object : MessageCenter.OnShowMessageCenterListener {
+        MessageCenter.shared().setOnShowMessageCenterListener(object : MessageCenter.OnShowMessageCenterListener {
             override fun onShowMessageCenter(messageId: String?): Boolean {
                 if (messageId != null) {
                     EventManager.shared.notifyEvent(ShowInboxMessageEvent(messageId))
