@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 
 class AttributeEditor {
   static const ATTRIBUTE_OPERATION_KEY = "key";
@@ -37,6 +38,17 @@ class AttributeEditor {
       ATTRIBUTE_OPERATION_TYPE: ATTRIBUTE_OPERATION_SET,
       ATTRIBUTE_OPERATION_KEY: name,
       ATTRIBUTE_OPERATION_VALUE: value
+    });
+  }
+
+  void setDateAttribute(String name, DateTime value) {
+    var dateFormatter = new DateFormat('yyyy-MM-ddTHH:mm:ss');
+    String dateString = dateFormatter.format(value);
+
+    operations.add({
+      ATTRIBUTE_OPERATION_TYPE: ATTRIBUTE_OPERATION_SET,
+      ATTRIBUTE_OPERATION_KEY: name,
+      ATTRIBUTE_OPERATION_VALUE: dateString
     });
   }
   
