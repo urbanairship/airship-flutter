@@ -19,45 +19,31 @@ class CustomEvent {
         this.value = value;
 
   ///
-  /// Sets a custom BOOL property.
+  /// Adds a custom event property.
   ///
   /// @param key The property key.
   /// @param value The property value.
   ///
-  void setBoolProperty(String key, bool value) {
+  void addProperty(String key, dynamic value) {
+    if (key == null) {
+      throw ArgumentError.notNull('key');
+    }
+    if (value == null) {
+      throw ArgumentError.notNull('value');
+    }
     _properties[key] = value;
   }
 
   ///
-  /// Sets a custom String property. The value's length must not exceed 255 characters
-  /// or it will invalidate the event.
+  /// Sets a custom event properties.
   ///
-  /// @param key The property key.
-  /// @param value The property value.
+  /// @param properties The custom event properties.
   ///
-  void setStringProperty(String key, String value) {
-    _properties[key] = value;
-  }
-
-  ///
-  /// Sets a custom Number property.
-  ///
-  /// @param key The property key.
-  /// @param value The property value.
-  ///
-  void setNumberProperty(String key, int value) {
-    _properties[key] = value;
-  }
-
-  ///
-  /// Sets a custom String list property. The list must not exceed 20 entries and
-  /// each entry's length must not exceed 255 characters or it will invalidate the event.
-  ///
-  /// @param key The property key.
-  /// @param value The property value.
-  ///
-  void setStringArrayProperty(String key, List<String> arr) {
-    _properties[key] = arr;
+  void setProperties(Map<String, dynamic> properties) {
+    if (properties == null) {
+      throw ArgumentError.notNull('properties');
+    }
+    properties.forEach((key,value) => _properties[key] = value);
   }
 
   Map<String, dynamic> toMap() {
