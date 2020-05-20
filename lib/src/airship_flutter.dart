@@ -215,6 +215,10 @@ class Airship {
     return AttributeEditor('editAttributes', _channel);
   }
 
+  static AttributeEditor editNamedUserAttributes() {
+    return AttributeEditor('editNamedUserAttributes', _channel);
+  }
+
   static TagGroupEditor editChannelTagGroups() {
     return TagGroupEditor('editChannelTagGroups', _channel);
   }
