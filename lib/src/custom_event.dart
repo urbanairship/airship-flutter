@@ -35,7 +35,7 @@ class CustomEvent {
   }
 
   ///
-  /// Sets a custom event properties.
+  /// Sets custom event properties.
   ///
   /// @param properties The custom event properties.
   ///
