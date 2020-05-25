@@ -211,8 +211,16 @@ class Airship {
     return await _channel.invokeMethod('removeTags', tags);
   }
 
-  static AttributeEditor editAttributes() {
+  @deprecated static AttributeEditor editAttributes() {
     return AttributeEditor('editAttributes', _channel);
+  }
+
+  static AttributeEditor editChannelAttributes() {
+    return AttributeEditor('editChannelAttributes', _channel);
+  }
+
+  static AttributeEditor editNamedUserAttributes() {
+    return AttributeEditor('editNamedUserAttributes', _channel);
   }
 
   static TagGroupEditor editChannelTagGroups() {

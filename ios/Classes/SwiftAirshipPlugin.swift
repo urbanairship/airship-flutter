@@ -120,7 +120,11 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
         case "getTags":
             getTags(call, result: result)
         case "editAttributes":
-            editAttributes(call, result: result)
+            editChannelAttributes(call, result: result)
+        case "editChannelAttributes":
+            editChannelAttributes(call, result: result)
+        case "editNamedUserAttributes":
+            editNamedUserAttributes(call, result: result)
         case "editNamedUserTagGroups":
             editNamedUserTagGroups(call, result: result)
         case "editChannelTagGroups":
@@ -287,30 +291,24 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
         result(UAirship.channel().tags)
     }
 
-    private func editAttributes(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+    private func editChannelAttributes(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let operations = call.arguments as! [Dictionary<String, Any>]
-        let mutations:UAAttributeMutations = UAAttributeMutations()
-        for operation in operations {
-            guard let operationType = operation[attributeOperationType] as? String else { continue }
-            guard let name = operation[attributeOperationKey] as? String else { continue }
-
-            if (operationType == attributeOperationSet) {
-                if let value = operation[attributeOperationValue] as? String {
-                    mutations.setString(value, forAttribute: name)
-                    continue
-                }
-                if let value = operation[attributeOperationValue] as? NSNumber, CFGetTypeID(value) == CFNumberGetTypeID() {
-                    mutations.setNumber(value, forAttribute: name)
-                    continue
-                }
-            } else if (operationType == attributeOperationRemove) {
-                mutations.removeAttribute(name)
-            }
-        }
-
+        let mutations = mutationsWithOperations(operations: operations)
+        
+        UAirship.channel()?.apply(mutations)
+        
         result(nil)
     }
 
+    private func editNamedUserAttributes(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let operations = call.arguments as! [Dictionary<String, Any>]
+        let mutations = mutationsWithOperations(operations: operations)
+        
+        UAirship.namedUser()?.apply(mutations)
+        
+        result(nil)
+    }
+    
     private func editNamedUserTagGroups(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let operations = call.arguments as! [Dictionary<String, Any>]
         let namedUser = UAirship.namedUser()
@@ -432,6 +430,30 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
         
         UAirship.analytics()?.trackScreen(screen)
         result(nil)
+    }
+    
+    private func mutationsWithOperations(operations:[Dictionary<String, Any>]) -> UAAttributeMutations {
+       let mutations:UAAttributeMutations = UAAttributeMutations()
+        
+        for operation in operations {
+            guard let operationType = operation[attributeOperationType] as? String else { continue }
+            guard let name = operation[attributeOperationKey] as? String else { continue }
+
+            if (operationType == attributeOperationSet) {
+                if let value = operation[attributeOperationValue] as? String {
+                    mutations.setString(value, forAttribute: name)
+                    continue
+                }
+                if let value = operation[attributeOperationValue] as? NSNumber, CFGetTypeID(value) == CFNumberGetTypeID() {
+                    mutations.setNumber(value, forAttribute: name)
+                    continue
+                }
+            } else if (operationType == attributeOperationRemove) {
+                mutations.removeAttribute(name)
+            }
+        }
+        
+        return mutations
     }
 }
 
