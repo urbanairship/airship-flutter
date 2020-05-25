@@ -120,7 +120,9 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
         case "getTags":
             getTags(call, result: result)
         case "editAttributes":
-            editAttributes(call, result: result)
+            editChannelAttributes(call, result: result)
+        case "editChannelAttributes":
+            editChannelAttributes(call, result: result)
         case "editNamedUserAttributes":
             editNamedUserAttributes(call, result: result)
         case "editNamedUserTagGroups":
@@ -289,7 +291,7 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
         result(UAirship.channel().tags)
     }
 
-    private func editAttributes(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+    private func editChannelAttributes(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let operations = call.arguments as! [Dictionary<String, Any>]
         let mutations = mutationsWithOperations(operations: operations)
         

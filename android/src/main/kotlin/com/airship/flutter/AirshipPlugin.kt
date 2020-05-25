@@ -136,7 +136,8 @@ class AirshipPlugin : MethodCallHandler {
             "getTags" -> getTags(result)
             "editChannelTagGroups" -> editChannelTagGroups(call, result)
             "editNamedUserTagGroups" -> editNamedUserTagGroups(call, result)
-            "editAttributes" -> editAttributes(call, result)
+            "editAttributes" -> editChannelAttributes(call, result)
+            "editChannelAttributes" -> editChannelAttributes(call, result)
             "editNamedUserAttributes" -> editNamedUserAttributes(call, result)
             "setNamedUser" -> setNamedUser(call, result)
             "getNamedUser" -> getNamedUser(result)
@@ -282,7 +283,7 @@ class AirshipPlugin : MethodCallHandler {
         editor.apply();
     }
 
-    private fun editAttributes(call: MethodCall, result: Result) {
+    private fun editChannelAttributes(call: MethodCall, result: Result) {
         val mutations = call.arguments as ArrayList<Map<String, Any?>>
         this.applyAttributesOperations(UAirship.shared().channel.editAttributes(), mutations)
         result.success(null)
