@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.content.Context
 import android.view.View
 import android.os.Build
+import android.util.Log
 import androidx.core.app.NotificationManagerCompat
 import com.urbanairship.UAirship
 import com.urbanairship.analytics.CustomEvent
@@ -28,6 +29,11 @@ import io.flutter.plugin.common.PluginRegistry.Registrar
 import io.flutter.plugin.common.StandardMessageCodec
 import io.flutter.plugin.platform.PlatformView
 import io.flutter.plugin.platform.PlatformViewFactory
+import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.embedding.engine.plugins.activity.ActivityAware
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
+import io.flutter.embedding.engine.plugins.service.ServiceAware
+import io.flutter.embedding.engine.plugins.service.ServicePluginBinding
 
 private const val TAG_OPERATION_GROUP_NAME = "group"
 private const val TAG_OPERATION_TYPE = "operationType"
@@ -110,7 +116,7 @@ class FlutterInboxMessageView(private var context: Context, channel: MethodChann
     }
 }
 
-class AirshipPlugin : MethodCallHandler {
+class AirshipPlugin : MethodCallHandler, FlutterPlugin, ActivityAware, ServiceAware {
 
     companion object {
         @JvmStatic
@@ -120,6 +126,47 @@ class AirshipPlugin : MethodCallHandler {
             EventManager.shared.register(registrar)
             registrar.platformViewRegistry().registerViewFactory("com.airship.flutter/InboxMessageView", InboxMessageViewFactory(registrar))
         }
+    }
+
+    override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        val channel = MethodChannel(binding.flutterEngine.dartExecutor, "flutter_plugin")
+        channel.setMethodCallHandler(this)
+        Log.d("APKTEST", "Engine is attached!")
+    }
+
+    override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        Log.d("APKTEST", "onDetachedFromEngine")
+        TODO("Not yet implemented")
+    }
+
+    override fun onDetachedFromActivity() {
+        Log.d("APKTEST", "onDetachedFromActivity")
+        TODO("Not yet implemented")
+    }
+
+    override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
+        Log.d("APKTEST", "onReattachedToActivityForConfigChanges")
+        TODO("Not yet implemented")
+    }
+
+    override fun onAttachedToActivity(binding: ActivityPluginBinding) {
+        Log.d("APKTEST", "onAttachedToActivity")
+        TODO("Not yet implemented")
+    }
+
+    override fun onDetachedFromActivityForConfigChanges() {
+        Log.d("APKTEST", "onDetachedFromActivityForConfigChanges")
+        TODO("Not yet implemented")
+    }
+
+    override fun onDetachedFromService() {
+        Log.d("APKTEST", "onDetachedFromService")
+        TODO("Not yet implemented")
+    }
+
+    override fun onAttachedToService(binding: ServicePluginBinding) {
+        Log.d("APKTEST", "onAttachedToService")
+        TODO("Not yet implemented")
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {
