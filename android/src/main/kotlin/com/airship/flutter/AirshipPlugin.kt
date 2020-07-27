@@ -6,7 +6,6 @@ import android.app.NotificationManager
 import android.content.Context
 import android.view.View
 import android.os.Build
-import android.util.Log
 import androidx.core.app.NotificationManagerCompat
 import com.urbanairship.UAirship
 import com.urbanairship.analytics.CustomEvent
@@ -129,43 +128,35 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin, ActivityAware, ServiceAw
     }
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
-        val channel = MethodChannel(binding.flutterEngine.dartExecutor, "flutter_plugin")
+        val channel = MethodChannel(binding.flutterEngine.dartExecutor, "com.airship.flutter/airship")
         channel.setMethodCallHandler(this)
-        Log.d("APKTEST", "Engine is attached!")
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
-        Log.d("APKTEST", "onDetachedFromEngine")
         TODO("Not yet implemented")
     }
 
     override fun onDetachedFromActivity() {
-        Log.d("APKTEST", "onDetachedFromActivity")
         TODO("Not yet implemented")
     }
 
     override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
-        Log.d("APKTEST", "onReattachedToActivityForConfigChanges")
         TODO("Not yet implemented")
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
-        Log.d("APKTEST", "onAttachedToActivity")
         TODO("Not yet implemented")
     }
 
     override fun onDetachedFromActivityForConfigChanges() {
-        Log.d("APKTEST", "onDetachedFromActivityForConfigChanges")
         TODO("Not yet implemented")
     }
 
     override fun onDetachedFromService() {
-        Log.d("APKTEST", "onDetachedFromService")
         TODO("Not yet implemented")
     }
 
     override fun onAttachedToService(binding: ServicePluginBinding) {
-        Log.d("APKTEST", "onAttachedToService")
         TODO("Not yet implemented")
     }
 
