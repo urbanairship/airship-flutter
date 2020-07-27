@@ -1,5 +1,6 @@
 package com.airship.flutter
 
+import android.app.Activity
 import android.graphics.Bitmap
 import android.webkit.WebView
 import android.app.NotificationManager
@@ -117,6 +118,11 @@ class FlutterInboxMessageView(private var context: Context, channel: MethodChann
 
 class AirshipPlugin : MethodCallHandler, FlutterPlugin, ActivityAware, ServiceAware {
 
+    private lateinit var channel : MethodChannel
+
+    private lateinit var context: Context
+    private lateinit var activity: Activity
+
     companion object {
         @JvmStatic
         fun registerWith(registrar: Registrar) {
@@ -128,37 +134,28 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin, ActivityAware, ServiceAw
     }
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
-        val channel = MethodChannel(binding.flutterEngine.dartExecutor, "com.airship.flutter/airship")
+        channel = MethodChannel(binding.flutterEngine.dartExecutor, "com.airship.flutter/airship")
         channel.setMethodCallHandler(this)
+        context = binding.applicationContext
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
-        TODO("Not yet implemented")
+        channel.setMethodCallHandler(null)
     }
 
-    override fun onDetachedFromActivity() {
-        TODO("Not yet implemented")
-    }
+    override fun onDetachedFromActivity() {}
 
-    override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
-        TODO("Not yet implemented")
-    }
+    override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {}
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
-        TODO("Not yet implemented")
+        activity = binding.activity
     }
 
-    override fun onDetachedFromActivityForConfigChanges() {
-        TODO("Not yet implemented")
-    }
+    override fun onDetachedFromActivityForConfigChanges() {}
 
-    override fun onDetachedFromService() {
-        TODO("Not yet implemented")
-    }
+    override fun onDetachedFromService() {}
 
-    override fun onAttachedToService(binding: ServicePluginBinding) {
-        TODO("Not yet implemented")
-    }
+    override fun onAttachedToService(binding: ServicePluginBinding) {}
 
     override fun onMethodCall(call: MethodCall, result: Result) {
         when (call.method) {
