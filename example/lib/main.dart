@@ -16,6 +16,7 @@ const String message_center_deep_link =  "message_center";
 const String settings_deep_link =  "settings";
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
