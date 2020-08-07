@@ -8,7 +8,7 @@
 
 2. Make sure flutter is in the tool chain
 
-3. Make sure flutter doctor to make sure everything is setup
+3. Run `flutter doctor` to make sure everything is setup
 
 ### Plugin Development
 
