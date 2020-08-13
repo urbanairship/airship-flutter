@@ -1,5 +1,6 @@
 package com.airship.flutter
 
+import android.app.Activity
 import android.graphics.Bitmap
 import android.webkit.WebView
 import android.app.NotificationManager
@@ -28,6 +29,7 @@ import io.flutter.plugin.common.PluginRegistry.Registrar
 import io.flutter.plugin.common.StandardMessageCodec
 import io.flutter.plugin.platform.PlatformView
 import io.flutter.plugin.platform.PlatformViewFactory
+import io.flutter.embedding.engine.plugins.FlutterPlugin
 
 private const val TAG_OPERATION_GROUP_NAME = "group"
 private const val TAG_OPERATION_TYPE = "operationType"
@@ -42,9 +44,9 @@ private const val ATTRIBUTE_MUTATION_VALUE = "value"
 private const val ATTRIBUTE_MUTATION_REMOVE = "remove"
 private const val ATTRIBUTE_MUTATION_SET = "set"
 
-class InboxMessageViewFactory(private val registrar: Registrar) : PlatformViewFactory(StandardMessageCodec.INSTANCE) {
+class InboxMessageViewFactory(private val binding: FlutterPlugin.FlutterPluginBinding) : PlatformViewFactory(StandardMessageCodec.INSTANCE) {
     override fun create(context: Context, viewId: Int, arguments: Any?): PlatformView {
-        val channel = MethodChannel(registrar.messenger(), "com.airship.flutter/InboxMessageView_$viewId")
+        val channel = MethodChannel(binding.flutterEngine.dartExecutor, "com.airship.flutter/InboxMessageView_$viewId")
         val view = FlutterInboxMessageView(context, channel)
         channel.setMethodCallHandler(view)
         return view
@@ -110,7 +112,11 @@ class FlutterInboxMessageView(private var context: Context, channel: MethodChann
     }
 }
 
-class AirshipPlugin : MethodCallHandler {
+class AirshipPlugin : MethodCallHandler, FlutterPlugin {
+
+    private lateinit var channel : MethodChannel
+
+    private lateinit var context: Context
 
     companion object {
         @JvmStatic
@@ -118,8 +124,18 @@ class AirshipPlugin : MethodCallHandler {
             val channel = MethodChannel(registrar.messenger(), "com.airship.flutter/airship")
             channel.setMethodCallHandler(AirshipPlugin())
             EventManager.shared.register(registrar)
-            registrar.platformViewRegistry().registerViewFactory("com.airship.flutter/InboxMessageView", InboxMessageViewFactory(registrar))
         }
+    }
+
+    override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        channel = MethodChannel(binding.flutterEngine.dartExecutor, "com.airship.flutter/airship")
+        binding.platformViewRegistry.registerViewFactory("com.airship.flutter/InboxMessageView", InboxMessageViewFactory(binding))
+        channel.setMethodCallHandler(this)
+        context = binding.applicationContext
+    }
+
+    override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        channel.setMethodCallHandler(null)
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {
