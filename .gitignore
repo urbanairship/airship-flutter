@@ -35,3 +35,4 @@ xcuserdata/
 .flutter-plugins-dependencies
 flutter_export_environment.sh
 Flutter.podspec
+.last_build_id
