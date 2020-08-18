@@ -31,6 +31,8 @@ Pods/
 .symlinks/
 xcuserdata/
 
+doc/api
+
 # do not edit or check into version control
 .flutter-plugins-dependencies
 flutter_export_environment.sh

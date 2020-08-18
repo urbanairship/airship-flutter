@@ -109,7 +109,7 @@ jobs:
 
       - name: Upload docs to GoogleCloudPlatform
         run: |
-          ./scripts/docs.sh -u ${GITHUB_REF/refs\/tags\//} doc
+          ./scripts/docs.sh -u ${GITHUB_REF/refs\/tags\//} doc/api
 
       - name: Slack Notification
         uses: homoluctus/slatify@master
