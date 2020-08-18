@@ -30,3 +30,8 @@ Podfile.lock
 Pods/
 .symlinks/
 xcuserdata/
+
+# do not edit or check into version control
+.flutter-plugins-dependencies
+flutter_export_environment.sh
+Flutter.podspec
