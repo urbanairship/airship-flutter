@@ -54,6 +54,7 @@ jobs:
         uses: sakebook/actions-flutter-pub-publisher@v1.2.1
         with:
           credential: ${{ secrets.PUB_DEV_CREDENTIALS }}
+          skip_test: true
 
       - name: Github Release
         uses: actions/create-release@v1.0.1
