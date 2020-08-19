@@ -26,7 +26,7 @@ To update the plugin version, use the update_version script by running the follo
 
 Replace NEW_VERSION with your semantic version (i.e. 3.0.0):
 
-`./scripts/update_version NEW_VERSION`
+`./scripts/update_version.sh NEW_VERSION`
 
 ### Documentations
 
