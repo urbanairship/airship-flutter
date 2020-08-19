@@ -1,6 +1,6 @@
 # Flutter Plugin Changelog
 
-## Version 3.1.0 - August 18, 2020
+## Version 3.1.0 - August 19, 2020
 Minor release adding date attributes, custom event properties, named user attributes, support for the new Android plugins APIs and bundling the following SDK updates:
 
 ### iOS (Updated iOS SDK from 13.5.2 to 13.5.4)
