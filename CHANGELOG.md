@@ -1,5 +1,8 @@
 # Flutter Plugin Changelog
 
+## Version 4.0.0 - September 21, 2020
+Major release for Airship Android SDK 14.0.0 and iOS SDK 14.1.1.
+
 ## Version 3.1.0 - August 19, 2020
 Minor release adding date attributes, custom event properties, named user attributes, support for the new Android plugins APIs and bundling the following SDK updates:
 
