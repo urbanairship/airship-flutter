@@ -10,6 +10,7 @@ import android.os.Build
 import androidx.core.app.NotificationManagerCompat
 import com.urbanairship.UAirship
 import com.urbanairship.analytics.CustomEvent
+import com.urbanairship.automation.InAppAutomation
 import com.urbanairship.json.JsonMap
 import com.urbanairship.json.JsonValue
 import com.urbanairship.channel.TagGroupsEditor
@@ -446,12 +447,12 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
     private fun setInAppAutomationPaused(call: MethodCall, result: Result) {
         val paused = call.arguments as Boolean
 
-        InAppMessageManager.shared().isPaused = paused
+        InAppAutomation.shared().isPaused = paused
         result.success(true)
     }
 
     private fun getInAppAutomationPaused(result: Result) {
-        result.success(InAppMessageManager.shared().isPaused)
+        result.success(InAppAutomation.shared().isPaused)
     }
 
     fun getChannelId(result: Result) {
