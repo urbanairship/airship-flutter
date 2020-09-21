@@ -4,7 +4,10 @@
 Major release for Airship Android SDK 14.0.0 and iOS SDK 14.1.1.
 
 ### Changes
-
+- Starting with SDK 14, all landing page and external urls are tested against a URL allow list. The easiest way to go back to 13.x behavior is to add the wildcard symbol `*` to the array under the URLAllowListScopeOpenURL key in your AirshipConfig.plist for iOS, and `urlAllowListScopeOpenUrl = *` to the airshipconfig.properties on Android. Config for `whitelist` has been removed and replaced with:
+   iOS: `URLAllowList`, Android: `urlAllowList`
+   iOS: `URLAllowListScopeOpenURL`, Android: `urlAllowListScopeOpenUrl`
+   iOS: `URLAllowListScopeJavaScriptInterface`, Android: `urlAllowListScopeJavaScriptInterface`
 - Xcode 12 is now required.
 - Requires Flutter SDK 1.20.4+
 
