@@ -24,7 +24,7 @@
 
 To update the plugin version, use the update_version script by running the following command at the project root directory:
 
-Replace NEW_VERSION with your semantic version (i.e. 3.0.0):
+Replace NEW_VERSION with your semantic version (i.e. 4.0.0):
 
 `./scripts/update_version.sh NEW_VERSION`
 
@@ -36,7 +36,7 @@ To generate the API documentations for flutter, use the docs script by running t
 
 To upload the API documentations to google cloud, use the docs script by running the following command at the project root directory:
 
-Replace NEW_VERSION with your semantic version (i.e. 3.0.2):
+Replace NEW_VERSION with your semantic version (i.e. 4.0.0):
 
 Replace PATH_TO_DOCS with your path to the generated docs version (i.e. doc):
 

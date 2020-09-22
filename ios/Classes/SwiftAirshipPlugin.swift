@@ -412,12 +412,12 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
     private func setInAppAutomationPaused(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let paused = call.arguments as! Bool
 
-        UAInAppMessageManager.shared().isPaused = paused
+        UAInAppAutomation.shared().isPaused = paused
         result(true)
     }
 
     private func getInAppAutomationPaused(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        result(UAInAppMessageManager.shared().isPaused)
+        result(UAInAppAutomation.shared().isPaused)
     }
 
     private func enableChannelCreation(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
