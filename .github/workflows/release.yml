@@ -46,14 +46,14 @@ jobs:
           java-version: "12.x"
 
       - name: Flutter action
-        uses: subosito/flutter-action@v1
+        uses: subosito/flutter-action@v282b38c3d9e5b3cc8f0def5f6e1e05e5b7c4fefa
         with:
-          flutter-version: "1.12.13+hotfix.8"
+          channel: "stable"
 
       - run: flutter pub get
 
       - name: Publish Dart/Flutter package
-        uses: sakebook/actions-flutter-pub-publisher@v1.2.1
+        uses: sakebook/actions-flutter-pub-publisher@7112915a1a834881d4c98ef7af12f3456e5c79c7
         with:
           credential: ${{ secrets.PUB_DEV_CREDENTIALS }}
           skip_test: true
@@ -92,7 +92,7 @@ jobs:
           java-version: "12.x"
 
       - name: Flutter action
-        uses: subosito/flutter-action@v1
+        uses: subosito/flutter-action@282b38c3d9e5b3cc8f0def5f6e1e05e5b7c4fefa
         with:
           flutter-version: "1.12.13+hotfix.8"
 
