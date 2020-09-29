@@ -3,6 +3,7 @@ package com.airship.flutter
 import com.airship.flutter.events.Event
 import com.airship.flutter.events.EventType
 import com.urbanairship.json.JsonValue
+import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.PluginRegistry
 import kotlinx.coroutines.Dispatchers
@@ -22,9 +23,9 @@ class EventManager {
         }.toMap()
     }
 
-    fun register(registrar: PluginRegistry.Registrar) {
+    fun register(binaryMessenger: BinaryMessenger) {
         streams.values.forEach {
-            val eventChannel = EventChannel(registrar.messenger(), it.name)
+            val eventChannel = EventChannel(binaryMessenger, it.name)
             eventChannel.setStreamHandler(it)
         }
     }
@@ -44,7 +45,7 @@ internal class AirshipEventStream(eventType: EventType) : EventChannel.StreamHan
     val name : String = "com.airship.flutter/event/${eventType.name}"
 
     fun notifyEvent(event: Event) {
-        var sink = eventSink
+        val sink = eventSink
         if (sink != null) {
             sink.success(event.eventBody?.toString())
         } else {

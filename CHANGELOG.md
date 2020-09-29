@@ -1,5 +1,12 @@
 # Flutter Plugin Changelog
 
+## Version 4.0.1 - September 28, 2020
+Patch release for Airship Android SDK 14.0.1 and iOS SDK 14.1.2.
+
+### Changes
+- Update Airship Android SDK 14.0.1 and iOS SDK 14.1.2
+- Fixed events not firing on Android
+
 ## Version 4.0.0 - September 21, 2020
 Major release for Airship Android SDK 14.0.0 and iOS SDK 14.1.1.
 
