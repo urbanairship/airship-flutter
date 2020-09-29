@@ -46,7 +46,7 @@ jobs:
           java-version: "12.x"
 
       - name: Flutter action
-        uses: subosito/flutter-action@v282b38c3d9e5b3cc8f0def5f6e1e05e5b7c4fefa
+        uses: subosito/flutter-action@282b38c3d9e5b3cc8f0def5f6e1e05e5b7c4fefa
         with:
           channel: "stable"
 
