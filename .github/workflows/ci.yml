@@ -3,7 +3,7 @@ name: CI
 on: [pull_request]
 
 jobs:
-  analyze:
+  ci:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -13,9 +13,14 @@ jobs:
       - uses: subosito/flutter-action@282b38c3d9e5b3cc8f0def5f6e1e05e5b7c4fefa
         with:
           channel: "stable"
-      - name: Run CI
+      - name: Build documentation
+        env:
+          FLUTTER_ROOT: ${{ env.FLUTTER_HOME }}
+        run: bash ./scripts/docs.sh -g
+      - name: Analyze
         run: bash ./scripts/run_ci_tasks.sh -z
-  android:
+
+  ci-android:
     runs-on: macos-latest
     env:
       DEVELOPER_DIR: /Applications/Xcode_12.app/Contents/Developer
@@ -27,9 +32,9 @@ jobs:
       - uses: subosito/flutter-action@v1
         with:
           channel: "stable"
-      - name: Run CI
+      - name: Build Android
         run: bash ./scripts/run_ci_tasks.sh -a
-  ios:
+  ci-ios:
     runs-on: macos-latest
     env:
       DEVELOPER_DIR: /Applications/Xcode_12.app/Contents/Developer
@@ -41,5 +46,5 @@ jobs:
       - uses: subosito/flutter-action@v1
         with:
           channel: "stable"
-      - name: Run CI
+      - name: Build iOS
         run: bash ./scripts/run_ci_tasks.sh -i

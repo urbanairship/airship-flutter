@@ -100,9 +100,8 @@ jobs:
 
       - name: Generate documentation
         env:
-          FLUTTER_ROOT: /Users/runner/hostedtoolcache/flutter/1.12.13-hotfix.8-stable/x64
-        run: |
-          ./scripts/docs.sh -g
+          FLUTTER_ROOT: ${{ env.FLUTTER_HOME }}
+        run: bash ./scripts/docs.sh -g
 
       - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
         with:
