@@ -12,22 +12,13 @@ class InboxMessageView extends StatelessWidget {
   final void Function() onLoadFinished;
   final void Function(PlatformException) onLoadError;
   final void Function() onClose;
-  static bool _hybridComposition = false;
-
-  static bool get hybridComposition {
-    return _hybridComposition;
-  }
-
-  static set hybridComposition(bool boolean) {
-    _hybridComposition = boolean;
-  }
+  static bool hybridComposition = false;
 
   InboxMessageView({
     @required this.messageId, this.onLoadStarted, this.onLoadFinished, this.onLoadError, this.onClose
   });
 
   Future<void> onPlatformViewCreated(id) async {
-
     MethodChannel _channel = new MethodChannel('com.airship.flutter/InboxMessageView_$id');
     _channel.setMethodCallHandler(methodCallHandler);
     _channel.invokeMethod('loadMessage', messageId).catchError( (error) {
