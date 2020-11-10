@@ -42,6 +42,9 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
     controller = TabController(length: 3, vsync: this);
     initPlatformState();
     addFlutterTag();
+
+    // Uncomment to enable Hybrid Composition on Android
+    // InboxMessageView.hybridComposition = true;
   }
 
   static void addFlutterTag() {

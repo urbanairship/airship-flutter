@@ -119,6 +119,7 @@ Airship.onDeepLink
 ### Message Center
 
 Message Center support relies on Flutter's mechanism for embedding Android and iOS views.
+Note that Hybrid Composition can be enabled on Android by setting InboxMessageView.hybridComposition to true.
 
 #### Example Usage
 
