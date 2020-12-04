@@ -155,6 +155,8 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
             setDataCollectionEnabled(call, result: result)
         case "setPushTokenRegistrationEnabled":
             setPushTokenRegistrationEnabled(call, result: result)
+        case "refreshInbox":
+            refreshInbox(call, result: result)
         default:
             result(FlutterError(code:"UNAVAILABLE",
                 message:"Unknown method: \(call.method)",
@@ -392,8 +394,12 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
         }
     }
 
-    private func fetchMessages(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        UAMessageCenter.shared().messageList.refreshInboxWithCompletionHandler()
+    private func refreshInbox(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        UAMessageCenter.shared().messageList.retrieveMessageListWithSuccessBlock() {
+            result(true)
+        } failureBlock {
+            result(false)
+        }
     }
 
     private func deleteInboxMessage(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
