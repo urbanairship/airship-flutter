@@ -15,7 +15,7 @@ jobs:
           channel: "stable"
       - name: Build documentation
         env:
-          FLUTTER_ROOT: ${{ env.FLUTTER_HOME }}
+          FLUTTER_ROOT: ${{ env.FLUTTER_ROOT }}
         run: bash ./scripts/docs.sh -g
       - name: Analyze
         run: bash ./scripts/run_ci_tasks.sh -z
