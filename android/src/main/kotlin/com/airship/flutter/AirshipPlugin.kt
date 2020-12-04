@@ -204,8 +204,8 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
     }
 
     private fun refreshInbox(result: Result) {
-        MessageCenter.shared().inbox.fetchMessages { sucess ->
-            result.sucess(sucess)
+        MessageCenter.shared().inbox.fetchMessages { success ->
+            result.success(success)
         }
     }
 
