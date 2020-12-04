@@ -392,6 +392,10 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
         }
     }
 
+    private func fetchMessages(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        UAMessageCenter.shared().messageList.refreshInboxWithCompletionHandler()
+    }
+
     private func deleteInboxMessage(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let message = UAMessageCenter.shared().messageList.message(forID: call.arguments as! String)
         UAMessageCenter.shared().messageList.markMessagesDeleted([message as Any]) {

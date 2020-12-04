@@ -163,6 +163,7 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
             "setNamedUser" -> setNamedUser(call, result)
             "getNamedUser" -> getNamedUser(result)
             "getInboxMessages" -> getInboxMessages(result)
+            "fetchMessages" -> fetchMessages(result)
             "markInboxMessageRead" -> markInboxMessageRead(call, result)
             "deleteInboxMessage" -> deleteInboxMessage(call, result)
             "setInAppAutomationPaused" -> setInAppAutomationPaused(call, result)
@@ -200,6 +201,11 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
                 }
 
         result.success(messages)
+    }
+
+    private fun fetchMessages(result: Result) {
+        MessageCenter.shared().inbox.fetchMessages()
+        result.success(null)
     }
 
     private fun markInboxMessageRead(call: MethodCall, result: Result) {

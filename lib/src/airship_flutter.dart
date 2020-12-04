@@ -250,6 +250,10 @@ class Airship {
     return await _channel.invokeMethod('deleteInboxMessage', message.messageId);
   }
 
+  static Future<void> refreshInbox() async {
+    return await _channel.invokeMethod("fetchMessages");
+  }
+
   static Future<String> get namedUser async {
     return await _channel.invokeMethod('getNamedUser');
   }
