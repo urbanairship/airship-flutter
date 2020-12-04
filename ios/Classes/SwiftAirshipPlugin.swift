@@ -394,10 +394,17 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
         }
     }
 
+    callWebservice("your-service-name", withMethod: "your-method", andParams: ["your-dic-key": "your dict value"], showLoader: true/*or false*/,
+    completionBlockSuccess: { (success) -> Void in
+        // your successful handle
+    }) { (failure) -> Void in
+        // your failure handle
+    }
+
     private func refreshInbox(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        UAMessageCenter.shared().messageList.retrieveMessageList(successBlock: { (success) -> Void in
+        UAMessageCenter.shared().messageList.retrieveMessageList() {
             result(true)
-        }) { (failureBlock) -> Void in
+        } failureBlock: {
             result(false)
         }
     }
