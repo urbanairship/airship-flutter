@@ -395,7 +395,7 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
     }
 
     private func refreshInbox(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        UAMessageCenter.shared().messageList.retrieveMessageList(withSuccessBlock: {
+        UAMessageCenter.shared().messageList.retrieveMessageList(successBlock: {
             result(true)
         }, withFailureBlock: {
             result(false)
