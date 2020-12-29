@@ -251,7 +251,7 @@ class Airship {
   }
 
   static Future<void> refreshInbox() async {
-    return await _channel.invokeMethod("refreshInbox");
+    return _channel.invokeMethod("refreshInbox");
   }
 
   static Future<String> get namedUser async {
