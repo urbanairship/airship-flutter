@@ -250,7 +250,7 @@ class Airship {
     return await _channel.invokeMethod('deleteInboxMessage', message.messageId);
   }
 
-  static Future<void> refreshInbox() async {
+  static Future<bool> refreshInbox() async {
     return _channel.invokeMethod("refreshInbox");
   }
 
