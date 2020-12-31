@@ -1,5 +1,13 @@
 # Flutter Plugin Changelog
 
+## Version 4.1.0 - December 31, 2020
+Minor release adding support for frequency limits and advanced segmentation to In-App Automation and hybrid composition support for InboxMessageView.
+
+### Changes
+- Update Airship Android SDK 14.1.1 and iOS SDK 14.2.1
+- Added hybrid composition support for InboxMessageView on Android
+- Added `refreshInbox` method
+
 ## Version 4.0.1 - September 28, 2020
 Patch release for Airship Android SDK 14.0.1 and iOS SDK 14.1.2.
 
