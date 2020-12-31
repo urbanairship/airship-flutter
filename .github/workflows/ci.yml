@@ -10,12 +10,10 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: "12.x"
-      - uses: subosito/flutter-action@282b38c3d9e5b3cc8f0def5f6e1e05e5b7c4fefa
+      - uses: subosito/flutter-action@d2a92405ab76a515dcfea5ba9f5e9cfdc2b14ca2
         with:
-          channel: "stable"
+          flutter-version: "1.22.4"
       - name: Build documentation
-        env:
-          FLUTTER_ROOT: ${{ env.FLUTTER_HOME }}
         run: bash ./scripts/docs.sh -g
       - name: Analyze
         run: bash ./scripts/run_ci_tasks.sh -z
@@ -29,9 +27,9 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: "12.x"
-      - uses: subosito/flutter-action@v1
+      - uses: subosito/flutter-action@d2a92405ab76a515dcfea5ba9f5e9cfdc2b14ca2
         with:
-          channel: "stable"
+          flutter-version: "1.22.4"
       - name: Build Android
         run: bash ./scripts/run_ci_tasks.sh -a
   ci-ios:
@@ -43,8 +41,8 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: "12.x"
-      - uses: subosito/flutter-action@v1
+      - uses: subosito/flutter-action@d2a92405ab76a515dcfea5ba9f5e9cfdc2b14ca2
         with:
-          channel: "stable"
+          flutter-version: "1.22.4"
       - name: Build iOS
         run: bash ./scripts/run_ci_tasks.sh -i

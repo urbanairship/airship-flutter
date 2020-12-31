@@ -15,9 +15,9 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: "12.x"
-      - uses: subosito/flutter-action@v1
+      - uses: subosito/flutter-action@d2a92405ab76a515dcfea5ba9f5e9cfdc2b14ca2
         with:
-          channel: "stable"
+          flutter-version: "1.22.4"
       - name: Run CI
         run: bash ./scripts/run_ci_tasks.sh
 
@@ -46,9 +46,9 @@ jobs:
           java-version: "12.x"
 
       - name: Flutter action
-        uses: subosito/flutter-action@282b38c3d9e5b3cc8f0def5f6e1e05e5b7c4fefa
+        uses: subosito/flutter-action@d2a92405ab76a515dcfea5ba9f5e9cfdc2b14ca2
         with:
-          channel: "stable"
+          flutter-version: "1.22.4"
 
       - run: flutter pub get
 
@@ -92,15 +92,13 @@ jobs:
           java-version: "12.x"
 
       - name: Flutter action
-        uses: subosito/flutter-action@282b38c3d9e5b3cc8f0def5f6e1e05e5b7c4fefa
+        uses: subosito/flutter-action@d2a92405ab76a515dcfea5ba9f5e9cfdc2b14ca2
         with:
-          flutter-version: "1.12.13+hotfix.8"
+          flutter-version: "1.22.4"
 
       - run: flutter pub get
 
       - name: Generate documentation
-        env:
-          FLUTTER_ROOT: ${{ env.FLUTTER_HOME }}
         run: bash ./scripts/docs.sh -g
 
       - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
