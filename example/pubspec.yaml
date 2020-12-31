@@ -7,7 +7,9 @@ environment:
 
 dependencies:
   flutter:
-    sdk: flutter  
+    sdk: flutter
+  pull_to_refresh: ^1.6.3
+
 
 dev_dependencies:
 
