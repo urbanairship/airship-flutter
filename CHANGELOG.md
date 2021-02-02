@@ -1,5 +1,12 @@
 # Flutter Plugin Changelog
 
+## Version 4.1.1 - February 05, 2020
+Patch release to fix some issues with setting attributes on a named user if the named user ID contains invalid URL characters. Applications using attributes with named users that possibly contain invalid URL characters should update.
+
+### Changes
+- Updated iOS SDK to 14.2.2
+- Fixed attributes updates when the named user has invalid URL characters.
+
 ## Version 4.1.0 - December 31, 2020
 Minor release adding support for frequency limits and advanced segmentation to In-App Automation and hybrid composition support for InboxMessageView.
 
