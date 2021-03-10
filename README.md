@@ -52,7 +52,7 @@ place it inside the android/app/src/main/assets directory:
    notificationAccentColor = #ff0000
 
    # Optional - Set the default channel
-   notificationChannel = "customChannel"
+   notificationChannel = customChannel
 ```
 
 ### iOS Setup
