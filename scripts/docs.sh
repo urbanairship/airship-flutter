@@ -29,7 +29,7 @@ done
 
 # Generate doc
 if $GENERATE; then
-  $FLUTTER_ROOT/bin/cache/dart-sdk/bin/dartdoc --exclude 'dart:collection,dart:convert,dart:core,dart:developer,dart:ffi,dart:html,dart:io,dart:isolate,dart:js,dart:js_util,dart:math,dart:typed_data,dart:ui,dart:airship_flutter'
+  $FLUTTER_ROOT/bin/cache/dart-sdk/bin/dartdoc
 fi
 
 # Upload doc
@@ -45,7 +45,7 @@ if $UPLOAD; then
         exit 1
     fi
 
-    ROOT_PATH=`dirname "${0}"`/..
+    ROOT_PATH='dirname "${0}"'/..
     TAR_NAME="$1.tar.gz"
 
     cd "$2"
