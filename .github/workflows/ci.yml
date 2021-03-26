@@ -16,6 +16,9 @@ jobs:
       - name: Install dartdoc global package via pub tool in the Flutter context
         run: |
           flutter pub global activate dartdoc
+      - name: Build Documentation
+        run: |
+          flutter pub global run dartdoc
       - name: Build documentation
         run: bash ./scripts/docs.sh -g
       - name: Analyze
