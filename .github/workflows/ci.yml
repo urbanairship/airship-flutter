@@ -12,7 +12,7 @@ jobs:
           java-version: "12.x"
       - uses: subosito/flutter-action@123325ea84b0d4c11e96eb9899090b697bf51bed
         with:
-          flutter-version: "2.0.2"
+          flutter-version: "2.0.3"
       - run: flutter pub get
       - name: Build documentation
         run: bash ./scripts/docs.sh -g
@@ -30,7 +30,7 @@ jobs:
           java-version: "12.x"
       - uses: subosito/flutter-action@123325ea84b0d4c11e96eb9899090b697bf51bed
         with:
-          flutter-version: "2.0.2"
+          flutter-version: "2.0.3"
       - run: flutter pub get
       - name: Build Android
         run: bash ./scripts/run_ci_tasks.sh -a
@@ -45,7 +45,7 @@ jobs:
           java-version: "12.x"
       - uses: subosito/flutter-action@123325ea84b0d4c11e96eb9899090b697bf51bed
         with:
-          flutter-version: "2.0.2"
+          flutter-version: "2.0.3"
       - run: flutter pub get
       - name: Build iOS
         run: bash ./scripts/run_ci_tasks.sh -i
