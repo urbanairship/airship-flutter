@@ -16,7 +16,7 @@ class TagGroupEditor {
 
   TagGroupEditor(String type, MethodChannel channel)
       : this.type = type,
-        this.operations = new List(),
+        this.operations = [],
         this.channel = channel;
 
   void addTags(String group, List<String> tags) {

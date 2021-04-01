@@ -15,7 +15,7 @@ class AttributeEditor {
 
   AttributeEditor(String type, MethodChannel channel)
       : this.type = type,
-        this.operations = new List(),
+        this.operations = [],
         this.channel = channel;
 
   void removeAttribute(String name) {

@@ -15,9 +15,9 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: "12.x"
-      - uses: subosito/flutter-action@d2a92405ab76a515dcfea5ba9f5e9cfdc2b14ca2
+      - uses: subosito/flutter-action@123325ea84b0d4c11e96eb9899090b697bf51bed
         with:
-          flutter-version: "1.22.4"
+          flutter-version: "2.0.3"
       - name: Run CI
         run: bash ./scripts/run_ci_tasks.sh
 
@@ -46,9 +46,9 @@ jobs:
           java-version: "12.x"
 
       - name: Flutter action
-        uses: subosito/flutter-action@d2a92405ab76a515dcfea5ba9f5e9cfdc2b14ca2
+        uses: subosito/flutter-action@123325ea84b0d4c11e96eb9899090b697bf51bed
         with:
-          flutter-version: "1.22.4"
+          flutter-version: "2.0.3"
 
       - run: flutter pub get
 
@@ -92,9 +92,9 @@ jobs:
           java-version: "12.x"
 
       - name: Flutter action
-        uses: subosito/flutter-action@d2a92405ab76a515dcfea5ba9f5e9cfdc2b14ca2
+        uses: subosito/flutter-action@123325ea84b0d4c11e96eb9899090b697bf51bed
         with:
-          flutter-version: "1.22.4"
+          flutter-version: "2.0.3"
 
       - run: flutter pub get
 

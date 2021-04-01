@@ -35,7 +35,7 @@ class _TagAddState extends State<TagAdd> {
             key: Key(UniqueKey().toString()),
             background: Container(color: Styles.airshipRed),
             onDismissed: (direction) {
-              Scaffold
+              ScaffoldMessenger
                   .of(context)
                   .showSnackBar(SnackBar(content: Text("tag \"$tag\" removed")));
               tags.remove(tag);

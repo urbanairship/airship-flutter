@@ -51,7 +51,7 @@ class _MessageCenterState extends State<MessageCenter> {
               key: Key(UniqueKey().toString()),
               background: Container(color: Styles.airshipRed),
               onDismissed: (direction) {
-                Scaffold
+                ScaffoldMessenger
                     .of(context)
                     .showSnackBar(SnackBar(content: Text("Message \"${message.messageId}\" removed")));
                 messages.remove(message);
