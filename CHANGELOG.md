@@ -1,10 +1,10 @@
 # Flutter Plugin Changelog
 
 ## Version 4.2.0 - April 06, 2021
-Minor release updating the iOS and Android SDKs to 14.3.0. 
+Minor release updating the iOS and Android SDKs to 14.3.1 ans 14.3.0.
 
 ### Changes
-- Updated iOS SDK to 14.3.0
+- Updated iOS SDK to 14.3.1
 - Updated Android SDK to 14.3.0
 - Added extras to the message center payload
 
