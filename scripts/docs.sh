@@ -46,7 +46,7 @@ if $UPLOAD; then
         exit 1
     fi
 
-    ROOT_PATH='dirname "${0}"'/..
+    ROOT_PATH=$(dirname "${0}")/..
     TAR_NAME="$1.tar.gz"
 
     cd "$2"
