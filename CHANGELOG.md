@@ -1,6 +1,14 @@
 # Flutter Plugin Changelog
 
-## Version 4.1.1 - February 05, 2020
+## Version 4.2.0 - April 06, 2021
+Minor release updating the iOS and Android SDKs to 14.3.0. 
+
+### Changes
+- Updated iOS SDK to 14.3.0
+- Updated Android SDK to 14.3.0
+- Added extras to the message center payload
+
+## Version 4.1.1 - February 05, 2021
 Patch release to fix some issues with setting attributes on a named user if the named user ID contains invalid URL characters. Applications using attributes with named users that possibly contain invalid URL characters should update.
 
 ### Changes
