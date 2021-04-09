@@ -6,14 +6,14 @@ import 'custom_event.dart';
 import 'tag_group_editor.dart';
 
 class InboxMessage {
-  final String title;
+  final String? title;
   final String messageId;
-  final String sentDate;
-  final String expirationDate;
+  final String? sentDate;
+  final String? expirationDate;
 
-  final String listIcon;
-  final bool isRead;
-  final Map<String, dynamic> extras;
+  final String? listIcon;
+  final bool? isRead;
+  final Map<String, dynamic>? extras;
 
   const InboxMessage._internal(this.title, this.messageId, this.sentDate,
       this.expirationDate, this.listIcon, this.isRead, this.extras);
@@ -38,10 +38,10 @@ class InboxMessage {
 
 class Notification {
   final String notificationId;
-  final String alert;
-  final String title;
-  final String subtitle;
-  final Map<String, dynamic> extras;
+  final String? alert;
+  final String? title;
+  final String? subtitle;
+  final Map<String, dynamic>? extras;
 
   const Notification._internal(
       this.notificationId, this.alert, this.title, this.subtitle, this.extras);
@@ -66,10 +66,10 @@ class Notification {
 }
 
 class NotificationResponseEvent {
-  final String actionId;
-  final bool isForeground;
+  final String? actionId;
+  final bool? isForeground;
   final Notification notification;
-  final Map<String, dynamic> payload;
+  final Map<String, dynamic>? payload;
 
   const NotificationResponseEvent._internal(
     this.actionId,
@@ -94,7 +94,7 @@ class NotificationResponseEvent {
 }
 
 class PushReceivedEvent {
-  final Map<String, dynamic> payload;
+  final Map<String, dynamic>? payload;
   final Notification notification;
 
   const PushReceivedEvent._internal(this.payload, this.notification);
@@ -102,7 +102,7 @@ class PushReceivedEvent {
   static PushReceivedEvent _fromJson(Map<String, dynamic> json) {
     var payload = json["payload"];
 
-    var notification;
+    late var notification;
     if (json["notification"] != null) {
       notification = Notification._fromJson(json["notification"]);
     }
@@ -117,8 +117,8 @@ class PushReceivedEvent {
 }
 
 class ChannelEvent {
-  final String channelId;
-  final String registrationToken;
+  final String? channelId;
+  final String? registrationToken;
 
   const ChannelEvent._internal(this.channelId, this.registrationToken);
 
@@ -140,7 +140,7 @@ class Airship {
   static Map<String, EventChannel> _eventChannels = new Map();
   static Map<String, Stream<dynamic>> _eventStreams = new Map();
 
-  static Stream<dynamic> _getEventStream(String eventType) {
+  static Stream<dynamic>? _getEventStream(String eventType) {
     if (_eventChannels[eventType] == null) {
       String name = "com.airship.flutter/event/$eventType";
       _eventChannels[eventType] = EventChannel(name);
@@ -148,29 +148,21 @@ class Airship {
 
     if (_eventStreams[eventType] == null) {
       _eventStreams[eventType] =
-          _eventChannels[eventType].receiveBroadcastStream();
+          _eventChannels[eventType]!.receiveBroadcastStream();
     }
 
     return _eventStreams[eventType];
   }
 
-  static Future<String> get channelId async {
+  static Future<String?> get channelId async {
     return await _channel.invokeMethod('getChannelId');
   }
 
-  static Future<bool> setUserNotificationsEnabled(bool enabled) async {
-    if (enabled == null) {
-      throw ArgumentError.notNull('enabled');
-    }
-
+  static Future<bool?> setUserNotificationsEnabled(bool enabled) async {
     return await _channel.invokeMethod('setUserNotificationsEnabled', enabled);
   }
 
   static Future<void> clearNotification(String notification) async {
-    if (notification == null) {
-      throw ArgumentError.notNull('notification');
-    }
-
     return await _channel.invokeMethod('clearNotification', notification);
   }
 
@@ -179,35 +171,26 @@ class Airship {
   }
 
   static Future<List<String>> get tags async {
-    List tags = await _channel.invokeMethod("getTags");
+    List tags = await (_channel.invokeMethod("getTags") as FutureOr<List<dynamic>>);
     return tags.cast<String>();
   }
 
   static Future<List<InboxMessage>> get inboxMessages async {
-    List inboxMessages = await _channel.invokeMethod("getInboxMessages");
+    List inboxMessages = await (_channel.invokeMethod("getInboxMessages") as FutureOr<List<dynamic>>);
     return inboxMessages.map((dynamic payload) {
       return InboxMessage._fromJson(jsonDecode(payload));
     }).toList();
   }
 
   static Future<void> addEvent(CustomEvent event) async {
-    if (event == null) {
-      throw ArgumentError.notNull('event');
-    }
     return await _channel.invokeMethod('addEvent', event.toMap());
   }
 
   static Future<void> addTags(List<String> tags) async {
-    if (tags == null) {
-      throw ArgumentError.notNull('tags');
-    }
     return await _channel.invokeMethod('addTags', tags);
   }
 
   static Future<void> removeTags(List<String> tags) async {
-    if (tags == null) {
-      throw ArgumentError.notNull('tags');
-    }
     return await _channel.invokeMethod('removeTags', tags);
   }
 
@@ -236,34 +219,28 @@ class Airship {
   }
 
   static Future<void> markInboxMessageRead(InboxMessage message) async {
-    if (message == null) {
-      throw ArgumentError.notNull('message');
-    }
     return await _channel.invokeMethod(
         'markInboxMessageRead', message.messageId);
   }
 
   static Future<void> deleteInboxMessage(InboxMessage message) async {
-    if (message == null) {
-      throw ArgumentError.notNull('message');
-    }
     return await _channel.invokeMethod('deleteInboxMessage', message.messageId);
   }
 
-  static Future<bool> refreshInbox() async {
+  static Future<bool?> refreshInbox() async {
     return _channel.invokeMethod("refreshInbox");
   }
 
-  static Future<String> get namedUser async {
+  static Future<String?> get namedUser async {
     return await _channel.invokeMethod('getNamedUser');
   }
 
-  static Future<bool> get userNotificationsEnabled async {
+  static Future<bool?> get userNotificationsEnabled async {
     return await _channel.invokeMethod('getUserNotificationsEnabled');
   }
 
   static Future<List<Notification>> get activeNotifications async {
-    List notifications = await _channel.invokeMethod('getActiveNotifications');
+    List notifications = await (_channel.invokeMethod('getActiveNotifications') as FutureOr<List<dynamic>>);
     return notifications.map((dynamic payload) {
       return Notification._fromJson(Map<String, dynamic>.from(payload));
     }).toList();
@@ -273,44 +250,40 @@ class Airship {
     return await _channel.invokeMethod('enableChannelCreation');
   }
 
-  static Stream<void> get onInboxUpdated {
+  static Stream<void>? get onInboxUpdated {
     return _getEventStream("INBOX_UPDATED");
   }
 
-  static Stream<void> get onShowInbox {
+  static Stream<void>? get onShowInbox {
     return _getEventStream("SHOW_INBOX");
   }
   
-  static Stream<String> get onShowInboxMessage {
-    return _getEventStream("SHOW_INBOX_MESSAGE")
-        .map((dynamic value) => jsonDecode(value) as String);
+  static Stream<String?> get onShowInboxMessage {
+    return _getEventStream("SHOW_INBOX_MESSAGE")!
+        .map((dynamic value) => jsonDecode(value) as String?);
   }
 
   static Stream<PushReceivedEvent> get onPushReceived {
-    return _getEventStream("PUSH_RECEIVED")
+    return _getEventStream("PUSH_RECEIVED")!
         .map((dynamic value) => PushReceivedEvent._fromJson(jsonDecode(value)));
   }
 
   static Stream<NotificationResponseEvent> get onNotificationResponse {
-    return _getEventStream("NOTIFICATION_RESPONSE").map((dynamic value) =>
+    return _getEventStream("NOTIFICATION_RESPONSE")!.map((dynamic value) =>
         NotificationResponseEvent._fromJson(jsonDecode(value)));
   }
 
   static Stream<ChannelEvent> get onChannelRegistration {
-    return _getEventStream("CHANNEL_REGISTRATION")
+    return _getEventStream("CHANNEL_REGISTRATION")!
         .map((dynamic value) => ChannelEvent._fromJson(jsonDecode(value)));
   }
 
-  static Stream<String> get onDeepLink {
-    return _getEventStream("DEEP_LINK")
-        .map((dynamic value) => jsonDecode(value) as String);
+  static Stream<String?> get onDeepLink {
+    return _getEventStream("DEEP_LINK")!
+        .map((dynamic value) => jsonDecode(value) as String?);
   }
 
   static Future<void> setInAppAutomationPaused(bool paused) async {
-    if (paused == null) {
-      throw ArgumentError.notNull('paused');
-    }
-
     return await _channel.invokeMethod('setInAppAutomationPaused', paused);
   }
 
@@ -319,34 +292,22 @@ class Airship {
   }
 
   static Future<void> trackScreen(String screen) async {
-    if (screen == null) {
-      throw ArgumentError.notNull('screen');
-    }
-
     return await _channel.invokeMethod('trackScreen', screen);
   }
 
-  static Future<bool> get getDataCollectionEnabled async {
+  static Future<bool?> get getDataCollectionEnabled async {
     return await _channel.invokeMethod('getDataCollectionEnabled');
   }
 
-  static Future<bool> get getPushTokenRegistrationEnabled async {
+  static Future<bool?> get getPushTokenRegistrationEnabled async {
     return await _channel.invokeMethod('getPushTokenRegistrationEnabled');
   }
 
-  static Future<bool> setDataCollectionEnabled(bool enabled) async {
-    if (enabled == null) {
-      throw ArgumentError.notNull('enabled');
-    }
-
+  static Future<bool?> setDataCollectionEnabled(bool enabled) async {
     return await _channel.invokeMethod('setDataCollectionEnabled', enabled);
   }
 
-  static Future<bool> setPushTokenRegistrationEnabled(bool enabled) async {
-    if (enabled == null) {
-      throw ArgumentError.notNull('enabled');
-    }
-
+  static Future<bool?> setPushTokenRegistrationEnabled(bool enabled) async {
     return await _channel.invokeMethod('setPushTokenRegistrationEnabled', enabled);
   }
 }
