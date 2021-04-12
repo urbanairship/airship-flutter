@@ -75,7 +75,7 @@ class NotificationResponseEvent {
     this.actionId,
     this.isForeground,
     this.notification,
-    this.payload,
+    this.payload
   );
 
   static NotificationResponseEvent _fromJson(Map<String, dynamic> json) {
@@ -171,12 +171,12 @@ class Airship {
   }
 
   static Future<List<String>> get tags async {
-    List tags = await (_channel.invokeMethod("getTags") as FutureOr<List<dynamic>>);
+    List tags = await (_channel.invokeMethod("getTags"));
     return tags.cast<String>();
   }
 
   static Future<List<InboxMessage>> get inboxMessages async {
-    List inboxMessages = await (_channel.invokeMethod("getInboxMessages") as FutureOr<List<dynamic>>);
+    List inboxMessages = await (_channel.invokeMethod("getInboxMessages"));
     return inboxMessages.map((dynamic payload) {
       return InboxMessage._fromJson(jsonDecode(payload));
     }).toList();
@@ -240,7 +240,7 @@ class Airship {
   }
 
   static Future<List<Notification>> get activeNotifications async {
-    List notifications = await (_channel.invokeMethod('getActiveNotifications') as FutureOr<List<dynamic>>);
+    List notifications = await (_channel.invokeMethod('getActiveNotifications'));
     return notifications.map((dynamic payload) {
       return Notification._fromJson(Map<String, dynamic>.from(payload));
     }).toList();
