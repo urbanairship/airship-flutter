@@ -22,20 +22,28 @@ class InboxMessageView extends StatelessWidget {
     MethodChannel _channel = new MethodChannel('com.airship.flutter/InboxMessageView_$id');
     _channel.setMethodCallHandler(methodCallHandler);
     _channel.invokeMethod('loadMessage', messageId).catchError( (error) {
-      onLoadError!(error);
+      if (onLoadError != null) {
+        onLoadError!(error);
+      }
     });
   }
 
   Future<void> methodCallHandler(MethodCall call) async {
     switch (call.method) {
       case 'onLoadStarted':
-        onLoadStarted!();
+        if (onLoadStarted != null) {
+          onLoadStarted!();
+        }
         break;
       case 'onLoadFinished':
-        onLoadFinished!();
+        if (onLoadFinished != null) {
+          onLoadFinished!();
+        }
         break;
       case 'onClose':
-        onClose!();
+        if (onClose != null) {
+          onClose!();
+        }
         break;
       default:
         print('Unknown method.');
