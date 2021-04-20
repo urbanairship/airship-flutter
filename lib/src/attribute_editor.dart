@@ -53,9 +53,6 @@ class AttributeEditor {
   }
   
   Future<void> apply() async {
-    if (operations == null) {
-      throw ArgumentError.notNull('operations');
-    }
     return await channel.invokeMethod(type, operations);
   }
 }

@@ -8,34 +8,42 @@ import 'package:flutter/widgets.dart';
 
 class InboxMessageView extends StatelessWidget {
   final String messageId;
-  final void Function() onLoadStarted;
-  final void Function() onLoadFinished;
-  final void Function(PlatformException) onLoadError;
-  final void Function() onClose;
+  final void Function()? onLoadStarted;
+  final void Function()? onLoadFinished;
+  final void Function(PlatformException)? onLoadError;
+  final void Function()? onClose;
   static bool hybridComposition = false;
 
   InboxMessageView({
-    @required this.messageId, this.onLoadStarted, this.onLoadFinished, this.onLoadError, this.onClose
+    required this.messageId, this.onLoadStarted, this.onLoadFinished, this.onLoadError, this.onClose
   });
 
   Future<void> onPlatformViewCreated(id) async {
     MethodChannel _channel = new MethodChannel('com.airship.flutter/InboxMessageView_$id');
     _channel.setMethodCallHandler(methodCallHandler);
     _channel.invokeMethod('loadMessage', messageId).catchError( (error) {
-      onLoadError(error);
+      if (onLoadError != null) {
+        onLoadError!(error);
+      }
     });
   }
 
   Future<void> methodCallHandler(MethodCall call) async {
     switch (call.method) {
       case 'onLoadStarted':
-        onLoadStarted();
+        if (onLoadStarted != null) {
+          onLoadStarted!();
+        }
         break;
       case 'onLoadFinished':
-        onLoadFinished();
+        if (onLoadFinished != null) {
+          onLoadFinished!();
+        }
         break;
       case 'onClose':
-        onClose();
+        if (onClose != null) {
+          onClose!();
+        }
         break;
       default:
         print('Unknown method.');
@@ -66,7 +74,7 @@ class InboxMessageView extends StatelessWidget {
         surfaceFactory:
             (BuildContext context, PlatformViewController controller) {
           return AndroidViewSurface(
-            controller: controller,
+            controller: controller as AndroidViewController,
             gestureRecognizers: const <Factory<OneSequenceGestureRecognizer>>{},
             hitTestBehavior: PlatformViewHitTestBehavior.opaque,
           );

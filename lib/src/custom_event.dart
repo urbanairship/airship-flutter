@@ -7,14 +7,14 @@ class CustomEvent {
   static const INTERACTION_TYPE = "interaction_type";
 
   final String name;
-  final int value;
-  String transactionId;
-  String interactionId;
-  String interactionType;
+  final int? value;
+  String? transactionId;
+  String? interactionId;
+  String? interactionType;
 
   var _properties = new Map<String, dynamic>();
 
-  CustomEvent(String name, int value)
+  CustomEvent(String name, int? value)
       : this.name = name,
         this.value = value;
 
@@ -25,9 +25,6 @@ class CustomEvent {
   /// @param value The property value.
   ///
   void addProperty(String key, dynamic value) {
-    if (key == null) {
-      throw ArgumentError.notNull('key');
-    }
     if (value == null) {
       throw ArgumentError.notNull('value');
     }
@@ -40,9 +37,6 @@ class CustomEvent {
   /// @param properties The custom event properties.
   ///
   void setProperties(Map<String, dynamic> properties) {
-    if (properties == null) {
-      throw ArgumentError.notNull('properties');
-    }
     properties.forEach((key,value) => _properties[key] = value);
   }
 
