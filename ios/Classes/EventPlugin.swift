@@ -1,7 +1,7 @@
 import Flutter
 import Foundation
 
-var instance: EventPlugin? = nil
+//var instance: EventPlugin? = nil
 var registerPlugins: FlutterPluginRegistrantCallback? = nil
 //static BOOL initialized = NO;
 var backgroundIsolateRun = false

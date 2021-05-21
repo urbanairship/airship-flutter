@@ -17,7 +17,7 @@ import airship_flutter
     //SwiftAirshipPlugin.setPluginRegistrantCallback(registerPlugins)
     SwiftAirshipPlugin.setPluginRegistrantCallback({ registry in
         SwiftAirshipPlugin.register(with: registry.registrar(forPlugin: "com.airship.flutter")!)
-        GeneratedPluginRegistrant.register(with: registry)
+        //GeneratedPluginRegistrant.register(with: registry)
     })
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
