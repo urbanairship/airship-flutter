@@ -1,25 +1,31 @@
 package com.airship.flutter
 
-import android.graphics.Bitmap
-import android.webkit.WebView
+import EventPlugin
 import android.app.NotificationManager
 import android.content.Context
-import android.view.View
+import android.content.Intent
+import android.graphics.Bitmap
 import android.os.Build
+import android.util.Log
+import android.view.View
+import android.webkit.WebView
 import androidx.core.app.NotificationManagerCompat
 import com.urbanairship.UAirship
 import com.urbanairship.analytics.CustomEvent
 import com.urbanairship.automation.InAppAutomation
+import com.urbanairship.channel.AttributeEditor
+import com.urbanairship.channel.TagGroupsEditor
 import com.urbanairship.json.JsonMap
 import com.urbanairship.json.JsonValue
-import com.urbanairship.channel.TagGroupsEditor
-import com.urbanairship.channel.AttributeEditor
 import com.urbanairship.messagecenter.MessageCenter
-import com.urbanairship.util.DateUtils
-import com.urbanairship.util.UAStringUtil
 import com.urbanairship.messagecenter.webkit.MessageWebView
 import com.urbanairship.messagecenter.webkit.MessageWebViewClient
-import java.lang.NumberFormatException
+import com.urbanairship.util.DateUtils
+import com.urbanairship.util.UAStringUtil
+import io.flutter.FlutterInjector
+import io.flutter.embedding.engine.loader.FlutterLoader
+import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -28,9 +34,8 @@ import io.flutter.plugin.common.PluginRegistry.Registrar
 import io.flutter.plugin.common.StandardMessageCodec
 import io.flutter.plugin.platform.PlatformView
 import io.flutter.plugin.platform.PlatformViewFactory
-import io.flutter.embedding.engine.plugins.FlutterPlugin
-import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.platform.PlatformViewRegistry
+import io.flutter.view.FlutterMain
 
 private const val TAG_OPERATION_GROUP_NAME = "group"
 private const val TAG_OPERATION_TYPE = "operationType"
@@ -174,9 +179,28 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
             "getPushTokenRegistrationEnabled" -> getPushTokenRegistrationEnabled(result)
             "setDataCollectionEnabled" -> setDataCollectionEnabled(call, result)
             "setPushTokenRegistrationEnabled" -> setPushTokenRegistrationEnabled(call, result)
+            "performAction" -> performAction(call, result)
 
             else -> result.notImplemented()
         }
+    }
+
+    private fun performAction(call: MethodCall, result: Result) {
+        val args = call.arguments<ArrayList<*>>()
+        EventPlugin.saveCallBackHandle(context, args)
+
+        val flutterLoader = FlutterInjector.instance().flutterLoader()
+        flutterLoader.startInitialization(UAirship.getApplicationContext())
+        flutterLoader.ensureInitializationComplete(UAirship.getApplicationContext(), null)
+        var intent = Intent()
+        intent.putExtra("payload", args!![1] as String)
+        EventService.enqueueWork(UAirship.getApplicationContext(), intent)
+
+        for (progress in 0..1000) {
+            Log.d("UALibUlrich", "Main Isolate progress : $progress")
+        }
+
+        result.success(true)
     }
 
     private fun getInboxMessages(result: Result) {
