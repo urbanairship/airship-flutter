@@ -96,13 +96,8 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
     ) -> Bool {
 
-        // Check to see if we're being launched due to a location event.
-        if launchOptions?[UIApplication.LaunchOptionsKey.location] != nil {
-            // Restart the headless service.
-            startEventService(getCallbackDispatcherHandle())
-        }
+        startEventService(getCallbackDispatcherHandle())
 
-        // Note: if we return NO, this vetos the launch of the application.
         return true
     }
 
