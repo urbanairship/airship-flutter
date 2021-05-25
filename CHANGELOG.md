@@ -1,7 +1,7 @@
 # Flutter Plugin Changelog
 
 ## Version 4.3.0 - May 26, 2021
-Minor release updating the iOS and Android SDKs to 14.4.1 and 14.4.3. Also add support for null-safety.
+Minor release updating the iOS and Android SDKs to 14.4.1 and 14.4.3. Also adds support for null-safety.
 
 ### Changes
 - Updated iOS SDK to 14.4.1
