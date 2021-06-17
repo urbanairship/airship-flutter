@@ -5,5 +5,9 @@
         <meta-data android:name="com.urbanairship.autopilot"
             android:value="com.airship.flutter.FlutterAutopilot"/>
 
+        <service android:name="com.airship.flutter.EventService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:exported="true"/>
+
     </application>
 </manifest>

@@ -1,8 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ui';
 import 'package:airship_flutter/src/attribute_editor.dart';
 import 'package:flutter/services.dart';
+import 'callback_dispatcher.dart';
 import 'custom_event.dart';
+import 'event_plugin.dart';
+import 'package:flutter/widgets.dart';
 import 'tag_group_editor.dart';
 
 class InboxMessage {
@@ -154,6 +158,14 @@ class Airship {
     return _eventStreams[eventType];
   }
 
+  static Future<void> performAction(String payload) async {
+    final callback = PluginUtilities.getCallbackHandle(callbackDispatcher);
+
+    final args = <dynamic>[callback?.toRawHandle()];
+    args.add(payload);
+    await _channel.invokeMethod('performAction', args);
+  }
+
   static Future<String?> get channelId async {
     return await _channel.invokeMethod('getChannelId');
   }
@@ -229,6 +241,8 @@ class Airship {
 
   static Future<bool?> refreshInbox() async {
     return _channel.invokeMethod("refreshInbox");
+    // final callback = PluginUtilities.getCallbackHandle(callbackDispatcher);
+    // return _channel.invokeMethod("refreshInbox", <dynamic>[callback?.toRawHandle()]);
   }
 
   static Future<String?> get namedUser async {
@@ -310,4 +324,8 @@ class Airship {
   static Future<bool?> setPushTokenRegistrationEnabled(bool enabled) async {
     return await _channel.invokeMethod('setPushTokenRegistrationEnabled', enabled);
   }
+
+  // void callbackDispatcher() {
+  //
+  // }
 }

@@ -55,6 +55,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   Future<void> initPlatformState() async {
     Airship.onPushReceived.listen((event) {
       debugPrint('Push Received $event');
+      Airship.performAction("fake_payload");
     });
 
     Airship.onNotificationResponse
