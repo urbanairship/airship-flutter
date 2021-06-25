@@ -140,7 +140,9 @@ class Airship {
   static Map<String, EventChannel> _eventChannels = new Map();
   static Map<String, Stream<dynamic>> _eventStreams = new Map();
 
-  static Stream<dynamic>? _getEventStream(String eventType) {
+  static Stream<dynamic> _getEventStream(String eventType) {
+    print("AirshipFlutter adding listener for $eventType");
+
     if (_eventChannels[eventType] == null) {
       String name = "com.airship.flutter/event/$eventType";
       _eventChannels[eventType] = EventChannel(name);
@@ -148,10 +150,13 @@ class Airship {
 
     if (_eventStreams[eventType] == null) {
       _eventStreams[eventType] =
-          _eventChannels[eventType]!.receiveBroadcastStream();
+          _eventChannels[eventType]!.receiveBroadcastStream().where((event) {
+            print("AirshipFlutter received event: $eventType - $event");
+            return true;
+          });
     }
 
-    return _eventStreams[eventType];
+    return _eventStreams[eventType]!;
   }
 
   static Future<String?> get channelId async {
@@ -259,27 +264,27 @@ class Airship {
   }
   
   static Stream<String?> get onShowInboxMessage {
-    return _getEventStream("SHOW_INBOX_MESSAGE")!
+    return _getEventStream("SHOW_INBOX_MESSAGE")
         .map((dynamic value) => jsonDecode(value) as String?);
   }
 
   static Stream<PushReceivedEvent> get onPushReceived {
-    return _getEventStream("PUSH_RECEIVED")!
+    return _getEventStream("PUSH_RECEIVED")
         .map((dynamic value) => PushReceivedEvent._fromJson(jsonDecode(value)));
   }
 
   static Stream<NotificationResponseEvent> get onNotificationResponse {
-    return _getEventStream("NOTIFICATION_RESPONSE")!.map((dynamic value) =>
+    return _getEventStream("NOTIFICATION_RESPONSE").map((dynamic value) =>
         NotificationResponseEvent._fromJson(jsonDecode(value)));
   }
 
   static Stream<ChannelEvent> get onChannelRegistration {
-    return _getEventStream("CHANNEL_REGISTRATION")!
+    return _getEventStream("CHANNEL_REGISTRATION")
         .map((dynamic value) => ChannelEvent._fromJson(jsonDecode(value)));
   }
 
   static Stream<String?> get onDeepLink {
-    return _getEventStream("DEEP_LINK")!
+    return _getEventStream("DEEP_LINK")
         .map((dynamic value) => jsonDecode(value) as String?);
   }
 

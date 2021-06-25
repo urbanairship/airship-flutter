@@ -9,6 +9,7 @@ import io.flutter.plugin.common.PluginRegistry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import android.util.Log
 
 
 class EventManager {
@@ -47,14 +48,17 @@ internal class AirshipEventStream(eventType: EventType) : EventChannel.StreamHan
     fun notifyEvent(event: Event) {
         val sink = eventSink
         if (sink != null) {
+            Log.v("AirshipFlutter", "Sending event: ${event}")
             sink.success(event.eventBody?.toString())
         } else {
+            Log.v("AirshipFlutter", "Storing pending event: ${event}")
             pendingEvents.add(event)
         }
     }
 
-
     override fun onListen(arguments: Any?, eventSink: EventChannel.EventSink?) {
+        Log.v("AirshipFlutter", "On listen ${name}")
+
         this.eventSink = eventSink
 
         if (eventSink != null) {
@@ -64,6 +68,7 @@ internal class AirshipEventStream(eventType: EventType) : EventChannel.StreamHan
     }
 
     override fun onCancel(p0: Any?) {
+        Log.v("AirshipFlutter", "On cancel ${name}")
         this.eventSink = null
     }
 }
