@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:airship_flutter/src/attribute_editor.dart';
 import 'package:flutter/services.dart';
 import 'custom_event.dart';
@@ -312,18 +313,34 @@ class Airship {
   }
 
   static Future<bool?> get isAutoBadgeEnabled async {
-    return await _channel.invokeMethod('isAutoBadgeEnabled');
+    if (Platform.isIOS) {
+      return await _channel.invokeMethod('isAutoBadgeEnabled');
+    } else if (Platform.isAndroid) {
+      return false;
+    }
   }
 
   static Future<bool?> setAutoBadgeEnabled(bool enabled) async {
-    return await _channel.invokeMethod('setAutoBadgeEnabled', enabled);
+    if (Platform.isIOS) {
+      return await _channel.invokeMethod('setAutoBadgeEnabled', enabled);
+    } else if (Platform.isAndroid) {
+      return false;
+    }
   }
 
-  static Future<void?> setBadge(int badge) async {
-    return await _channel.invokeMethod('setBadge', badge);
+  static Future<void> setBadge(int badge) async {
+    if (Platform.isIOS) {
+      return await _channel.invokeMethod('setBadge', badge);
+    } else if (Platform.isAndroid) {
+      return null;
+    }
   }
 
-  static Future<void> resetBadge async {
-    return await _channel.invokeMethod('resetBadge');
+  static Future<void> resetBadge() async {
+    if (Platform.isIOS) {
+      return await _channel.invokeMethod('resetBadge');
+    } else if (Platform.isAndroid) {
+      return null;
+    }
   }
 }
