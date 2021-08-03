@@ -157,6 +157,14 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
             setPushTokenRegistrationEnabled(call, result: result)
         case "refreshInbox":
             refreshInbox(call, result: result)
+        case "setBadge":
+            setBadge(call, result: result)
+        case "resetBadge":
+            resetBadge(call, result: result)
+        case "setAutoBadgeEnabled":
+            setAutoBadgeEnabled(call, result: result)
+        case "isAutoBadgeEnabled":
+            isAutoBadgeEnabled(call, result: result)
         default:
             result(FlutterError(code:"UNAVAILABLE",
                 message:"Unknown method: \(call.method)",
@@ -441,6 +449,27 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
         
         UAirship.analytics()?.trackScreen(screen)
         result(nil)
+    }
+
+    private func setBadge(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let badge = call.arguments as! Int
+        UAirship.push().badgeNumber = badge
+        result(nil)
+    }
+    
+    private func resetBadge(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        UAirship.push().resetBadge()
+        result(nil)
+    }
+    
+    private func setAutoBadgeEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let enable = call.arguments as! Bool
+        UAirship.push().isAutobadgeEnabled = enable
+        result(true)
+    }
+    
+    private func isAutoBadgeEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        result(UAirship.push().isAutobadgeEnabled)
     }
     
     private func mutationsWithOperations(operations:[Dictionary<String, Any>]) -> UAAttributeMutations {

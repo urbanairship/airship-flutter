@@ -310,4 +310,20 @@ class Airship {
   static Future<bool?> setPushTokenRegistrationEnabled(bool enabled) async {
     return await _channel.invokeMethod('setPushTokenRegistrationEnabled', enabled);
   }
+
+  static Future<bool?> get isAutoBadgeEnabled async {
+    return await _channel.invokeMethod('isAutoBadgeEnabled');
+  }
+
+  static Future<bool?> setAutoBadgeEnabled(bool enabled) async {
+    return await _channel.invokeMethod('setAutoBadgeEnabled', enabled);
+  }
+
+  static Future<void?> setBadge(int badge) async {
+    return await _channel.invokeMethod('setBadge', badge);
+  }
+
+  static Future<void> resetBadge async {
+    return await _channel.invokeMethod('resetBadge');
+  }
 }
