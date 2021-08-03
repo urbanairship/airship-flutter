@@ -332,7 +332,7 @@ class Airship {
     if (Platform.isIOS) {
       return await _channel.invokeMethod('setBadge', badge);
     } else if (Platform.isAndroid) {
-      return null;
+      return;
     }
   }
 
@@ -340,7 +340,7 @@ class Airship {
     if (Platform.isIOS) {
       return await _channel.invokeMethod('resetBadge');
     } else if (Platform.isAndroid) {
-      return null;
+      return;
     }
   }
 }
