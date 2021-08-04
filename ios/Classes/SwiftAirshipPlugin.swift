@@ -465,7 +465,7 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
     private func setAutoBadgeEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let enable = call.arguments as! Bool
         UAirship.push().isAutobadgeEnabled = enable
-        result(true)
+        result(nil)
     }
     
     private func isAutoBadgeEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {

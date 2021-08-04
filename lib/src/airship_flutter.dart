@@ -312,35 +312,29 @@ class Airship {
     return await _channel.invokeMethod('setPushTokenRegistrationEnabled', enabled);
   }
 
-  static Future<bool?> get isAutoBadgeEnabled async {
+  static Future<bool> isAutoBadgeEnabled() async {
+    var isAutoBadgeEnabled = false;
     if (Platform.isIOS) {
-      return await _channel.invokeMethod('isAutoBadgeEnabled');
-    } else if (Platform.isAndroid) {
-      return false;
+      isAutoBadgeEnabled = await _channel.invokeMethod('isAutoBadgeEnabled');
     }
+    return isAutoBadgeEnabled;
   }
 
-  static Future<bool?> setAutoBadgeEnabled(bool enabled) async {
+  static Future<void> setAutoBadgeEnabled(bool enabled) async {
     if (Platform.isIOS) {
       return await _channel.invokeMethod('setAutoBadgeEnabled', enabled);
-    } else if (Platform.isAndroid) {
-      return false;
     }
   }
 
   static Future<void> setBadge(int badge) async {
     if (Platform.isIOS) {
       return await _channel.invokeMethod('setBadge', badge);
-    } else if (Platform.isAndroid) {
-      return;
     }
   }
 
   static Future<void> resetBadge() async {
     if (Platform.isIOS) {
       return await _channel.invokeMethod('resetBadge');
-    } else if (Platform.isAndroid) {
-      return;
     }
   }
 }
