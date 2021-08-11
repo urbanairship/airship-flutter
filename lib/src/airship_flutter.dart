@@ -323,18 +323,24 @@ class Airship {
   static Future<void> setAutoBadgeEnabled(bool enabled) async {
     if (Platform.isIOS) {
       return await _channel.invokeMethod('setAutoBadgeEnabled', enabled);
+    } else {
+      return Future.value();
     }
   }
 
   static Future<void> setBadge(int badge) async {
     if (Platform.isIOS) {
       return await _channel.invokeMethod('setBadge', badge);
+    } else {
+      return Future.value();
     }
   }
 
   static Future<void> resetBadge() async {
     if (Platform.isIOS) {
       return await _channel.invokeMethod('resetBadge');
+    } else {
+      return Future.value();
     }
   }
 }
