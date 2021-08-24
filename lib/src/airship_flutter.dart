@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:airship_flutter/src/attribute_editor.dart';
 import 'package:flutter/services.dart';
 import 'custom_event.dart';
@@ -309,5 +310,37 @@ class Airship {
 
   static Future<bool?> setPushTokenRegistrationEnabled(bool enabled) async {
     return await _channel.invokeMethod('setPushTokenRegistrationEnabled', enabled);
+  }
+
+  static Future<bool> isAutoBadgeEnabled() async {
+    var isAutoBadgeEnabled = false;
+    if (Platform.isIOS) {
+      isAutoBadgeEnabled = await _channel.invokeMethod('isAutoBadgeEnabled');
+    }
+    return isAutoBadgeEnabled;
+  }
+
+  static Future<void> setAutoBadgeEnabled(bool enabled) async {
+    if (Platform.isIOS) {
+      return await _channel.invokeMethod('setAutoBadgeEnabled', enabled);
+    } else {
+      return Future.value();
+    }
+  }
+
+  static Future<void> setBadge(int badge) async {
+    if (Platform.isIOS) {
+      return await _channel.invokeMethod('setBadge', badge);
+    } else {
+      return Future.value();
+    }
+  }
+
+  static Future<void> resetBadge() async {
+    if (Platform.isIOS) {
+      return await _channel.invokeMethod('resetBadge');
+    } else {
+      return Future.value();
+    }
   }
 }
