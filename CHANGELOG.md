@@ -1,5 +1,11 @@
 # Flutter Plugin Changelog
 
+## Version 4.4.0 - September 23, 2021
+Minor release to add badge methods.
+
+### Changes
+- Added `resetBadge`, `setBadge`, `setAutoBadgeEnabled` and `isAutoBadgeEnabled` methods.
+
 ## Version 4.3.0 - May 26, 2021
 Minor release updating the iOS and Android SDKs to 14.4.1 and 14.4.3. Also adds support for null-safety.
 
