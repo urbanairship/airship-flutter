@@ -32,7 +32,8 @@ if $GENERATE; then
   flutter pub get
   flutter pub global activate dartdoc
   flutter analyze
-  $FLUTTER_ROOT/bin/cache/dart-sdk/bin/dart --version
+  #/Users/Ulric.Giberne/Documents/Airship/Flutter/flutter/bin/cache/dart-sdk/bin/dart --version
+  #/Users/Ulric.Giberne/Documents/Airship/Flutter/flutter/bin/flutter --version
   flutter pub global run dartdoc --exclude 'dart:async,dart:collection,dart:convert,dart:core,dart:developer,dart:ffi,dart:html,dart:io,dart:isolate,dart:js,dart:js_util,dart:math,dart:typed_data,dart:ui'
 fi
 
