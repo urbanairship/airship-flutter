@@ -12,6 +12,8 @@ google-services.json
 
 .idea
 
+android/.idea/vcs.xml
+
 GeneratedPluginRegistrant.h
 GeneratedPluginRegistrant.m
 GeneratedPluginRegistrant.java
