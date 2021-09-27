@@ -11,6 +11,7 @@ AirshipConfig.plist
 google-services.json
 
 .idea
+!.idea/vcs.xml
 
 GeneratedPluginRegistrant.h
 GeneratedPluginRegistrant.m
