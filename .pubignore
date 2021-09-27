@@ -10,8 +10,6 @@ airshipconfig.properties
 AirshipConfig.plist
 google-services.json
 
-.idea
-
 GeneratedPluginRegistrant.h
 GeneratedPluginRegistrant.m
 GeneratedPluginRegistrant.java
