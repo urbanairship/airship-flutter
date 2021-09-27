@@ -40,8 +40,6 @@ flutter packages get
 # Flutter Analysis
 if $ANALYZE; then
     flutter analyze
-    $FLUTTER_ROOT/bin/flutter --version
-    $FLUTTER_ROOT/bin/cache/dart-sdk/bin/dart --version
     # Perform publish dry run to ensure the package can be published
     flutter pub pub publish --dry-run
 fi
