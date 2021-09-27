@@ -42,7 +42,7 @@ android {
         disable 'InvalidPackage'
     }
 
-    ndkVersion "23.0.7599858"
+    ndkVersion "21.1.6352462"
 }
 
 dependencies {
