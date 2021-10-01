@@ -1,5 +1,5 @@
 import Foundation
-import Airship
+import AirshipKit
 
 class AirshipInboxMessageViewFactory : NSObject, FlutterPlatformViewFactory {
 
@@ -18,15 +18,15 @@ class AirshipInboxMessageViewFactory : NSObject, FlutterPlatformViewFactory {
     }
 }
 
-class AirshipInboxMessageView : NSObject, FlutterPlatformView, UANativeBridgeDelegate, WKNavigationDelegate {
+class AirshipInboxMessageView : NSObject, FlutterPlatformView, NativeBridgeDelegate, WKNavigationDelegate, UANavigationDelegate {
     let webView : WKWebView
-    let nativeBridge = UANativeBridge()
+    let nativeBridge = NativeBridge()
     let channel : FlutterMethodChannel
     var webviewResult : FlutterResult
 
     init(frame: CGRect, viewId: Int64, registrar: FlutterPluginRegistrar) {
         self.webView = WKWebView(frame: frame)
-        self.webView.allowsLinkPreview = !UAMessageCenter.shared().defaultUI.disableMessageLinkPreviewAndCallouts
+        self.webView.allowsLinkPreview = !MessageCenter.shared.defaultUI.disableMessageLinkPreviewAndCallouts
         self.webView.configuration.dataDetectorTypes = [.all]
 
         let channelName = "com.airship.flutter/InboxMessageView_\(viewId)"
@@ -65,17 +65,17 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView, UANativeBridgeDel
         webviewResult = result
         channel.invokeMethod("onLoadStarted", arguments: nil)
         let messageId = call.arguments as! String
-        if let message = UAMessageCenter.shared().messageList.message(forID: messageId) {
+        if let message = MessageCenter.shared.messageList.message(forID: messageId) {
             var request = URLRequest(url: message.messageBodyURL)
-            guard let user = UAMessageCenter.shared().user else {
-                result(FlutterError(code:"InvalidState",
-                                 message:"User not created.",
-                                 details:nil))
-                return
-            }
+            let user = MessageCenter.shared.user
 
             user.getData({ (userData) in
-                let auth = UAUtils.authHeaderString(withName: userData.username, password: userData.password)
+                guard let auth = Utils.authHeader(username: userData.username, password: userData.password) else {
+                    result(FlutterError(code:"InvalidState",
+                                     message:"User not created.",
+                                     details:nil))
+                    return
+                }
                 request.addValue(auth, forHTTPHeaderField: "Authorization")
                 DispatchQueue.main.async {
                     self.webView.load(request)

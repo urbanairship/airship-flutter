@@ -1,9 +1,9 @@
 import Flutter
 import UIKit
-import Airship
+import AirshipKit
 
-public class SwiftAirshipPlugin: NSObject, FlutterPlugin, UARegistrationDelegate,
-UADeepLinkDelegate, UAPushNotificationDelegate {
+public class SwiftAirshipPlugin: NSObject, FlutterPlugin, RegistrationDelegate,
+DeepLinkDelegate, PushNotificationDelegate {
     private let eventNameKey = "event_name"
     private let eventValueKey = "event_value"
     private let propertiesKey = "properties"
@@ -36,14 +36,13 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
     }
 
     public func takeOff() {
-        UAirship.takeOff()
-        UAirship.push()?.registrationDelegate = self
-        UAirship.shared()?.deepLinkDelegate = self
-        UAirship.push()?.pushNotificationDelegate = self
+        Airship.push.registrationDelegate = self
+        Airship.shared.deepLinkDelegate = self
+        Airship.push.pushNotificationDelegate = self
 
-        UAirship.analytics()?.register(UASDKExtension.flutter, version: AirshipPluginVersion.pluginVersion)
+        Airship.analytics.registerSDKExtension(SDKExtension.flutter, version: AirshipPluginVersion.pluginVersion)
 
-        UAirship.push()?.defaultPresentationOptions = [.alert]
+        Airship.push.defaultPresentationOptions = [.alert]
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(inboxUpdated),
                                                name: NSNotification.Name.UAInboxMessageListUpdated,
@@ -63,19 +62,19 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
         completionHandler()
     }
 
-    public func receivedForegroundNotification(_ notificationContent: UANotificationContent, completionHandler: @escaping () -> Void) {
-        let event = AirshipPushReceivedEvent(notificationContent)
+    public func receivedForegroundNotification(_ userInfo:[AnyHashable : Any], completionHandler: @escaping () -> Void) {
+        let event = AirshipPushReceivedEvent(userInfo)
         AirshipEventManager.shared.notify(event)
         completionHandler()
     }
 
-    public func receivedBackgroundNotification(_ notificationContent: UANotificationContent, completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        let event = AirshipPushReceivedEvent(notificationContent)
+    public func receivedBackgroundNotification(_ userInfo:[AnyHashable : Any], completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        let event = AirshipPushReceivedEvent(userInfo)
         AirshipEventManager.shared.notify(event)
         completionHandler(.noData)
     }
 
-    public func receivedNotificationResponse(_ notificationResponse: UANotificationResponse, completionHandler: @escaping () -> Void) {
+    public func receivedNotificationResponse(_ notificationResponse: UNNotificationResponse, completionHandler: @escaping () -> Void) {
         let event = AirshipNotificationResponseEvent(notificationResponse)
         AirshipEventManager.shared.notify(event)
         completionHandler()
@@ -147,14 +146,6 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
             enableChannelCreation(call, result: result)
         case "trackScreen":
             trackScreen(call, result: result)
-        case "getDataCollectionEnabled":
-            getDataCollectionEnabled(call, result: result)
-        case "getPushTokenRegistrationEnabled":
-            getPushTokenRegistrationEnabled(call, result: result)
-        case "setDataCollectionEnabled":
-            setDataCollectionEnabled(call, result: result)
-        case "setPushTokenRegistrationEnabled":
-            setPushTokenRegistrationEnabled(call, result: result)
         case "refreshInbox":
             refreshInbox(call, result: result)
         case "setBadge":
@@ -165,6 +156,18 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
             setAutoBadgeEnabled(call, result: result)
         case "isAutoBadgeEnabled":
             isAutoBadgeEnabled(call, result: result)
+        case "enableFeatures":
+            enableFeatures(call, result: result)
+        case "disableFeatures":
+            disableFeatures(call, result: result)
+        case "setEnabledFeatures":
+            setEnabledFeatures(call, result: result)
+        case "getEnabledFeatures":
+            getEnabledFeatures(call, result: result)
+        case "isFeatureEnabled":
+            isFeatureEnabled(call, result: result)
+        case "openPreferenceCenter":
+            openPreferenceCenter(call, result: result)
         default:
             result(FlutterError(code:"UNAVAILABLE",
                 message:"Unknown method: \(call.method)",
@@ -173,44 +176,24 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
     }
 
     private func getChannelId(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        result(UAirship.channel().identifier)
-    }
-
-    private func getDataCollectionEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        result(UAirship.shared().isDataCollectionEnabled)
-    }
-
-    private func getPushTokenRegistrationEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        result(UAPush.shared().pushTokenRegistrationEnabled)
-    }
-
-    private func setDataCollectionEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let enable = call.arguments as! Bool
-        UAirship.shared().isDataCollectionEnabled = enable
-        result(true)
-    }
-
-    private func setPushTokenRegistrationEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let enable = call.arguments as! Bool
-        UAPush.shared().pushTokenRegistrationEnabled = enable
-        result(true)
+        result(Airship.channel.identifier)
     }
 
     private func setUserNotificationsEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let enable = call.arguments as! Bool
 
         if (enable) {
-            UAirship.push()?.enableUserPushNotifications({ (success) in
+            Airship.push.enableUserPushNotifications({ (success) in
                 result(success)
             })
         } else {
-            UAirship.push()?.userPushNotificationsEnabled = false
+            Airship.push.userPushNotificationsEnabled = false
             result(true)
         }
     }
 
     private func getUserNotificationsEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        result(UAirship.push()?.userPushNotificationsEnabled)
+        result(Airship.push.userPushNotificationsEnabled)
     }
 
     private func getActiveNotifications(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -219,9 +202,8 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
             let airshipNotifications = NSMutableArray()
 
             for notification in notifications {
-                let content = UANotificationContent.notification(with:notification)
-                let pushBody = PushHelpers.pushBodyForNotificationContent(content: content)
-                airshipNotifications.add(pushBody)
+                let content = notification.request.content
+                airshipNotifications.add(content.userInfo)
             }
 
             result(airshipNotifications)
@@ -257,7 +239,7 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
         }
 
         // Decode event string
-        let customEvent = UACustomEvent(name:name, value:NSNumber(value: value))
+        let customEvent = CustomEvent(name:name, value:NSNumber(value: value))
 
         if let properties = event[propertiesKey] as? Dictionary<String, Any> {
             customEvent.properties = properties
@@ -285,58 +267,102 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
 
     private func addTags(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let tags = call.arguments as! [String]
-        UAirship.channel().addTags(tags)
-        UAirship.channel().updateRegistration()
+        Airship.channel.editTags { editor in
+            editor.add(tags)
+            editor.apply()
+        }
+        Airship.channel.updateRegistration()
         result(nil)
     }
 
     private func removeTags(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let tags = call.arguments as! [String]
-        UAirship.channel().removeTags(tags)
-        UAirship.channel().updateRegistration()
+        Airship.channel.editTags { editor in
+            editor.remove(tags)
+            editor.apply()
+        }
+        Airship.channel.updateRegistration()
         result(nil)
     }
 
     private func getTags(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        result(UAirship.channel().tags)
+        result(Airship.channel.tags)
     }
 
     private func editChannelAttributes(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let operations = call.arguments as! [Dictionary<String, Any>]
-        let mutations = mutationsWithOperations(operations: operations)
         
-        UAirship.channel()?.apply(mutations)
+        Airship.channel.editAttributes { editor in
+            for operation in operations {
+                guard let operationType = operation[attributeOperationType] as? String else { continue }
+                guard let name = operation[attributeOperationKey] as? String else { continue }
+
+                if (operationType == attributeOperationSet) {
+                    if let value = operation[attributeOperationValue] as? String {
+                        editor.set(string: value, attribute: name)
+                        continue
+                    }
+                    if let value = operation[attributeOperationValue] as? NSNumber, CFGetTypeID(value) == CFNumberGetTypeID() {
+                        editor.set(number: value, attribute: name)
+                        continue
+                    }
+                } else if (operationType == attributeOperationRemove) {
+                    editor.remove(name)
+                }
+            }
+            editor.apply()
+        }
         
         result(nil)
     }
 
     private func editNamedUserAttributes(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let operations = call.arguments as! [Dictionary<String, Any>]
-        let mutations = mutationsWithOperations(operations: operations)
         
-        UAirship.namedUser()?.apply(mutations)
+        Airship.contact.editAttributes { editor in
+            for operation in operations {
+                guard let operationType = operation[attributeOperationType] as? String else { continue }
+                guard let name = operation[attributeOperationKey] as? String else { continue }
+
+                if (operationType == attributeOperationSet) {
+                    if let value = operation[attributeOperationValue] as? String {
+                        editor.set(string: value, attribute: name)
+                        continue
+                    }
+                    if let value = operation[attributeOperationValue] as? NSNumber, CFGetTypeID(value) == CFNumberGetTypeID() {
+                        editor.set(number: value, attribute: name)
+                        continue
+                    }
+                } else if (operationType == attributeOperationRemove) {
+                    editor.remove(name)
+                }
+            }
+            editor.apply()
+        }
         
         result(nil)
     }
     
     private func editNamedUserTagGroups(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let operations = call.arguments as! [Dictionary<String, Any>]
-        let namedUser = UAirship.namedUser()
 
         for operation in operations {
             let group = operation[tagOperationGroupName] as! String
             let operationType = operation[tagOperationType] as! String
             let tags = operation[tagOperationTags] as! [String]
-            if (operationType == tagOperationAdd) {
-                namedUser?.addTags(tags, group: group)
-            } else if (operationType == tagOperationRemove) {
-                namedUser?.removeTags(tags, group: group)
-            } else if (operationType == tagOperationSet) {
-                namedUser?.setTags(tags, group: group)
+            
+            Airship.contact.editTagGroups() { editor in
+                if (operationType == tagOperationAdd) {
+                    editor.add(tags, group: group)
+                } else if (operationType == tagOperationRemove) {
+                    editor.remove(tags, group: group)
+                } else if (operationType == tagOperationSet) {
+                    editor.set(tags, group: group)
+                }
+                editor.apply()
             }
         }
-
-        namedUser?.updateTags()
+        
         result(nil)
     }
 
@@ -347,34 +373,41 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
             let group = operation[tagOperationGroupName] as! String
             let operationType = operation[tagOperationType] as! String
             let tags = operation[tagOperationTags] as! [String]
-            if (operationType == tagOperationAdd) {
-                UAirship.channel().addTags(tags, group: group)
-            } else if (operationType == tagOperationRemove) {
-                UAirship.channel().removeTags(tags, group: group)
-            } else if (operationType == tagOperationSet) {
-                UAirship.channel().setTags(tags, group: group)
+            Airship.channel.editTagGroups() { editor in
+                if (operationType == tagOperationAdd) {
+                    editor.add(tags, group: group)
+                } else if (operationType == tagOperationRemove) {
+                    editor.remove(tags, group: group)
+                } else if (operationType == tagOperationSet) {
+                    editor.set(tags, group: group)
+                }
+                editor.apply()
             }
         }
 
-        UAirship.push()?.updateRegistration()
+        Airship.push.updateRegistration()
         result(nil)
     }
 
     private func setNamedUser(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let namedUser = call.arguments as? String
-        UAirship.namedUser()?.identifier = namedUser
+        guard let namedUser = call.arguments as? String else {
+            Airship.contact.reset()
+            result(nil)
+            return
+        }
+        Airship.contact.identify(namedUser)
         result(nil)
     }
 
     private func getNamedUser(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        result(UAirship.namedUser()?.identifier)
+        result(Airship.contact.namedUserID)
     }
 
     private func getInboxMessages(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let messages = UAMessageCenter.shared().messageList.messages.map { (message) -> String in
+        let messages = MessageCenter.shared.messageList.messages.map { (message) -> String in
             var payload = ["title": message.title,
                            "message_id": message.messageID,
-                           "sent_date": UAUtils.isoDateFormatterUTCWithDelimiter().string(from: message.messageSent),
+                           "sent_date": Utils.isoDateFormatterUTCWithDelimiter().string(from: message.messageSent),
                            "is_read": !message.unread,
                            "extras": message.extra] as [String : Any]
 
@@ -386,7 +419,7 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
             }
 
             if let expiration = message.messageExpiration {
-                payload["expiration_date"] = UAUtils.isoDateFormatterUTCWithDelimiter().string(from: expiration)
+                payload["expiration_date"] = Utils.isoDateFormatterUTCWithDelimiter().string(from: expiration)
             }
 
             let data = try! JSONSerialization.data(withJSONObject: payload as Any, options: [])
@@ -397,14 +430,14 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
     }
 
     private func markInboxMessageRead(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let message = UAMessageCenter.shared().messageList.message(forID: call.arguments as! String)
-        UAMessageCenter.shared().messageList.markMessagesRead([message as Any]) {
+        let message = MessageCenter.shared.messageList.message(forID: call.arguments as! String)
+        MessageCenter.shared.messageList.markMessagesRead([message as Any]) {
             result(nil)
         }
     }
 
     private func refreshInbox(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        UAMessageCenter.shared().messageList.retrieveMessageList(successBlock: {
+        MessageCenter.shared.messageList.retrieveMessageList(successBlock: {
             result(true)
         }, withFailureBlock: {
             result(false)
@@ -412,113 +445,236 @@ UADeepLinkDelegate, UAPushNotificationDelegate {
     }
 
     private func deleteInboxMessage(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let message = UAMessageCenter.shared().messageList.message(forID: call.arguments as! String)
-        UAMessageCenter.shared().messageList.markMessagesDeleted([message as Any]) {
+        let message = MessageCenter.shared.messageList.message(forID: call.arguments as! String)
+        MessageCenter.shared.messageList.markMessagesDeleted([message as Any]) {
             result(nil)
         }
     }
 
     private func loadCustomNotificationCategories() {
         guard let categoriesPath = Bundle.main.path(forResource: "UACustomNotificationCategories", ofType: "plist") else { return }
-        let customNotificationCategories = UANotificationCategories.createCategories(fromFile: categoriesPath) as! Set<UANotificationCategory>
+        let customNotificationCategories = NotificationCategories.createCategories(fromFile: categoriesPath)
 
         if customNotificationCategories.count != 0 {
-            UAirship.push()?.customCategories = customNotificationCategories
-            UAirship.push()?.updateRegistration()
+            Airship.push.customCategories = customNotificationCategories
+            Airship.push.updateRegistration()
         }
     }
 
     private func setInAppAutomationPaused(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let paused = call.arguments as! Bool
 
-        UAInAppAutomation.shared().isPaused = paused
+        InAppAutomation.shared.isPaused = paused
         result(true)
     }
 
     private func getInAppAutomationPaused(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        result(UAInAppAutomation.shared().isPaused)
+        result(InAppAutomation.shared.isPaused)
     }
 
     private func enableChannelCreation(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        UAirship.channel()?.enableCreation()
+        Airship.channel.enableChannelCreation()
         result(nil)
     }
     
     private func trackScreen(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let screen = call.arguments as! String
         
-        UAirship.analytics()?.trackScreen(screen)
+        Airship.analytics.trackScreen(screen)
         result(nil)
     }
 
     private func setBadge(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let badge = call.arguments as! Int
-        UAirship.push().badgeNumber = badge
+        Airship.push.badgeNumber = badge
         result(nil)
     }
     
     private func resetBadge(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        UAirship.push().resetBadge()
+        Airship.push.resetBadge()
         result(nil)
     }
     
     private func setAutoBadgeEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let enable = call.arguments as! Bool
-        UAirship.push().isAutobadgeEnabled = enable
+        Airship.push.autobadgeEnabled = enable
         result(nil)
     }
     
     private func isAutoBadgeEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        result(UAirship.push().isAutobadgeEnabled)
+        result(Airship.push.autobadgeEnabled)
     }
     
-    private func mutationsWithOperations(operations:[Dictionary<String, Any>]) -> UAAttributeMutations {
-       let mutations:UAAttributeMutations = UAAttributeMutations()
+    private func enableFeatures(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let featureArray = call.arguments as? Array<String> else {
+            result(nil)
+            return
+        }
         
-        for operation in operations {
-            guard let operationType = operation[attributeOperationType] as? String else { continue }
-            guard let name = operation[attributeOperationKey] as? String else { continue }
-
-            if (operationType == attributeOperationSet) {
-                if let value = operation[attributeOperationValue] as? String {
-                    mutations.setString(value, forAttribute: name)
-                    continue
-                }
-                if let value = operation[attributeOperationValue] as? NSNumber, CFGetTypeID(value) == CFNumberGetTypeID() {
-                    mutations.setNumber(value, forAttribute: name)
-                    continue
-                }
-            } else if (operationType == attributeOperationRemove) {
-                mutations.removeAttribute(name)
+        var features: Features = []
+        for feature in featureArray {
+            if let featureName = FeatureNames(rawValue: feature) {
+                features.update(with: featureName.toFeature())
+            }
+        }
+        Airship.shared.privacyManager.enableFeatures(features)
+        result(nil)
+    }
+    
+    private func disableFeatures(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let featureArray = call.arguments as? Array<String> else {
+            result(nil)
+            return
+        }
+        
+        var features: Features = []
+        for feature in featureArray {
+            if let featureName = FeatureNames(rawValue: feature) {
+                features.update(with: featureName.toFeature())
             }
         }
         
-        return mutations
+        Airship.shared.privacyManager.disableFeatures(features)
+        result(nil)
+    }
+    
+    private func setEnabledFeatures(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let featureArray = call.arguments as? Array<String> else {
+            result(nil)
+            return
+        }
+        
+        var features: Features = []
+        for feature in featureArray {
+            if let featureName = FeatureNames(rawValue: feature) {
+                features.update(with: featureName.toFeature())
+            }
+        }
+        
+        Airship.shared.privacyManager.enabledFeatures = features
+        result(nil)
+    }
+    
+    private func getEnabledFeatures(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let features = Airship.shared.privacyManager.enabledFeatures
+        
+        var featureArray: [String] = []
+        
+        if features == Features.all {
+            result(Features.all.toString())
+            return
+        }
+        if features == [] {
+            result(FeatureNames.none.rawValue)
+            return
+        }
+        
+        for featureName in FeatureNames.allCases {
+            let feature = featureName.toFeature()
+            if ((feature.rawValue & features.rawValue) != 0) && (feature != Features.all) {
+                featureArray.append(featureName.rawValue)
+            }
+        }
+        
+        result(featureArray)
+    }
+    
+    private func isFeatureEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let feature = call.arguments as? String else {
+            result(nil)
+            return
+        }
+        if let featureName = FeatureNames(rawValue: feature) {
+            result(Airship.shared.privacyManager.isEnabled(featureName.toFeature()))
+        }
+    }
+    
+    private func openPreferenceCenter(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let preferenceCenterID = call.arguments as? String else {
+            result(nil)
+            return
+        }
+        PreferenceCenter.shared.open(preferenceCenterID)
+        result(nil)
+    }
+    
+    private enum CloudSiteNames : String {
+        case eu
+        case us
+        
+        func toSite() -> CloudSite {
+            switch (self) {
+            case .eu:
+                return CloudSite.eu
+            case .us:
+                return CloudSite.us
+            }
+        }
     }
 }
 
-class PushHelpers {
-    static func pushBodyForNotificationContent(content:UANotificationContent) -> NSMutableDictionary {
-        let pushBody : NSMutableDictionary = NSMutableDictionary()
-        pushBody.setValue(content.alertBody, forKey:"alert")
-        pushBody.setValue(content.alertTitle, forKey:"title")
-
-        var extras = content.notificationInfo as Dictionary
-        let keys = Array(extras.keys)
-
-        if keys.contains("aps") {
-            extras.removeValue(forKey:"aps")
+public enum FeatureNames : String, CaseIterable {
+    case push = "FEATURE_PUSH"
+    case chat = "FEATURE_CHAT"
+    case contacts = "FEATURE_CONTACTS"
+    case location = "FEATURE_LOCATION"
+    case messageCenter = "FEATURE_MESSAGE_CENTER"
+    case analytics = "FEATURE_ANALYTICS"
+    case tagsAndAttributes = "FEATURE_TAGS_AND_ATTRIBUTES"
+    case inAppAutomation = "FEATURE_IN_APP_AUTOMATION"
+    case none = "FEATURE_NONE"
+    case all = "FEATURE_ALL"
+    
+    func toFeature() -> Features {
+        switch self {
+        case .push:
+            return Features.push
+        case .chat:
+            return Features.chat
+        case .contacts:
+            return Features.contacts
+        case .location:
+            return Features.location
+        case .messageCenter:
+            return Features.messageCenter
+        case .analytics:
+            return Features.analytics
+        case .tagsAndAttributes:
+            return Features.tagsAndAttributes
+        case .inAppAutomation:
+            return Features.inAppAutomation
+        case .all:
+            return Features.all
+        default:
+            return []
         }
-        if keys.contains("_") {
-            extras.removeValue(forKey:"_")
-        }
-        if extras.count != 0 {
-            pushBody.setValue(extras, forKey:"extras")
-        }
-
-        let identifier = content.notification?.request.identifier
-        pushBody.setValue(identifier, forKey:"notification_id")
-
-        return pushBody
     }
 }
+
+extension Features {
+    func toString() -> String {
+        switch self {
+        case .push:
+            return FeatureNames.push.rawValue
+        case .chat:
+            return FeatureNames.chat.rawValue
+        case .contacts:
+            return FeatureNames.contacts.rawValue
+        case .location:
+            return FeatureNames.location.rawValue
+        case .messageCenter:
+            return FeatureNames.messageCenter.rawValue
+        case .analytics:
+            return FeatureNames.analytics.rawValue
+        case .tagsAndAttributes:
+            return FeatureNames.tagsAndAttributes.rawValue
+        case .inAppAutomation:
+            return FeatureNames.inAppAutomation.rawValue
+        case .all:
+            return FeatureNames.all.rawValue
+        default:
+            return ""
+        }
+    }
+}
+
