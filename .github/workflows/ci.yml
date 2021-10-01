@@ -19,9 +19,7 @@ jobs:
         run: bash ./scripts/run_ci_tasks.sh -z
 
   ci-android:
-    runs-on: macos-latest
-    env:
-      DEVELOPER_DIR: /Applications/Xcode_12.app/Contents/Developer
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-java@v1
@@ -30,21 +28,19 @@ jobs:
       - uses: subosito/flutter-action@4389e6cbc6cb8a4b18c628ff96ff90be0e926aa8
         with:
           flutter-version: '2.5.0'
-      - name: Install NDK
-        run: echo "y" | sudo /Users/runner/Library/Android/sdk/tools/bin/sdkmanager --install "ndk;20.0.5594570" --sdk_root=${ANDROID_SDK_ROOT}
       - name: Build Android
         run: bash ./scripts/run_ci_tasks.sh -a
-  ci-ios:
-    runs-on: macos-latest
-    env:
-      DEVELOPER_DIR: /Applications/Xcode_12.app/Contents/Developer
-    steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-java@v1
-        with:
-          java-version: "12.x"
-      - uses: subosito/flutter-action@4389e6cbc6cb8a4b18c628ff96ff90be0e926aa8
-        with:
-          flutter-version: '2.5.0'
-      - name: Build iOS
-        run: bash ./scripts/run_ci_tasks.sh -i
+  # ci-ios:
+  #   runs-on: macos-latest
+  #   env:
+  #     DEVELOPER_DIR: /Applications/Xcode_12.app/Contents/Developer
+  #   steps:
+  #     - uses: actions/checkout@v1
+  #     - uses: actions/setup-java@v1
+  #       with:
+  #         java-version: "12.x"
+  #     - uses: subosito/flutter-action@4389e6cbc6cb8a4b18c628ff96ff90be0e926aa8
+  #       with:
+  #         flutter-version: '2.5.0'
+  #     - name: Build iOS
+  #       run: bash ./scripts/run_ci_tasks.sh -i
