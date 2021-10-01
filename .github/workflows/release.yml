@@ -17,7 +17,7 @@ jobs:
           java-version: "12.x"
       - uses: subosito/flutter-action@4389e6cbc6cb8a4b18c628ff96ff90be0e926aa8
         with:
-          flutter-version: "2.5.2"
+          flutter-version: "2.5.0"
       - name: Run CI
         run: bash ./scripts/run_ci_tasks.sh
 
@@ -48,7 +48,7 @@ jobs:
       - name: Flutter action
         uses: subosito/flutter-action@4389e6cbc6cb8a4b18c628ff96ff90be0e926aa8
         with:
-          flutter-version: "2.5.2"
+          flutter-version: "2.5.0"
       - run: flutter pub get
 
       - name: Setup pub credentials
@@ -104,7 +104,7 @@ jobs:
       - name: Flutter action
         uses: subosito/flutter-action@4389e6cbc6cb8a4b18c628ff96ff90be0e926aa8
         with:
-          flutter-version: "2.5.2"
+          flutter-version: "2.5.0"
 
       - run: flutter pub get
 
