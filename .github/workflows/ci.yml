@@ -31,7 +31,7 @@ jobs:
         with:
           flutter-version: '2.5.0'
       - name: Install NDK
-        run: echo "y" | sudo /Users/runner/Library/Android/sdk/tools/bin/sdkmanager --install "ndk;21.1.6352462" --sdk_root=${ANDROID_SDK_ROOT}
+        run: echo "y" | sudo /Users/runner/Library/Android/sdk/tools/bin/sdkmanager --install "ndk;20.0.5594570" --sdk_root=${ANDROID_SDK_ROOT}
       - name: Build Android
         run: bash ./scripts/run_ci_tasks.sh -a
   ci-ios:
