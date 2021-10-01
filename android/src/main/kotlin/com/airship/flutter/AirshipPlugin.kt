@@ -523,7 +523,7 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
                 featureArray.add(featureName.toString())
             }
         }
-        result.success(null)
+        result.success(featureArray)
     }
 
     private fun isFeatureEnabled(call: MethodCall, result: Result) {
@@ -542,21 +542,21 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
     }
 
     private enum class FeatureNames {
-        push, chat, contacts, location, messageCenter, analytics, tagsAndAttributes, inAppAutomation, none, all;
+        FEATURE_PUSH, FEATURE_CHAT, FEATURE_CONTACTS, FEATURE_LOCATION, FEATURE_MESSAGE_CENTER, FEATURE_ANALYTICS, FEATURE_TAGS_AND_ATTRIBUTES, FEATURE_IN_APP_AUTOMATION, FEATURE_NONE, FEATURE_ALL;
 
         companion object {
             fun toFeature(name: FeatureNames): Int {
                 return when (name) {
-                    push -> PrivacyManager.FEATURE_PUSH
-                    chat -> PrivacyManager.FEATURE_CHAT
-                    contacts -> PrivacyManager.FEATURE_CONTACTS
-                    location -> PrivacyManager.FEATURE_LOCATION
-                    messageCenter -> PrivacyManager.FEATURE_MESSAGE_CENTER
-                    analytics -> PrivacyManager.FEATURE_ANALYTICS
-                    tagsAndAttributes -> PrivacyManager.FEATURE_TAGS_AND_ATTRIBUTES
-                    inAppAutomation -> PrivacyManager.FEATURE_IN_APP_AUTOMATION
-                    none -> PrivacyManager.FEATURE_NONE
-                    all -> PrivacyManager.FEATURE_ALL
+                    FEATURE_PUSH -> PrivacyManager.FEATURE_PUSH
+                    FEATURE_CHAT -> PrivacyManager.FEATURE_CHAT
+                    FEATURE_CONTACTS -> PrivacyManager.FEATURE_CONTACTS
+                    FEATURE_LOCATION -> PrivacyManager.FEATURE_LOCATION
+                    FEATURE_MESSAGE_CENTER -> PrivacyManager.FEATURE_MESSAGE_CENTER
+                    FEATURE_ANALYTICS -> PrivacyManager.FEATURE_ANALYTICS
+                    FEATURE_TAGS_AND_ATTRIBUTES -> PrivacyManager.FEATURE_TAGS_AND_ATTRIBUTES
+                    FEATURE_IN_APP_AUTOMATION -> PrivacyManager.FEATURE_IN_APP_AUTOMATION
+                    FEATURE_NONE -> PrivacyManager.FEATURE_NONE
+                    FEATURE_ALL -> PrivacyManager.FEATURE_ALL
                 }
             }
         }
