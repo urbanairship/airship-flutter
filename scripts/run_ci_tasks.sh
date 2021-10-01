@@ -47,6 +47,7 @@ fi
 # Android
 if $ANDROID ; then
     cd example
+    flutter doctor -v
     # Build sample using flutter tool
     flutter build apk --release
     cd ..
