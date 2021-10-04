@@ -26,14 +26,10 @@ jobs:
       - uses: actions/checkout@v1
       - uses: actions/setup-java@v1
         with:
-          java-version: "12.x"
+          java-version: "8.x"
       - uses: subosito/flutter-action@4389e6cbc6cb8a4b18c628ff96ff90be0e926aa8
         with:
           flutter-version: '2.5.0'
-      - name: Update Command Line tools
-        run: |
-          sudo /Users/runner/Library/Android/sdk/tools/bin/sdkmanager --update
-          sudo /Users/runner/Library/Android/sdk/tools/bin/sdkmanager 'cmdline-tools;latest'
       - name: Install NDK
         run: echo "y" | sudo /Users/runner/Library/Android/sdk/tools/bin/sdkmanager --install "ndk;20.0.5594570" --sdk_root=${ANDROID_SDK_ROOT}
       - name: Build Android
