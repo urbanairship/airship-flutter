@@ -31,9 +31,7 @@ jobs:
         with:
           flutter-version: '2.5.0'
       - name: SDK setup
-        run: |
-          echo "y" | flutter doctor --android-licenses
-          flutter doctor -v
+        run: yes | flutter doctor --android-licenses
       - name: Install NDK
         run: echo "y" | sudo /Users/runner/Library/Android/sdk/cmdline-tools/latest/bin/sdkmanager --install "ndk;20.0.5594570" --sdk_root=${ANDROID_SDK_ROOT}
       - name: Build Android
