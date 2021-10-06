@@ -41,11 +41,11 @@ jobs:
           echo ""
           ls /usr/local/lib/android/sdk/ndk/22.1.7171670/toolchains
           echo ""
-          ls /usr/local/lib/android/sdk/ndk/23.0.7599858/toolchains
+          rm -rf /usr/local/lib/android/sdk/ndk/23.0.7599858/
           #ls /usr/local/lib/android/sdk/ndk-bundle/toolchains
           #ls /usr/local/lib/android/sdk/ndk/toolchains
-      #- name: Build Android
-        #run: bash ./scripts/run_ci_tasks.sh -a
+      - name: Build Android
+        run: bash ./scripts/run_ci_tasks.sh -a
   #ci-ios:
     #runs-on: macos-latest
     #env:
