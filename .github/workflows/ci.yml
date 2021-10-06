@@ -34,16 +34,9 @@ jobs:
         #run: |
           #yes | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --licenses
           #flutter doctor -v
-      - name: Install NDK
-        run: |
-          #echo "y" | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --install "ndk;20.0.5594570" --sdk_root=${ANDROID_SDK_ROOT}
-          ls /usr/local/lib/android/sdk/ndk/21.4.7075529/toolchains
-          echo ""
-          ls /usr/local/lib/android/sdk/ndk/22.1.7171670/toolchains
-          echo ""
-          rm -rf /usr/local/lib/android/sdk/ndk/23.0.7599858/
-          #ls /usr/local/lib/android/sdk/ndk-bundle/toolchains
-          #ls /usr/local/lib/android/sdk/ndk/toolchains
+      #- name: Install NDK
+        #run: |
+          #rm -rf /usr/local/lib/android/sdk/ndk/23.0.7599858/
       - name: Build Android
         run: bash ./scripts/run_ci_tasks.sh -a
   #ci-ios:
