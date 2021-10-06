@@ -1,6 +1,6 @@
 # Flutter Plugin Changelog
 
-## Version 4.4.0 - September 23, 2021
+## Version 4.4.0 - October 06, 2021
 Minor release to add badge methods.
 
 ### Changes
