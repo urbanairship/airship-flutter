@@ -31,7 +31,7 @@ jobs:
         with:
           flutter-version: '2.5.0'
       - name: SDK setup
-        run: echo "y" | flutter doctor --android-licenses
+        run: echo "y" | /Users/runner/Android/sdk/cmdline-tools/latest/bin/sdkmanager --licenses
       - name: Build Android
         run: bash ./scripts/run_ci_tasks.sh -a
   ci-ios:
