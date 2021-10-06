@@ -36,9 +36,10 @@ jobs:
           flutter doctor -v
       - name: Install NDK
         run: |
-          echo "y" | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --install "ndk;20.0.5594570" --sdk_root=${ANDROID_SDK_ROOT}
-          ls /usr/local/lib/android/sdk/
+          #echo "y" | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --install "ndk;20.0.5594570" --sdk_root=${ANDROID_SDK_ROOT}
           ls /usr/local/lib/android/sdk/ndk-bundle/toolchains
+          ls /usr/local/lib/android/sdk/ndk/toolchains
+          mv /usr/local/lib/android/sdk/ndk-bundle/toolchains/arm-linux-androideabi-4.9 /usr/local/lib/android/sdk/ndk-bundle/toolchains/arm-linux-androideabi
       - name: Build Android
         run: bash ./scripts/run_ci_tasks.sh -a
   ci-ios:
