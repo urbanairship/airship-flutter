@@ -10,39 +10,39 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: "12.x"
-      - uses: subosito/flutter-action@123325ea84b0d4c11e96eb9899090b697bf51bed
+      - uses: subosito/flutter-action@4389e6cbc6cb8a4b18c628ff96ff90be0e926aa8
         with:
-          flutter-version: "2.0.3"
+          flutter-version: '2.5.0'
       - name: Build documentation
         run: bash ./scripts/docs.sh -g
       - name: Analyze
         run: bash ./scripts/run_ci_tasks.sh -z
 
   ci-android:
-    runs-on: macos-latest
+    runs-on: macos-11
     env:
-      DEVELOPER_DIR: /Applications/Xcode_12.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_13.0.app/Contents/Developer
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-java@v1
         with:
           java-version: "12.x"
-      - uses: subosito/flutter-action@123325ea84b0d4c11e96eb9899090b697bf51bed
+      - uses: subosito/flutter-action@4389e6cbc6cb8a4b18c628ff96ff90be0e926aa8
         with:
-          flutter-version: "2.0.3"
+          flutter-version: '2.5.0'
       - name: Build Android
         run: bash ./scripts/run_ci_tasks.sh -a
   ci-ios:
-    runs-on: macos-latest
+    runs-on: macos-11
     env:
-      DEVELOPER_DIR: /Applications/Xcode_12.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_13.0.app/Contents/Developer
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-java@v1
         with:
           java-version: "12.x"
-      - uses: subosito/flutter-action@123325ea84b0d4c11e96eb9899090b697bf51bed
+      - uses: subosito/flutter-action@4389e6cbc6cb8a4b18c628ff96ff90be0e926aa8
         with:
-          flutter-version: "2.0.3"
+          flutter-version: '2.5.0'
       - name: Build iOS
         run: bash ./scripts/run_ci_tasks.sh -i

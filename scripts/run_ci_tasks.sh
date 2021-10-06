@@ -47,6 +47,8 @@ fi
 # Android
 if $ANDROID ; then
     cd example
+    # Set the Ndk dir path
+    echo "ndk.dir=/Users/runner/Library/Android/sdk/ndk-bundle" > ./android/local.properties
     # Build sample using flutter tool
     flutter build apk --release
     cd ..
