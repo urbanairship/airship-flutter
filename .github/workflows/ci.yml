@@ -33,7 +33,7 @@ jobs:
       - name: SDK setup
         run: |
           flutter doctor -v
-          echo "y" | /Users/runner/android-sdk/sdk/cmdline-tools/latest/bin/sdkmanager --licenses
+          echo "y" | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --licenses
       - name: Build Android
         run: bash ./scripts/run_ci_tasks.sh -a
   ci-ios:
