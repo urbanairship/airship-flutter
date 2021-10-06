@@ -36,8 +36,9 @@ jobs:
           #flutter doctor -v
       - name: Install NDK
         run: |
-          #echo "y" | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --install "ndk;20.0.5594570" --sdk_root=${ANDROID_SDK_ROOT}
+          echo "y" | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --install "ndk;20.0.5594570" --sdk_root=${ANDROID_SDK_ROOT}
           ls /usr/local/lib/android/sdk/ndk
+          ls /usr/local/lib/android/sdk/ndk/21.4.7075529
           #ls /usr/local/lib/android/sdk/ndk-bundle/toolchains
           #ls /usr/local/lib/android/sdk/ndk/toolchains
       #- name: Build Android
