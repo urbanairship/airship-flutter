@@ -19,7 +19,7 @@ jobs:
         run: bash ./scripts/run_ci_tasks.sh -z
 
   ci-android:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     env:
       DEVELOPER_DIR: /Applications/Xcode_12.app/Contents/Developer
     steps:
