@@ -64,6 +64,7 @@ jobs:
           "expiration": ${{secrets.OAUTH_EXPIRATION }}
           }
           EOF
+          cp ~/.pub-cache/credentials.json $PUB_CACHE/credentials.json
 
       - name: Publish Dart/Flutter package
         run: pub publish -f
