@@ -52,11 +52,21 @@ jobs:
 
       - run: flutter pub get
 
+      - name: Setup pub credentials
+        run: |
+          mkdir -p ~/.pub-cache
+          cat <<EOF > ~/.pub-cache/credentials.json
+          {
+          "accessToken":"${{ secrets.OAUTH_ACCESS_TOKEN }}",
+          "refreshToken":"${{ secrets.OAUTH_REFRESH_TOKEN }}",
+          "tokenEndpoint":"https://accounts.google.com/o/oauth2/token",
+          "scopes": [ "openid", "https://www.googleapis.com/auth/userinfo.email" ],
+          "expiration": ${{secrests.OAUTH_EXPIRATION }}
+          }
+          EOF
+
       - name: Publish Dart/Flutter package
-        uses: sakebook/actions-flutter-pub-publisher@7112915a1a834881d4c98ef7af12f3456e5c79c7
-        with:
-          credential: ${{ secrets.PUB_DEV_CREDENTIALS }}
-          skip_test: true
+        run: pub publish -f
 
       - name: Github Release
         uses: actions/create-release@v1.0.1
