@@ -61,7 +61,7 @@ jobs:
           "refreshToken":"${{ secrets.OAUTH_REFRESH_TOKEN }}",
           "tokenEndpoint":"https://accounts.google.com/o/oauth2/token",
           "scopes": [ "openid", "https://www.googleapis.com/auth/userinfo.email" ],
-          "expiration": ${{secrests.OAUTH_EXPIRATION }}
+          "expiration": ${{secrets.OAUTH_EXPIRATION }}
           }
           EOF
 
