@@ -1,12 +1,12 @@
 import Foundation
-import Airship
+import AirshipKit
 
 class AirshipNotificationResponseEvent : AirshipPushReceivedEvent {
-    let notificationResponse: UANotificationResponse
+    let notificationResponse: UNNotificationResponse
 
-    init(_ notificationResponse : UANotificationResponse) {
+    init(_ notificationResponse : UNNotificationResponse) {
         self.notificationResponse = notificationResponse
-        super.init(notificationResponse.notificationContent)
+        super.init(notificationResponse.notification.request.content.userInfo)
     }
 
     override var eventType: AirshipEventType {
@@ -19,7 +19,7 @@ class AirshipNotificationResponseEvent : AirshipPushReceivedEvent {
         get {
             var payload = super.data as! [String: Any]
 
-            if (self.notificationResponse.actionIdentifier == UANotificationDefaultActionIdentifier) {
+            if (self.notificationResponse.actionIdentifier == UNNotificationDefaultActionIdentifier) {
                 payload["is_foreground"] = true
             } else {
                 if let action = self.findAction(notificationResponse) {
@@ -33,9 +33,9 @@ class AirshipNotificationResponseEvent : AirshipPushReceivedEvent {
         }
     }
 
-    func findAction(_ notificationResponse: UANotificationResponse) -> UANotificationAction? {
-        return UAirship.push()?.combinedCategories.first(where: { (category) -> Bool in
-            return category.identifier == notificationResponse.notificationContent.categoryIdentifier
+    func findAction(_ notificationResponse: UNNotificationResponse) -> UNNotificationAction? {
+        return Airship.push.combinedCategories.first(where: { (category) -> Bool in
+            return category.identifier == notificationResponse.notification.request.content.categoryIdentifier
         })?.actions.first(where: { (action) -> Bool in
             return action.identifier == notificationResponse.actionIdentifier
         })

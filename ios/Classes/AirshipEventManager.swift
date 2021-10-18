@@ -45,8 +45,13 @@ class AirshipEventManager {
         func notify(_ event: AirshipEvent) {
             if let sink = self.eventSink {
                 if (event.data != nil) {
-                    let data = JSONSerialization.string(with: event.data!, acceptingFragments: true)
-                    sink(data)
+                    do {
+                        let data = try JSONSerialization.jsonObject(with: event.data! as! Data, options: .fragmentsAllowed)
+                        sink(data)
+                    }
+                    catch {
+                        sink(nil)
+                    }
                 } else {
                     sink(nil)
                 }

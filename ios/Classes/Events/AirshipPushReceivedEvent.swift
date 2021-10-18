@@ -1,11 +1,11 @@
 import Foundation
-import Airship
+import AirshipKit
 
 class AirshipPushReceivedEvent : AirshipEvent {
-    let notificationContent: UANotificationContent
+    let payload: [AnyHashable : Any]
 
-    init(_ notificationContent : UANotificationContent) {
-        self.notificationContent = notificationContent
+    init(_ userInfo : [AnyHashable : Any]) {
+        self.payload = userInfo
     }
 
     var eventType: AirshipEventType {
@@ -16,20 +16,7 @@ class AirshipPushReceivedEvent : AirshipEvent {
 
     var data: Any? {
         get {
-            var payload = ["payload": notificationContent.notificationInfo]
-            if let notification = notificationContent.notification {
-                var notificaitonPayload : [String:Any] = [:]
-                notificaitonPayload["alert"] = notificationContent.alertBody
-                notificaitonPayload["title"] = notificationContent.alertTitle
-                notificaitonPayload["notification_id"] = notification.request.identifier
-
-                var extras = notificationContent.notificationInfo
-                extras["_"] = nil
-                extras["aps"] = nil
-                notificaitonPayload["extras"] = extras
-                payload["notification"] = notificaitonPayload
-            }
-
+            let payload = ["payload": self.payload]
             return payload
         }
     }

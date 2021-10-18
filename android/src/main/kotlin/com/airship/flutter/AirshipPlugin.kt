@@ -7,6 +7,7 @@ import android.content.Context
 import android.view.View
 import android.os.Build
 import androidx.core.app.NotificationManagerCompat
+import com.urbanairship.PrivacyManager
 import com.urbanairship.UAirship
 import com.urbanairship.analytics.CustomEvent
 import com.urbanairship.automation.InAppAutomation
@@ -19,6 +20,7 @@ import com.urbanairship.util.DateUtils
 import com.urbanairship.util.UAStringUtil
 import com.urbanairship.messagecenter.webkit.MessageWebView
 import com.urbanairship.messagecenter.webkit.MessageWebViewClient
+import com.urbanairship.preferencecenter.PreferenceCenter
 import java.lang.NumberFormatException
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -170,10 +172,12 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
             "getInAppAutomationPaused" -> getInAppAutomationPaused(result)
             "enableChannelCreation" -> enableChannelCreation(result)
             "trackScreen" -> trackScreen(call, result)
-            "getDataCollectionEnabled" -> getDataCollectionEnabled(result)
-            "getPushTokenRegistrationEnabled" -> getPushTokenRegistrationEnabled(result)
-            "setDataCollectionEnabled" -> setDataCollectionEnabled(call, result)
-            "setPushTokenRegistrationEnabled" -> setPushTokenRegistrationEnabled(call, result)
+            "enableFeatures" -> enableFeatures(call, result)
+            "disableFeatures" -> disableFeatures(call, result)
+            "setEnabledFeatures" -> setEnabledFeatures(call, result)
+            "getEnabledFeatures" -> getEnabledFeatures(result)
+            "isFeatureEnabled" -> isFeatureEnabled(call, result)
+            "openPreferenceCenter" -> openPreferenceCenter(call, result)
 
             else -> result.notImplemented()
         }
@@ -372,24 +376,6 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
         result.success(true)
     }
 
-    private fun getDataCollectionEnabled(result: Result) {
-        result.success(UAirship.shared().isDataCollectionEnabled)
-    }
-
-    private fun getPushTokenRegistrationEnabled(result: Result) {
-        result.success(UAirship.shared().pushManager.isPushTokenRegistrationEnabled)
-    }
-
-    private fun setDataCollectionEnabled(call: MethodCall, result: Result) {
-        UAirship.shared().isDataCollectionEnabled = (call.arguments as Boolean)
-        result.success(true)
-    }
-
-    private fun setPushTokenRegistrationEnabled(call: MethodCall, result: Result) {
-        UAirship.shared().pushManager.isPushTokenRegistrationEnabled = (call.arguments as Boolean)
-        result.success(true)
-    }
-
     private fun getUserNotificationsEnabled(result: Result) {
         result.success(UAirship.shared().pushManager.userNotificationsEnabled)
     }
@@ -480,6 +466,116 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
         val screen = call.arguments as String
         UAirship.shared().analytics.trackScreen(screen)
         result.success(null)
+    }
+
+    private fun enableFeatures(call: MethodCall, result: Result) {
+        val featureArray = call.arguments as List<String>
+        val features: MutableList<Int> = mutableListOf()
+        for (feature in featureArray) {
+            (FeatureNames.values().firstOrNull { it.toString() == feature })?.also { featureName ->
+                features.add(FeatureNames.toFeature(featureName))
+            }
+        }
+        UAirship.shared().privacyManager.enable(*(features.toIntArray()))
+        result.success(null)
+    }
+
+    private fun disableFeatures(call: MethodCall, result: Result) {
+        val featureArray = call.arguments as List<String>
+        val features: MutableList<Int> = mutableListOf()
+        for (feature in featureArray) {
+            (FeatureNames.values().firstOrNull { it.toString() == feature })?.also { featureName ->
+                features.add(FeatureNames.toFeature(featureName))
+            }
+        }
+        UAirship.shared().privacyManager.disable(*(features.toIntArray()))
+        result.success(null)
+    }
+
+    private fun setEnabledFeatures(call: MethodCall, result: Result) {
+        val featureArray = call.arguments as List<String>
+        val features: MutableList<Int> = mutableListOf()
+        for (feature in featureArray) {
+            (FeatureNames.values().firstOrNull { it.toString() == feature })?.also { featureName ->
+                features.add(FeatureNames.toFeature(featureName))
+            }
+        }
+        UAirship.shared().privacyManager.setEnabledFeatures(*(features.toIntArray()))
+        result.success(null)
+    }
+
+    private fun getEnabledFeatures(result: Result) {
+        val features = UAirship.shared().privacyManager.getEnabledFeatures()
+        val featureArray: MutableList<String> = mutableListOf()
+
+        if (features == PrivacyManager.FEATURE_ALL) {
+            result.success(stringFromFeature(PrivacyManager.FEATURE_ALL))
+            return
+        }
+        if (features == PrivacyManager.FEATURE_NONE) {
+            result.success(stringFromFeature(PrivacyManager.FEATURE_NONE))
+            return
+        }
+
+        for (featureName in FeatureNames.values()) {
+            val feature = FeatureNames.toFeature(featureName)
+            if ((feature and features != 0) && (feature != PrivacyManager.FEATURE_ALL)) {
+                featureArray.add(featureName.toString())
+            }
+        }
+        result.success(featureArray)
+    }
+
+    private fun isFeatureEnabled(call: MethodCall, result: Result) {
+        val feature = call.arguments as String
+        var isEnabled = false
+        (FeatureNames.values().firstOrNull { it.toString() == feature })?.also { featureName ->
+            isEnabled = UAirship.shared().privacyManager.isEnabled(FeatureNames.toFeature(featureName))
+        }
+        result.success(isEnabled)
+    }
+
+    private fun openPreferenceCenter(call: MethodCall, result: Result) {
+        val preferenceCenterID = call.arguments as String
+        PreferenceCenter.shared().open(preferenceCenterId = preferenceCenterID)
+        result.success(null)
+    }
+
+    private enum class FeatureNames {
+        FEATURE_PUSH, FEATURE_CHAT, FEATURE_CONTACTS, FEATURE_LOCATION, FEATURE_MESSAGE_CENTER, FEATURE_ANALYTICS, FEATURE_TAGS_AND_ATTRIBUTES, FEATURE_IN_APP_AUTOMATION, FEATURE_NONE, FEATURE_ALL;
+
+        companion object {
+            fun toFeature(name: FeatureNames): Int {
+                return when (name) {
+                    FEATURE_PUSH -> PrivacyManager.FEATURE_PUSH
+                    FEATURE_CHAT -> PrivacyManager.FEATURE_CHAT
+                    FEATURE_CONTACTS -> PrivacyManager.FEATURE_CONTACTS
+                    FEATURE_LOCATION -> PrivacyManager.FEATURE_LOCATION
+                    FEATURE_MESSAGE_CENTER -> PrivacyManager.FEATURE_MESSAGE_CENTER
+                    FEATURE_ANALYTICS -> PrivacyManager.FEATURE_ANALYTICS
+                    FEATURE_TAGS_AND_ATTRIBUTES -> PrivacyManager.FEATURE_TAGS_AND_ATTRIBUTES
+                    FEATURE_IN_APP_AUTOMATION -> PrivacyManager.FEATURE_IN_APP_AUTOMATION
+                    FEATURE_NONE -> PrivacyManager.FEATURE_NONE
+                    FEATURE_ALL -> PrivacyManager.FEATURE_ALL
+                }
+            }
+        }
+    }
+
+    fun stringFromFeature(feature: Int): String {
+        return when (feature) {
+            PrivacyManager.FEATURE_PUSH -> "FEATURE_PUSH"
+            PrivacyManager.FEATURE_CHAT -> "FEATURE_CHAT"
+            PrivacyManager.FEATURE_CONTACTS -> "FEATURE_CONTACTS"
+            PrivacyManager.FEATURE_LOCATION -> "FEATURE_LOCATION"
+            PrivacyManager.FEATURE_MESSAGE_CENTER -> "FEATURE_MESSAGE_CENTER"
+            PrivacyManager.FEATURE_ANALYTICS -> "FEATURE_ANALYTICS"
+            PrivacyManager.FEATURE_TAGS_AND_ATTRIBUTES -> "FEATURE_TAGS_AND_ATTRIBUTES"
+            PrivacyManager.FEATURE_IN_APP_AUTOMATION -> "FEATURE_IN_APP_AUTOMATION"
+            PrivacyManager.FEATURE_NONE -> "FEATURE_NONE"
+            PrivacyManager.FEATURE_ALL -> "FEATURE_ALL"
+            else -> "unknown feature"
+        }
     }
 
     @Suppress("UNCHECKED_CAST")

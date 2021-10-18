@@ -296,22 +296,6 @@ class Airship {
     return await _channel.invokeMethod('trackScreen', screen);
   }
 
-  static Future<bool?> get getDataCollectionEnabled async {
-    return await _channel.invokeMethod('getDataCollectionEnabled');
-  }
-
-  static Future<bool?> get getPushTokenRegistrationEnabled async {
-    return await _channel.invokeMethod('getPushTokenRegistrationEnabled');
-  }
-
-  static Future<bool?> setDataCollectionEnabled(bool enabled) async {
-    return await _channel.invokeMethod('setDataCollectionEnabled', enabled);
-  }
-
-  static Future<bool?> setPushTokenRegistrationEnabled(bool enabled) async {
-    return await _channel.invokeMethod('setPushTokenRegistrationEnabled', enabled);
-  }
-
   static Future<bool> isAutoBadgeEnabled() async {
     var isAutoBadgeEnabled = false;
     if (Platform.isIOS) {
@@ -343,4 +327,29 @@ class Airship {
       return Future.value();
     }
   }
+
+  static Future<void> enableFeatures(List<String> features) async {
+    return await _channel.invokeMethod('enableFeatures', features);
+  }
+
+  static Future<void> disableFeatures(List<String> features) async {
+    return await _channel.invokeMethod('disableFeatures', features);
+  }
+
+  static Future<void> setEnabledFeatures(List<String> features) async {
+    return await _channel.invokeMethod('setEnabledFeatures', features);
+  }
+
+  static Future<List<String>> getEnabledFeatures() async {
+    return await _channel.invokeMethod('getEnabledFeatures');
+  }
+
+  static Future<bool> isFeatureEnabled(String feature) async {
+    return await _channel.invokeMethod('isFeatureEnabled', feature);
+  }
+
+  static Future<void> openPreferenceCenter(String preferenceCenterID) async {
+    return await _channel.invokeMethod('openPreferenceCenter', preferenceCenterID);
+  }
 }
+
