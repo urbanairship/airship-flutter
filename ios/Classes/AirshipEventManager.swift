@@ -46,7 +46,10 @@ class AirshipEventManager {
             if let sink = self.eventSink {
                 if (event.data != nil) {
                     do {
-                        let data = try JSONSerialization.jsonObject(with: event.data! as! Data, options: .fragmentsAllowed)
+                        let jsonData = try JSONSerialization.data(withJSONObject: event.data!, options: JSONSerialization.WritingOptions.prettyPrinted)
+
+                        let data = String(data: jsonData, encoding: .utf8)
+                     
                         sink(data)
                     }
                     catch {
