@@ -1,12 +1,13 @@
 # Flutter Plugin Changelog
 
-## Version 5.0.0 - October 18, 2021
+## Version 5.0.0 - October 21, 2021
 Major release for Airship Android SDK 16.0.0 and iOS SDK 16.0.1.
 
 ### Changes
 - Added Privacy Manager methods `enableFeatures`, `disableFeatures`, `setEnabledFeatures`, `getEnabledFeatures` and `isFeatureEnabled` that replace `getDataCollectionEnabled`, `setDataCollectionEnabled`, `getPushTokenRegistrationEnabled` and `setPushTokenRegistrationEnabled`
 - Support for OOTB Preference Center
 - Xcode 13 is now required.
+- CompileSdkVersion 31 and java 8 source compatibility are now required for Android.
 
 ## Version 4.4.0 - October 06, 2021
 Minor release to add badge methods.
