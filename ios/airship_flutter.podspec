@@ -21,9 +21,9 @@ Airship flutter plugin.
   s.dependency 'Flutter'
 
   s.ios.deployment_target   = "11.0"
-  s.dependency              'Airship/Core', '~> 16.0.0'
-  s.dependency              'Airship/MessageCenter', '~> 16.0.0'
-  s.dependency              'Airship/Automation', '~> 16.0.0'
-  s.dependency              'Airship/PreferenceCenter', '~> 16.0.0'
+  s.dependency              'Airship/Core', '~> 16.0.1'
+  s.dependency              'Airship/MessageCenter', '~> 16.0.1'
+  s.dependency              'Airship/Automation', '~> 16.0.1'
+  s.dependency              'Airship/PreferenceCenter', '~> 16.0.1'
 end
 
