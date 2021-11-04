@@ -1,6 +1,17 @@
 # Flutter Plugin Changelog
 
+## Version 5.0.1 - November 4, 2021
+Patch release that fixes preferences resetting on iOS when upgrading to 5.0.0. This update will restore old preferences that have not been modified new plugin.
+
+**Apps that have migrated to 5.0.0 from an older version should update. Apps currently on version 4.0.0 and below should only migrate to 5.0.1 to avoid the bug in 5.0.0.**
+
+### Changes
+- Updated iOS SDK to 16.0.2
+
 ## Version 5.0.0 - October 21, 2021
+
+**Due to a bug that mishandles persisted SDK settings, apps that are migrating from plugin 4.4.0 or older should avoid this version and instead use 5.0.1 or newer.**
+
 Major release for Airship Android SDK 16.0.0 and iOS SDK 16.0.1.
 
 ### Changes
