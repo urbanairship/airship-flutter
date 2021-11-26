@@ -27,6 +27,8 @@ class AirshipPushReceivedEvent : AirshipEvent {
                     if let title = alert["title"] {
                         notificationPayload["title"] = title
                     }
+                } else if let alert = aps["alert"] as? String {
+                    notificationPayload["alert"] = alert
                 }
                
                 var extras = self.payload

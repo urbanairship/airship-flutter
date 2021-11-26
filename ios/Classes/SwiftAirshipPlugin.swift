@@ -22,19 +22,22 @@ DeepLinkDelegate, PushNotificationDelegate {
     private let attributeOperationRemove = "remove"
     private let attributeOperationKey = "key"
     private let attributeOperationValue = "value"
+    static let shared = SwiftAirshipPlugin()
 
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "com.airship.flutter/airship",
                                            binaryMessenger: registrar.messenger())
-
-        let instance = SwiftAirshipPlugin()
-        registrar.addMethodCallDelegate(instance, channel: channel)
+        registrar.addMethodCallDelegate(shared, channel: channel)
         AirshipEventManager.shared.register(registrar)
-        instance.takeOff()
 
         registrar.register(AirshipInboxMessageViewFactory(registrar), withId: "com.airship.flutter/InboxMessageView")
     }
 
+    @objc public static func takeOff(launchOptions: [UIApplication.LaunchOptionsKey : Any]?) {
+        Airship.takeOff(launchOptions: launchOptions)
+        shared.takeOff()
+    }
+    
     public func takeOff() {
         Airship.push.registrationDelegate = self
         Airship.shared.deepLinkDelegate = self
