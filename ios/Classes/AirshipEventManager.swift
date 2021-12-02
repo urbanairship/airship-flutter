@@ -45,17 +45,13 @@ class AirshipEventManager {
 
         func notify(_ event: AirshipEvent) {
             if let sink = self.eventSink {
-                guard let eventData = event.data else {
+                guard let eventData = event.data,
+                      let jsonData = try? JSONUtils.string(eventData, options: JSONSerialization.WritingOptions.fragmentsAllowed)
+                else {
                     sink(nil)
                     return
                 }
-                do {
-                    let jsonData = try JSONUtils.string(eventData, options: JSONSerialization.WritingOptions.fragmentsAllowed)
-                    sink(jsonData)
-                }
-                catch {
-                    sink(nil)
-                }
+                sink(jsonData)
             } else {
                 pendinEvents.append(event)
             }
