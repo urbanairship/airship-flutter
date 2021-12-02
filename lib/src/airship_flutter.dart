@@ -38,7 +38,7 @@ class InboxMessage {
 }
 
 class Notification {
-  final String notificationId;
+  final String? notificationId;
   final String? alert;
   final String? title;
   final String? subtitle;
