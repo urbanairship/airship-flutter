@@ -1,10 +1,10 @@
 # Flutter Plugin Changelog
 
-## Version 5.1.0 - November 23, 2021
-Minor release updating iOS and Android SDKs to 16.1.0
+## Version 5.1.0 - December 2, 2021
+Minor release updating iOS SDK to 16.1.1 and Android SDK to 16.1.0
 
 ### Changes
-- Updated iOS SDK to 16.1.0
+- Updated iOS SDK to 16.1.1
 - Updated Android SDK to 16.1.0
 
 ## Version 5.0.1 - November 4, 2021
