@@ -1,4 +1,5 @@
 import Foundation
+import AirshipKit
 
 class AirshipEventManager {
 
@@ -44,20 +45,13 @@ class AirshipEventManager {
 
         func notify(_ event: AirshipEvent) {
             if let sink = self.eventSink {
-                if (event.data != nil) {
-                    do {
-                        let jsonData = try JSONSerialization.data(withJSONObject: event.data!, options: JSONSerialization.WritingOptions.prettyPrinted)
-
-                        let data = String(data: jsonData, encoding: .utf8)
-                     
-                        sink(data)
-                    }
-                    catch {
-                        sink(nil)
-                    }
-                } else {
+                guard let eventData = event.data,
+                      let jsonData = try? JSONUtils.string(eventData, options: JSONSerialization.WritingOptions.fragmentsAllowed)
+                else {
                     sink(nil)
+                    return
                 }
+                sink(jsonData)
             } else {
                 pendinEvents.append(event)
             }
