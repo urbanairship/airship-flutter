@@ -2,8 +2,8 @@ import Flutter
 import UIKit
 import AirshipKit
 
-public class SwiftAirshipPlugin: NSObject, FlutterPlugin, RegistrationDelegate,
-DeepLinkDelegate, PushNotificationDelegate {
+public class SwiftAirshipPlugin: NSObject, FlutterPlugin, RegistrationDelegate, DeepLinkDelegate, PushNotificationDelegate, MessageCenterDisplayDelegate {
+    
     private let eventNameKey = "event_name"
     private let eventValueKey = "event_value"
     private let propertiesKey = "properties"
@@ -42,6 +42,7 @@ DeepLinkDelegate, PushNotificationDelegate {
         Airship.push.registrationDelegate = self
         Airship.shared.deepLinkDelegate = self
         Airship.push.pushNotificationDelegate = self
+        MessageCenter.shared.displayDelegate = self
 
         Airship.analytics.registerSDKExtension(SDKExtension.flutter, version: AirshipPluginVersion.pluginVersion)
 
@@ -53,18 +54,21 @@ DeepLinkDelegate, PushNotificationDelegate {
 
         self.loadCustomNotificationCategories()
     }
-
+    
+    // MARK: - RegistrationDelegate
     public func registrationSucceeded(forChannelID channelID: String, deviceToken: String) {
         let event = AirshipChannelRegistrationEvent(channelID, registrationToken: deviceToken)
         AirshipEventManager.shared.notify(event)
     }
-
+    
+    // MARK: - DeepLinkDelegate
     public func receivedDeepLink(_ url: URL, completionHandler: @escaping () -> Void) {
         let event = AirshipDeepLinkEvent(url.absoluteString)
         AirshipEventManager.shared.notify(event)
         completionHandler()
     }
 
+    // MARK: - PushNotificationDelegate
     public func receivedForegroundNotification(_ userInfo:[AnyHashable : Any], completionHandler: @escaping () -> Void) {
         let event = AirshipPushReceivedEvent(userInfo)
         AirshipEventManager.shared.notify(event)
@@ -83,22 +87,38 @@ DeepLinkDelegate, PushNotificationDelegate {
         completionHandler()
     }
 
+    // MARK: - MessageCenterDisplayDelegate
+    public func displayMessageCenter(forMessageID messageID: String, animated: Bool) {
+        self.showMessage(forID: messageID)
+    }
+
+    public func displayMessageCenter(animated: Bool) {
+        self.showInbox()
+    }
+
+    public func dismissMessageCenter(animated: Bool) {
+        //
+    }
+    
     @objc
     public func showInbox() {
         let event = AirshipShowInboxEvent()
         AirshipEventManager.shared.notify(event)
     }
-
+    
+    @objc
     public func showMessage(forID messageID: String) {
         let event = AirshipShowInboxMessageEvent(messageID)
         AirshipEventManager.shared.notify(event)
     }
 
-    @objc public func inboxUpdated() {
+    @objc
+    public func inboxUpdated() {
         let event = AirshipInboxUpdatedEvent()
         AirshipEventManager.shared.notify(event)
     }
-
+    
+    // MARK: - handle methods call
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
         case "getChannelId":
