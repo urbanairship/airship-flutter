@@ -103,7 +103,7 @@ class PushReceivedEvent {
   static PushReceivedEvent _fromJson(Map<String, dynamic> json) {
     var payload = json["payload"];
 
-    late var notification;
+    var notification;
     if (json["notification"] != null) {
       notification = Notification._fromJson(json["notification"]);
     }
