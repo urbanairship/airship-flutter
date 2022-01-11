@@ -96,14 +96,14 @@ class NotificationResponseEvent {
 
 class PushReceivedEvent {
   final Map<String, dynamic>? payload;
-  final Notification notification;
+  final Notification? notification;
 
   const PushReceivedEvent._internal(this.payload, this.notification);
 
   static PushReceivedEvent _fromJson(Map<String, dynamic> json) {
     var payload = json["payload"];
 
-    late var notification;
+    var notification;
     if (json["notification"] != null) {
       notification = Notification._fromJson(json["notification"]);
     }
