@@ -1,5 +1,14 @@
 # Flutter Plugin Changelog
 
+## Version 5.1.1 - January 13, 2022
+Patch release that updates to latest Airship SDKs and fixes a nullable variable issue
+in PushReceivedEvent.
+
+### Changes
+- Updated iOS SDK to 16.1.2
+- Updated Android SDK to 16.1.1
+- Fixed issue when PushReceivedEvent's notification is null
+
 ## Version 5.1.0 - December 2, 2021
 Minor release updating iOS SDK to 16.1.1 and Android SDK to 16.1.0
 
