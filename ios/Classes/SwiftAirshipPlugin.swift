@@ -126,6 +126,8 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             openPreferenceCenter(call, result: result)
         case "getSubscriptionLists":
             getSubscriptionLists(call, result: result)
+        case "getPreferenceCenterConfig":
+            getPreferenceCenterConfig(call, result: result)
         default:
             result(FlutterError(code:"UNAVAILABLE",
                 message:"Unknown method: \(call.method)",
@@ -598,6 +600,24 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
         dispatchGroup.notify(queue: .main, execute: {
             result(subscriptionLists)
         })
+    }
+    
+    private func getPreferenceCenterConfig(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let preferenceCenterID = call.arguments as? String else {
+            result(nil)
+            return
+        }
+        
+        PreferenceCenter.shared.config(preferenceCenterID: preferenceCenterID) { config in
+            
+        }
+        
+       
+    }
+    
+    private func configDict(from: PreferenceCenterConfig) -> Dictionary<String, Any> {
+        var dict = [:]
+        return dict
     }
     
     private enum CloudSiteNames : String {
