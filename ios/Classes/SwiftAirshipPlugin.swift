@@ -124,6 +124,8 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             isFeatureEnabled(call, result: result)
         case "openPreferenceCenter":
             openPreferenceCenter(call, result: result)
+        case "getSubscriptionLists":
+            getSubscriptionLists(call, result: result)
         default:
             result(FlutterError(code:"UNAVAILABLE",
                 message:"Unknown method: \(call.method)",
@@ -567,8 +569,50 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
         PreferenceCenter.shared.open(preferenceCenterID)
         result(nil)
     }
-
-}
+    
+    private func getSubscriptionLists(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let subscriptionTypes = call.arguments as! [String]
+        
+        if (subscriptionTypes.count == 0) {
+            return
+        }
+        
+        var subscriptionLists: Dictionary<String, Any> = [:]
+        let dispatchGroup = DispatchGroup()
+        
+        if (subscriptionTypes.contains("channel")) {
+            dispatchGroup.enter()
+            Airship.channel.fetchSubscriptionLists { lists, error in
+                subscriptionLists["channel"] = lists ?? []
+                dispatchGroup.leave()
+            }
+        }
+        if (subscriptionTypes.contains("contact")) {
+            dispatchGroup.enter()
+            Airship.contact.fetchSubscriptionLists { lists, error in
+                subscriptionLists["contact"] = lists ?? [:]
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.notify(queue: .main, execute: {
+            result(subscriptionLists)
+        })
+    }
+    
+    private enum CloudSiteNames : String {
+        case eu
+        case us
+        
+        func toSite() -> CloudSite {
+            switch (self) {
+            case .eu:
+                return CloudSite.eu
+            case .us:
+                return CloudSite.us
+            }
+        }
+    }
 
 public enum FeatureNames : String, CaseIterable {
     case push = "FEATURE_PUSH"

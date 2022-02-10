@@ -195,6 +195,7 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
             "getEnabledFeatures" -> getEnabledFeatures(result)
             "isFeatureEnabled" -> isFeatureEnabled(call, result)
             "openPreferenceCenter" -> openPreferenceCenter(call, result)
+            "getSubscriptionLists" -> getSubscriptionLists(call, result)
 
             else -> result.notImplemented()
         }
@@ -570,6 +571,23 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
         val preferenceCenterID = call.arguments as String
         PreferenceCenter.shared().open(preferenceCenterId = preferenceCenterID)
         result.success(null)
+    }
+
+    private fun getSubscriptionLists(call: MethodCall, result: Result) {
+        val subscriptionTypes = call.arguments as List<String>
+
+        val subscriptionLists = mutableMapOf<String, Any>()
+
+        if (subscriptionTypes.contains("channel")) {
+            val channelSubscriptions = UAirship.shared().channel.getSubscriptionLists(true)
+            subscriptionLists["channel"] = channelSubscriptions
+        }
+        if (subscriptionTypes.contains("contact")) {
+            val contactSubscriptions = UAirship.shared().contact.getSubscriptionLists(true)
+            subscriptionLists["contact"] = contactSubscriptions
+        }
+
+        result.success(subscriptionLists)
     }
 
     private enum class FeatureNames {
