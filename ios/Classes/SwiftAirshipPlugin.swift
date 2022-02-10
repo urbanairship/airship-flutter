@@ -609,15 +609,74 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
         }
         
         PreferenceCenter.shared.config(preferenceCenterID: preferenceCenterID) { config in
-            
+            guard let config = config else {
+                result(nil)
+                return
+            }
+            result(self.configDict(config:config))
         }
-        
-       
     }
     
-    private func configDict(from: PreferenceCenterConfig) -> Dictionary<String, Any> {
-        var dict = [:]
-        return dict
+    private func configDict(config: PreferenceCenterConfig) -> Dictionary<String, Any> {
+        var configDict: Dictionary<String, Any> = [:]
+        configDict.updateValue(config.identifier, forKey: "identifier")
+        let sections = config.sections
+
+        for section in sections {
+            var sectionDict: Dictionary<String, Any> = [:]
+            sectionDict.updateValue(section.identifier, forKey: "identifier")
+            
+            let items = section.items
+            
+            for item in items {
+                var itemDict: Dictionary<String, Any> = [:]
+                itemDict.updateValue(item.identifier, forKey: "identifier")
+                
+                if (item.itemType == .channelSubscription) {
+                    let subscriptionItem = item as! ChannelSubscriptionItem
+                    itemDict.updateValue(subscriptionItem.subscriptionID, forKey:"subscription_id")
+                } else if (item.itemType == .contactSubscription) {
+                    let subscriptionItem = item as! ContactSubscriptionItem
+                    itemDict.updateValue(subscriptionItem.subscriptionID, forKey:"subscription_id")
+                } else if (item.itemType == .contactSubscriptionGroup) {
+                    let subscriptionItem = item as! ContactSubscriptionGroupItem
+                    itemDict.updateValue(subscriptionItem.subscriptionID, forKey:"subscription_id")
+                    
+                    let components = subscriptionItem.components
+                    
+                    var componentDict: Dictionary<String, Any> = [:]
+                    for component in components {
+                        componentDict.updateValue(component.scopes.rawValues, forKey: "scopes")
+                        
+                        if let title = component.display.title {
+                            componentDict.updateValue(title, forKey: "title")
+                        }
+                        if let subtitle = component.display.subtitle {
+                            componentDict.updateValue(subtitle, forKey: "subtitle")
+                        }
+                    }
+                    itemDict.updateValue(componentDict, forKey: "components")
+                }
+                
+                sectionDict.updateValue(itemDict, forKey: "items")
+                if let display = section.display, let title = display.title {
+                    sectionDict.updateValue(title, forKey: "title")
+                }
+                if let display = section.display, let subtitle = display.subtitle {
+                    sectionDict.updateValue(subtitle, forKey: "subtitle")
+                }
+            }
+            
+            configDict.updateValue(sectionDict, forKey: "sections")
+            if let display = config.display, let title = display.title {
+                configDict.updateValue(title, forKey: "title")
+            }
+            if let display = config.display, let subtitle = display.subtitle {
+                configDict.updateValue(subtitle, forKey: "subtitle")
+            }
+        }
+        
+        return configDict
     }
     
     private enum CloudSiteNames : String {
