@@ -107,6 +107,11 @@ class FlutterInboxMessageView(private var context: Context, channel: MethodChann
 
     private fun loadMessage(call: MethodCall, result: Result) {
         webviewResult = result
+        if (!(UAirship.isTakingOff() || UAirship.isFlying())) {
+            result.error("AIRSHIP_GROUNDED", "Takeoff not called.", null)
+            return
+        }
+        
         val message = MessageCenter.shared().inbox.getMessage(call.arguments())
         if (message != null) {
             webView.loadMessage(message)
