@@ -7,6 +7,7 @@ import android.content.Context
 import android.view.View
 import android.os.Build
 import androidx.core.app.NotificationManagerCompat
+import com.urbanairship.Autopilot
 import com.urbanairship.PrivacyManager
 import com.urbanairship.UAirship
 import com.urbanairship.analytics.CustomEvent
@@ -33,6 +34,7 @@ import io.flutter.plugin.platform.PlatformViewFactory
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.platform.PlatformViewRegistry
+import kotlinx.coroutines.*
 
 private const val TAG_OPERATION_GROUP_NAME = "group"
 private const val TAG_OPERATION_TYPE = "operationType"
@@ -146,6 +148,16 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {
+        if (call.method == "takeOff") {
+            takeOff(call, result)
+            return
+        }
+
+        if (!UAirship.isFlying() && !UAirship.isTakingOff()) {
+            result.error("AIRSHIP_GROUNDED", "TakeOff not called.", null)
+            return
+        }
+
         when (call.method) {
             "getChannelId" -> getChannelId(result)
             "setUserNotificationsEnabled" -> setUserNotificationsEnabled(call, result)
@@ -205,6 +217,20 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
                 }
 
         result.success(messages)
+    }
+
+    private fun takeOff(call: MethodCall, result: Result) {
+        val config = call.arguments as HashMap<*, *>
+        val appKey = config["app_key"] as String
+        val appSecret = config["app_secret"] as String
+
+        CoroutineScope(Dispatchers.IO).launch {
+            ConfigManager.shared(context).updateConfig(appKey, appSecret)
+            withContext(Dispatchers.Main) {
+                Autopilot.automaticTakeOff(context)
+                result.success(UAirship.isFlying() || UAirship.isTakingOff())
+            }
+        }
     }
 
     private fun refreshInbox(result: Result) {

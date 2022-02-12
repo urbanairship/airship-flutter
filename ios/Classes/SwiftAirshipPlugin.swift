@@ -2,7 +2,7 @@ import Flutter
 import UIKit
 import AirshipKit
 
-public class SwiftAirshipPlugin: NSObject, FlutterPlugin, RegistrationDelegate, DeepLinkDelegate, PushNotificationDelegate, MessageCenterDisplayDelegate {
+public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
     
     private let eventNameKey = "event_name"
     private let eventValueKey = "event_value"
@@ -22,8 +22,10 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, RegistrationDelegate, 
     private let attributeOperationRemove = "remove"
     private let attributeOperationKey = "key"
     private let attributeOperationValue = "value"
-    static let shared = SwiftAirshipPlugin()
 
+    static let shared = SwiftAirshipPlugin()
+    let eventHandler = AirshipEventHandler()
+    
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "com.airship.flutter/airship",
                                            binaryMessenger: registrar.messenger())
@@ -32,94 +34,26 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, RegistrationDelegate, 
 
         registrar.register(AirshipInboxMessageViewFactory(registrar), withId: "com.airship.flutter/InboxMessageView")
     }
-
-    @objc public static func takeOff(launchOptions: [UIApplication.LaunchOptionsKey : Any]?) {
-        Airship.takeOff(launchOptions: launchOptions)
-        shared.takeOff()
-    }
     
-    public func takeOff() {
-        Airship.push.registrationDelegate = self
-        Airship.shared.deepLinkDelegate = self
-        Airship.push.pushNotificationDelegate = self
-        MessageCenter.shared.displayDelegate = self
-
-        Airship.analytics.registerSDKExtension(SDKExtension.flutter, version: AirshipPluginVersion.pluginVersion)
-
-        Airship.push.defaultPresentationOptions = [.alert]
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(inboxUpdated),
-                                               name: NSNotification.Name.UAInboxMessageListUpdated,
-                                               object: nil)
-
-        self.loadCustomNotificationCategories()
-    }
-    
-    // MARK: - RegistrationDelegate
-    public func registrationSucceeded(forChannelID channelID: String, deviceToken: String) {
-        let event = AirshipChannelRegistrationEvent(channelID, registrationToken: deviceToken)
-        AirshipEventManager.shared.notify(event)
-    }
-    
-    // MARK: - DeepLinkDelegate
-    public func receivedDeepLink(_ url: URL, completionHandler: @escaping () -> Void) {
-        let event = AirshipDeepLinkEvent(url.absoluteString)
-        AirshipEventManager.shared.notify(event)
-        completionHandler()
-    }
-
-    // MARK: - PushNotificationDelegate
-    public func receivedForegroundNotification(_ userInfo:[AnyHashable : Any], completionHandler: @escaping () -> Void) {
-        let event = AirshipPushReceivedEvent(userInfo)
-        AirshipEventManager.shared.notify(event)
-        completionHandler()
-    }
-
-    public func receivedBackgroundNotification(_ userInfo:[AnyHashable : Any], completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        let event = AirshipPushReceivedEvent(userInfo)
-        AirshipEventManager.shared.notify(event)
-        completionHandler(.noData)
-    }
-
-    public func receivedNotificationResponse(_ notificationResponse: UNNotificationResponse, completionHandler: @escaping () -> Void) {
-        let event = AirshipNotificationResponseEvent(notificationResponse)
-        AirshipEventManager.shared.notify(event)
-        completionHandler()
-    }
-
-    // MARK: - MessageCenterDisplayDelegate
-    public func displayMessageCenter(forMessageID messageID: String, animated: Bool) {
-        self.showMessage(forID: messageID)
-    }
-
-    public func displayMessageCenter(animated: Bool) {
-        self.showInbox()
-    }
-
-    public func dismissMessageCenter(animated: Bool) {
-        //
-    }
-    
-    @objc
-    public func showInbox() {
-        let event = AirshipShowInboxEvent()
-        AirshipEventManager.shared.notify(event)
-    }
-    
-    @objc
-    public func showMessage(forID messageID: String) {
-        let event = AirshipShowInboxMessageEvent(messageID)
-        AirshipEventManager.shared.notify(event)
-    }
-
-    @objc
-    public func inboxUpdated() {
-        let event = AirshipInboxUpdatedEvent()
-        AirshipEventManager.shared.notify(event)
+    public func onAirshipReady() {
+        eventHandler.register()
     }
     
     // MARK: - handle methods call
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        
+        if (call.method == "takeOff") {
+            takeOff(call, result: result)
+            return
+        }
+        
+        guard (Airship.isFlying) else {
+            result(FlutterError(code:"AIRSHIP_NOT_READY",
+                              message:"Takeoff must be called before accesing Airship.",
+                               details: nil))
+            return
+        }
+        
         switch call.method {
         case "getChannelId":
             getChannelId(call, result: result)
@@ -215,6 +149,20 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, RegistrationDelegate, 
         }
     }
 
+    private func takeOff(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        
+        guard let args = call.arguments as? [String: String] else {
+            result(false)
+            return
+        }
+        
+        PluginConfig.appKey = args["app_key"]
+        PluginConfig.appSecret = args["app_secret"]
+        AirshipAutopilot.attempTakeOff()
+        
+        result(Airship.isFlying)
+    }
+        
     private func getUserNotificationsEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         result(Airship.push.userPushNotificationsEnabled)
     }
@@ -620,20 +568,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, RegistrationDelegate, 
         PreferenceCenter.shared.open(preferenceCenterID)
         result(nil)
     }
-    
-    private enum CloudSiteNames : String {
-        case eu
-        case us
-        
-        func toSite() -> CloudSite {
-            switch (self) {
-            case .eu:
-                return CloudSite.eu
-            case .us:
-                return CloudSite.us
-            }
-        }
-    }
+
 }
 
 public enum FeatureNames : String, CaseIterable {

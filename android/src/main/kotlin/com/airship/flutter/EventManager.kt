@@ -2,14 +2,11 @@ package com.airship.flutter
 
 import com.airship.flutter.events.Event
 import com.airship.flutter.events.EventType
-import com.urbanairship.json.JsonValue
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
-import io.flutter.plugin.common.PluginRegistry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-
 
 class EventManager {
 

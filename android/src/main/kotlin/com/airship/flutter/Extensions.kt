@@ -4,7 +4,6 @@ import android.os.Build
 import android.os.Bundle
 import android.service.notification.StatusBarNotification
 import androidx.annotation.RequiresApi
-import com.urbanairship.analytics.CustomEvent
 import com.urbanairship.json.JsonMap
 import com.urbanairship.push.NotificationInfo
 import com.urbanairship.push.PushMessage
