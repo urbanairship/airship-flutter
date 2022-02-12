@@ -48,8 +48,8 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
         }
         
         guard (Airship.isFlying) else {
-            result(FlutterError(code:"AIRSHIP_NOT_READY",
-                              message:"Takeoff must be called before accesing Airship.",
+            result(FlutterError(code:"AIRSHIP_GROUNDED",
+                              message:"TakeOff not called.",
                                details: nil))
             return
         }
