@@ -579,7 +579,7 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
     private fun getSubscriptionLists(call: MethodCall, result: Result) {
         val subscriptionTypes = call.arguments as List<String>
 
-        val subscriptionLists = mutableMapOf<String, Any?>()
+        val subscriptionLists = mutableMapOf<String, Any>()
 
         if (subscriptionTypes.contains("channel")) {
             val channelSubscriptionPendingResult = UAirship.shared().channel.getSubscriptionLists(true)
