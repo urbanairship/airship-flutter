@@ -365,8 +365,9 @@ class Airship {
     return Map<String, dynamic>.from(lists);
   }
 
-  static Future<void> getPreferenceCenterConfig(String preferenceCenterID) async {
-    return await _channel.invokeMethod('getPreferenceCenterConfig', preferenceCenterID);
+  static Future<Map<String, dynamic>> getPreferenceCenterConfig(String preferenceCenterID) async {
+    var config = await _channel.invokeMethod('getPreferenceCenterConfig', preferenceCenterID);
+    return Map<String, dynamic>.from(config);
   }
 }
 

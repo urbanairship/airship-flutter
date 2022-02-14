@@ -22,6 +22,8 @@ import com.urbanairship.util.UAStringUtil
 import com.urbanairship.messagecenter.webkit.MessageWebView
 import com.urbanairship.messagecenter.webkit.MessageWebViewClient
 import com.urbanairship.preferencecenter.PreferenceCenter
+import com.urbanairship.preferencecenter.data.Item
+import com.urbanairship.preferencecenter.data.PreferenceCenterConfig
 import java.lang.NumberFormatException
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -196,6 +198,7 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
             "isFeatureEnabled" -> isFeatureEnabled(call, result)
             "openPreferenceCenter" -> openPreferenceCenter(call, result)
             "getSubscriptionLists" -> getSubscriptionLists(call, result)
+            "getPreferenceCenterConfig" -> getPreferenceCenterConfig(call, result)
 
             else -> result.notImplemented()
         }
@@ -579,17 +582,93 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
         val subscriptionLists = mutableMapOf<String, Any?>()
 
         if (subscriptionTypes.contains("channel")) {
-            val emptyArray: Array<String> = arrayOf()
             val channelSubscriptionPendingResult = UAirship.shared().channel.getSubscriptionLists(true)
-            subscriptionLists["channel"] = channelSubscriptionPendingResult.getResult() ?: emptyArray
+            channelSubscriptionPendingResult.addResultCallback {
+                it?.let {
+                    subscriptionLists["channel"] = it
+                }
+            }
         }
         if (subscriptionTypes.contains("contact")) {
-            val emptyMap = mapOf<String, Any>()
             val contactSubscriptionPendingResult = UAirship.shared().contact.getSubscriptionLists(true)
-            subscriptionLists["contact"] = contactSubscriptionPendingResult.getResult() ?: emptyMap
+            contactSubscriptionPendingResult.addResultCallback {
+                it?.let {
+                    subscriptionLists["contact"] = it
+                }
+            }
         }
-
         result.success(subscriptionLists)
+    }
+
+    private fun getPreferenceCenterConfig(call: MethodCall, result: Result) {
+        val preferenceCenterID = call.arguments as String
+        val pendingConfig = PreferenceCenter.shared().getConfig(preferenceCenterID)
+
+        pendingConfig.addResultCallback {
+            it?.let {
+                result.success(configDict(it))
+            }
+        }
+    }
+
+    private fun configDict(config: PreferenceCenterConfig): Map<String, Any> {
+        val configDict = mutableMapOf<String, Any>()
+        configDict["identifier"] = config.id
+
+        val sections = config.sections
+        val sectionArray: MutableList<Any> = mutableListOf()
+
+        for (section in sections) {
+            val sectionDict = mutableMapOf<String, Any>()
+            sectionDict["identifier"] = section.id
+
+            val items = section.items
+            val itemArray: MutableList<Any> = mutableListOf()
+
+            for (item in items) {
+                val itemDict = mutableMapOf<String, Any>()
+                itemDict["identifier"] = item.id
+                if (item is Item.ChannelSubscription) {
+                    val channelSubItem = item as Item.ChannelSubscription
+                    itemDict["subscription_id"] = channelSubItem.subscriptionId
+                } else if (item is Item.ContactSubscription) {
+                    val contactSubItem = item as Item.ContactSubscription
+                    itemDict["subscription_id"] = contactSubItem.subscriptionId
+                } else if (item is Item.ContactSubscriptionGroup) {
+                    val contactGroupSubItem = item as Item.ContactSubscriptionGroup
+                    itemDict["subscription_id"] = contactGroupSubItem.subscriptionId
+
+                    val components = contactGroupSubItem.components
+
+                    val componentArray: MutableList<Any> = mutableListOf()
+
+                    for (component in components) {
+                        val componentDict = mutableMapOf<String, Any>()
+                        componentDict["scopes"] = component.scopes
+                        component.display.name?.let {
+                            componentDict["title"] = it
+                        }
+                        component.display.description?.let {
+                            componentDict["subtitle"] = it
+                        }
+                        componentArray.add(componentDict)
+                    }
+                    itemDict["components"] = componentArray
+                }
+                itemArray.add(itemDict)
+            }
+            sectionDict["items"] = itemArray
+            sectionArray.add(sectionDict)
+        }
+        configDict["sections"] = sectionArray
+
+        config.display.name?.let {
+            configDict["title"] = it
+        }
+        config.display.description?.let {
+            configDict["subtitle"] = it
+        }
+        return configDict
     }
 
     private enum class FeatureNames {

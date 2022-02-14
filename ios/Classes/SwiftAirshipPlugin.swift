@@ -621,12 +621,16 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
         var configDict: Dictionary<String, Any> = [:]
         configDict.updateValue(config.identifier, forKey: "identifier")
         let sections = config.sections
+        
+        var sectionArray: [Any] = []
 
         for section in sections {
             var sectionDict: Dictionary<String, Any> = [:]
             sectionDict.updateValue(section.identifier, forKey: "identifier")
             
             let items = section.items
+            
+            var itemArray: [Any] = []
             
             for item in items {
                 var itemDict: Dictionary<String, Any> = [:]
@@ -644,8 +648,9 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
                     
                     let components = subscriptionItem.components
                     
-                    var componentDict: Dictionary<String, Any> = [:]
+                    var componentArray: [Any] = []
                     for component in components {
+                        var componentDict: Dictionary<String, Any> = [:]
                         componentDict.updateValue(component.scopes.rawValues, forKey: "scopes")
                         
                         if let title = component.display.title {
@@ -654,28 +659,31 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
                         if let subtitle = component.display.subtitle {
                             componentDict.updateValue(subtitle, forKey: "subtitle")
                         }
+                        componentArray.append(componentDict)
                     }
-                    itemDict.updateValue(componentDict, forKey: "components")
+                    itemDict.updateValue(componentArray, forKey: "components")
                 }
-                
-                sectionDict.updateValue(itemDict, forKey: "items")
-                if let display = section.display, let title = display.title {
-                    sectionDict.updateValue(title, forKey: "title")
-                }
-                if let display = section.display, let subtitle = display.subtitle {
-                    sectionDict.updateValue(subtitle, forKey: "subtitle")
-                }
+                itemArray.append(itemDict)
             }
             
-            configDict.updateValue(sectionDict, forKey: "sections")
-            if let display = config.display, let title = display.title {
-                configDict.updateValue(title, forKey: "title")
+            sectionDict.updateValue(itemArray, forKey: "items")
+            if let display = section.display, let title = display.title {
+                sectionDict.updateValue(title, forKey: "title")
             }
-            if let display = config.display, let subtitle = display.subtitle {
-                configDict.updateValue(subtitle, forKey: "subtitle")
+            if let display = section.display, let subtitle = display.subtitle {
+                sectionDict.updateValue(subtitle, forKey: "subtitle")
             }
+            
+            sectionArray.append(sectionDict)
         }
         
+        configDict.updateValue(sectionArray, forKey: "sections")
+        if let display = config.display, let title = display.title {
+            configDict.updateValue(title, forKey: "title")
+        }
+        if let display = config.display, let subtitle = display.subtitle {
+            configDict.updateValue(subtitle, forKey: "subtitle")
+        }
         return configDict
     }
     
