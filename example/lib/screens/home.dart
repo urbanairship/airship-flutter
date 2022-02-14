@@ -13,9 +13,6 @@ class _HomeState extends State<Home> {
   void initState() {
     initAirshipListeners();
     Airship.trackScreen('Home');
-    Airship.getSubscriptionLists(["channel", "contact"]).then((value) {
-      print(value);
-    });
 
     super.initState();
   }
@@ -49,8 +46,6 @@ class _HomeState extends State<Home> {
                         bool pushEnabled = snapshot.data ?? false;
                         enableNotificationsButton = Center (child: NotificationsEnabledButton(onPressed:(){
                           Airship.setUserNotificationsEnabled(true);
-                          var list = Airship.getSubscriptionLists(["channel", "contact"]);
-                          print(list);
                           setState(() {});
                         },)
                         );
