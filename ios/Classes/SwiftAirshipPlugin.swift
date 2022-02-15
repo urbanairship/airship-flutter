@@ -592,7 +592,15 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
         if (subscriptionTypes.contains("contact")) {
             dispatchGroup.enter()
             Airship.contact.fetchSubscriptionLists { lists, error in
-                subscriptionLists["contact"] = lists ?? [:]
+                guard let lists = lists else {
+                    subscriptionLists["contact"] = [:]
+                    dispatchGroup.leave()
+                    return
+                }
+                let listDict = lists.mapValues { value in
+                    return value.values.map { $0.stringValue }
+                }
+                subscriptionLists["contact"] = listDict 
                 dispatchGroup.leave()
             }
         }
