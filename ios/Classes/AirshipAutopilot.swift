@@ -8,7 +8,7 @@ public class AirshipAutopilot: NSObject {
     public static var launchOptions: [UIApplication.LaunchOptionsKey : Any]?
 
     @objc
-    public static func attempTakeOff() {
+    public static func attemptTakeOff() {
         if (Airship.isFlying) {
             return
         }
@@ -28,14 +28,9 @@ public class AirshipAutopilot: NSObject {
         Airship.analytics.registerSDKExtension(SDKExtension.flutter, version: AirshipPluginVersion.pluginVersion)
         Airship.push.defaultPresentationOptions = [.alert]
         AirshipAutopilot.loadCustomNotificationCategories()
-        
         SwiftAirshipPlugin.shared.onAirshipReady()
     }
-    
-    private static func onAirshipReady() {
-       
-    }
-    
+
     private static func loadCustomNotificationCategories() {
         guard let categoriesPath = Bundle.main.path(forResource: "UACustomNotificationCategories", ofType: "plist") else { return }
         let customNotificationCategories = NotificationCategories.createCategories(fromFile: categoriesPath)

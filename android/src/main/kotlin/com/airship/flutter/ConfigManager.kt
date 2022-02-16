@@ -8,17 +8,14 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.urbanairship.AirshipConfigOptions
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.single
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.withContext
 
 class ConfigManager(private val context: Context) {
     companion object {
         private val APP_KEY = stringPreferencesKey("app_key")
         private val APP_SECRET = stringPreferencesKey("app_secret")
-
 
         @SuppressLint("StaticFieldLeak")
         @Volatile
@@ -34,35 +31,31 @@ class ConfigManager(private val context: Context) {
     )
 
     suspend fun updateConfig(appKey: String, appSecret: String) {
-        withContext(Dispatchers.IO) {
-            context.airshipFlutterPluginStore.edit { preferences ->
-                preferences[APP_KEY] = appKey
-                preferences[APP_SECRET] = appSecret
-            }
+        context.airshipFlutterPluginStore.edit { preferences ->
+            preferences[APP_KEY] = appKey
+            preferences[APP_SECRET] = appSecret
         }
     }
 
     val config: Flow<AirshipConfigOptions>
         get() = flow {
-            withContext(Dispatchers.IO) {
-                val appCredentialsOverride =
-                    context.airshipFlutterPluginStore.data.map { preferences ->
-                        Pair(preferences[APP_KEY], preferences[APP_SECRET])
-                    }.single()
+            val appCredentialsOverride =
+                context.airshipFlutterPluginStore.data.map { preferences ->
+                    Pair(preferences[APP_KEY], preferences[APP_SECRET])
+                }.first()
 
-                val config = AirshipConfigOptions.newBuilder()
-                    .applyDefaultProperties(context)
-                    .apply {
-                        if (!(appCredentialsOverride.first.isNullOrEmpty() || appCredentialsOverride.second.isNullOrEmpty())) {
-                            this.setAppKey(appCredentialsOverride.first)
-                                .setAppSecret(appCredentialsOverride.second)
-                                .build()
-                        }
+            val config = AirshipConfigOptions.newBuilder()
+                .applyDefaultProperties(context)
+                .apply {
+                    if (!(appCredentialsOverride.first.isNullOrEmpty() || appCredentialsOverride.second.isNullOrEmpty())) {
+                        this.setAppKey(appCredentialsOverride.first)
+                            .setAppSecret(appCredentialsOverride.second)
+                            .build()
                     }
-                    .build()
+                }
+                .build()
 
-                emit(config)
-            }
+            emit(config)
         }
 }
 

@@ -41,7 +41,6 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
     
     // MARK: - handle methods call
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        
         if (call.method == "takeOff") {
             takeOff(call, result: result)
             return
@@ -158,7 +157,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
         
         PluginConfig.appKey = args["app_key"]
         PluginConfig.appSecret = args["app_secret"]
-        AirshipAutopilot.attempTakeOff()
+        AirshipAutopilot.attemptTakeOff()
         
         result(Airship.isFlying)
     }

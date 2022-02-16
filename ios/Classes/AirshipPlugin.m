@@ -14,7 +14,7 @@
            
            FlutterAirshipAutopilot.launchOptions = note.userInfo;
            
-           [FlutterAirshipAutopilot attempTakeOff];
+           [FlutterAirshipAutopilot attemptTakeOff];
     }];
 }
 @end
