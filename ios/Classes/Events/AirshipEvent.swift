@@ -6,6 +6,7 @@ enum AirshipEventType: String {
     case ChannelRegistration = "CHANNEL_REGISTRATION"
     case InboxUpdated = "INBOX_UPDATED"
     case ShowInbox = "SHOW_INBOX"
+    case ShowPreferenceCenter = "SHOW_PREFERENCE_CENTER"
     case ShowInboxMessage = "SHOW_INBOX_MESSAGE"
     case DeepLink = "DEEP_LINK"
 }

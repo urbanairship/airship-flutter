@@ -4,10 +4,13 @@ import android.graphics.Bitmap
 import android.webkit.WebView
 import android.app.NotificationManager
 import android.content.Context
+import android.content.SharedPreferences
 import android.view.View
 import android.os.Build
 import androidx.core.app.NotificationManagerCompat
 import com.urbanairship.Autopilot
+import com.airship.flutter.events.ShowInboxMessageEvent
+import com.airship.flutter.events.ShowPreferenceCenterEvent
 import com.urbanairship.PendingResult
 import com.urbanairship.PrivacyManager
 import com.urbanairship.UAirship
@@ -57,6 +60,8 @@ private const val ATTRIBUTE_MUTATION_KEY = "key"
 private const val ATTRIBUTE_MUTATION_VALUE = "value"
 private const val ATTRIBUTE_MUTATION_REMOVE = "remove"
 private const val ATTRIBUTE_MUTATION_SET = "set"
+
+private const val AUTO_LAUNCH_PREFERENCE_CENTER_KEY = "auto_launch_pc"
 
 class InboxMessageViewFactory(private val binaryMessenger: BinaryMessenger) : PlatformViewFactory(StandardMessageCodec.INSTANCE) {
     override fun create(context: Context, viewId: Int, arguments: Any?): PlatformView {
@@ -208,6 +213,7 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
             "openPreferenceCenter" -> openPreferenceCenter(call, result)
             "getSubscriptionLists" -> getSubscriptionLists(call, result)
             "getPreferenceCenterConfig" -> getPreferenceCenterConfig(call, result)
+            "setAutoLaunchDefaultPreferenceCenter" -> setAutoLaunchDefaultPreferenceCenter(call, result)
 
             else -> result.notImplemented()
         }
@@ -581,7 +587,15 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
 
     private fun openPreferenceCenter(call: MethodCall, result: Result) {
         val preferenceCenterID = call.arguments as String
-        PreferenceCenter.shared().open(preferenceCenterID)
+
+        val sharedPref: SharedPreferences = context.getSharedPreferences("shared_preferences", Context.MODE_PRIVATE)
+        val enabled = sharedPref.getBoolean(AUTO_LAUNCH_PREFERENCE_CENTER_KEY, true)
+
+        if (enabled) {
+            PreferenceCenter.shared().open(preferenceCenterID)
+        } else {
+            EventManager.shared.notifyEvent(ShowPreferenceCenterEvent(preferenceCenterID))
+        }
         result.success(null)
     }
 
@@ -628,6 +642,15 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
                 result.success(configDict(it))
             }
         }
+    }
+
+    private fun setAutoLaunchDefaultPreferenceCenter(call: MethodCall, result: Result) {
+        val enabled = call.arguments as Boolean
+
+        val sharedPref: SharedPreferences = context.getSharedPreferences("shared_preferences", Context.MODE_PRIVATE)
+        sharedPref.edit().putBoolean(AUTO_LAUNCH_PREFERENCE_CENTER_KEY, enabled)
+
+        result.success(null)
     }
 
     private fun configDict(config: PreferenceCenterConfig): Map<String, Any> {

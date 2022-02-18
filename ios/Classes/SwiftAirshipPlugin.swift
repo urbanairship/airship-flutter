@@ -22,8 +22,11 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
     private let attributeOperationRemove = "remove"
     private let attributeOperationKey = "key"
     private let attributeOperationValue = "value"
-
+    
+    private let autoLaunchPreferenceCenterKey = "auto_launch_pc"
+    
     static let shared = SwiftAirshipPlugin()
+
     let eventHandler = AirshipEventHandler()
     
     public static func register(with registrar: FlutterPluginRegistrar) {
@@ -33,6 +36,29 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
         AirshipEventManager.shared.register(registrar)
 
         registrar.register(AirshipInboxMessageViewFactory(registrar), withId: "com.airship.flutter/InboxMessageView")
+    }
+
+    @objc public static func takeOff(launchOptions: [UIApplication.LaunchOptionsKey : Any]?) {
+        Airship.takeOff(launchOptions: launchOptions)
+        shared.takeOff()
+    }
+    
+    public func takeOff() {
+        UserDefaults.standard.set(true, forKey: autoLaunchPreferenceCenterKey)
+        Airship.push.registrationDelegate = self
+        Airship.shared.deepLinkDelegate = self
+        Airship.push.pushNotificationDelegate = self
+        MessageCenter.shared.displayDelegate = self
+
+        Airship.analytics.registerSDKExtension(SDKExtension.flutter, version: AirshipPluginVersion.pluginVersion)
+
+        Airship.push.defaultPresentationOptions = [.alert]
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(inboxUpdated),
+                                               name: NSNotification.Name.UAInboxMessageListUpdated,
+                                               object: nil)
+
+        self.loadCustomNotificationCategories()
     }
     
     public func onAirshipReady() {
@@ -128,6 +154,8 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             getSubscriptionLists(call, result: result)
         case "getPreferenceCenterConfig":
             getPreferenceCenterConfig(call, result: result)
+        case "setAutoLaunchDefaultPreferenceCenter":
+            setAutoLaunchDefaultPreferenceCenter(call, result: result)
         default:
             result(FlutterError(code:"UNAVAILABLE",
                 message:"Unknown method: \(call.method)",
@@ -568,7 +596,13 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             result(nil)
             return
         }
-        PreferenceCenter.shared.open(preferenceCenterID)
+        
+        if (UserDefaults.standard.bool(forKey: autoLaunchPreferenceCenterKey) == true) {
+            PreferenceCenter.shared.open(preferenceCenterID)
+        } else {
+            let event = AirshipShowPreferenceCenterEvent(preferenceCenterID)
+            AirshipEventManager.shared.notify(event)
+        }
         result(nil)
     }
     
@@ -694,6 +728,15 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             configDict.updateValue(subtitle, forKey: "subtitle")
         }
         return configDict
+    }
+    
+    private func setAutoLaunchDefaultPreferenceCenter(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let enabled = call.arguments as? Bool else {
+            result(nil)
+            return
+        }
+        
+        UserDefaults.standard.set(enabled, forKey: autoLaunchPreferenceCenterKey)
     }
     
     private enum CloudSiteNames : String {

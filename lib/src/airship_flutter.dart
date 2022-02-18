@@ -437,6 +437,11 @@ class Airship {
         .map((dynamic value) => jsonDecode(value) as String?);
   }
 
+  static Stream<String?> get onShowPreferenceCenter {
+    return _getEventStream("SHOW_PREFERENCE_CENTER")!
+        .map((dynamic value) => jsonDecode(value) as String?);
+  }
+
   static Stream<PushReceivedEvent> get onPushReceived {
     return _getEventStream("PUSH_RECEIVED")!
         .map((dynamic value) => PushReceivedEvent._fromJson(jsonDecode(value)));
@@ -533,6 +538,10 @@ class Airship {
   static Future<PreferenceCenterConfig> getPreferenceCenterConfig(String preferenceCenterID) async {
     var config = await _channel.invokeMethod('getPreferenceCenterConfig', preferenceCenterID);
     return PreferenceCenterConfig._fromJson(Map<String, dynamic>.from(config));
+  }
+
+  static Future<void> setAutoLaunchDefaultPreferenceCenter(bool enabled) async {
+    return await _channel.invokeMethod('setAutoLaunchDefaultPreferenceCenter');
   }
 }
 
