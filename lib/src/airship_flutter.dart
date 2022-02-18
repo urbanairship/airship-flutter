@@ -66,6 +66,171 @@ class Notification {
   }
 }
 
+class PreferenceCenterConfig {
+  final String identifier;
+  final String? title;
+  final String? subtitle;
+  final List<PreferenceCenterSection>? sections;
+
+  const PreferenceCenterConfig._internal(
+      this.identifier, this.title, this.subtitle, this.sections);
+
+  static PreferenceCenterConfig _fromJson(Map<String, dynamic> json) {
+    var identifier = json["identifier"];
+    var title = json["title"];
+    var subtitle = json["subtitle"];
+    var sections = <PreferenceCenterSection>[];
+    var sectionList = List<dynamic>.from(json["sections"]);
+    if (json["sections"] != null) {
+      sectionList.forEach((section) =>
+          sections.add(PreferenceCenterSection._fromJson(Map<String, dynamic>.from(section)))
+      );
+    }
+
+    return PreferenceCenterConfig._internal(
+        identifier, title, subtitle, sections);
+  }
+
+  @override
+  String toString() {
+    return "PreferenceCenterConfig(identifier=$identifier, title=$title, subtitle=$subtitle, sections=$sections)";
+  }
+}
+
+class PreferenceCenterSection {
+  final String identifier;
+  final String? title;
+  final String? subtitle;
+  final List<PreferenceCenterItem>? items;
+
+  const PreferenceCenterSection._internal(
+      this.identifier, this.title, this.subtitle, this.items);
+
+  static PreferenceCenterSection _fromJson(Map<String, dynamic> json) {
+    var identifier = json["identifier"];
+    var title = json["title"];
+    var subtitle = json["subtitle"];
+    var items = <PreferenceCenterItem>[];
+    var itemList = List<dynamic>.from(json["items"]);
+    if (json["items"] != null) {
+      itemList.forEach((item) =>
+          items.add(PreferenceCenterItem._fromJson(Map<String, dynamic>.from(item)))
+      );
+    }
+
+    return PreferenceCenterSection._internal(
+        identifier, title, subtitle, items);
+  }
+
+  @override
+  String toString() {
+    return "PreferenceCenterSection(identifier=$identifier, title=$title, subtitle=$subtitle, items=$items)";
+  }
+}
+
+class PreferenceCenterItem {
+  final String identifier;
+  final String? subscriptionId;
+  final String? title;
+  final String? subtitle;
+  final String? type;
+  final List<PreferenceCenterComponent>? components;
+
+  const PreferenceCenterItem._internal(
+      this.identifier, this.subscriptionId,  this.title, this.subtitle, this.type, this.components);
+
+  static PreferenceCenterItem _fromJson(Map<String, dynamic> json) {
+    var identifier = json["identifier"];
+    var subscriptionId = json["subscription_id"];
+    var title = json["title"];
+    var subtitle = json["subtitle"];
+    var type = json["type"];
+    var components = <PreferenceCenterComponent>[];
+    var componentList = List<dynamic>.from(json["components"]);
+    if (json["components"] != null) {
+      componentList.forEach((component) =>
+          components.add(PreferenceCenterComponent._fromJson(Map<String, dynamic>.from(component)))
+      );
+    }
+
+    return PreferenceCenterItem._internal(
+        identifier, subscriptionId, title, subtitle, type, components);
+  }
+
+  @override
+  String toString() {
+    return "PreferenceCenterItem(identifier=$identifier, subscriptionId=$subscriptionId, title=$title, subtitle=$subtitle, type=$type, components=$components)";
+  }
+}
+
+class PreferenceCenterComponent {
+  final String? title;
+  final String? subtitle;
+  final List<String>? scopes;
+
+  const PreferenceCenterComponent._internal(
+      this.title, this.subtitle, this.scopes);
+
+  static PreferenceCenterComponent _fromJson(Map<String, dynamic> json) {
+    var title = json["title"];
+    var subtitle = json["subtitle"];
+    var scopes = <String>[];
+    if (json["scopes"] != null) {
+      var scopes = List<String>.from(json["scopes"]);
+    }
+
+    return PreferenceCenterComponent._internal(
+        title, subtitle, scopes);
+  }
+
+  @override
+  String toString() {
+    return "PreferenceCenterComponent(title=$title, subtitle=$subtitle, scopes=$scopes)";
+  }
+}
+
+class SubscriptionList {
+  final List<String>? channelSubscriptionLists;
+  final List<ContactSubscriptionList>? contactSubscriptionLists;
+
+  const SubscriptionList._internal(this.channelSubscriptionLists, this.contactSubscriptionLists);
+
+  static SubscriptionList _fromJson(Map<String, dynamic> json) {
+    var channelSubscriptionLists = <String>[];
+    if (json["channel"] != null) {
+      channelSubscriptionLists = List<String>.from(json["channel"]);
+    }
+    var contactSubscriptionLists = <ContactSubscriptionList>[];
+    if (json["contact"] != null) {
+      var lists = Map<String, dynamic>.from(json["contact"]);
+      lists.forEach((k, v) => contactSubscriptionLists.add(ContactSubscriptionList._fromJson(k,List<String>.from(v))));
+    }
+
+    return SubscriptionList._internal(channelSubscriptionLists, contactSubscriptionLists);
+  }
+
+  @override
+  String toString() {
+    return "SubscriptionList(channelSubscriptionLists=$channelSubscriptionLists, contactSubscriptionLists=$contactSubscriptionLists)";
+  }
+}
+
+class ContactSubscriptionList {
+  final String identifier;
+  final List<String> scopes;
+
+  const ContactSubscriptionList._internal(this.identifier, this.scopes);
+
+  static ContactSubscriptionList _fromJson(String identifier, List<String> scopes) {
+    return ContactSubscriptionList._internal(identifier, scopes);
+  }
+
+  @override
+  String toString() {
+    return "ContactSubscriptionList(identifier=$identifier, scopes=$scopes)";
+  }
+}
+
 class NotificationResponseEvent {
   final String? actionId;
   final bool? isForeground;
@@ -360,14 +525,14 @@ class Airship {
     return await _channel.invokeMethod('openPreferenceCenter', preferenceCenterID);
   }
 
-  static Future<Map<String, dynamic>> getSubscriptionLists(List<String> subscriptionListTypes) async {
+  static Future<SubscriptionList> getSubscriptionLists(List<String> subscriptionListTypes) async {
     var lists = await (_channel.invokeMethod("getSubscriptionLists", subscriptionListTypes));
-    return Map<String, dynamic>.from(lists);
+    return SubscriptionList._fromJson(Map<String, dynamic>.from(lists));
   }
 
-  static Future<Map<String, dynamic>> getPreferenceCenterConfig(String preferenceCenterID) async {
+  static Future<PreferenceCenterConfig> getPreferenceCenterConfig(String preferenceCenterID) async {
     var config = await _channel.invokeMethod('getPreferenceCenterConfig', preferenceCenterID);
-    return Map<String, dynamic>.from(config);
+    return PreferenceCenterConfig._fromJson(Map<String, dynamic>.from(config));
   }
 }
 

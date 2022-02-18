@@ -600,7 +600,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
                 let listDict = lists.mapValues { value in
                     return value.values.map { $0.stringValue }
                 }
-                subscriptionLists["contact"] = listDict 
+                subscriptionLists["contact"] = listDict
                 dispatchGroup.leave()
             }
         }
@@ -643,6 +643,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             for item in items {
                 var itemDict: Dictionary<String, Any> = [:]
                 itemDict.updateValue(item.identifier, forKey: "identifier")
+                itemDict.updateValue(item.itemType.description, forKey: "type")
                 
                 if (item.itemType == .channelSubscription) {
                     let subscriptionItem = item as! ChannelSubscriptionItem
@@ -659,7 +660,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
                     var componentArray: [Any] = []
                     for component in components {
                         var componentDict: Dictionary<String, Any> = [:]
-                        componentDict.updateValue(component.scopes.rawValues, forKey: "scopes")
+                        componentDict.updateValue(component.scopes.values.map {$0.stringValue}, forKey: "scopes")
                         
                         if let title = component.display.title {
                             componentDict.updateValue(title, forKey: "title")

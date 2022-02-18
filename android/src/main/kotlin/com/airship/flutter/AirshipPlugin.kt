@@ -8,6 +8,7 @@ import android.view.View
 import android.os.Build
 import androidx.core.app.NotificationManagerCompat
 import com.urbanairship.Autopilot
+import com.urbanairship.PendingResult
 import com.urbanairship.PrivacyManager
 import com.urbanairship.UAirship
 import com.urbanairship.analytics.CustomEvent
@@ -16,6 +17,7 @@ import com.urbanairship.json.JsonMap
 import com.urbanairship.json.JsonValue
 import com.urbanairship.channel.TagGroupsEditor
 import com.urbanairship.channel.AttributeEditor
+import com.urbanairship.contacts.Scope
 import com.urbanairship.messagecenter.MessageCenter
 import com.urbanairship.util.DateUtils
 import com.urbanairship.util.UAStringUtil
@@ -37,6 +39,11 @@ import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.platform.PlatformViewRegistry
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.toList
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 private const val TAG_OPERATION_GROUP_NAME = "group"
 private const val TAG_OPERATION_TYPE = "operationType"
@@ -129,6 +136,8 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
     private lateinit var channel : MethodChannel
 
     private lateinit var context: Context
+
+    val scope: CoroutineScope = CoroutineScope(Dispatchers.Main)
 
     companion object {
         @JvmStatic
@@ -572,32 +581,42 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
 
     private fun openPreferenceCenter(call: MethodCall, result: Result) {
         val preferenceCenterID = call.arguments as String
-        PreferenceCenter.shared().open(preferenceCenterId = preferenceCenterID)
+        PreferenceCenter.shared().open(preferenceCenterID)
         result.success(null)
     }
 
     private fun getSubscriptionLists(call: MethodCall, result: Result) {
+
         val subscriptionTypes = call.arguments as List<String>
 
         val subscriptionLists = mutableMapOf<String, Any>()
 
-        if (subscriptionTypes.contains("channel")) {
-            val channelSubscriptionPendingResult = UAirship.shared().channel.getSubscriptionLists(true)
-            channelSubscriptionPendingResult.addResultCallback {
-                it?.let {
-                    subscriptionLists["channel"] = it
+        scope.launch {
+            val r1 = UAirship.shared().contact.getSubscriptionLists(true)
+            suspendCoroutine<Unit> { continuation ->
+                r1.addResultCallback {
+                    if (it != null) {
+                        val map = mutableMapOf<String, Any>()
+                        for (list in it) {
+                            val values = list.value.toList()
+                            map[list.key] = values.map {it.toString()}
+                        }
+                        subscriptionLists["contact"] = map
+                    }
+                    continuation.resume(Unit)
                 }
             }
-        }
-        if (subscriptionTypes.contains("contact")) {
-            val contactSubscriptionPendingResult = UAirship.shared().contact.getSubscriptionLists(true)
-            contactSubscriptionPendingResult.addResultCallback {
-                it?.let {
-                    subscriptionLists["contact"] = it
+            val r2 = UAirship.shared().channel.getSubscriptionLists(true)
+            suspendCoroutine<Unit> { continuation ->
+                r2.addResultCallback {
+                    if (it != null) {
+                        subscriptionLists["channel"] = it.toList()
+                    }
+                    continuation.resume(Unit)
                 }
             }
+            result.success(subscriptionLists)
         }
-        result.success(subscriptionLists)
     }
 
     private fun getPreferenceCenterConfig(call: MethodCall, result: Result) {
@@ -631,12 +650,15 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
                 if (item is Item.ChannelSubscription) {
                     val channelSubItem = item as Item.ChannelSubscription
                     itemDict["subscription_id"] = channelSubItem.subscriptionId
+                    itemDict["type"] = "channel_subscrtiption"
                 } else if (item is Item.ContactSubscription) {
                     val contactSubItem = item as Item.ContactSubscription
                     itemDict["subscription_id"] = contactSubItem.subscriptionId
+                    itemDict["type"] = "contact_subscrtiption"
                 } else if (item is Item.ContactSubscriptionGroup) {
                     val contactGroupSubItem = item as Item.ContactSubscriptionGroup
                     itemDict["subscription_id"] = contactGroupSubItem.subscriptionId
+                    itemDict["type"] = "contact_subscrtiption_group"
 
                     val components = contactGroupSubItem.components
 
@@ -644,7 +666,7 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
 
                     for (component in components) {
                         val componentDict = mutableMapOf<String, Any>()
-                        componentDict["scopes"] = component.scopes
+                        componentDict["scopes"] = component.scopes.map { it.toString() }
                         component.display.name?.let {
                             componentDict["title"] = it
                         }
