@@ -52,4 +52,5 @@ dependencies {
     implementation "com.urbanairship.android:urbanairship-message-center:$airship_version"
     implementation "com.urbanairship.android:urbanairship-automation:$airship_version"
     implementation "com.urbanairship.android:urbanairship-preference-center:$airship_version"
+    implementation "androidx.datastore:datastore-preferences:1.0.0"
 }

@@ -12,7 +12,9 @@
                                                          object:nil
                                                           queue:nil usingBlock:^(NSNotification * _Nonnull note) {
            
-           [SwiftAirshipPlugin takeOffWithLaunchOptions:note.userInfo];
+           FlutterAirshipAutopilot.launchOptions = note.userInfo;
+           
+           [FlutterAirshipAutopilot attemptTakeOff];
     }];
 }
 @end

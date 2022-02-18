@@ -5,10 +5,10 @@ class AirshipEventManager {
 
     static let shared = AirshipEventManager()
 
-    let streams: [AirshipEventType:AirshipEventStream]
+    let streams: [AirshipEventType: AirshipEventStream]
 
     init() {
-        var streams: [AirshipEventType:AirshipEventStream] = [:]
+        var streams: [AirshipEventType: AirshipEventStream] = [:]
 
         AirshipEventType.allCases.forEach { (eventType) in
             streams[eventType] = AirshipEventStream(eventType)

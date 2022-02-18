@@ -155,6 +155,14 @@ class Airship {
     return _eventStreams[eventType];
   }
 
+  static Future<bool> takeOff(String appKey, String appSecret) async {
+    Map<String, String> args = {
+      "app_key": appKey,
+      "app_secret": appSecret
+    };
+    return await _channel.invokeMethod('takeOff', args);
+  }
+
   static Future<String?> get channelId async {
     return await _channel.invokeMethod('getChannelId');
   }

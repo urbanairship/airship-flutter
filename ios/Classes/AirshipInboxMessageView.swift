@@ -57,14 +57,27 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView, NativeBridgeDeleg
         default:
             result(FlutterError(code:"UNAVAILABLE",
                                 message:"Unknown method: \(call.method)",
-                details:nil))
+                                details:nil))
         }
     }
 
     private func loadMessage(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         webviewResult = result
         channel.invokeMethod("onLoadStarted", arguments: nil)
-        let messageId = call.arguments as! String
+        guard let messageId = call.arguments as? String else {
+            result(FlutterError(code: "InvalidArgument",
+                                message: "Must be a message ID",
+                                details:nil))
+            return
+        }
+        
+        guard Airship.isFlying else {
+            result(FlutterError(code: "AIRSHIP_GROUNDED",
+                                message: "Takeoff not called.",
+                                details: nil))
+            return
+        }
+        
         if let message = MessageCenter.shared.messageList.message(forID: messageId) {
             var request = URLRequest(url: message.messageBodyURL)
             let user = MessageCenter.shared.user

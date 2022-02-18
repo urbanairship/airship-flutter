@@ -12,12 +12,21 @@ import com.urbanairship.push.*
 import com.urbanairship.push.notifications.AirshipNotificationProvider
 import com.urbanairship.push.notifications.NotificationArguments
 import androidx.annotation.XmlRes
+import com.urbanairship.AirshipConfigOptions
 import com.urbanairship.analytics.Analytics
 import com.urbanairship.channel.AirshipChannelListener
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.single
+import kotlinx.coroutines.flow.singleOrNull
+import kotlinx.coroutines.runBlocking
 
 const val PUSH_MESSAGE_BUNDLE_EXTRA = "com.urbanairship.push_bundle"
 
 class FlutterAutopilot : Autopilot() {
+    var config: AirshipConfigOptions? = null
+
     override fun onAirshipReady(airship: UAirship) {
         super.onAirshipReady(airship)
 
@@ -115,4 +124,21 @@ class FlutterAutopilot : Autopilot() {
     }
 
     private fun post(event: Event) = EventManager.shared.notifyEvent(event)
+
+    override fun isReady(context: Context): Boolean {
+        val config = runBlocking(Dispatchers.IO) {
+            ConfigManager.shared(context).config.first()
+        }
+
+        return if (config.isValid()) {
+            this.config = config
+            true
+        } else {
+            false
+        }
+    }
+
+    override fun createAirshipConfigOptions(context: Context): AirshipConfigOptions? {
+        return config
+    }
 }
