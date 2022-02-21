@@ -37,29 +37,6 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
 
         registrar.register(AirshipInboxMessageViewFactory(registrar), withId: "com.airship.flutter/InboxMessageView")
     }
-
-    @objc public static func takeOff(launchOptions: [UIApplication.LaunchOptionsKey : Any]?) {
-        Airship.takeOff(launchOptions: launchOptions)
-        shared.takeOff()
-    }
-    
-    public func takeOff() {
-        UserDefaults.standard.set(true, forKey: autoLaunchPreferenceCenterKey)
-        Airship.push.registrationDelegate = self
-        Airship.shared.deepLinkDelegate = self
-        Airship.push.pushNotificationDelegate = self
-        MessageCenter.shared.displayDelegate = self
-
-        Airship.analytics.registerSDKExtension(SDKExtension.flutter, version: AirshipPluginVersion.pluginVersion)
-
-        Airship.push.defaultPresentationOptions = [.alert]
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(inboxUpdated),
-                                               name: NSNotification.Name.UAInboxMessageListUpdated,
-                                               object: nil)
-
-        self.loadCustomNotificationCategories()
-    }
     
     public func onAirshipReady() {
         eventHandler.register()
@@ -752,6 +729,8 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             }
         }
     }
+}
+
 
 public enum FeatureNames : String, CaseIterable {
     case push = "FEATURE_PUSH"
