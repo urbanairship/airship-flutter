@@ -176,7 +176,7 @@ class PreferenceCenterComponent {
     var subtitle = json["subtitle"];
     var scopes = <String>[];
     if (json["scopes"] != null) {
-      var scopes = List<String>.from(json["scopes"]);
+      scopes = List<String>.from(json["scopes"]);
     }
 
     return PreferenceCenterComponent._internal(
