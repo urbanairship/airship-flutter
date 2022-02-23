@@ -360,12 +360,14 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
     }
 
     private func setNamedUser(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let namedUser = call.arguments as? String else {
+        let namedUser = call.arguments as? String
+        
+        if let namedUser = namedUser, !namedUser.isEmpty {
+            Airship.contact.identify(namedUser)
+        } else {
             Airship.contact.reset()
-            result(nil)
-            return
         }
-        Airship.contact.identify(namedUser)
+
         result(nil)
     }
 
