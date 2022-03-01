@@ -388,7 +388,7 @@ class Airship {
     return TagGroupEditor('editNamedUserTagGroups', _channel);
   }
 
-  static Future<void> setNamedUser(String namedUser) async {
+  static Future<void> setNamedUser(String? namedUser) async {
     return await _channel.invokeMethod('setNamedUser', namedUser);
   }
 
