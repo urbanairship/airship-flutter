@@ -394,12 +394,18 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
     }
 
     private fun setNamedUser(call: MethodCall, result: Result) {
-        UAirship.shared().namedUser.id = call.arguments as String?
+        val arg = call.arguments as String?
+        if (arg.isNullOrEmpty()) {
+            UAirship.shared().contact.reset()
+        } else {
+            UAirship.shared().contact.identify(arg)
+        }
+
         result.success(null)
     }
 
     private fun getNamedUser(result: Result) {
-        result.success(UAirship.shared().namedUser.id)
+        result.success(UAirship.shared().contact.namedUserId)
     }
 
     private fun setUserNotificationsEnabled(call: MethodCall, result: Result) {
