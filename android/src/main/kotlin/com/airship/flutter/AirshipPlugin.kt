@@ -600,35 +600,27 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
     }
 
     private fun getSubscriptionLists(call: MethodCall, result: Result) {
-
-        val subscriptionTypes = call.arguments as List<String>
-
-        val subscriptionLists = mutableMapOf<String, Any>()
-
-        scope.launch {
-            val r1 = UAirship.shared().contact.getSubscriptionLists(true)
-            suspendCoroutine<Unit> { continuation ->
-                r1.addResultCallback {
-                    if (it != null) {
-                        val map = mutableMapOf<String, Any>()
-                        for (list in it) {
-                            val values = list.value.toList()
-                            map[list.key] = values.map {it.toString()}
-                        }
-                        subscriptionLists["contact"] = map
-                    }
-                    continuation.resume(Unit)
+        scope.launch(Dispatchers.Main) {
+            val subscriptionLists = withContext(Dispatchers.IO) {
+                val channelSubs = async {
+                    UAirship.shared().channel.getSubscriptionLists(true).get()
+                        ?.toList()
+                        ?: emptyList()
                 }
-            }
-            val r2 = UAirship.shared().channel.getSubscriptionLists(true)
-            suspendCoroutine<Unit> { continuation ->
-                r2.addResultCallback {
-                    if (it != null) {
-                        subscriptionLists["channel"] = it.toList()
-                    }
-                    continuation.resume(Unit)
+                val contactSubs = async {
+                    UAirship.shared().contact.getSubscriptionLists(true).get()
+                        ?.mapValues { it.value.map(Scope::toString) }
+                        ?: emptyMap()
                 }
+
+                // Block until both requests complete and return a map
+                mapOf(
+                    "channel" to channelSubs.await(),
+                    "contact" to contactSubs.await()
+                )
             }
+
+            // Callback on main dispatcher with result
             result.success(subscriptionLists)
         }
     }

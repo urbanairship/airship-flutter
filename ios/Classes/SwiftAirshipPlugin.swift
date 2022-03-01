@@ -23,7 +23,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
     private let attributeOperationKey = "key"
     private let attributeOperationValue = "value"
     
-    private let autoLaunchPreferenceCenterKey = "auto_launch_pc"
+    let autoLaunchPreferenceCenterKey = "auto_launch_pc"
     
     static let shared = SwiftAirshipPlugin()
 
