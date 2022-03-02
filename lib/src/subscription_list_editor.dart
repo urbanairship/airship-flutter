@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 
 class SubscriptionListEditor {
-  static const SUBSCRIPTIONLIST_OPERATION_ID = "listid";
+  static const SUBSCRIPTIONLIST_OPERATION_ID = "listId";
   static const SUBSCRIPTIONLIST_OPERATION_TYPE = "type";
   static const SUBSCRIPTIONLIST_OPERATION_SUBSCRIBE = "subscribe";
   static const SUBSCRIPTIONLIST_OPERATION_UNSUBSCRIBE = "unsubscribe";
