@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:airship_flutter/src/attribute_editor.dart';
 import 'package:flutter/services.dart';
 import 'custom_event.dart';
 import 'tag_group_editor.dart';
+import 'preference_center_config.dart';
+import 'attribute_editor.dart';
+import 'channel_scope.dart';
 
 class InboxMessage {
   final String? title;
@@ -63,129 +65,6 @@ class Notification {
   @override
   String toString() {
     return "Notification(notificationId=$notificationId, alert=$alert, title=$title, subtitle=$subtitle, extras=$extras)";
-  }
-}
-
-class PreferenceCenterConfig {
-  final String identifier;
-  final String? title;
-  final String? subtitle;
-  final List<PreferenceCenterSection>? sections;
-
-  const PreferenceCenterConfig._internal(
-      this.identifier, this.title, this.subtitle, this.sections);
-
-  static PreferenceCenterConfig _fromJson(Map<String, dynamic> json) {
-    var identifier = json["identifier"];
-    var title = json["title"];
-    var subtitle = json["subtitle"];
-    var sections = <PreferenceCenterSection>[];
-    var sectionList = List<dynamic>.from(json["sections"]);
-    if (json["sections"] != null) {
-      sectionList.forEach((section) =>
-          sections.add(PreferenceCenterSection._fromJson(Map<String, dynamic>.from(section)))
-      );
-    }
-
-    return PreferenceCenterConfig._internal(
-        identifier, title, subtitle, sections);
-  }
-
-  @override
-  String toString() {
-    return "PreferenceCenterConfig(identifier=$identifier, title=$title, subtitle=$subtitle, sections=$sections)";
-  }
-}
-
-class PreferenceCenterSection {
-  final String identifier;
-  final String? title;
-  final String? subtitle;
-  final List<PreferenceCenterItem>? items;
-
-  const PreferenceCenterSection._internal(
-      this.identifier, this.title, this.subtitle, this.items);
-
-  static PreferenceCenterSection _fromJson(Map<String, dynamic> json) {
-    var identifier = json["identifier"];
-    var title = json["title"];
-    var subtitle = json["subtitle"];
-    var items = <PreferenceCenterItem>[];
-    var itemList = List<dynamic>.from(json["items"]);
-    if (json["items"] != null) {
-      itemList.forEach((item) =>
-          items.add(PreferenceCenterItem._fromJson(Map<String, dynamic>.from(item)))
-      );
-    }
-
-    return PreferenceCenterSection._internal(
-        identifier, title, subtitle, items);
-  }
-
-  @override
-  String toString() {
-    return "PreferenceCenterSection(identifier=$identifier, title=$title, subtitle=$subtitle, items=$items)";
-  }
-}
-
-class PreferenceCenterItem {
-  final String identifier;
-  final String? subscriptionId;
-  final String? title;
-  final String? subtitle;
-  final String? type;
-  final List<PreferenceCenterComponent>? components;
-
-  const PreferenceCenterItem._internal(
-      this.identifier, this.subscriptionId,  this.title, this.subtitle, this.type, this.components);
-
-  static PreferenceCenterItem _fromJson(Map<String, dynamic> json) {
-    var identifier = json["identifier"];
-    var subscriptionId = json["subscription_id"];
-    var title = json["title"];
-    var subtitle = json["subtitle"];
-    var type = json["type"];
-    var components = <PreferenceCenterComponent>[];
-    var componentList = List<dynamic>.from(json["components"]);
-    if (json["components"] != null) {
-      componentList.forEach((component) =>
-          components.add(PreferenceCenterComponent._fromJson(Map<String, dynamic>.from(component)))
-      );
-    }
-
-    return PreferenceCenterItem._internal(
-        identifier, subscriptionId, title, subtitle, type, components);
-  }
-
-  @override
-  String toString() {
-    return "PreferenceCenterItem(identifier=$identifier, subscriptionId=$subscriptionId, title=$title, subtitle=$subtitle, type=$type, components=$components)";
-  }
-}
-
-class PreferenceCenterComponent {
-  final String? title;
-  final String? subtitle;
-  final List<String>? scopes;
-
-  const PreferenceCenterComponent._internal(
-      this.title, this.subtitle, this.scopes);
-
-  static PreferenceCenterComponent _fromJson(Map<String, dynamic> json) {
-    var title = json["title"];
-    var subtitle = json["subtitle"];
-    var scopes = <String>[];
-    if (json["scopes"] != null) {
-      scopes = List<String>.from(json["scopes"]);
-    }
-
-    return PreferenceCenterComponent._internal(
-        title, subtitle, scopes);
-  }
-
-  @override
-  String toString() {
-    return "PreferenceCenterComponent(title=$title, subtitle=$subtitle, scopes=$scopes)";
   }
 }
 
@@ -535,9 +414,9 @@ class Airship {
     return SubscriptionList._fromJson(Map<String, dynamic>.from(lists));
   }
 
-  static Future<PreferenceCenterConfig> getPreferenceCenterConfig(String preferenceCenterID) async {
+  static Future<PreferenceCenterConfig?> getPreferenceCenterConfig(String preferenceCenterID) async {
     var config = await _channel.invokeMethod('getPreferenceCenterConfig', preferenceCenterID);
-    return PreferenceCenterConfig._fromJson(Map<String, dynamic>.from(config));
+    return PreferenceCenterConfig.fromJson(jsonDecode(config));
   }
 
   static Future<void> setAutoLaunchDefaultPreferenceCenter(bool enabled) async {
