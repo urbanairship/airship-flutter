@@ -373,12 +373,14 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
     }
 
     private func setNamedUser(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let namedUser = call.arguments as? String else {
+        let namedUser = call.arguments as? String
+        
+        if let namedUser = namedUser, !namedUser.isEmpty {
+            Airship.contact.identify(namedUser)
+        } else {
             Airship.contact.reset()
-            result(nil)
-            return
         }
-        Airship.contact.identify(namedUser)
+
         result(nil)
     }
 
@@ -689,86 +691,19 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             return
         }
         
-        PreferenceCenter.shared.config(preferenceCenterID: preferenceCenterID) { config in
-            guard let config = config else {
-                result(nil)
-                return
-            }
-            result(self.configDict(config:config))
+        var disposable: Disposable?
+        let remoteData = Airship.requireComponent(ofType: RemoteDataManager.self)
+        disposable = remoteData.subscribe(types: ["preference_forms"]) { payloads in
+            let data = payloads.first?.data["preference_forms"] as? [[String : Any]]
+            let config = data?
+                .compactMap { $0["form"] as? [String : Any] }
+                .first(where: { $0["id"] as? String == preferenceCenterID})
+            
+            disposable?.dispose()
+            result(JSONUtils.string(config ?? [:]))
         }
     }
-    
-    private func configDict(config: PreferenceCenterConfig) -> Dictionary<String, Any> {
-        var configDict: Dictionary<String, Any> = [:]
-        configDict.updateValue(config.identifier, forKey: "identifier")
-        let sections = config.sections
-        
-        var sectionArray: [Any] = []
 
-        for section in sections {
-            var sectionDict: Dictionary<String, Any> = [:]
-            sectionDict.updateValue(section.identifier, forKey: "identifier")
-            
-            let items = section.items
-            
-            var itemArray: [Any] = []
-            
-            for item in items {
-                var itemDict: Dictionary<String, Any> = [:]
-                itemDict.updateValue(item.identifier, forKey: "identifier")
-                itemDict.updateValue(item.itemType.description, forKey: "type")
-                
-                if (item.itemType == .channelSubscription) {
-                    let subscriptionItem = item as! ChannelSubscriptionItem
-                    itemDict.updateValue(subscriptionItem.subscriptionID, forKey:"subscription_id")
-                } else if (item.itemType == .contactSubscription) {
-                    let subscriptionItem = item as! ContactSubscriptionItem
-                    itemDict.updateValue(subscriptionItem.subscriptionID, forKey:"subscription_id")
-                } else if (item.itemType == .contactSubscriptionGroup) {
-                    let subscriptionItem = item as! ContactSubscriptionGroupItem
-                    itemDict.updateValue(subscriptionItem.subscriptionID, forKey:"subscription_id")
-                    
-                    let components = subscriptionItem.components
-                    
-                    var componentArray: [Any] = []
-                    for component in components {
-                        var componentDict: Dictionary<String, Any> = [:]
-                        componentDict.updateValue(component.scopes.values.map {$0.stringValue}, forKey: "scopes")
-                        
-                        if let title = component.display.title {
-                            componentDict.updateValue(title, forKey: "title")
-                        }
-                        if let subtitle = component.display.subtitle {
-                            componentDict.updateValue(subtitle, forKey: "subtitle")
-                        }
-                        componentArray.append(componentDict)
-                    }
-                    itemDict.updateValue(componentArray, forKey: "components")
-                }
-                itemArray.append(itemDict)
-            }
-            
-            sectionDict.updateValue(itemArray, forKey: "items")
-            if let display = section.display, let title = display.title {
-                sectionDict.updateValue(title, forKey: "title")
-            }
-            if let display = section.display, let subtitle = display.subtitle {
-                sectionDict.updateValue(subtitle, forKey: "subtitle")
-            }
-            
-            sectionArray.append(sectionDict)
-        }
-        
-        configDict.updateValue(sectionArray, forKey: "sections")
-        if let display = config.display, let title = display.title {
-            configDict.updateValue(title, forKey: "title")
-        }
-        if let display = config.display, let subtitle = display.subtitle {
-            configDict.updateValue(subtitle, forKey: "subtitle")
-        }
-        return configDict
-    }
-    
     private func setAutoLaunchDefaultPreferenceCenter(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         guard let enabled = call.arguments as? Bool else {
             result(nil)

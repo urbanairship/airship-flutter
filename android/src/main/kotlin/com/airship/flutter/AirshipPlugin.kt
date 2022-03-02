@@ -1,35 +1,35 @@
 package com.airship.flutter
 
-import android.graphics.Bitmap
-import android.webkit.WebView
+import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.content.Context
 import android.content.SharedPreferences
-import android.view.View
+import android.graphics.Bitmap
 import android.os.Build
+import android.view.View
+import android.webkit.WebView
 import androidx.core.app.NotificationManagerCompat
-import com.urbanairship.Autopilot
-import com.airship.flutter.events.ShowInboxMessageEvent
 import com.airship.flutter.events.ShowPreferenceCenterEvent
-import com.urbanairship.PendingResult
+import com.urbanairship.Autopilot
 import com.urbanairship.PrivacyManager
 import com.urbanairship.UAirship
 import com.urbanairship.analytics.CustomEvent
 import com.urbanairship.automation.InAppAutomation
+import com.urbanairship.channel.AttributeEditor
+import com.urbanairship.channel.TagGroupsEditor
+import com.urbanairship.contacts.Scope
 import com.urbanairship.json.JsonMap
 import com.urbanairship.json.JsonValue
-import com.urbanairship.channel.TagGroupsEditor
-import com.urbanairship.channel.AttributeEditor
-import com.urbanairship.contacts.Scope
 import com.urbanairship.messagecenter.MessageCenter
-import com.urbanairship.util.DateUtils
-import com.urbanairship.util.UAStringUtil
 import com.urbanairship.messagecenter.webkit.MessageWebView
 import com.urbanairship.messagecenter.webkit.MessageWebViewClient
 import com.urbanairship.preferencecenter.PreferenceCenter
-import com.urbanairship.preferencecenter.data.Item
-import com.urbanairship.preferencecenter.data.PreferenceCenterConfig
-import java.lang.NumberFormatException
+import com.urbanairship.reactive.Observable
+import com.urbanairship.reactive.Subscriber
+import com.urbanairship.util.DateUtils
+import com.urbanairship.util.UAStringUtil
+import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -38,15 +38,8 @@ import io.flutter.plugin.common.PluginRegistry.Registrar
 import io.flutter.plugin.common.StandardMessageCodec
 import io.flutter.plugin.platform.PlatformView
 import io.flutter.plugin.platform.PlatformViewFactory
-import io.flutter.embedding.engine.plugins.FlutterPlugin
-import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.platform.PlatformViewRegistry
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.toList
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 
 private const val TAG_OPERATION_GROUP_NAME = "group"
 private const val TAG_OPERATION_TYPE = "operationType"
@@ -142,7 +135,7 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
 
     private lateinit var context: Context
 
-    val scope: CoroutineScope = CoroutineScope(Dispatchers.Main)
+    val scope: CoroutineScope = CoroutineScope(Dispatchers.Main) + SupervisorJob()
 
     companion object {
         @JvmStatic
@@ -413,12 +406,18 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
     }
 
     private fun setNamedUser(call: MethodCall, result: Result) {
-        UAirship.shared().namedUser.id = call.arguments as String?
+        val arg = call.arguments as String?
+        if (arg.isNullOrEmpty()) {
+            UAirship.shared().contact.reset()
+        } else {
+            UAirship.shared().contact.identify(arg)
+        }
+
         result.success(null)
     }
 
     private fun getNamedUser(result: Result) {
-        result.success(UAirship.shared().namedUser.id)
+        result.success(UAirship.shared().contact.namedUserId)
     }
 
     private fun setUserNotificationsEnabled(call: MethodCall, result: Result) {
@@ -625,87 +624,37 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
         }
     }
 
+    @SuppressLint("RestrictedApi")
     private fun getPreferenceCenterConfig(call: MethodCall, result: Result) {
         val preferenceCenterID = call.arguments as String
-        val pendingConfig = PreferenceCenter.shared().getConfig(preferenceCenterID)
+        val remoteData = UAirship.shared().remoteData
 
-        pendingConfig.addResultCallback {
-            it?.let {
-                result.success(configDict(it))
-            }
-        }
+        remoteData.payloadsForType("preference_forms")
+            .flatMap { payload ->
+                val payloadForms = payload.data.opt("preference_forms").optList()
+                val form = payloadForms.mapNotNull {
+                    val form = it.optMap().opt("form").optMap()
+                    if (form.opt("id").optString() == preferenceCenterID) {
+                        form
+                    } else {
+                        null
+                    }
+                }.firstOrNull()
+                Observable.just(form ?: JsonMap.EMPTY_MAP)
+            }.subscribe(object : Subscriber<JsonMap>() {
+                override fun onNext(value: JsonMap) {
+                    result.success(value.toString())
+                }
+            })
     }
 
     private fun setAutoLaunchDefaultPreferenceCenter(call: MethodCall, result: Result) {
         val enabled = call.arguments as Boolean
 
         val sharedPref: SharedPreferences = context.getSharedPreferences("shared_preferences", Context.MODE_PRIVATE)
-        sharedPref.edit().putBoolean(AUTO_LAUNCH_PREFERENCE_CENTER_KEY, enabled)
+        sharedPref.edit().putBoolean(AUTO_LAUNCH_PREFERENCE_CENTER_KEY, enabled).apply()
 
         result.success(null)
-    }
-
-    private fun configDict(config: PreferenceCenterConfig): Map<String, Any> {
-        val configDict = mutableMapOf<String, Any>()
-        configDict["identifier"] = config.id
-
-        val sections = config.sections
-        val sectionArray: MutableList<Any> = mutableListOf()
-
-        for (section in sections) {
-            val sectionDict = mutableMapOf<String, Any>()
-            sectionDict["identifier"] = section.id
-
-            val items = section.items
-            val itemArray: MutableList<Any> = mutableListOf()
-
-            for (item in items) {
-                val itemDict = mutableMapOf<String, Any>()
-                itemDict["identifier"] = item.id
-                if (item is Item.ChannelSubscription) {
-                    val channelSubItem = item as Item.ChannelSubscription
-                    itemDict["subscription_id"] = channelSubItem.subscriptionId
-                    itemDict["type"] = "channel_subscrtiption"
-                } else if (item is Item.ContactSubscription) {
-                    val contactSubItem = item as Item.ContactSubscription
-                    itemDict["subscription_id"] = contactSubItem.subscriptionId
-                    itemDict["type"] = "contact_subscrtiption"
-                } else if (item is Item.ContactSubscriptionGroup) {
-                    val contactGroupSubItem = item as Item.ContactSubscriptionGroup
-                    itemDict["subscription_id"] = contactGroupSubItem.subscriptionId
-                    itemDict["type"] = "contact_subscrtiption_group"
-
-                    val components = contactGroupSubItem.components
-
-                    val componentArray: MutableList<Any> = mutableListOf()
-
-                    for (component in components) {
-                        val componentDict = mutableMapOf<String, Any>()
-                        componentDict["scopes"] = component.scopes.map { it.toString() }
-                        component.display.name?.let {
-                            componentDict["title"] = it
-                        }
-                        component.display.description?.let {
-                            componentDict["subtitle"] = it
-                        }
-                        componentArray.add(componentDict)
-                    }
-                    itemDict["components"] = componentArray
-                }
-                itemArray.add(itemDict)
-            }
-            sectionDict["items"] = itemArray
-            sectionArray.add(sectionDict)
-        }
-        configDict["sections"] = sectionArray
-
-        config.display.name?.let {
-            configDict["title"] = it
-        }
-        config.display.description?.let {
-            configDict["subtitle"] = it
-        }
-        return configDict
     }
 
     private enum class FeatureNames {
