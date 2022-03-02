@@ -205,6 +205,8 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
             "isFeatureEnabled" -> isFeatureEnabled(call, result)
             "openPreferenceCenter" -> openPreferenceCenter(call, result)
             "getSubscriptionLists" -> getSubscriptionLists(call, result)
+            "editContactSubscriptionLists" -> editContactSubscriptionLists(call, result)
+            "editChannelSubscriptionLists" -> editChannelSubscriptionLists(call, result)
             "getPreferenceCenterConfig" -> getPreferenceCenterConfig(call, result)
             "setAutoLaunchDefaultPreferenceCenter" -> setAutoLaunchDefaultPreferenceCenter(call, result)
 
@@ -622,6 +624,55 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
             // Callback on main dispatcher with result
             result.success(subscriptionLists)
         }
+    }
+
+    private fun editChannelSubscriptionLists(call: MethodCall, result: Result) {
+        var operations = call.arguments as ArrayList<Map<String, Any?>>
+
+        var editor = UAirship.shared().channel.editSubscriptionLists()
+
+        for (i in 0 until operations.size) {
+            val operation: Map<String, Any?> = operations[i]
+            val listId = operation["listId"] as String
+            val operationType = operation["type"] as String
+
+            if (operationType == "subscribe") {
+                editor.subscribe(listId)
+            } else if (operationType == "unsubscribe") {
+                editor.unsubscribe(listId)
+            }
+        }
+
+        editor.apply();
+
+        result.success(null)
+    }
+
+    private fun editContactSubscriptionLists(call: MethodCall, result: Result) {
+        var operations = call.arguments as ArrayList<Map<String, Any?>>
+
+        var editor = UAirship.shared().contact.editSubscriptionLists()
+
+        for (i in 0 until operations.size) {
+            val operation: Map<String, Any?> = operations[i]
+            val listId = operation["listId"] as String
+            val operationType = operation["type"] as String
+            val scopes = operation["scopes"] as ArrayList<String>
+
+            if (operationType == "subscribe") {
+                for (scope in scopes) {
+                    editor.subscribe(listId, Scope.fromJson(JsonValue.parseString(scope)))
+                }
+            } else if (operationType == "unsubscribe") {
+                for (scope in scopes) {
+                    editor.unsubscribe(listId, Scope.fromJson(JsonValue.parseString(scope)))
+                }
+            }
+        }
+
+        editor.apply();
+
+        result.success(null)
     }
 
     @SuppressLint("RestrictedApi")
