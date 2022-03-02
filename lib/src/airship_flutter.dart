@@ -5,6 +5,8 @@ import 'package:airship_flutter/src/attribute_editor.dart';
 import 'package:flutter/services.dart';
 import 'custom_event.dart';
 import 'tag_group_editor.dart';
+import 'subscription_list_editor.dart';
+import 'scoped_subscription_list_editor.dart';
 
 class InboxMessage {
   final String? title;
@@ -378,6 +380,14 @@ class Airship {
 
   static AttributeEditor editNamedUserAttributes() {
     return AttributeEditor('editNamedUserAttributes', _channel);
+  }
+
+  static SubscriptionListEditor editChannelSubscriptionLists() {
+    return SubscriptionListEditor('editChannelSubscriptionLists', _channel);
+  }
+
+  static ScopedSubscriptionListEditor editContactSubscriptionLists() {
+    return ScopedSubscriptionListEditor('editContactSubscriptionLists', _channel);
   }
 
   static TagGroupEditor editChannelTagGroups() {

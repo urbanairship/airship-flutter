@@ -129,6 +129,10 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             openPreferenceCenter(call, result: result)
         case "getSubscriptionLists":
             getSubscriptionLists(call, result: result)
+        case "editChannelSubscriptionLists":
+            editChannelSubscriptionLists(call, result: result)
+        case "editContactSubscriptionLists":
+            editContactSubscriptionLists(call, result: result)
         case "getPreferenceCenterConfig":
             getPreferenceCenterConfig(call, result: result)
         case "setAutoLaunchDefaultPreferenceCenter":
@@ -619,6 +623,64 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
         dispatchGroup.notify(queue: .main, execute: {
             result(subscriptionLists)
         })
+    }
+    
+    private func editChannelSubscriptionLists(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let subscriptionLists = call.arguments as! [[String:String]]
+        
+        let editor = Airship.channel.editSubscriptionLists()
+        
+        for subscription in subscriptionLists {
+            if let listId = subscription["listId"], let listType = subscription["type"] {
+                if listType == "subscribe" {
+                    editor.subscribe(listId)
+                }
+                if listType == "unsubscribe" {
+                    editor.unsubscribe(listId)
+                }
+            }
+        }
+        
+        editor.apply()
+        
+        result(nil)
+    }
+    
+    private func editContactSubscriptionLists(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let subscriptionLists = call.arguments as! [[String:Any]]
+        
+        let editor = Airship.contact.editSubscriptionLists()
+        
+        for subscription in subscriptionLists {
+            if let listId = subscription["listId"] as? String, let listType = subscription["type"] as? String, let scopes = subscription["scopes"] as? [String] {
+                if listType == "subscribe" {
+                    for scope in scopes {
+                        do {
+                            try editor.subscribe(listId, scope:ChannelScope.fromString(scope))
+                        }
+                        catch {
+                            result(FlutterError(code:"INVALID_SCOPE",
+                                              message:"Subscription List scope is invalid.",
+                                               details: nil))
+                        }
+                    }
+                }
+                if listType == "unsubscribe" {
+                    for scope in scopes {
+                        do {
+                            try editor.unsubscribe(listId, scope:ChannelScope.fromString(scope))
+                        }
+                        catch {
+                            result(FlutterError(code:"INVALID_SCOPE",
+                                              message:"Subscription List scope is invalid.",
+                                               details: nil))
+                        }
+                    }
+                }
+            }
+        }
+        
+        result(nil)
     }
     
     private func getPreferenceCenterConfig(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
