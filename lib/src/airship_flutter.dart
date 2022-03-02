@@ -8,7 +8,6 @@ import 'subscription_list_editor.dart';
 import 'scoped_subscription_list_editor.dart';
 import 'preference_center_config.dart';
 import 'attribute_editor.dart';
-import 'channel_scope.dart';
 
 class InboxMessage {
   final String? title;
