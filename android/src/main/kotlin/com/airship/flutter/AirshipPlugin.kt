@@ -54,7 +54,7 @@ private const val ATTRIBUTE_MUTATION_VALUE = "value"
 private const val ATTRIBUTE_MUTATION_REMOVE = "remove"
 private const val ATTRIBUTE_MUTATION_SET = "set"
 
-private const val AUTO_LAUNCH_PREFERENCE_CENTER_KEY = "auto_launch_pc"
+private const val AUTO_LAUNCH_PREFERENCE_CENTER_KEY = "com.airship.flutter.auto_launch_pc"
 
 class InboxMessageViewFactory(private val binaryMessenger: BinaryMessenger) : PlatformViewFactory(StandardMessageCodec.INSTANCE) {
     override fun create(context: Context, viewId: Int, arguments: Any?): PlatformView {
@@ -134,6 +134,10 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
     private lateinit var channel : MethodChannel
 
     private lateinit var context: Context
+
+    val sharedPreferences by lazy {
+        context.getSharedPreferences("shared_preferences", Context.MODE_PRIVATE)
+    }
 
     val scope: CoroutineScope = CoroutineScope(Dispatchers.Main) + SupervisorJob()
 
@@ -589,8 +593,7 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
     private fun openPreferenceCenter(call: MethodCall, result: Result) {
         val preferenceCenterID = call.arguments as String
 
-        val sharedPref: SharedPreferences = context.getSharedPreferences("shared_preferences", Context.MODE_PRIVATE)
-        val enabled = sharedPref.getBoolean(AUTO_LAUNCH_PREFERENCE_CENTER_KEY, true)
+        val enabled = sharedPreferences.getBoolean(AUTO_LAUNCH_PREFERENCE_CENTER_KEY, true)
 
         if (enabled) {
             PreferenceCenter.shared().open(preferenceCenterID)
@@ -631,10 +634,9 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
 
         var editor = UAirship.shared().channel.editSubscriptionLists()
 
-        for (i in 0 until operations.size) {
-            val operation: Map<String, Any?> = operations[i]
-            val listId = operation["listId"] as String
-            val operationType = operation["type"] as String
+        operations.forEach {
+            val listId = it["listId"] as String
+            val operationType = it["type"] as String
 
             if (operationType == "subscribe") {
                 editor.subscribe(listId)
@@ -653,11 +655,10 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
 
         var editor = UAirship.shared().contact.editSubscriptionLists()
 
-        for (i in 0 until operations.size) {
-            val operation: Map<String, Any?> = operations[i]
-            val listId = operation["listId"] as String
-            val operationType = operation["type"] as String
-            val scopes = operation["scopes"] as ArrayList<String>
+        operations.forEach {
+            val listId = it["listId"] as String
+            val operationType = it["type"] as String
+            val scopes = it["scopes"] as ArrayList<String>
 
             if (operationType == "subscribe") {
                 for (scope in scopes) {
@@ -702,8 +703,7 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
     private fun setAutoLaunchDefaultPreferenceCenter(call: MethodCall, result: Result) {
         val enabled = call.arguments as Boolean
 
-        val sharedPref: SharedPreferences = context.getSharedPreferences("shared_preferences", Context.MODE_PRIVATE)
-        sharedPref.edit().putBoolean(AUTO_LAUNCH_PREFERENCE_CENTER_KEY, enabled).apply()
+        sharedPreferences.edit().putBoolean(AUTO_LAUNCH_PREFERENCE_CENTER_KEY, enabled).apply()
 
         result.success(null)
     }

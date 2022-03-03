@@ -23,6 +23,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
     private let attributeOperationKey = "key"
     private let attributeOperationValue = "value"
     
+    static let defaults = UserDefaults(suiteName: "com.urbanairship.flutter")!
     let autoLaunchPreferenceCenterKey = "auto_launch_pc"
     
     static let shared = SwiftAirshipPlugin()
@@ -580,17 +581,23 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             return
         }
         
-        if (UserDefaults.standard.bool(forKey: autoLaunchPreferenceCenterKey) == true) {
-            PreferenceCenter.shared.open(preferenceCenterID)
-        } else {
-            let event = AirshipShowPreferenceCenterEvent(preferenceCenterID)
-            AirshipEventManager.shared.notify(event)
+        if let autoLaunchPreferenceCenter = SwiftAirshipPlugin.defaults.value(forKey: autoLaunchPreferenceCenterKey) {
+            if (autoLaunchPreferenceCenter as! Bool == true) {
+                PreferenceCenter.shared.open(preferenceCenterID)
+            } else {
+                let event = AirshipShowPreferenceCenterEvent(preferenceCenterID)
+                AirshipEventManager.shared.notify(event)
+            }
         }
+    
         result(nil)
     }
     
     private func getSubscriptionLists(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let subscriptionTypes = call.arguments as! [String]
+        guard let subscriptionTypes = call.arguments as? [String] else {
+            result(nil)
+            return
+        }
         
         if (subscriptionTypes.count == 0) {
             return
@@ -628,7 +635,10 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
     }
     
     private func editChannelSubscriptionLists(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let subscriptionLists = call.arguments as! [[String:String]]
+        guard let subscriptionLists = call.arguments as? [[String:String]] else {
+            result(nil)
+            return
+        }
         
         let editor = Airship.channel.editSubscriptionLists()
         
@@ -710,7 +720,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             return
         }
         
-        UserDefaults.standard.set(enabled, forKey: autoLaunchPreferenceCenterKey)
+        SwiftAirshipPlugin.defaults.set(enabled, forKey: autoLaunchPreferenceCenterKey)
     }
     
     private enum CloudSiteNames : String {

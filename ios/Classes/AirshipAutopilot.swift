@@ -24,7 +24,7 @@ public class AirshipAutopilot: NSObject {
             return
         }
         
-        UserDefaults.standard.set(true, forKey: SwiftAirshipPlugin.shared.autoLaunchPreferenceCenterKey)
+        SwiftAirshipPlugin.defaults.set(true, forKey: SwiftAirshipPlugin.shared.autoLaunchPreferenceCenterKey)
         Airship.takeOff(config, launchOptions: self.launchOptions)
         Airship.analytics.registerSDKExtension(SDKExtension.flutter, version: AirshipPluginVersion.pluginVersion)
         Airship.push.defaultPresentationOptions = [.alert]
