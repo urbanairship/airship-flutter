@@ -136,7 +136,7 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
     private lateinit var context: Context
 
     val sharedPreferences by lazy {
-        context.getSharedPreferences("shared_preferences", Context.MODE_PRIVATE)
+        context.getSharedPreferences("com.urbanairship.flutter", Context.MODE_PRIVATE)
     }
 
     val scope: CoroutineScope = CoroutineScope(Dispatchers.Main) + SupervisorJob()
