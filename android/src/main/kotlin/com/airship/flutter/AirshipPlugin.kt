@@ -593,13 +593,20 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
     private fun openPreferenceCenter(call: MethodCall, result: Result) {
         val preferenceCenterID = call.arguments as String
 
-        val enabled = sharedPreferences.getBoolean(AUTO_LAUNCH_PREFERENCE_CENTER_KEY, true)
+        PreferenceCenter.shared().open(preferenceCenterID)
+        PreferenceCenter.shared().openListener =  object : PreferenceCenter.OnOpenListener {
+            override fun onOpenPreferenceCenter(preferenceCenterId: String): Boolean {
+                val enabled = sharedPreferences.getBoolean(AUTO_LAUNCH_PREFERENCE_CENTER_KEY, true)
 
-        if (enabled) {
-            PreferenceCenter.shared().open(preferenceCenterID)
-        } else {
-            EventManager.shared.notifyEvent(ShowPreferenceCenterEvent(preferenceCenterID))
+                if (enabled) {
+                    return false
+                } else {
+                    EventManager.shared.notifyEvent(ShowPreferenceCenterEvent(preferenceCenterID))
+                    return true
+                }
+            }
         }
+
         result.success(null)
     }
 

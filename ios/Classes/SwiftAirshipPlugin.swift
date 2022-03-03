@@ -2,8 +2,7 @@ import Flutter
 import UIKit
 import AirshipKit
 
-public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
-    
+public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDelegate {
     private let eventNameKey = "event_name"
     private let eventValueKey = "event_value"
     private let propertiesKey = "properties"
@@ -581,14 +580,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             return
         }
         
-        if let autoLaunchPreferenceCenter = SwiftAirshipPlugin.defaults.value(forKey: autoLaunchPreferenceCenterKey) {
-            if (autoLaunchPreferenceCenter as! Bool == true) {
-                PreferenceCenter.shared.open(preferenceCenterID)
-            } else {
-                let event = AirshipShowPreferenceCenterEvent(preferenceCenterID)
-                AirshipEventManager.shared.notify(event)
-            }
-        }
+        PreferenceCenter.shared.open(preferenceCenterID)
     
         result(nil)
     }
@@ -721,6 +713,19 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
         }
         
         SwiftAirshipPlugin.defaults.set(enabled, forKey: autoLaunchPreferenceCenterKey)
+    }
+    
+    public func openPreferenceCenter(_ preferenceCenterID: String) -> Bool {
+        if let autoLaunchPreferenceCenter = SwiftAirshipPlugin.defaults.value(forKey: autoLaunchPreferenceCenterKey) {
+            if (autoLaunchPreferenceCenter as! Bool == true) {
+                return false
+            } else {
+                let event = AirshipShowPreferenceCenterEvent(preferenceCenterID)
+                AirshipEventManager.shared.notify(event)
+                return true
+            }
+        }
+        return false
     }
     
     private enum CloudSiteNames : String {
