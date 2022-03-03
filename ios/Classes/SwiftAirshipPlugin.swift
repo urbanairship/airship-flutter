@@ -580,6 +580,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDe
             return
         }
         
+        PreferenceCenter.shared.openDelegate = self
         PreferenceCenter.shared.open(preferenceCenterID)
     
         result(nil)
