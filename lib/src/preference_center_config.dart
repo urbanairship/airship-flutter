@@ -134,11 +134,11 @@ enum PreferenceCenterSectionType {
   labeledSectionBreak
 }
 
-class PreferenceCenterSection {
-  final PreferenceCenterSectionType? type = null;
-  final PreferenceCenterCommonDisplay? display = null;
-  final List<PreferenceCenterItem>? items = null;
-  final List<PreferenceCenterCondition>? conditions = null;
+abstract class PreferenceCenterSection {
+  PreferenceCenterSectionType get type;
+  PreferenceCenterCommonDisplay? get display;
+  List<PreferenceCenterItem>? get items;
+  List<PreferenceCenterCondition>? get conditions;
 
   static List<PreferenceCenterSection> _fromJsonList(List<Map<String, dynamic>> jsonList) {
     return jsonList.map((e) => _fromJson(e)).toList();
@@ -158,9 +158,13 @@ class PreferenceCenterSection {
 }
 
 class PreferenceCenterCommonSection implements PreferenceCenterSection {
+  @override
   final PreferenceCenterSectionType type = PreferenceCenterSectionType.common;
+  @override
   final PreferenceCenterCommonDisplay? display;
+  @override
   final List<PreferenceCenterItem>? items;
+  @override
   final List<PreferenceCenterCondition>? conditions;
 
   const PreferenceCenterCommonSection._internal(this.display, this.items, this.conditions);
@@ -179,9 +183,13 @@ class PreferenceCenterCommonSection implements PreferenceCenterSection {
 }
 
 class PreferenceCenterLabeledSectionBreak implements PreferenceCenterSection {
+  @override
   final PreferenceCenterSectionType type = PreferenceCenterSectionType.labeledSectionBreak;
+  @override
   final PreferenceCenterCommonDisplay? display;
+  @override
   final List<PreferenceCenterItem>? items = null;
+  @override
   final List<PreferenceCenterCondition>? conditions;
 
   const PreferenceCenterLabeledSectionBreak._internal(this.display, this.conditions);
@@ -205,10 +213,10 @@ enum PreferenceCenterItemType {
   alert
 }
 
-class PreferenceCenterItem {
-  final PreferenceCenterItemType? type = null;
-  final PreferenceCenterCommonDisplay? display = null;
-  final List<PreferenceCenterCondition>? conditions = null;
+abstract class PreferenceCenterItem {
+  PreferenceCenterItemType get type;
+  PreferenceCenterCommonDisplay get display;
+  List<PreferenceCenterCondition>? get conditions;
 
   static List<PreferenceCenterItem> _fromJsonList(List<Map<String, dynamic>> jsonList) {
     return jsonList.map((e) => _fromJson(e)).toList();
@@ -252,10 +260,14 @@ class PreferenceCenterAlertItemButton {
 }
 
 class PreferenceCenterAlertItem implements PreferenceCenterItem {
+  @override
   final PreferenceCenterItemType type = PreferenceCenterItemType.alert;
+  @override
   final PreferenceCenterIconDisplay display;
-  final PreferenceCenterAlertItemButton? button;
+  @override
   final List<PreferenceCenterCondition>? conditions;
+
+  final PreferenceCenterAlertItemButton? button;
 
   const PreferenceCenterAlertItem._internal(this.display, this.button, this.conditions);
 
@@ -273,10 +285,14 @@ class PreferenceCenterAlertItem implements PreferenceCenterItem {
 }
 
 class PreferenceCenterChannelSubscriptionItem implements PreferenceCenterItem {
+  @override
   final PreferenceCenterItemType type = PreferenceCenterItemType.channelSubscription;
+  @override
   final PreferenceCenterCommonDisplay display;
-  final String subscriptionId;
+  @override
   final List<PreferenceCenterCondition>? conditions;
+
+  final String subscriptionId;
 
   const PreferenceCenterChannelSubscriptionItem._internal(this.display, this.subscriptionId, this.conditions);
 
@@ -294,10 +310,14 @@ class PreferenceCenterChannelSubscriptionItem implements PreferenceCenterItem {
 }
 
 class PreferenceCenterContactSubscriptionItem implements PreferenceCenterItem {
+  @override
   final PreferenceCenterItemType type = PreferenceCenterItemType.contactSubscription;
+  @override
   final PreferenceCenterCommonDisplay display;
-  final String subscriptionId;
+  @override
   final List<PreferenceCenterCondition>? conditions;
+
+  final String subscriptionId;
 
   const PreferenceCenterContactSubscriptionItem._internal(this.display, this.subscriptionId, this.conditions);
 
@@ -313,7 +333,6 @@ class PreferenceCenterContactSubscriptionItem implements PreferenceCenterItem {
     return "PreferenceCenterContactSubscriptionItem(display=$display, subscriptionId=$subscriptionId, conditions=$conditions)";
   }
 }
-
 
 class PreferenceCenterContactSubscriptionGroupItemComponent {
   final List<ChannelScope> scopes;
@@ -349,10 +368,13 @@ class PreferenceCenterContactSubscriptionGroupItemComponent {
 }
 
 class PreferenceCenterContactSubscriptionGroupItem implements PreferenceCenterItem {
+  @override
   final PreferenceCenterItemType type = PreferenceCenterItemType.contactSubscriptionGroup;
+  @override
   final PreferenceCenterCommonDisplay display;
-  final String subscriptionId;
+  @override
   final List<PreferenceCenterCondition>? conditions;
+  final String subscriptionId;
   final List<PreferenceCenterContactSubscriptionGroupItemComponent> components;
 
   const PreferenceCenterContactSubscriptionGroupItem._internal(this.display, this.subscriptionId, this.conditions, this.components);
