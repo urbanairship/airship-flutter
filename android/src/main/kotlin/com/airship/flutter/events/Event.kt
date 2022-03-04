@@ -9,7 +9,8 @@ enum class EventType {
     INBOX_UPDATED,
     SHOW_INBOX,
     SHOW_INBOX_MESSAGE,
-    DEEP_LINK
+    DEEP_LINK,
+    SHOW_PREFERENCE_CENTER
 }
 
 interface Event {

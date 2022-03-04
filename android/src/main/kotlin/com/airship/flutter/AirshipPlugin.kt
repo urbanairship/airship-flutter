@@ -1,28 +1,35 @@
 package com.airship.flutter
 
-import android.graphics.Bitmap
-import android.webkit.WebView
+import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.content.Context
-import android.view.View
+import android.content.SharedPreferences
+import android.graphics.Bitmap
 import android.os.Build
+import android.view.View
+import android.webkit.WebView
 import androidx.core.app.NotificationManagerCompat
+import com.airship.flutter.events.ShowPreferenceCenterEvent
 import com.urbanairship.Autopilot
 import com.urbanairship.PrivacyManager
 import com.urbanairship.UAirship
 import com.urbanairship.analytics.CustomEvent
 import com.urbanairship.automation.InAppAutomation
+import com.urbanairship.channel.AttributeEditor
+import com.urbanairship.channel.TagGroupsEditor
+import com.urbanairship.contacts.Scope
 import com.urbanairship.json.JsonMap
 import com.urbanairship.json.JsonValue
-import com.urbanairship.channel.TagGroupsEditor
-import com.urbanairship.channel.AttributeEditor
 import com.urbanairship.messagecenter.MessageCenter
-import com.urbanairship.util.DateUtils
-import com.urbanairship.util.UAStringUtil
 import com.urbanairship.messagecenter.webkit.MessageWebView
 import com.urbanairship.messagecenter.webkit.MessageWebViewClient
 import com.urbanairship.preferencecenter.PreferenceCenter
-import java.lang.NumberFormatException
+import com.urbanairship.reactive.Observable
+import com.urbanairship.reactive.Subscriber
+import com.urbanairship.util.DateUtils
+import com.urbanairship.util.UAStringUtil
+import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -31,8 +38,6 @@ import io.flutter.plugin.common.PluginRegistry.Registrar
 import io.flutter.plugin.common.StandardMessageCodec
 import io.flutter.plugin.platform.PlatformView
 import io.flutter.plugin.platform.PlatformViewFactory
-import io.flutter.embedding.engine.plugins.FlutterPlugin
-import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.platform.PlatformViewRegistry
 import kotlinx.coroutines.*
 
@@ -48,6 +53,8 @@ private const val ATTRIBUTE_MUTATION_KEY = "key"
 private const val ATTRIBUTE_MUTATION_VALUE = "value"
 private const val ATTRIBUTE_MUTATION_REMOVE = "remove"
 private const val ATTRIBUTE_MUTATION_SET = "set"
+
+const val AUTO_LAUNCH_PREFERENCE_CENTER_KEY = "com.airship.flutter.auto_launch_pc"
 
 class InboxMessageViewFactory(private val binaryMessenger: BinaryMessenger) : PlatformViewFactory(StandardMessageCodec.INSTANCE) {
     override fun create(context: Context, viewId: Int, arguments: Any?): PlatformView {
@@ -128,6 +135,12 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
 
     private lateinit var context: Context
 
+    val sharedPreferences by lazy {
+        context.getSharedPreferences("com.urbanairship.flutter", Context.MODE_PRIVATE)
+    }
+
+    val scope: CoroutineScope = CoroutineScope(Dispatchers.Main) + SupervisorJob()
+
     companion object {
         @JvmStatic
         fun registerWith(registrar: Registrar) {
@@ -195,6 +208,11 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
             "getEnabledFeatures" -> getEnabledFeatures(result)
             "isFeatureEnabled" -> isFeatureEnabled(call, result)
             "openPreferenceCenter" -> openPreferenceCenter(call, result)
+            "getSubscriptionLists" -> getSubscriptionLists(call, result)
+            "editContactSubscriptionLists" -> editContactSubscriptionLists(call, result)
+            "editChannelSubscriptionLists" -> editChannelSubscriptionLists(call, result)
+            "getPreferenceCenterConfig" -> getPreferenceCenterConfig(call, result)
+            "setAutoLaunchDefaultPreferenceCenter" -> setAutoLaunchDefaultPreferenceCenter(call, result)
 
             else -> result.notImplemented()
         }
@@ -574,7 +592,114 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
 
     private fun openPreferenceCenter(call: MethodCall, result: Result) {
         val preferenceCenterID = call.arguments as String
-        PreferenceCenter.shared().open(preferenceCenterId = preferenceCenterID)
+        
+        PreferenceCenter.shared().open(preferenceCenterID)
+
+        result.success(null)
+    }
+
+    private fun getSubscriptionLists(call: MethodCall, result: Result) {
+        scope.launch(Dispatchers.Main) {
+            val subscriptionLists = withContext(Dispatchers.IO) {
+                val channelSubs = async {
+                    UAirship.shared().channel.getSubscriptionLists(true).get()
+                        ?.toList()
+                        ?: emptyList()
+                }
+                val contactSubs = async {
+                    UAirship.shared().contact.getSubscriptionLists(true).get()
+                        ?.mapValues { it.value.map(Scope::toString) }
+                        ?: emptyMap()
+                }
+
+                // Block until both requests complete and return a map
+                mapOf(
+                    "channel" to channelSubs.await(),
+                    "contact" to contactSubs.await()
+                )
+            }
+
+            // Callback on main dispatcher with result
+            result.success(subscriptionLists)
+        }
+    }
+
+    private fun editChannelSubscriptionLists(call: MethodCall, result: Result) {
+        var operations = call.arguments as ArrayList<Map<String, Any?>>
+
+        var editor = UAirship.shared().channel.editSubscriptionLists()
+
+        operations.forEach {
+            val listId = it["listId"] as String
+            val operationType = it["type"] as String
+
+            if (operationType == "subscribe") {
+                editor.subscribe(listId)
+            } else if (operationType == "unsubscribe") {
+                editor.unsubscribe(listId)
+            }
+        }
+
+        editor.apply();
+
+        result.success(null)
+    }
+
+    private fun editContactSubscriptionLists(call: MethodCall, result: Result) {
+        var operations = call.arguments as ArrayList<Map<String, Any?>>
+
+        var editor = UAirship.shared().contact.editSubscriptionLists()
+
+        operations.forEach {
+            val listId = it["listId"] as String
+            val operationType = it["type"] as String
+            val scopes = it["scopes"] as ArrayList<String>
+
+            if (operationType == "subscribe") {
+                for (scope in scopes) {
+                    editor.subscribe(listId, Scope.fromJson(JsonValue.parseString(scope)))
+                }
+            } else if (operationType == "unsubscribe") {
+                for (scope in scopes) {
+                    editor.unsubscribe(listId, Scope.fromJson(JsonValue.parseString(scope)))
+                }
+            }
+        }
+
+        editor.apply();
+
+        result.success(null)
+    }
+
+    @SuppressLint("RestrictedApi")
+    private fun getPreferenceCenterConfig(call: MethodCall, result: Result) {
+        val preferenceCenterID = call.arguments as String
+        val remoteData = UAirship.shared().remoteData
+
+        remoteData.payloadsForType("preference_forms")
+            .flatMap { payload ->
+                val payloadForms = payload.data.opt("preference_forms").optList()
+                val form = payloadForms.mapNotNull {
+                    val form = it.optMap().opt("form").optMap()
+                    if (form.opt("id").optString() == preferenceCenterID) {
+                        form
+                    } else {
+                        null
+                    }
+                }.firstOrNull()
+                Observable.just(form ?: JsonMap.EMPTY_MAP)
+            }.subscribe(object : Subscriber<JsonMap>() {
+                override fun onNext(value: JsonMap) {
+                    result.success(value.toString())
+                }
+            })
+    }
+
+    private fun setAutoLaunchDefaultPreferenceCenter(call: MethodCall, result: Result) {
+        val enabled = call.arguments as Boolean
+
+        sharedPreferences.edit().putBoolean(AUTO_LAUNCH_PREFERENCE_CENTER_KEY, enabled).apply()
+
         result.success(null)
     }
 

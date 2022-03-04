@@ -13,12 +13,14 @@ class _HomeState extends State<Home> {
   void initState() {
     initAirshipListeners();
     Airship.trackScreen('Home');
+
     super.initState();
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initAirshipListeners() async {
     Airship.onChannelRegistration.listen((event) {
+     
       if (mounted) {
         setState(() {});
       }

@@ -2,8 +2,7 @@ import Flutter
 import UIKit
 import AirshipKit
 
-public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
-    
+public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDelegate {
     private let eventNameKey = "event_name"
     private let eventValueKey = "event_value"
     private let propertiesKey = "properties"
@@ -22,8 +21,12 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
     private let attributeOperationRemove = "remove"
     private let attributeOperationKey = "key"
     private let attributeOperationValue = "value"
-
+    
+    static let defaults = UserDefaults(suiteName: "com.urbanairship.flutter")!
+    let autoLaunchPreferenceCenterKey = "auto_launch_pc"
+    
     static let shared = SwiftAirshipPlugin()
+
     let eventHandler = AirshipEventHandler()
     
     public static func register(with registrar: FlutterPluginRegistrar) {
@@ -37,6 +40,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
     
     public func onAirshipReady() {
         eventHandler.register()
+        PreferenceCenter.shared.openDelegate = self
     }
     
     // MARK: - handle methods call
@@ -124,6 +128,16 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             isFeatureEnabled(call, result: result)
         case "openPreferenceCenter":
             openPreferenceCenter(call, result: result)
+        case "getSubscriptionLists":
+            getSubscriptionLists(call, result: result)
+        case "editChannelSubscriptionLists":
+            editChannelSubscriptionLists(call, result: result)
+        case "editContactSubscriptionLists":
+            editContactSubscriptionLists(call, result: result)
+        case "getPreferenceCenterConfig":
+            getPreferenceCenterConfig(call, result: result)
+        case "setAutoLaunchDefaultPreferenceCenter":
+            setAutoLaunchDefaultPreferenceCenter(call, result: result)
         default:
             result(FlutterError(code:"UNAVAILABLE",
                 message:"Unknown method: \(call.method)",
@@ -566,11 +580,170 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             result(nil)
             return
         }
+        
         PreferenceCenter.shared.open(preferenceCenterID)
+    
         result(nil)
     }
+    
+    private func getSubscriptionLists(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let subscriptionTypes = call.arguments as? [String] else {
+            result(nil)
+            return
+        }
+        
+        if (subscriptionTypes.count == 0) {
+            return
+        }
+        
+        var subscriptionLists: Dictionary<String, Any> = [:]
+        let dispatchGroup = DispatchGroup()
+        
+        if (subscriptionTypes.contains("channel")) {
+            dispatchGroup.enter()
+            Airship.channel.fetchSubscriptionLists { lists, error in
+                subscriptionLists["channel"] = lists ?? []
+                dispatchGroup.leave()
+            }
+        }
+        if (subscriptionTypes.contains("contact")) {
+            dispatchGroup.enter()
+            Airship.contact.fetchSubscriptionLists { lists, error in
+                guard let lists = lists else {
+                    subscriptionLists["contact"] = [:]
+                    dispatchGroup.leave()
+                    return
+                }
+                let listDict = lists.mapValues { value in
+                    return value.values.map { $0.stringValue }
+                }
+                subscriptionLists["contact"] = listDict
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.notify(queue: .main, execute: {
+            result(subscriptionLists)
+        })
+    }
+    
+    private func editChannelSubscriptionLists(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let subscriptionLists = call.arguments as? [[String:String]] else {
+            result(nil)
+            return
+        }
+        
+        let editor = Airship.channel.editSubscriptionLists()
+        
+        for subscription in subscriptionLists {
+            if let listId = subscription["listId"], let listType = subscription["type"] {
+                if listType == "subscribe" {
+                    editor.subscribe(listId)
+                }
+                if listType == "unsubscribe" {
+                    editor.unsubscribe(listId)
+                }
+            }
+        }
+        
+        editor.apply()
+        
+        result(nil)
+    }
+    
+    private func editContactSubscriptionLists(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let subscriptionLists = call.arguments as! [[String:Any]]
+        
+        let editor = Airship.contact.editSubscriptionLists()
+        
+        for subscription in subscriptionLists {
+            if let listId = subscription["listId"] as? String, let listType = subscription["type"] as? String, let scopes = subscription["scopes"] as? [String] {
+                if listType == "subscribe" {
+                    for scope in scopes {
+                        do {
+                            try editor.subscribe(listId, scope:ChannelScope.fromString(scope))
+                        }
+                        catch {
+                            result(FlutterError(code:"INVALID_SCOPE",
+                                              message:"Subscription List scope is invalid.",
+                                               details: nil))
+                        }
+                    }
+                }
+                if listType == "unsubscribe" {
+                    for scope in scopes {
+                        do {
+                            try editor.unsubscribe(listId, scope:ChannelScope.fromString(scope))
+                        }
+                        catch {
+                            result(FlutterError(code:"INVALID_SCOPE",
+                                              message:"Subscription List scope is invalid.",
+                                               details: nil))
+                        }
+                    }
+                }
+            }
+        }
+        
+        result(nil)
+    }
+    
+    private func getPreferenceCenterConfig(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let preferenceCenterID = call.arguments as? String else {
+            result(nil)
+            return
+        }
+        
+        var disposable: Disposable?
+        let remoteData = Airship.requireComponent(ofType: RemoteDataManager.self)
+        disposable = remoteData.subscribe(types: ["preference_forms"]) { payloads in
+            let data = payloads.first?.data["preference_forms"] as? [[String : Any]]
+            let config = data?
+                .compactMap { $0["form"] as? [String : Any] }
+                .first(where: { $0["id"] as? String == preferenceCenterID})
+            
+            disposable?.dispose()
+            result(JSONUtils.string(config ?? [:]))
+        }
+    }
 
+    private func setAutoLaunchDefaultPreferenceCenter(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let enabled = call.arguments as? Bool else {
+            result(nil)
+            return
+        }
+        
+        SwiftAirshipPlugin.defaults.set(enabled, forKey: autoLaunchPreferenceCenterKey)
+    }
+    
+    public func openPreferenceCenter(_ preferenceCenterID: String) -> Bool {
+        if let autoLaunchPreferenceCenter = SwiftAirshipPlugin.defaults.value(forKey: autoLaunchPreferenceCenterKey) {
+            if (autoLaunchPreferenceCenter as! Bool == true) {
+                return false
+            } else {
+                let event = AirshipShowPreferenceCenterEvent(preferenceCenterID)
+                AirshipEventManager.shared.notify(event)
+                return true
+            }
+        }
+        return false
+    }
+    
+    private enum CloudSiteNames : String {
+        case eu
+        case us
+        
+        func toSite() -> CloudSite {
+            switch (self) {
+            case .eu:
+                return CloudSite.eu
+            case .us:
+                return CloudSite.us
+            }
+        }
+    }
 }
+
 
 public enum FeatureNames : String, CaseIterable {
     case push = "FEATURE_PUSH"

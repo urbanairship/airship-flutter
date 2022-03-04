@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:airship_flutter/src/attribute_editor.dart';
 import 'package:flutter/services.dart';
 import 'custom_event.dart';
 import 'tag_group_editor.dart';
+import 'subscription_list_editor.dart';
+import 'scoped_subscription_list_editor.dart';
+import 'preference_center_config.dart';
+import 'attribute_editor.dart';
 
 class InboxMessage {
   final String? title;
@@ -63,6 +66,48 @@ class Notification {
   @override
   String toString() {
     return "Notification(notificationId=$notificationId, alert=$alert, title=$title, subtitle=$subtitle, extras=$extras)";
+  }
+}
+
+class SubscriptionList {
+  final List<String>? channelSubscriptionLists;
+  final List<ContactSubscriptionList>? contactSubscriptionLists;
+
+  const SubscriptionList._internal(this.channelSubscriptionLists, this.contactSubscriptionLists);
+
+  static SubscriptionList _fromJson(Map<String, dynamic> json) {
+    var channelSubscriptionLists = <String>[];
+    if (json["channel"] != null) {
+      channelSubscriptionLists = List<String>.from(json["channel"]);
+    }
+    var contactSubscriptionLists = <ContactSubscriptionList>[];
+    if (json["contact"] != null) {
+      var lists = Map<String, dynamic>.from(json["contact"]);
+      lists.forEach((k, v) => contactSubscriptionLists.add(ContactSubscriptionList._fromJson(k,List<String>.from(v))));
+    }
+
+    return SubscriptionList._internal(channelSubscriptionLists, contactSubscriptionLists);
+  }
+
+  @override
+  String toString() {
+    return "SubscriptionList(channelSubscriptionLists=$channelSubscriptionLists, contactSubscriptionLists=$contactSubscriptionLists)";
+  }
+}
+
+class ContactSubscriptionList {
+  final String identifier;
+  final List<String> scopes;
+
+  const ContactSubscriptionList._internal(this.identifier, this.scopes);
+
+  static ContactSubscriptionList _fromJson(String identifier, List<String> scopes) {
+    return ContactSubscriptionList._internal(identifier, scopes);
+  }
+
+  @override
+  String toString() {
+    return "ContactSubscriptionList(identifier=$identifier, scopes=$scopes)";
   }
 }
 
@@ -215,6 +260,14 @@ class Airship {
     return AttributeEditor('editNamedUserAttributes', _channel);
   }
 
+  static SubscriptionListEditor editChannelSubscriptionLists() {
+    return SubscriptionListEditor('editChannelSubscriptionLists', _channel);
+  }
+
+  static ScopedSubscriptionListEditor editContactSubscriptionLists() {
+    return ScopedSubscriptionListEditor('editContactSubscriptionLists', _channel);
+  }
+
   static TagGroupEditor editChannelTagGroups() {
     return TagGroupEditor('editChannelTagGroups', _channel);
   }
@@ -269,6 +322,11 @@ class Airship {
   
   static Stream<String?> get onShowInboxMessage {
     return _getEventStream("SHOW_INBOX_MESSAGE")!
+        .map((dynamic value) => jsonDecode(value) as String?);
+  }
+
+  static Stream<String?> get onShowPreferenceCenter {
+    return _getEventStream("SHOW_PREFERENCE_CENTER")!
         .map((dynamic value) => jsonDecode(value) as String?);
   }
 
@@ -358,6 +416,20 @@ class Airship {
 
   static Future<void> openPreferenceCenter(String preferenceCenterID) async {
     return await _channel.invokeMethod('openPreferenceCenter', preferenceCenterID);
+  }
+
+  static Future<SubscriptionList> getSubscriptionLists(List<String> subscriptionListTypes) async {
+    var lists = await (_channel.invokeMethod("getSubscriptionLists", subscriptionListTypes));
+    return SubscriptionList._fromJson(Map<String, dynamic>.from(lists));
+  }
+
+  static Future<PreferenceCenterConfig?> getPreferenceCenterConfig(String preferenceCenterID) async {
+    var config = await _channel.invokeMethod('getPreferenceCenterConfig', preferenceCenterID);
+    return PreferenceCenterConfig.fromJson(jsonDecode(config));
+  }
+
+  static Future<void> setAutoLaunchDefaultPreferenceCenter(bool enabled) async {
+    return await _channel.invokeMethod('setAutoLaunchDefaultPreferenceCenter');
   }
 }
 

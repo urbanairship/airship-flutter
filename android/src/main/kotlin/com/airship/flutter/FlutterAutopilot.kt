@@ -13,8 +13,10 @@ import com.urbanairship.push.notifications.AirshipNotificationProvider
 import com.urbanairship.push.notifications.NotificationArguments
 import androidx.annotation.XmlRes
 import com.urbanairship.AirshipConfigOptions
+import com.urbanairship.UAirship.getApplicationContext
 import com.urbanairship.analytics.Analytics
 import com.urbanairship.channel.AirshipChannelListener
+import com.urbanairship.preferencecenter.PreferenceCenter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -97,6 +99,20 @@ class FlutterAutopilot : Autopilot() {
         airship.setDeepLinkListener { deepLink ->
             EventManager.shared.notifyEvent(DeepLinkEvent(deepLink))
             true
+        }
+
+        PreferenceCenter.shared().openListener =  object : PreferenceCenter.OnOpenListener {
+            override fun onOpenPreferenceCenter(preferenceCenterId: String): Boolean {
+                val preferences =  getApplicationContext().getSharedPreferences("com.urbanairship.flutter", Context.MODE_PRIVATE)
+                val enabled = preferences.getBoolean(AUTO_LAUNCH_PREFERENCE_CENTER_KEY, true)
+
+                if (enabled) {
+                    return false
+                } else {
+                    EventManager.shared.notifyEvent(ShowPreferenceCenterEvent(preferenceCenterId))
+                    return true
+                }
+            }
         }
 
         airship.getAnalytics().registerSDKExtension(Analytics.EXTENSION_FLUTTER, AirshipPluginVersion.AIRSHIP_PLUGIN_VERSION);
