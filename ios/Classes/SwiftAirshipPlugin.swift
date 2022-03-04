@@ -40,6 +40,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDe
     
     public func onAirshipReady() {
         eventHandler.register()
+        PreferenceCenter.shared.openDelegate = self
     }
     
     // MARK: - handle methods call
@@ -580,7 +581,6 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDe
             return
         }
         
-        PreferenceCenter.shared.openDelegate = self
         PreferenceCenter.shared.open(preferenceCenterID)
     
         result(nil)

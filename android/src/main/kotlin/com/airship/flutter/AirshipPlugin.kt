@@ -54,7 +54,7 @@ private const val ATTRIBUTE_MUTATION_VALUE = "value"
 private const val ATTRIBUTE_MUTATION_REMOVE = "remove"
 private const val ATTRIBUTE_MUTATION_SET = "set"
 
-private const val AUTO_LAUNCH_PREFERENCE_CENTER_KEY = "com.airship.flutter.auto_launch_pc"
+const val AUTO_LAUNCH_PREFERENCE_CENTER_KEY = "com.airship.flutter.auto_launch_pc"
 
 class InboxMessageViewFactory(private val binaryMessenger: BinaryMessenger) : PlatformViewFactory(StandardMessageCodec.INSTANCE) {
     override fun create(context: Context, viewId: Int, arguments: Any?): PlatformView {
@@ -592,21 +592,9 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
 
     private fun openPreferenceCenter(call: MethodCall, result: Result) {
         val preferenceCenterID = call.arguments as String
-
-        PreferenceCenter.shared().openListener =  object : PreferenceCenter.OnOpenListener {
-            override fun onOpenPreferenceCenter(preferenceCenterId: String): Boolean {
-                val enabled = sharedPreferences.getBoolean(AUTO_LAUNCH_PREFERENCE_CENTER_KEY, true)
-
-                if (enabled) {
-                    return false
-                } else {
-                    EventManager.shared.notifyEvent(ShowPreferenceCenterEvent(preferenceCenterID))
-                    return true
-                }
-            }
-        }
-        PreferenceCenter.shared().open(preferenceCenterID)
         
+        PreferenceCenter.shared().open(preferenceCenterID)
+
         result.success(null)
     }
 
