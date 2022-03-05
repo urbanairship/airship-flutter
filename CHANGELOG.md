@@ -8,7 +8,7 @@ Minor release that adds support for multi-channel Preference Center.
 - Added a method to trigger takeOff from Flutter
 - Fixed clearing named user on iOS
 - Updated iOS SDK to 16.4.0
-- Updated Android SDK to 16.3.2
+- Updated Android SDK to 16.3.3
 
 ## Version 5.2.0 - February 10, 2022
 Minor release updating iOS SDK and Android SDK to 16.3.0
