@@ -3,12 +3,11 @@ package com.airship.flutter
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import androidx.core.content.edit
-import com.google.firebase.messaging.RemoteMessage
-import com.urbanairship.push.fcm.AirshipFirebaseIntegration
-import com.urbanairship.push.fcm.AirshipFirebaseMessagingService
+import com.airship.flutter.AirshipBackgroundExecutor.Companion.BackgroundMessageResult.*
+import com.urbanairship.push.PushMessage
+import com.urbanairship.push.notifications.NotificationArguments
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.FlutterShellArgs
 import io.flutter.embedding.engine.dart.DartExecutor.DartCallback
@@ -17,7 +16,12 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.view.FlutterCallbackInformation.lookupCallbackInformation
-import java.util.concurrent.CountDownLatch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import java.util.concurrent.atomic.AtomicBoolean
 
 class AirshipBackgroundExecutor(
@@ -26,14 +30,15 @@ class AirshipBackgroundExecutor(
 ) : MethodCallHandler {
     private val isIsolateStarted: AtomicBoolean = AtomicBoolean(false)
 
-    private var channel: MethodChannel? = null
+    private var methodChannel: MethodChannel? = null
     private var flutterEngine: FlutterEngine? = null
+
+    private val mainHandler by lazy {
+        Handler(appContext.mainLooper)
+    }
 
     private val messageCallback: Long
         get() = sharedPrefs.getLong(MESSAGE_CALLBACK, 0)
-
-    private val isolateCallback: Long
-        get() = sharedPrefs.getLong(ISOLATE_CALLBACK, 0L)
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) =
         when (call.method) {
@@ -41,38 +46,21 @@ class AirshipBackgroundExecutor(
                 onIsolateStarted()
                 result.success(true)
             }
-
             else -> result.notImplemented()
         }
-
-    fun startIsolate() {
-        val callback = isolateCallback
-        if (isIsolateStarted.get() || callback == 0L) return
-
-        startIsolate(callback, null)
-    }
 
     fun startIsolate(callback: Long, args: FlutterShellArgs?) {
         if (flutterEngine != null) return
 
         val loader = FlutterLoader()
-        val handler = Handler(Looper.getMainLooper())
-
-        val runnable = Runnable {
+        mainHandler.post {
             loader.startInitialization(appContext)
-            loader.ensureInitializationCompleteAsync(appContext, null, handler) {
+            loader.ensureInitializationCompleteAsync(appContext, null, mainHandler) {
                 if (!isIsolateStarted.get()) {
-                    Log.i(
-                        TAG,
-                        "Creating background FlutterEngine instance, with args: ${
-                            args?.toArray().contentToString()
-                        }"
-                    )
-
                     val engine = FlutterEngine(appContext, args?.toArray())
-                         .also { flutterEngine = it }
+                        .also { flutterEngine = it }
 
-                    channel =
+                    methodChannel =
                         MethodChannel(engine.dartExecutor, BACKGROUND_CHANNEL).apply {
                             setMethodCallHandler(this@AirshipBackgroundExecutor)
                         }
@@ -84,63 +72,125 @@ class AirshipBackgroundExecutor(
                 }
             }
         }
-
-        handler.post(runnable)
     }
 
     private fun onIsolateStarted() {
         isIsolateStarted.set(true)
-        AirshipFlutterFirebaseMessagingService.onIsolateStarted(appContext)
     }
 
     val isReady: Boolean
         get() = isIsolateStarted.get()
 
-    fun executeDartCallbackInBackgroundIsolate(remoteMessage: RemoteMessage, latch: CountDownLatch?, onUnhandled: (RemoteMessage) -> Unit) {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun executeDartCallbackInBackgroundIsolate(
+        pushMessage: PushMessage
+    ) = callbackFlow<Boolean> {
         if (flutterEngine == null) {
-            Log.i(TAG, "A background message could not be handled in Dart as no onBackgroundMessage handler has been registered.")
-            onUnhandled.invoke(remoteMessage)
-            return
+            trySend(false)
+            channel.close()
+            return@callbackFlow
+        }
+
+        val result: MethodChannel.Result = object : MethodChannel.Result {
+            override fun success(result: Any?) {
+                trySend(result as? Boolean == true)
+                channel.close()
+            }
+
+            override fun error(errorCode: String?, errorMessage: String?, errorDetails: Any?) {
+                trySend(false)
+                channel.close()
+            }
+
+            override fun notImplemented() {
+                trySend(false)
+                channel.close()
+            }
         }
 
         val args = mapOf(
             "messageCallback" to messageCallback,
-            "message" to remoteMessage.data
+            "payload" to pushMessage.toJsonValue().toString()
         )
 
-        val result: MethodChannel.Result? = latch?.let {
-            object : MethodChannel.Result {
-                override fun success(result: Any?) {
-                    if (result as? Boolean == false) {
-                        onUnhandled.invoke(remoteMessage)
-                    }
-                    it.countDown()
-                }
-
-                override fun error(errorCode: String?, errorMessage: String?, errorDetails: Any?) =
-                    it.countDown()
-
-                override fun notImplemented() = it.countDown()
+        mainHandler.post {
+            methodChannel?.invokeMethod("onBackgroundMessage", args, result) ?: run {
+                Log.w(TAG, "Background method channel is null!")
+                trySend(false)
+                channel.close()
             }
         }
 
-        channel?.invokeMethod("onBackgroundMessage", args, result)
-            ?: Log.e(TAG, "Background channel is null!")
+        awaitClose()
     }
 
     companion object {
         private const val TAG = "airship"
-        internal const val BACKGROUND_CHANNEL = "com.airship.flutter/airship_background"
-        internal const val ISOLATE_CALLBACK = "isolate_callback"
-        internal const val MESSAGE_CALLBACK = "message_callback"
+        private const val BACKGROUND_CHANNEL = "com.airship.flutter/airship_background"
+        private const val ISOLATE_CALLBACK = "isolate_callback"
+        private const val MESSAGE_CALLBACK = "message_callback"
 
-        fun setIsolateCallback(context: Context, callbackHandle: Long) =
-            context.getAirshipSharedPrefs().edit { putLong(ISOLATE_CALLBACK, callbackHandle) }
+        @Volatile
+        internal var instance: AirshipBackgroundExecutor? = null
+            private set
 
-        fun hasMessageCallback(context: Context): Boolean =
-            context.getAirshipSharedPrefs().getLong(ISOLATE_CALLBACK, 0) != 0L
+        internal fun startIsolate(context: Context, shellArgs: FlutterShellArgs? = null) {
+            val callback = context.getAirshipSharedPrefs().getLong(ISOLATE_CALLBACK, 0)
+            if (instance?.isReady == true || callback == 0L) return
 
-        fun setMessageCallback(context: Context, callbackHandle: Long) =
-            context.getAirshipSharedPrefs().edit { putLong(MESSAGE_CALLBACK, callbackHandle) }
+            startIsolate(context, callback, shellArgs)
+        }
+
+        private fun startIsolate(
+            context: Context,
+            callbackHandle: Long,
+            shellArgs: FlutterShellArgs?
+        ) {
+            if (instance != null) return
+            synchronized(this) {
+                if (instance != null) return
+                instance = AirshipBackgroundExecutor(context).apply {
+                    startIsolate(callbackHandle, shellArgs)
+                }
+            }
+        }
+
+        internal fun setCallbacks(context: Context, isolateCallback: Long, messageCallback: Long) {
+            context.getAirshipSharedPrefs().edit {
+                putLong(ISOLATE_CALLBACK, isolateCallback)
+                putLong(MESSAGE_CALLBACK, messageCallback)
+            }
+        }
+
+        internal enum class BackgroundMessageResult {
+            HANDLED,
+            NOT_HANDLED,
+            QUEUED
+        }
+
+        internal fun handleBackgroundMessage(
+            context: Context,
+            arguments: NotificationArguments
+        ): BackgroundMessageResult {
+            if (!hasMessageCallback(context)) {
+                return NOT_HANDLED
+            }
+            val executor = instance
+            return if (executor?.isReady == true) {
+                // Send the message to the registered handler callback via the background isolate.
+                val result = runBlocking(Dispatchers.Main) {
+                    executor.executeDartCallbackInBackgroundIsolate(arguments.message).first()
+                }
+
+                if (result) HANDLED else NOT_HANDLED
+            } else {
+                // Isolate not ready. Queue the message for later.
+                QUEUED
+            }
+        }
+
+        private fun hasMessageCallback(context: Context): Boolean =
+            context.getAirshipSharedPrefs().getLong(MESSAGE_CALLBACK, 0) != 0L
+
     }
 }

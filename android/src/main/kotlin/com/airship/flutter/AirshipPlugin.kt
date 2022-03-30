@@ -230,10 +230,9 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         val isolateCallback = args["isolateCallback"] as? Long ?: 0
         val messageCallback = args["messageCallback"] as? Long ?: 0
         val shellArgs = mainActivity?.intent?.let { FlutterShellArgs.fromIntent(it) }
-        AirshipFlutterFirebaseMessagingService.run {
-            setCallbackDispatcher(context, isolateCallback)
-            setUserCallbackHandle(context, messageCallback)
-            startIsolate(context, isolateCallback, shellArgs)
+        AirshipBackgroundExecutor.run {
+            setCallbacks(context, isolateCallback, messageCallback)
+            startIsolate(context, shellArgs)
         }
         result.success(null)
     }

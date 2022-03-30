@@ -173,12 +173,12 @@ void _backgroundMessageIsolateCallback() {
       final handle =
           CallbackHandle.fromRawHandle(call.arguments["messageCallback"]);
       final callback = PluginUtilities.getCallbackFromHandle(handle)
-          as Future<bool> Function(Notification);
+          as BackgroundMessageHandler;
       try {
-        final message = Map<String, dynamic>.from(call.arguments["message"]);
-        return await callback(Notification._fromJson(message));
+        final payload = Map<String, dynamic>.from(jsonDecode(call.arguments["payload"]));
+        return await callback(payload);
       } catch (e) {
-        print("Airship: Failed to handle background notification!");
+        print("Airship: Failed to handle background message!");
         print(e);
       }
       return false;
@@ -192,7 +192,7 @@ void _backgroundMessageIsolateCallback() {
 }
 
 typedef BackgroundMessageHandler =
-    Future<bool> Function(Notification notification);
+    Future<bool> Function(Map<String, dynamic> payload);
 
 class ChannelEvent {
   final String? channelId;

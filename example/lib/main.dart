@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart' hide Notification;
+import 'package:flutter/material.dart';
 import 'package:airship_example/styles.dart';
 
 import 'package:flutter/services.dart' show DeviceOrientation, SystemChrome;
@@ -15,9 +15,9 @@ const String home_deep_link =  "home";
 const String message_center_deep_link =  "message_center";
 const String settings_deep_link =  "settings";
 
-Future<bool> backgroundMessageHandler(Notification notification) async {
-  print("Handling background message! $notification");
-  // Return true to indicate that the notification was handled, or false
+Future<bool> backgroundMessageHandler(Map<String, dynamic> payload) async {
+  print("Handling background message! $payload");
+  // Return true to indicate that the message was handled, or false
   // to use default handling.
   return false;
 }
@@ -60,7 +60,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
     Airship.addTags(["flutter"]);
   }
 
-// Platform messages are asynchronous, so we initialize in an async method.
+  // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
     Airship.onPushReceived.listen((event) {
       debugPrint('Push Received $event');
