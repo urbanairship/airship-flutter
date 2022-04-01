@@ -12,14 +12,12 @@ import com.urbanairship.push.*
 import com.urbanairship.push.notifications.AirshipNotificationProvider
 import com.urbanairship.push.notifications.NotificationArguments
 import androidx.annotation.XmlRes
-import com.airship.flutter.AirshipBackgroundExecutor.Companion.BackgroundMessageResult.*
 import com.airship.flutter.AirshipBackgroundExecutor.Companion.handleBackgroundMessage
 import com.urbanairship.AirshipConfigOptions
 import com.urbanairship.UAirship.getApplicationContext
 import com.urbanairship.analytics.Analytics
 import com.urbanairship.channel.AirshipChannelListener
 import com.urbanairship.preferencecenter.PreferenceCenter
-import com.urbanairship.push.notifications.NotificationResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -49,22 +47,6 @@ class FlutterAutopilot : Autopilot() {
         }
 
         airship.pushManager.notificationProvider = object : AirshipNotificationProvider(appContext, airship.airshipConfigOptions) {
-            override fun onCreateNotification(
-                context: Context,
-                arguments: NotificationArguments
-            ): NotificationResult {
-                if (appContext.isAppInForeground()) {
-                    return super.onCreateNotification(context, arguments)
-                }
-                // If the app is not in the foreground, handle the message by calling
-                // the background message handler via the background isolate.
-                return when (handleBackgroundMessage(appContext, arguments)) {
-                    HANDLED -> NotificationResult.cancel()
-                    NOT_HANDLED -> super.onCreateNotification(context, arguments)
-                    QUEUED -> NotificationResult.retry()
-                }
-            }
-
             override fun onExtendBuilder(context: Context, builder: NotificationCompat.Builder, arguments: NotificationArguments): NotificationCompat.Builder {
                 builder.extras.putBundle(PUSH_MESSAGE_BUNDLE_EXTRA, arguments.message.pushBundle)
                 return super.onExtendBuilder(context, builder, arguments)
@@ -72,13 +54,21 @@ class FlutterAutopilot : Autopilot() {
         }
 
         airship.pushManager.addPushListener{ message, notificationPosted ->
-            if (!notificationPosted) {
-                post(PushReceivedEvent(message))
+            if (notificationPosted) return@addPushListener
+
+            if (!appContext.isAppInForeground()) {
+                handleBackgroundMessage(appContext, message)
             }
+
+            post(PushReceivedEvent(message))
         }
 
-        airship.pushManager.setNotificationListener(object : NotificationListener {
+        airship.pushManager.notificationListener = object : NotificationListener {
             override fun onNotificationPosted(@NonNull notificationInfo: NotificationInfo) {
+                if (!appContext.isAppInForeground()) {
+                    handleBackgroundMessage(appContext, notificationInfo.message, notificationInfo)
+                }
+
                 post(PushReceivedEvent(notificationInfo.message, notificationInfo))
             }
 
@@ -97,7 +87,7 @@ class FlutterAutopilot : Autopilot() {
             }
 
             override fun onNotificationDismissed(@NonNull notificationInfo: NotificationInfo) {}
-        })
+        }
 
         airship.channel.addChannelListener(object : AirshipChannelListener {
             override fun onChannelCreated(channelId: String) {

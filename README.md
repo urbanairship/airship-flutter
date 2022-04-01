@@ -55,15 +55,15 @@ notificationAccentColor = #ff0000
 notificationChannel = customChannel
 ```
 
-4) Optional. In order to handle messages that are sent to the device while the app is in the background,
+4) Optional. In order to be notified of messages that are sent to the device while the app is in the background,
 define a `BackgroundMessageHandler` as a top-level function in your app's main.dart file:
 
 ```dart
-Future<bool> backgroundMessageHandler(Notification notification) async {
-  print("Received background message: $notification");
-  // Return true to indicate that the notification was handled, or false
-  // to use default handling provided by the Airship SDK.
-  return true;
+Future<void> backgroundMessageHandler(
+    Map<String, dynamic> payload,
+    Notification? notification) async { 
+  // Handle the message
+  print("Received background message: $payload, $notification");
 }
 
 void main() {

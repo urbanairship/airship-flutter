@@ -170,18 +170,22 @@ void _backgroundMessageIsolateCallback() {
 
   Airship._backgroundChannel.setMethodCallHandler((call) async {
     if (call.method == "onBackgroundMessage") {
+      final args = call.arguments;
       final handle =
-          CallbackHandle.fromRawHandle(call.arguments["messageCallback"]);
+          CallbackHandle.fromRawHandle(args["messageCallback"]);
       final callback = PluginUtilities.getCallbackFromHandle(handle)
           as BackgroundMessageHandler;
       try {
-        final payload = Map<String, dynamic>.from(jsonDecode(call.arguments["payload"]));
-        return await callback(payload);
+        final payload = Map<String, dynamic>.from(jsonDecode(args["payload"]));
+        var notification;
+        if (args["notification"] != null) {
+          notification = Notification._fromJson(jsonDecode(args["notification"]));
+        }
+        await callback(payload, notification);
       } catch (e) {
         print("Airship: Failed to handle background message!");
         print(e);
       }
-      return false;
     } else {
       throw UnimplementedError("${call.method} is not implemented!");
     }
@@ -192,7 +196,7 @@ void _backgroundMessageIsolateCallback() {
 }
 
 typedef BackgroundMessageHandler =
-    Future<bool> Function(Map<String, dynamic> payload);
+    Future<void> Function(Map<String, dynamic> payload, Notification? notification);
 
 class ChannelEvent {
   final String? channelId;

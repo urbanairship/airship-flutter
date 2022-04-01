@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Notification;
 import 'package:airship_example/styles.dart';
 
 import 'package:flutter/services.dart' show DeviceOrientation, SystemChrome;
@@ -15,11 +15,11 @@ const String home_deep_link =  "home";
 const String message_center_deep_link =  "message_center";
 const String settings_deep_link =  "settings";
 
-Future<bool> backgroundMessageHandler(Map<String, dynamic> payload) async {
-  print("Handling background message! $payload");
-  // Return true to indicate that the message was handled, or false
-  // to use default handling.
-  return false;
+Future<void> backgroundMessageHandler(
+    Map<String, dynamic> payload,
+    Notification notification
+) async {
+  print("Background Push Received $payload, $notification");
 }
 
 void main() {
