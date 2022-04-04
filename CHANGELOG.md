@@ -1,5 +1,13 @@
 # Flutter Plugin Changelog
 
+## Version 5.4.0 - April 4, 2022
+Minor release that adds support for registering a handler that will be 
+called when a message is received in the background on Android.
+
+### Changes
+- Added support for handling background messages on Android
+- Updated iOS SDK to 16.5.1
+
 ## Version 5.3.0 - March 4, 2022
 Minor release that adds support for multi-channel Preference Center.
 
