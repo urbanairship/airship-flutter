@@ -1,7 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'custom_event.dart';
 import 'tag_group_editor.dart';
 import 'subscription_list_editor.dart';
@@ -162,6 +165,39 @@ class PushReceivedEvent {
   }
 }
 
+void _backgroundMessageIsolateCallback() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  Airship._backgroundChannel.setMethodCallHandler((call) async {
+    if (call.method == "onBackgroundMessage") {
+      final args = call.arguments;
+      final handle =
+          CallbackHandle.fromRawHandle(args["messageCallback"]);
+      final callback = PluginUtilities.getCallbackFromHandle(handle)
+          as BackgroundMessageHandler;
+      try {
+        final payload = Map<String, dynamic>.from(jsonDecode(args["payload"]));
+        var notification;
+        if (args["notification"] != null) {
+          notification = Notification._fromJson(jsonDecode(args["notification"]));
+        }
+        await callback(payload, notification);
+      } catch (e) {
+        print("Airship: Failed to handle background message!");
+        print(e);
+      }
+    } else {
+      throw UnimplementedError("${call.method} is not implemented!");
+    }
+  });
+
+  // Tell the native side to start the background isolate.
+  Airship._backgroundChannel.invokeMethod<void>("backgroundIsolateStarted");
+}
+
+typedef BackgroundMessageHandler =
+    Future<void> Function(Map<String, dynamic> payload, Notification? notification);
+
 class ChannelEvent {
   final String? channelId;
   final String? registrationToken;
@@ -183,8 +219,11 @@ class ChannelEvent {
 class Airship {
   static const MethodChannel _channel =
       const MethodChannel('com.airship.flutter/airship');
+  static const MethodChannel _backgroundChannel =
+      const MethodChannel('com.airship.flutter/airship_background');
   static Map<String, EventChannel> _eventChannels = new Map();
   static Map<String, Stream<dynamic>> _eventStreams = new Map();
+  static bool _isBackgroundHandlerSet = false;
 
   static Stream<dynamic>? _getEventStream(String eventType) {
     if (_eventChannels[eventType] == null) {
@@ -206,6 +245,25 @@ class Airship {
       "app_secret": appSecret
     };
     return await _channel.invokeMethod('takeOff', args);
+  }
+
+  static Future<void> setBackgroundMessageHandler(
+      BackgroundMessageHandler handler
+  ) async {
+    if (defaultTargetPlatform != TargetPlatform.android) { return; }
+    if (_isBackgroundHandlerSet) {
+      print("Airship background message handler already set!");
+      return;
+    }
+    _isBackgroundHandlerSet = true;
+
+    final isolateCallback =
+        PluginUtilities.getCallbackHandle(_backgroundMessageIsolateCallback)!;
+    final messageCallback = PluginUtilities.getCallbackHandle(handler)!;
+    await _channel.invokeMapMethod("startBackgroundIsolate", {
+      "isolateCallback": isolateCallback.toRawHandle(),
+      "messageCallback": messageCallback.toRawHandle()
+    });
   }
 
   static Future<String?> get channelId async {

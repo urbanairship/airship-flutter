@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Notification;
 import 'package:airship_example/styles.dart';
 
 import 'package:flutter/services.dart' show DeviceOrientation, SystemChrome;
@@ -15,12 +15,21 @@ const String home_deep_link =  "home";
 const String message_center_deep_link =  "message_center";
 const String settings_deep_link =  "settings";
 
+Future<void> backgroundMessageHandler(
+    Map<String, dynamic> payload,
+    Notification notification
+) async {
+  print("Background Push Received $payload, $notification");
+}
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+
+  Airship.setBackgroundMessageHandler(backgroundMessageHandler);
 
   runApp(MyApp());
 }
@@ -51,7 +60,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
     Airship.addTags(["flutter"]);
   }
 
-// Platform messages are asynchronous, so we initialize in an async method.
+  // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
     Airship.onPushReceived.listen((event) {
       debugPrint('Push Received $event');
@@ -92,7 +101,6 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
         return MessageView(messageId: messageId,);
       }));
     });
-
 
     Airship.onChannelRegistration.listen((event) {
       debugPrint('Channel registration $event');

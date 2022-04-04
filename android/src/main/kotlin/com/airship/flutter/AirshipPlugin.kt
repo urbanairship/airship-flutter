@@ -1,15 +1,14 @@
 package com.airship.flutter
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.NotificationManager
 import android.content.Context
-import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.os.Build
 import android.view.View
 import android.webkit.WebView
 import androidx.core.app.NotificationManagerCompat
-import com.airship.flutter.events.ShowPreferenceCenterEvent
 import com.urbanairship.Autopilot
 import com.urbanairship.PrivacyManager
 import com.urbanairship.UAirship
@@ -28,7 +27,10 @@ import com.urbanairship.reactive.Observable
 import com.urbanairship.reactive.Subscriber
 import com.urbanairship.util.DateUtils
 import com.urbanairship.util.UAStringUtil
+import io.flutter.embedding.engine.FlutterShellArgs
 import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.embedding.engine.plugins.activity.ActivityAware
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -129,24 +131,28 @@ class FlutterInboxMessageView(private var context: Context, channel: MethodChann
     }
 }
 
-class AirshipPlugin : MethodCallHandler, FlutterPlugin {
+class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     private lateinit var channel : MethodChannel
 
     private lateinit var context: Context
 
-    val sharedPreferences by lazy {
-        context.getSharedPreferences("com.urbanairship.flutter", Context.MODE_PRIVATE)
+    private val sharedPreferences by lazy {
+        context.getAirshipSharedPrefs()
     }
 
-    val scope: CoroutineScope = CoroutineScope(Dispatchers.Main) + SupervisorJob()
+    private val scope: CoroutineScope = CoroutineScope(Dispatchers.Main) + SupervisorJob()
+
+    private var mainActivity: Activity? = null
 
     companion object {
         @JvmStatic
         fun registerWith(registrar: Registrar) {
-            var plugin = AirshipPlugin()
+            val plugin = AirshipPlugin()
             plugin.register(registrar.context().applicationContext, registrar.messenger(), registrar.platformViewRegistry())
         }
+
+        internal const val AIRSHIP_SHARED_PREFS = "com.urbanairship.flutter"
     }
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
@@ -177,6 +183,7 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
         }
 
         when (call.method) {
+            "startBackgroundIsolate" -> startBackgroundIsolate(call, result)
             "getChannelId" -> getChannelId(result)
             "setUserNotificationsEnabled" -> setUserNotificationsEnabled(call, result)
             "getUserNotificationsEnabled" -> getUserNotificationsEnabled(result)
@@ -216,6 +223,18 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
 
             else -> result.notImplemented()
         }
+    }
+
+    private fun startBackgroundIsolate(call: MethodCall, result: Result) {
+        val args = call.arguments as Map<*, *>
+        val isolateCallback = args["isolateCallback"] as? Long ?: 0
+        val messageCallback = args["messageCallback"] as? Long ?: 0
+        val shellArgs = mainActivity?.intent?.let { FlutterShellArgs.fromIntent(it) }
+        AirshipBackgroundExecutor.run {
+            setCallbacks(context, isolateCallback, messageCallback)
+            startIsolate(context, shellArgs)
+        }
+        result.success(null)
     }
 
     private fun getInboxMessages(result: Result) {
@@ -560,7 +579,7 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
     }
 
     private fun getEnabledFeatures(result: Result) {
-        val features = UAirship.shared().privacyManager.getEnabledFeatures()
+        val features = UAirship.shared().privacyManager.enabledFeatures
         val featureArray: MutableList<String> = mutableListOf()
 
         if (features == PrivacyManager.FEATURE_ALL) {
@@ -743,5 +762,21 @@ class AirshipPlugin : MethodCallHandler, FlutterPlugin {
     @Suppress("UNCHECKED_CAST")
     fun <T> uncheckedCast(value: Any): T {
         return value as T
+    }
+
+    override fun onAttachedToActivity(binding: ActivityPluginBinding) {
+        mainActivity = binding.activity
+    }
+
+    override fun onDetachedFromActivityForConfigChanges() {
+        mainActivity = null
+    }
+
+    override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
+        mainActivity = binding.activity
+    }
+
+    override fun onDetachedFromActivity() {
+        mainActivity = null
     }
 }

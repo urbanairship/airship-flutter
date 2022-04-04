@@ -6,20 +6,20 @@ The Airship Flutter plugin allows using Airship's native iOS and Android APIs wi
 
 1. Add the airship_flutter dependency to your package's pubspec.yaml file:
 
-```
+```yaml
 dependencies:
-  airship_flutter: ^4.0.0
+  airship_flutter: ^5.0.0
 ```
 
 2. Install your flutter package dependencies by running the following in the command line at your project's root directory:
 
-```
+```sh
 $ flutter pub get
 ```
 
 3. Import airship into your project:
 
-```
+```dart
 import 'package:airship_flutter/airship_flutter.dart';
 ```
 
@@ -30,30 +30,52 @@ import 'package:airship_flutter/airship_flutter.dart';
 2) Apply the `com.google.gms.google-services` plugin to the android/app.
 
 3) Create a new `airshipconfig.properties` file with your application’s settings and
-place it inside the android/app/src/main/assets directory:
+place it inside the `android/app/src/main/assets` directory:
 
+```properties
+developmentAppKey = Your Development App Key
+developmentAppSecret = Your Development App Secret
+
+productionAppKey = Your Production App Key
+productionAppSecret = Your Production Secret
+
+# Toggles between the development and production app credentials
+# Before submitting your application to an app store set to true
+inProduction = false
+
+# LogLevel is "VERBOSE", "DEBUG", "INFO", "WARN", "ERROR" or "ASSERT"
+developmentLogLevel = DEBUG
+productionLogLevel = ERROR
+
+# Notification customization
+notificationIcon = ic_notification
+notificationAccentColor = #ff0000
+
+# Optional - Set the default channel
+notificationChannel = customChannel
 ```
-   developmentAppKey = Your Development App Key
-   developmentAppSecret = Your Development App Secret
 
-   productionAppKey = Your Production App Key
-   productionAppSecret = Your Production Secret
+4) Optional. In order to be notified of messages that are sent to the device while the app is in the background,
+define a `BackgroundMessageHandler` as a top-level function in your app's main.dart file:
 
-   # Toggles between the development and production app credentials
-   # Before submitting your application to an app store set to true
-   inProduction = false
+```dart
+Future<void> backgroundMessageHandler(
+    Map<String, dynamic> payload,
+    Notification? notification) async { 
+  // Handle the message
+  print("Received background message: $payload, $notification");
+}
 
-   # LogLevel is "VERBOSE", "DEBUG", "INFO", "WARN", "ERROR" or "ASSERT"
-   developmentLogLevel = DEBUG
-   productionLogLevel = ERROR
-
-   # Notification customization
-   notificationIcon = ic_notification
-   notificationAccentColor = #ff0000
-
-   # Optional - Set the default channel
-   notificationChannel = customChannel
+void main() {
+  Airship.setBackgroundMessageHandler(backgroundMessageHandler);
+  runApp(MyApp());
+}
 ```
+
+The handler is executed in a separate background isolate outside the application's main isolate,
+so it is not possible to interact with the application UI or update application state from the handler.
+Care should be taken to ensure the handler logic completes as soon as possible in order to avoid 
+ANRs (Application Not Responding), which may trigger the OS to automatically terminate the process.
 
 ### iOS Setup
 
@@ -62,7 +84,7 @@ place it inside the android/app/src/main/assets directory:
   - Background Modes > Remote Notifications
 
 2) Create a plist `AirshipConfig.plist` and include it in your application’s target:
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -85,7 +107,7 @@ video, you will need to create a notification service extension by following the
 
 ### Example Usage
 
-```
+```dart
 // Import package
 import 'package:airship_flutter/airship.dart';
 
@@ -123,7 +145,7 @@ Note that Hybrid Composition can be enabled on Android by setting InboxMessageVi
 
 #### Example Usage
 
-```
+```dart
 // Import package
 import 'package:airship_flutter/airship.dart';
 

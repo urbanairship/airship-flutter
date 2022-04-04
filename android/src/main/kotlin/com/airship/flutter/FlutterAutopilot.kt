@@ -12,16 +12,14 @@ import com.urbanairship.push.*
 import com.urbanairship.push.notifications.AirshipNotificationProvider
 import com.urbanairship.push.notifications.NotificationArguments
 import androidx.annotation.XmlRes
+import com.airship.flutter.AirshipBackgroundExecutor.Companion.handleBackgroundMessage
 import com.urbanairship.AirshipConfigOptions
 import com.urbanairship.UAirship.getApplicationContext
 import com.urbanairship.analytics.Analytics
 import com.urbanairship.channel.AirshipChannelListener
 import com.urbanairship.preferencecenter.PreferenceCenter
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.single
-import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.runBlocking
 
 const val PUSH_MESSAGE_BUNDLE_EXTRA = "com.urbanairship.push_bundle"
@@ -29,17 +27,26 @@ const val PUSH_MESSAGE_BUNDLE_EXTRA = "com.urbanairship.push_bundle"
 class FlutterAutopilot : Autopilot() {
     var config: AirshipConfigOptions? = null
 
+    private val appContext: Context
+        get() = getApplicationContext()
+
     override fun onAirshipReady(airship: UAirship) {
         super.onAirshipReady(airship)
 
         Log.i("FlutterAutopilot", "onAirshipReady")
+
+        // If running in the background, start the background Isolate
+        // so that we can communicate with the Flutter app.
+        if (!appContext.isAppInForeground()) {
+            AirshipBackgroundExecutor.startIsolate(appContext)
+        }
 
         // Register a listener for inbox update event
         MessageCenter.shared().inbox.addListener {
             EventManager.shared.notifyEvent(InboxUpdatedEvent())
         }
 
-        airship.pushManager.notificationProvider = object : AirshipNotificationProvider(UAirship.getApplicationContext(), airship.airshipConfigOptions) {
+        airship.pushManager.notificationProvider = object : AirshipNotificationProvider(appContext, airship.airshipConfigOptions) {
             override fun onExtendBuilder(context: Context, builder: NotificationCompat.Builder, arguments: NotificationArguments): NotificationCompat.Builder {
                 builder.extras.putBundle(PUSH_MESSAGE_BUNDLE_EXTRA, arguments.message.pushBundle)
                 return super.onExtendBuilder(context, builder, arguments)
@@ -47,13 +54,21 @@ class FlutterAutopilot : Autopilot() {
         }
 
         airship.pushManager.addPushListener{ message, notificationPosted ->
-            if (!notificationPosted) {
-                post(PushReceivedEvent(message))
+            if (notificationPosted) return@addPushListener
+
+            if (!appContext.isAppInForeground()) {
+                handleBackgroundMessage(appContext, message)
             }
+
+            post(PushReceivedEvent(message))
         }
 
-        airship.pushManager.setNotificationListener(object : NotificationListener {
+        airship.pushManager.notificationListener = object : NotificationListener {
             override fun onNotificationPosted(@NonNull notificationInfo: NotificationInfo) {
+                if (!appContext.isAppInForeground()) {
+                    handleBackgroundMessage(appContext, notificationInfo.message, notificationInfo)
+                }
+
                 post(PushReceivedEvent(notificationInfo.message, notificationInfo))
             }
 
@@ -72,7 +87,7 @@ class FlutterAutopilot : Autopilot() {
             }
 
             override fun onNotificationDismissed(@NonNull notificationInfo: NotificationInfo) {}
-        })
+        }
 
         airship.channel.addChannelListener(object : AirshipChannelListener {
             override fun onChannelCreated(channelId: String) {
@@ -117,8 +132,8 @@ class FlutterAutopilot : Autopilot() {
 
         airship.getAnalytics().registerSDKExtension(Analytics.EXTENSION_FLUTTER, AirshipPluginVersion.AIRSHIP_PLUGIN_VERSION);
 
-        loadCustomNotificationChannels(UAirship.getApplicationContext(), airship)
-        loadCustomNotificationButtonGroups(UAirship.getApplicationContext(), airship)
+        loadCustomNotificationChannels(appContext, airship)
+        loadCustomNotificationButtonGroups(appContext, airship)
     }
 
     private fun loadCustomNotificationChannels(context: Context, airship: UAirship) {

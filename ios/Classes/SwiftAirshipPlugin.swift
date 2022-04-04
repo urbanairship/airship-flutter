@@ -138,6 +138,9 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDe
             getPreferenceCenterConfig(call, result: result)
         case "setAutoLaunchDefaultPreferenceCenter":
             setAutoLaunchDefaultPreferenceCenter(call, result: result)
+        case "startBackgroundIsolate":
+            // Android only. No-op on iOS.
+            result(true)
         default:
             result(FlutterError(code:"UNAVAILABLE",
                 message:"Unknown method: \(call.method)",
