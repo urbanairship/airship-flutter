@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/services.dart';
 
+/// Scoped subscription list editor.
 class ScopedSubscriptionListEditor {
   static const SUBSCRIPTIONLIST_OPERATION_ID = "listId";
   static const SUBSCRIPTIONLIST_OPERATION_TYPE = "type";
@@ -9,7 +10,11 @@ class ScopedSubscriptionListEditor {
   static const SUBSCRIPTIONLIST_OPERATION_SCOPE = "scopes";
 
   final MethodChannel channel;
+
+  /// The subscription list update type.
   final String type;
+
+  /// The subscription list updates.
   final List<Map<String, dynamic>> operations;
 
   ScopedSubscriptionListEditor(String type, MethodChannel channel)
@@ -17,6 +22,7 @@ class ScopedSubscriptionListEditor {
         this.operations = [],
         this.channel = channel;
 
+  /// Subscribes to a list in the given [scopes].
   void subscribe(String listId, List<String> scopes) {
     operations.add({
       SUBSCRIPTIONLIST_OPERATION_TYPE: SUBSCRIPTIONLIST_OPERATION_SUBSCRIBE,
@@ -25,6 +31,7 @@ class ScopedSubscriptionListEditor {
     });
   }
 
+  /// Unsubscribe from a list in the given [scopes].
   void unsubscribe(String listId, List<String> scopes) {
     operations.add({
       SUBSCRIPTIONLIST_OPERATION_TYPE: SUBSCRIPTIONLIST_OPERATION_UNSUBSCRIBE,
@@ -32,7 +39,8 @@ class ScopedSubscriptionListEditor {
       SUBSCRIPTIONLIST_OPERATION_SCOPE: scopes
     });
   }
-  
+
+  /// Applies subscription list changes.
   Future<void> apply() async {
     return await channel.invokeMethod(type, operations);
   }

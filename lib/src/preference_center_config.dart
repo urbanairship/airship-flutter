@@ -8,9 +8,16 @@ List<Map<String, dynamic>> _toList(dynamic json) {
   return List<Map<String, dynamic>>.from(json);
 }
 
+/// Preference center config object.
 class PreferenceCenterConfig {
+
+  /// The ID of the preference center.
   final String identifier;
+
+  /// The preference center [PreferenceCenterCommonDisplay].
   final PreferenceCenterCommonDisplay? display;
+
+  /// The preference center list of [PreferenceCenterSection].
   final List<PreferenceCenterSection> sections;
 
   const PreferenceCenterConfig._internal(
@@ -37,11 +44,15 @@ class PreferenceCenterConfig {
   }
 }
 
+/// Preference center condition type.
 enum PreferenceCenterConditionType {
   notificationOptIn
 }
 
+/// Preference center condition.
 class PreferenceCenterCondition {
+
+  /// The condition type.
   final PreferenceCenterConditionType? type = null;
 
   static List<PreferenceCenterCondition> _fromJsonList(List<Map<String, dynamic>> jsonList) {
@@ -58,13 +69,19 @@ class PreferenceCenterCondition {
   }
 }
 
+/// Preference center condition opt-in.
 enum PreferenceCenterConditionOptIn {
   optIn,
   optOut
 }
 
+/// Preference center notification opt-in condition.
 class PreferenceCenterNotificationOptInCondition implements PreferenceCenterCondition {
+
+  /// The condition type.
   final PreferenceCenterConditionType type = PreferenceCenterConditionType.notificationOptIn;
+
+  /// The condition opt-in status.
   final PreferenceCenterConditionOptIn whenStatus;
 
   const PreferenceCenterNotificationOptInCondition._internal(this.whenStatus);
@@ -91,8 +108,13 @@ class PreferenceCenterNotificationOptInCondition implements PreferenceCenterCond
   }
 }
 
+/// Preference center common display information.
 class PreferenceCenterCommonDisplay {
+
+  /// The display title.
   final String? title;
+
+  /// The display subtitle.
   final String? subtitle;
 
   const PreferenceCenterCommonDisplay._internal(this.title, this.subtitle);
@@ -109,9 +131,16 @@ class PreferenceCenterCommonDisplay {
   }
 }
 
+/// Preference center common display information with icon.
 class PreferenceCenterIconDisplay implements PreferenceCenterCommonDisplay {
+
+  /// The display title.
   final String? title;
+
+  /// The display subtitle.
   final String? subtitle;
+
+  /// The display icon.
   final String? icon;
 
   const PreferenceCenterIconDisplay._internal(this.title, this.subtitle, this.icon);
@@ -129,15 +158,25 @@ class PreferenceCenterIconDisplay implements PreferenceCenterCommonDisplay {
   }
 }
 
+/// Preference center section type.
 enum PreferenceCenterSectionType {
   common,
   labeledSectionBreak
 }
 
+/// Preference center section.
 abstract class PreferenceCenterSection {
+
+  /// The section type.
   PreferenceCenterSectionType get type;
+
+  /// The common display information.
   PreferenceCenterCommonDisplay? get display;
+
+  /// A list of preference center items.
   List<PreferenceCenterItem>? get items;
+
+  /// A list of preference center conditions.
   List<PreferenceCenterCondition>? get conditions;
 
   static List<PreferenceCenterSection> _fromJsonList(List<Map<String, dynamic>> jsonList) {
@@ -157,13 +196,22 @@ abstract class PreferenceCenterSection {
   }
 }
 
+/// Preference center common section.
 class PreferenceCenterCommonSection implements PreferenceCenterSection {
+
+  /// The section type.
   @override
   final PreferenceCenterSectionType type = PreferenceCenterSectionType.common;
+
+  /// The common display information.
   @override
   final PreferenceCenterCommonDisplay? display;
+
+  /// A list of preference center items.
   @override
   final List<PreferenceCenterItem>? items;
+
+  /// A list of preference center conditions.
   @override
   final List<PreferenceCenterCondition>? conditions;
 
@@ -183,12 +231,20 @@ class PreferenceCenterCommonSection implements PreferenceCenterSection {
 }
 
 class PreferenceCenterLabeledSectionBreak implements PreferenceCenterSection {
+
+  /// The section type.
   @override
   final PreferenceCenterSectionType type = PreferenceCenterSectionType.labeledSectionBreak;
+
+  /// The common display information.
   @override
   final PreferenceCenterCommonDisplay? display;
+
+  /// A list of preference center items.
   @override
   final List<PreferenceCenterItem>? items = null;
+
+  /// A list of preference center conditions.
   @override
   final List<PreferenceCenterCondition>? conditions;
 
@@ -206,6 +262,7 @@ class PreferenceCenterLabeledSectionBreak implements PreferenceCenterSection {
   }
 }
 
+/// Preference center item type.
 enum PreferenceCenterItemType {
   channelSubscription,
   contactSubscription,
@@ -213,9 +270,16 @@ enum PreferenceCenterItemType {
   alert
 }
 
+/// Preference center item.
 abstract class PreferenceCenterItem {
+
+  /// The item type.
   PreferenceCenterItemType get type;
+
+  /// The common display information.
   PreferenceCenterCommonDisplay get display;
+
+  /// A list of preference center conditions.
   List<PreferenceCenterCondition>? get conditions;
 
   static List<PreferenceCenterItem> _fromJsonList(List<Map<String, dynamic>> jsonList) {
@@ -238,9 +302,16 @@ abstract class PreferenceCenterItem {
   }
 }
 
+/// Preference center alert item button.
 class PreferenceCenterAlertItemButton {
+
+  /// The alert item button text.
   final String text;
+
+  /// The alert item button content description.
   final String? contentDescription;
+
+  /// The alert item button actions.
   final Map<String, dynamic> actions;
 
   const PreferenceCenterAlertItemButton._internal(this.text, this.contentDescription, this.actions);
@@ -259,14 +330,22 @@ class PreferenceCenterAlertItemButton {
   }
 }
 
+/// Preference center alert item.
 class PreferenceCenterAlertItem implements PreferenceCenterItem {
+
+  /// The alert item type.
   @override
   final PreferenceCenterItemType type = PreferenceCenterItemType.alert;
+
+  /// The alert item icon display information.
   @override
   final PreferenceCenterIconDisplay display;
+
+  /// A list of preference center condition.
   @override
   final List<PreferenceCenterCondition>? conditions;
 
+  /// The alert item button.
   final PreferenceCenterAlertItemButton? button;
 
   const PreferenceCenterAlertItem._internal(this.display, this.button, this.conditions);
@@ -284,14 +363,22 @@ class PreferenceCenterAlertItem implements PreferenceCenterItem {
   }
 }
 
+/// Preference center channel subscription item.
 class PreferenceCenterChannelSubscriptionItem implements PreferenceCenterItem {
+
+  /// The channel subscription item type.
   @override
   final PreferenceCenterItemType type = PreferenceCenterItemType.channelSubscription;
+
+  /// The channel subscription item common display information.
   @override
   final PreferenceCenterCommonDisplay display;
+
+  /// A list of preference center condition.
   @override
   final List<PreferenceCenterCondition>? conditions;
 
+  /// The subscription list id.
   final String subscriptionId;
 
   const PreferenceCenterChannelSubscriptionItem._internal(this.display, this.subscriptionId, this.conditions);
@@ -309,14 +396,22 @@ class PreferenceCenterChannelSubscriptionItem implements PreferenceCenterItem {
   }
 }
 
+/// Preference center contact subscription item.
 class PreferenceCenterContactSubscriptionItem implements PreferenceCenterItem {
+
+  /// The contact subscription item type.
   @override
   final PreferenceCenterItemType type = PreferenceCenterItemType.contactSubscription;
+
+  /// The contact subscription item common display information.
   @override
   final PreferenceCenterCommonDisplay display;
+
+  /// A list of preference center condition.
   @override
   final List<PreferenceCenterCondition>? conditions;
 
+  /// The subscription list id.
   final String subscriptionId;
 
   const PreferenceCenterContactSubscriptionItem._internal(this.display, this.subscriptionId, this.conditions);
@@ -334,8 +429,13 @@ class PreferenceCenterContactSubscriptionItem implements PreferenceCenterItem {
   }
 }
 
+/// Preference center contact subscription group item component.
 class PreferenceCenterContactSubscriptionGroupItemComponent {
+
+  /// The channel scopes.
   final List<ChannelScope> scopes;
+
+  /// The contact subscription group item common display information.
   final PreferenceCenterCommonDisplay display;
 
   const PreferenceCenterContactSubscriptionGroupItemComponent._internal(this.scopes, this.display);
@@ -367,14 +467,25 @@ class PreferenceCenterContactSubscriptionGroupItemComponent {
   }
 }
 
+/// Preference center contact subscription group item.
 class PreferenceCenterContactSubscriptionGroupItem implements PreferenceCenterItem {
+
+  /// The contact subscription group item type.
   @override
   final PreferenceCenterItemType type = PreferenceCenterItemType.contactSubscriptionGroup;
+
+  /// The contact subscription group item common display information.
   @override
   final PreferenceCenterCommonDisplay display;
+
+  /// A list of preference center condition.
   @override
   final List<PreferenceCenterCondition>? conditions;
+
+  /// The subscription list id.
   final String subscriptionId;
+
+  /// A list of subscription group item component.
   final List<PreferenceCenterContactSubscriptionGroupItemComponent> components;
 
   const PreferenceCenterContactSubscriptionGroupItem._internal(this.display, this.subscriptionId, this.conditions, this.components);
