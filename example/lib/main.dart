@@ -149,7 +149,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
             icon: Icon(Icons.inbox),
           ),
           Tab(
-            icon: Icon(Icons.inbox),
+            icon: Icon(Icons.menu),
           ),
           Tab(
             icon: Icon(Icons.settings),
