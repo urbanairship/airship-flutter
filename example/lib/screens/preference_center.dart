@@ -1,8 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:airship_flutter/airship_flutter.dart';
-import 'package:airship_example/styles.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:flutter_section_list/flutter_section_list.dart';
 
 class PreferenceCenter extends StatefulWidget {
