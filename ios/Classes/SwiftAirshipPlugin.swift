@@ -692,21 +692,13 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDe
     }
     
     private func getPreferenceCenterConfig(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let preferenceCenterID = call.arguments as? String else {
+        guard let configID = call.arguments as? String else {
             result(nil)
             return
         }
-        
-        var disposable: Disposable?
-        let remoteData = Airship.requireComponent(ofType: RemoteDataManager.self)
-        disposable = remoteData.subscribe(types: ["preference_forms"]) { payloads in
-            let data = payloads.first?.data["preference_forms"] as? [[String : Any]]
-            let config = data?
-                .compactMap { $0["form"] as? [String : Any] }
-                .first(where: { $0["id"] as? String == preferenceCenterID})
-            
-            disposable?.dispose()
-            result(JSONUtils.string(config ?? [:]))
+
+        PreferenceCenter.shared.jsonConfig(preferenceCenterID: configID) { config in
+            result(JSONUtils.string(config))
         }
     }
 
