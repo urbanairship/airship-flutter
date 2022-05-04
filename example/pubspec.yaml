@@ -9,6 +9,7 @@ dependencies:
   flutter:
     sdk: flutter
   pull_to_refresh: 2.0.0
+  flutter_section_list: ^1.1.0
 
 
 dev_dependencies:

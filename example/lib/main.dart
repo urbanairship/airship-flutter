@@ -7,6 +7,7 @@ import 'package:airship_example/screens/home.dart';
 import 'package:airship_example/screens/settings.dart';
 import 'package:airship_example/screens/message_center.dart';
 import 'package:airship_example/screens/message_view.dart';
+import 'package:airship_example/screens/preference_center.dart';
 
 import 'package:airship_flutter/airship_flutter.dart';
 
@@ -48,7 +49,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    controller = TabController(length: 3, vsync: this);
+    controller = TabController(length: 4, vsync: this);
     initPlatformState();
     addFlutterTag();
 
@@ -125,7 +126,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
         onWillPop: null,
         child: Scaffold(
           body: TabBarView(
-            children: <Widget>[Home(), MessageCenter(), Settings()],
+            children: <Widget>[Home(), MessageCenter(), PreferenceCenter(), Settings()],
             controller: controller,
           ),
           bottomNavigationBar: bottomNavigationBar(),
@@ -146,6 +147,9 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
           ),
           Tab(
             icon: Icon(Icons.inbox),
+          ),
+          Tab(
+            icon: Icon(Icons.menu),
           ),
           Tab(
             icon: Icon(Icons.settings),
