@@ -1,5 +1,20 @@
 # Flutter Plugin Changelog
 
+## Version 5.5.0 - May 4, 2022
+Minor release that updates Airship Android SDK to 16.4.0, and iOS SDK to 16.6.0. These SDK releases fix several issues with Scenes and Surveys. Apps using Scenes & Surveys should update.
+
+- Added support for randomizing Survey responses.
+- Added subscription list action.
+- Updated localizations. All strings within the SDK are now localized in 48 different languages.
+- Improved accessibility with OOTB Message Center UI.
+- In-App rules will now attempt to refresh before displaying. This change should reduce the chances of showing out of data or cancelled in-app automations, scenes, or surveys when background refresh is disabled.
+- Fixed reporting issue with a single page Scene.
+- Fixed rendering issues for Scenes & Surveys.
+- Fixed deep links that contain invalid characters by encoding those deep links.
+- Fixed crash on Android 8 with Scenes & Surveys.
+- Fixed Survey attribute storage on Android.
+
+
 ## Version 5.4.0 - April 4, 2022
 Minor release that adds support for registering a handler that will be 
 called when a message is received in the background on Android.
