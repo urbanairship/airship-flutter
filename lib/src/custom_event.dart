@@ -1,3 +1,4 @@
+/// Custom event object.
 class CustomEvent {
   static const EVENT_NAME = "event_name";
   static const EVENT_VALUE = "event_value";
@@ -6,24 +7,29 @@ class CustomEvent {
   static const INTERACTION_ID = "interaction_id";
   static const INTERACTION_TYPE = "interaction_type";
 
+  /// The event name.
   final String name;
+
+  /// The event value.
   final int? value;
+
+  /// The event transaction ID.
   String? transactionId;
+
+  /// The event interaction ID.
   String? interactionId;
+
+  /// The event interaction type.
   String? interactionType;
 
+  /// The event properties.
   var _properties = new Map<String, dynamic>();
 
   CustomEvent(String name, int? value)
       : this.name = name,
         this.value = value;
 
-  ///
-  /// Adds a custom event property.
-  ///
-  /// @param key The property key.
-  /// @param value The property value.
-  ///
+  /// Adds a property to the custom event.
   void addProperty(String key, dynamic value) {
     if (value == null) {
       throw ArgumentError.notNull('value');
@@ -31,11 +37,7 @@ class CustomEvent {
     _properties[key] = value;
   }
 
-  ///
-  /// Sets custom event properties.
-  ///
-  /// @param properties The custom event properties.
-  ///
+  /// Sets the custom event properties.
   void setProperties(Map<String, dynamic> properties) {
     properties.forEach((key,value) => _properties[key] = value);
   }

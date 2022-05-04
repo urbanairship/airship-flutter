@@ -6,12 +6,25 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+/// Inbox message view component.
 class InboxMessageView extends StatelessWidget {
+
+  /// The message Id.
   final String messageId;
+
+  /// A callback when the view starts loading a message.
   final void Function()? onLoadStarted;
+
+  /// A callback when the view finishes loading a message.
   final void Function()? onLoadFinished;
+
+  /// A callback when the view fails to load a message with an error.
   final void Function(PlatformException)? onLoadError;
+
+  /// A callback when the message is closed.
   final void Function()? onClose;
+
+  /// A flag to use flutter hybrid composition method or not. Default to false.
   static bool hybridComposition = false;
 
   InboxMessageView({
