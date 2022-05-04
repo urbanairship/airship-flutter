@@ -692,26 +692,11 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     @SuppressLint("RestrictedApi")
     private fun getPreferenceCenterConfig(call: MethodCall, result: Result) {
-        val preferenceCenterID = call.arguments as String
-        val remoteData = UAirship.shared().remoteData
+        val preferenceCenterId = call.arguments as String
 
-        remoteData.payloadsForType("preference_forms")
-            .flatMap { payload ->
-                val payloadForms = payload.data.opt("preference_forms").optList()
-                val form = payloadForms.mapNotNull {
-                    val form = it.optMap().opt("form").optMap()
-                    if (form.opt("id").optString() == preferenceCenterID) {
-                        form
-                    } else {
-                        null
-                    }
-                }.firstOrNull()
-                Observable.just(form ?: JsonMap.EMPTY_MAP)
-            }.subscribe(object : Subscriber<JsonMap>() {
-                override fun onNext(value: JsonMap) {
-                    result.success(value.toString())
-                }
-            })
+        PreferenceCenter.shared().getJsonConfig(preferenceCenterId).addResultCallback { config ->
+            result.success(config?.toString() ?: JsonMap.EMPTY_MAP.toString())
+        }
     }
 
     private fun setAutoLaunchDefaultPreferenceCenter(call: MethodCall, result: Result) {
