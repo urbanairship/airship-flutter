@@ -23,8 +23,6 @@ import com.urbanairship.messagecenter.MessageCenter
 import com.urbanairship.messagecenter.webkit.MessageWebView
 import com.urbanairship.messagecenter.webkit.MessageWebViewClient
 import com.urbanairship.preferencecenter.PreferenceCenter
-import com.urbanairship.reactive.Observable
-import com.urbanairship.reactive.Subscriber
 import com.urbanairship.util.DateUtils
 import com.urbanairship.util.UAStringUtil
 import io.flutter.embedding.engine.FlutterShellArgs
@@ -59,9 +57,9 @@ private const val ATTRIBUTE_MUTATION_SET = "set"
 const val AUTO_LAUNCH_PREFERENCE_CENTER_KEY = "com.airship.flutter.auto_launch_pc"
 
 class InboxMessageViewFactory(private val binaryMessenger: BinaryMessenger) : PlatformViewFactory(StandardMessageCodec.INSTANCE) {
-    override fun create(context: Context, viewId: Int, arguments: Any?): PlatformView {
+    override fun create(context: Context?, viewId: Int, args: Any?): PlatformView {
         val channel = MethodChannel(binaryMessenger, "com.airship.flutter/InboxMessageView_$viewId")
-        val view = FlutterInboxMessageView(context, channel)
+        val view = FlutterInboxMessageView(checkNotNull(context), channel)
         channel.setMethodCallHandler(view)
         return view
     }
