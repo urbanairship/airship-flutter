@@ -36,6 +36,7 @@ class PreferenceCenterConfig {
     } catch (e) {
       print("Invalid config: $e");
     }
+    return null;
   }
 
   @override
