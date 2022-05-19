@@ -13,10 +13,12 @@ class NotificationsEnabledButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center (child: Padding(
+    return Center(
+        child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: MaterialButton(
-                child: Text( "Enable Push",
+                child: Text(
+                  "Enable Push",
                   style: Styles.homeButtonText,
                 ),
                 color: Styles.airshipRed,
@@ -24,9 +26,6 @@ class NotificationsEnabledButton extends StatelessWidget {
                 height: 40,
                 minWidth: 400,
                 padding: EdgeInsets.symmetric(vertical: 35),
-                onPressed:onPressed
-            )
-        )
-    );
+                onPressed: onPressed)));
   }
 }

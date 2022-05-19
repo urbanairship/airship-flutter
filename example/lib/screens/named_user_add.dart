@@ -9,7 +9,8 @@ class NamedUserAdd extends StatefulWidget {
   NamedUserAdd({this.updateParent});
 
   @override
-  _NamedUserAddState createState() => _NamedUserAddState(updateParent:updateParent);
+  _NamedUserAddState createState() =>
+      _NamedUserAddState(updateParent: updateParent);
 }
 
 class _NamedUserAddState extends State<NamedUserAdd> {
@@ -41,7 +42,7 @@ class _NamedUserAddState extends State<NamedUserAdd> {
                     padding: const EdgeInsets.all(12.0),
                     child: TextAddBar(
                       label: snapshot.hasData ? snapshot.data : "Not set",
-                      onTap: (text){
+                      onTap: (text) {
                         Airship.setNamedUser(text);
                         updateParent();
                         Navigator.pop(context);

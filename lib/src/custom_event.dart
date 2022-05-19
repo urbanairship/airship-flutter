@@ -39,7 +39,7 @@ class CustomEvent {
 
   /// Sets the custom event properties.
   void setProperties(Map<String, dynamic> properties) {
-    properties.forEach((key,value) => _properties[key] = value);
+    properties.forEach((key, value) => _properties[key] = value);
   }
 
   Map<String, dynamic> toMap() {

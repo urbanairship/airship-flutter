@@ -33,10 +33,8 @@ class TextAddBar extends StatelessWidget {
               child: TextField(
                 controller: controller,
                 focusNode: focusNode,
-                decoration: InputDecoration(
-                    border: InputBorder.none,
-                    hintText: label
-                ),
+                decoration:
+                    InputDecoration(border: InputBorder.none, hintText: label),
                 cursorColor: Styles.airshipBlue,
               ),
             ),

@@ -14,7 +14,6 @@ import 'attribute_editor.dart';
 
 /// Inbox message object.
 class InboxMessage {
-
   /// The message title.
   final String? title;
 
@@ -59,7 +58,6 @@ class InboxMessage {
 
 /// Push notification object.
 class Notification {
-
   /// The notification ID.
   final String? notificationId;
 
@@ -99,14 +97,14 @@ class Notification {
 
 /// Subscription list object.
 class SubscriptionList {
-
   /// Channel subscription lists.
   final List<String>? channelSubscriptionLists;
 
   /// Contact subscription lists.
   final List<ContactSubscriptionList>? contactSubscriptionLists;
 
-  const SubscriptionList._internal(this.channelSubscriptionLists, this.contactSubscriptionLists);
+  const SubscriptionList._internal(
+      this.channelSubscriptionLists, this.contactSubscriptionLists);
 
   static SubscriptionList _fromJson(Map<String, dynamic> json) {
     var channelSubscriptionLists = <String>[];
@@ -116,10 +114,12 @@ class SubscriptionList {
     var contactSubscriptionLists = <ContactSubscriptionList>[];
     if (json["contact"] != null) {
       var lists = Map<String, dynamic>.from(json["contact"]);
-      lists.forEach((k, v) => contactSubscriptionLists.add(ContactSubscriptionList._fromJson(k,List<String>.from(v))));
+      lists.forEach((k, v) => contactSubscriptionLists
+          .add(ContactSubscriptionList._fromJson(k, List<String>.from(v))));
     }
 
-    return SubscriptionList._internal(channelSubscriptionLists, contactSubscriptionLists);
+    return SubscriptionList._internal(
+        channelSubscriptionLists, contactSubscriptionLists);
   }
 
   @override
@@ -130,7 +130,6 @@ class SubscriptionList {
 
 /// Contact subscription list object.
 class ContactSubscriptionList {
-
   /// The contact subscription list identifier.
   final String identifier;
 
@@ -139,7 +138,8 @@ class ContactSubscriptionList {
 
   const ContactSubscriptionList._internal(this.identifier, this.scopes);
 
-  static ContactSubscriptionList _fromJson(String identifier, List<String> scopes) {
+  static ContactSubscriptionList _fromJson(
+      String identifier, List<String> scopes) {
     return ContactSubscriptionList._internal(identifier, scopes);
   }
 
@@ -151,7 +151,6 @@ class ContactSubscriptionList {
 
 /// Event fired when the user initiates a notification response.
 class NotificationResponseEvent {
-
   /// The action button ID, if available.
   final String? actionId;
 
@@ -168,11 +167,7 @@ class NotificationResponseEvent {
   final Map<String, dynamic>? payload;
 
   const NotificationResponseEvent._internal(
-    this.actionId,
-    this.isForeground,
-    this.notification,
-    this.payload
-  );
+      this.actionId, this.isForeground, this.notification, this.payload);
 
   static NotificationResponseEvent _fromJson(Map<String, dynamic> json) {
     var actionId = json["action_id"];
@@ -191,7 +186,6 @@ class NotificationResponseEvent {
 
 /// Event fired when a push is received.
 class PushReceivedEvent {
-
   /// The notification payload.
   final Map<String, dynamic>? payload;
 
@@ -223,15 +217,15 @@ void _backgroundMessageIsolateCallback() {
   Airship._backgroundChannel.setMethodCallHandler((call) async {
     if (call.method == "onBackgroundMessage") {
       final args = call.arguments;
-      final handle =
-          CallbackHandle.fromRawHandle(args["messageCallback"]);
+      final handle = CallbackHandle.fromRawHandle(args["messageCallback"]);
       final callback = PluginUtilities.getCallbackFromHandle(handle)
           as BackgroundMessageHandler;
       try {
         final payload = Map<String, dynamic>.from(jsonDecode(args["payload"]));
         var notification;
         if (args["notification"] != null) {
-          notification = Notification._fromJson(jsonDecode(args["notification"]));
+          notification =
+              Notification._fromJson(jsonDecode(args["notification"]));
         }
         await callback(payload, notification);
       } catch (e) {
@@ -247,12 +241,11 @@ void _backgroundMessageIsolateCallback() {
   Airship._backgroundChannel.invokeMethod<void>("backgroundIsolateStarted");
 }
 
-typedef BackgroundMessageHandler =
-    Future<void> Function(Map<String, dynamic> payload, Notification? notification);
+typedef BackgroundMessageHandler = Future<void> Function(
+    Map<String, dynamic> payload, Notification? notification);
 
 /// Event fired when a channel registration occurs.
 class ChannelEvent {
-
   /// The channel ID.
   final String? channelId;
 
@@ -306,18 +299,16 @@ class Airship {
   ///
   /// Returns true if Airship has been initialized, otherwise returns false.
   static Future<bool> takeOff(String appKey, String appSecret) async {
-    Map<String, String> args = {
-      "app_key": appKey,
-      "app_secret": appSecret
-    };
+    Map<String, String> args = {"app_key": appKey, "app_secret": appSecret};
     return await _channel.invokeMethod('takeOff', args);
   }
 
   /// Sets a background message handler.
   static Future<void> setBackgroundMessageHandler(
-      BackgroundMessageHandler handler
-  ) async {
-    if (defaultTargetPlatform != TargetPlatform.android) { return; }
+      BackgroundMessageHandler handler) async {
+    if (defaultTargetPlatform != TargetPlatform.android) {
+      return;
+    }
     if (_isBackgroundHandlerSet) {
       print("Airship background message handler already set!");
       return;
@@ -391,7 +382,8 @@ class Airship {
   /// Creates an [AttributeEditor] to modify the channel attributes.
   ///
   /// Deprecated. Use [editChannelAttributes()] instead.
-  @deprecated static AttributeEditor editAttributes() {
+  @deprecated
+  static AttributeEditor editAttributes() {
     return AttributeEditor('editAttributes', _channel);
   }
 
@@ -412,7 +404,8 @@ class Airship {
 
   /// Creates a [ScopedSubscriptionListEditor] to modify the subscription lists associated with the current contact.
   static ScopedSubscriptionListEditor editContactSubscriptionLists() {
-    return ScopedSubscriptionListEditor('editContactSubscriptionLists', _channel);
+    return ScopedSubscriptionListEditor(
+        'editContactSubscriptionLists', _channel);
   }
 
   /// Creates a [TagGroupEditor] to modify the channel tag groups.
@@ -465,7 +458,8 @@ class Airship {
   ///
   /// Supported on Android Marshmallow (23)+ and iOS 10+.
   static Future<List<Notification>> get activeNotifications async {
-    List notifications = await (_channel.invokeMethod('getActiveNotifications'));
+    List notifications =
+        await (_channel.invokeMethod('getActiveNotifications'));
     return notifications.map((dynamic payload) {
       return Notification._fromJson(Map<String, dynamic>.from(payload));
     }).toList();
@@ -603,20 +597,25 @@ class Airship {
 
   /// Opens the Preference Center with the given [preferenceCenterID].
   static Future<void> openPreferenceCenter(String preferenceCenterID) async {
-    return await _channel.invokeMethod('openPreferenceCenter', preferenceCenterID);
+    return await _channel.invokeMethod(
+        'openPreferenceCenter', preferenceCenterID);
   }
 
   /// Gets the subscription lists.
   ///
   /// The [subscriptionListTypes] can contain types `channel` or `contact`.
-  static Future<SubscriptionList> getSubscriptionLists(List<String> subscriptionListTypes) async {
-    var lists = await (_channel.invokeMethod("getSubscriptionLists", subscriptionListTypes));
+  static Future<SubscriptionList> getSubscriptionLists(
+      List<String> subscriptionListTypes) async {
+    var lists = await (_channel.invokeMethod(
+        "getSubscriptionLists", subscriptionListTypes));
     return SubscriptionList._fromJson(Map<String, dynamic>.from(lists));
   }
 
   /// Returns the configuration of the Preference Center with the given [preferenceCenterID].
-  static Future<PreferenceCenterConfig?> getPreferenceCenterConfig(String preferenceCenterID) async {
-    var config = await _channel.invokeMethod('getPreferenceCenterConfig', preferenceCenterID);
+  static Future<PreferenceCenterConfig?> getPreferenceCenterConfig(
+      String preferenceCenterID) async {
+    var config = await _channel.invokeMethod(
+        'getPreferenceCenterConfig', preferenceCenterID);
     return PreferenceCenterConfig.fromJson(jsonDecode(config));
   }
 
@@ -625,4 +624,3 @@ class Airship {
     return await _channel.invokeMethod('setAutoLaunchDefaultPreferenceCenter');
   }
 }
-

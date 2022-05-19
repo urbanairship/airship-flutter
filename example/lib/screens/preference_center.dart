@@ -8,12 +8,13 @@ class PreferenceCenter extends StatefulWidget {
   _PreferenceCenterState createState() => _PreferenceCenterState();
 }
 
-class _PreferenceCenterState extends State<PreferenceCenter>  with SectionAdapterMixin{
-
+class _PreferenceCenterState extends State<PreferenceCenter>
+    with SectionAdapterMixin {
   String preferenceCenterId = "neat";
   PreferenceCenterConfig preferenceCenterConfig;
   List<String> activeChannelSubscriptions;
-  Map<String, List<String>> activeContactSubscriptions = Map<String, List<String>>();
+  Map<String, List<String>> activeContactSubscriptions =
+      Map<String, List<String>>();
 
   @override
   void initState() {
@@ -26,45 +27,52 @@ class _PreferenceCenterState extends State<PreferenceCenter>  with SectionAdapte
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initAirshipListeners() async {
-    Airship.onShowPreferenceCenter.listen((event) {
-    });
+    Airship.onShowPreferenceCenter.listen((event) {});
   }
 
   Future updatePreferenceCenterConfig() async {
-    preferenceCenterConfig = await Airship.getPreferenceCenterConfig(preferenceCenterId);
+    preferenceCenterConfig =
+        await Airship.getPreferenceCenterConfig(preferenceCenterId);
     setState(() {});
   }
 
   void fillInSubscriptionList() async {
-    SubscriptionList subscriptionList = await Airship.getSubscriptionLists(["channel", "contact"]);
+    SubscriptionList subscriptionList =
+        await Airship.getSubscriptionLists(["channel", "contact"]);
     activeChannelSubscriptions = subscriptionList.channelSubscriptionLists;
-    List<ContactSubscriptionList> contactSubscriptionLists = subscriptionList.contactSubscriptionLists;
+    List<ContactSubscriptionList> contactSubscriptionLists =
+        subscriptionList.contactSubscriptionLists;
     for (ContactSubscriptionList contact in contactSubscriptionLists) {
       activeContactSubscriptions[contact.identifier] = contact.scopes;
     }
     setState(() {});
   }
-  bool isSubscribedChannelSubscription (String subscriptionId) {
+
+  bool isSubscribedChannelSubscription(String subscriptionId) {
     if (activeChannelSubscriptions != null) {
       return activeChannelSubscriptions.contains(subscriptionId);
     }
     return false;
   }
 
-  bool isSubscribedContactSubscription (String subscriptionId, List<String> scopes) {
+  bool isSubscribedContactSubscription(
+      String subscriptionId, List<String> scopes) {
     if (activeContactSubscriptions != null) {
       if (scopes.isEmpty) {
         return activeContactSubscriptions.containsKey(subscriptionId);
       }
 
       if (activeContactSubscriptions[subscriptionId] != null) {
-        List<String> activeContactSubscriptionsScopes = activeContactSubscriptions[subscriptionId];
-        if (scopes.every((item) => activeContactSubscriptionsScopes.contains(item))) {
+        List<String> activeContactSubscriptionsScopes =
+            activeContactSubscriptions[subscriptionId];
+        if (scopes
+            .every((item) => activeContactSubscriptionsScopes.contains(item))) {
           return true;
         } else {
           return false;
         }
-      } else return false;
+      } else
+        return false;
     }
     return false;
   }
@@ -82,20 +90,24 @@ class _PreferenceCenterState extends State<PreferenceCenter>  with SectionAdapte
     setState(() {});
   }
 
-  void applyContactSubscription(String subscriptionId, List<String> scopes, bool subscribe) {
-      List<String> currentScopes = activeContactSubscriptions[subscriptionId] ?? [];
-      List<String> newScopes = [];
-      if (subscribe) {
-        newScopes = new List.from(currentScopes)..addAll(scopes);
-      } else {
-        currentScopes.removeWhere((item) => scopes.contains(item));
-        newScopes = currentScopes;
-      }
-      activeContactSubscriptions[subscriptionId] = newScopes;
+  void applyContactSubscription(
+      String subscriptionId, List<String> scopes, bool subscribe) {
+    List<String> currentScopes =
+        activeContactSubscriptions[subscriptionId] ?? [];
+    List<String> newScopes = [];
+    if (subscribe) {
+      newScopes = new List.from(currentScopes)..addAll(scopes);
+    } else {
+      currentScopes.removeWhere((item) => scopes.contains(item));
+      newScopes = currentScopes;
+    }
+    activeContactSubscriptions[subscriptionId] = newScopes;
   }
 
-  void onPreferenceContactSubscriptionItemToggled(String subscriptionId, List<String> scopes, bool subscribe) {
-    ScopedSubscriptionListEditor editor = Airship.editContactSubscriptionLists();
+  void onPreferenceContactSubscriptionItemToggled(
+      String subscriptionId, List<String> scopes, bool subscribe) {
+    ScopedSubscriptionListEditor editor =
+        Airship.editContactSubscriptionLists();
     if (subscribe) {
       editor.subscribe(subscriptionId, scopes);
     } else {
@@ -106,29 +118,33 @@ class _PreferenceCenterState extends State<PreferenceCenter>  with SectionAdapte
     setState(() {});
   }
 
-  Widget bindChannelSubscriptionItem(PreferenceCenterChannelSubscriptionItem item) {
+  Widget bindChannelSubscriptionItem(
+      PreferenceCenterChannelSubscriptionItem item) {
     return SwitchListTile(
-        title: Text('${item.display.title}', style:TextStyle(fontWeight: FontWeight.bold)),
+        title: Text('${item.display.title}',
+            style: TextStyle(fontWeight: FontWeight.bold)),
         subtitle: Text('${item.display.subtitle}'),
         value: isSubscribedChannelSubscription(item.subscriptionId),
         onChanged: (bool value) {
           onPreferenceChannelItemToggled(item.subscriptionId, value);
-        }
-    );
+        });
   }
 
-  Widget bindContactSubscriptionItem(PreferenceCenterContactSubscriptionItem item) {
+  Widget bindContactSubscriptionItem(
+      PreferenceCenterContactSubscriptionItem item) {
     return SwitchListTile(
-        title: Text('${item.display.title}', style:TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text('${item.display.subtitle}'),
-        value: isSubscribedContactSubscription(item.subscriptionId, []),
-        onChanged: (bool value) {
-          onPreferenceContactSubscriptionItemToggled(item.subscriptionId, [], value);
-        },
+      title: Text('${item.display.title}',
+          style: TextStyle(fontWeight: FontWeight.bold)),
+      subtitle: Text('${item.display.subtitle}'),
+      value: isSubscribedContactSubscription(item.subscriptionId, []),
+      onChanged: (bool value) {
+        onPreferenceContactSubscriptionItemToggled(
+            item.subscriptionId, [], value);
+      },
     );
   }
 
-  List<String> scopesFromComponents (List<ChannelScope> scopes) {
+  List<String> scopesFromComponents(List<ChannelScope> scopes) {
     List<String> finalList = [];
     for (ChannelScope scope in scopes) {
       finalList.add(scope.toString().split('.').last);
@@ -136,10 +152,13 @@ class _PreferenceCenterState extends State<PreferenceCenter>  with SectionAdapte
     return finalList;
   }
 
-  List<Widget> contactScopes(PreferenceCenterContactSubscriptionGroupItem item) {
-    List<PreferenceCenterContactSubscriptionGroupItemComponent> components = item.components;
+  List<Widget> contactScopes(
+      PreferenceCenterContactSubscriptionGroupItem item) {
+    List<PreferenceCenterContactSubscriptionGroupItemComponent> components =
+        item.components;
     List<Widget> widgets = [];
-    for (PreferenceCenterContactSubscriptionGroupItemComponent component in components) {
+    for (PreferenceCenterContactSubscriptionGroupItemComponent component
+        in components) {
       String componentLabel = component.display.title;
       List<String> scopes = scopesFromComponents(component.scopes);
       Widget widget = FilterChip(
@@ -149,7 +168,8 @@ class _PreferenceCenterState extends State<PreferenceCenter>  with SectionAdapte
         label: Text('$componentLabel'),
         selected: isSubscribedContactSubscription(item.subscriptionId, scopes),
         onSelected: (bool value) {
-          onPreferenceContactSubscriptionItemToggled(item.subscriptionId, scopes, value);
+          onPreferenceContactSubscriptionItemToggled(
+              item.subscriptionId, scopes, value);
         },
       );
       widgets.add(widget);
@@ -157,41 +177,48 @@ class _PreferenceCenterState extends State<PreferenceCenter>  with SectionAdapte
     return widgets;
   }
 
-  Widget bindContactSubscriptionGroupItem(PreferenceCenterContactSubscriptionGroupItem item) {
+  Widget bindContactSubscriptionGroupItem(
+      PreferenceCenterContactSubscriptionGroupItem item) {
     return Column(
-        children: <Widget>[
-          ListTile(
-            title: Text('${item.display.title}', style:TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Text('${item.display.subtitle}'),
-          ),
-          Wrap(
-            runAlignment : WrapAlignment.start,
-            spacing: 10,
-            children: contactScopes(item),
-          ),
-        ],
+      children: <Widget>[
+        ListTile(
+          title: Text('${item.display.title}',
+              style: TextStyle(fontWeight: FontWeight.bold)),
+          subtitle: Text('${item.display.subtitle}'),
+        ),
+        Wrap(
+          runAlignment: WrapAlignment.start,
+          spacing: 10,
+          children: contactScopes(item),
+        ),
+      ],
     );
   }
 
   Widget bindAlertItem(PreferenceCenterAlertItem item) {
     return ListTile(
-        title: Text('${item.display.title}', style:TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text('${item.display.subtitle}'),
+      title: Text('${item.display.title}',
+          style: TextStyle(fontWeight: FontWeight.bold)),
+      subtitle: Text('${item.display.subtitle}'),
     );
   }
 
   Widget item(IndexPath indexPath) {
-    List<PreferenceCenterItem> items = preferenceCenterConfig.sections[indexPath.section].items;
+    List<PreferenceCenterItem> items =
+        preferenceCenterConfig.sections[indexPath.section].items;
     PreferenceCenterItem item = items[indexPath.item];
     switch (item.type) {
       case PreferenceCenterItemType.channelSubscription:
-        return bindChannelSubscriptionItem(item as PreferenceCenterChannelSubscriptionItem);
+        return bindChannelSubscriptionItem(
+            item as PreferenceCenterChannelSubscriptionItem);
         break;
       case PreferenceCenterItemType.contactSubscription:
-        return bindContactSubscriptionItem(item as PreferenceCenterContactSubscriptionItem);
+        return bindContactSubscriptionItem(
+            item as PreferenceCenterContactSubscriptionItem);
         break;
       case PreferenceCenterItemType.contactSubscriptionGroup:
-        return bindContactSubscriptionGroupItem(item as PreferenceCenterContactSubscriptionGroupItem);
+        return bindContactSubscriptionGroupItem(
+            item as PreferenceCenterContactSubscriptionGroupItem);
         break;
       case PreferenceCenterItemType.alert:
         return bindAlertItem(item as PreferenceCenterAlertItem);
@@ -203,7 +230,9 @@ class _PreferenceCenterState extends State<PreferenceCenter>  with SectionAdapte
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Preference Center'),),
+      appBar: AppBar(
+        title: Text('Preference Center'),
+      ),
       body: SectionListView.builder(adapter: this),
     );
   }
@@ -230,10 +259,7 @@ class _PreferenceCenterState extends State<PreferenceCenter>  with SectionAdapte
     return Container(
       child: Stack(
         alignment: AlignmentDirectional.bottomCenter,
-        children: <Widget>[
-          item(indexPath),
-          Divider(height: 0.5)
-        ],
+        children: <Widget>[item(indexPath), Divider(height: 0.5)],
       ),
     );
   }
@@ -247,11 +273,12 @@ class _PreferenceCenterState extends State<PreferenceCenter>  with SectionAdapte
   }
 
   @override
-   Widget getHeader(BuildContext context) {
+  Widget getHeader(BuildContext context) {
     return Container(
       color: Colors.blueGrey,
       child: ListTile(
-        title: Text('${preferenceCenterConfig.display.title ?? ''}', style:TextStyle(fontWeight: FontWeight.bold)),
+        title: Text('${preferenceCenterConfig.display.title ?? ''}',
+            style: TextStyle(fontWeight: FontWeight.bold)),
         subtitle: Text('${preferenceCenterConfig.display.subtitle ?? ''}'),
       ),
     );
@@ -268,12 +295,14 @@ class _PreferenceCenterState extends State<PreferenceCenter>  with SectionAdapte
   @override
   Widget getSectionHeader(BuildContext context, int section) {
     return Container(
-        color: Colors.cyan,
-        child: ListTile(
-          title: Text('${preferenceCenterConfig.sections[section].display.title ?? ''}', style:TextStyle(fontWeight: FontWeight.bold)),
-          subtitle: Text('${preferenceCenterConfig.sections[section].display.subtitle ?? ''}'),
-        ),
+      color: Colors.cyan,
+      child: ListTile(
+        title: Text(
+            '${preferenceCenterConfig.sections[section].display.title ?? ''}',
+            style: TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Text(
+            '${preferenceCenterConfig.sections[section].display.subtitle ?? ''}'),
+      ),
     );
   }
-
 }

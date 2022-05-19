@@ -10,7 +10,8 @@ class MessageCenter extends StatefulWidget {
 }
 
 class _MessageCenterState extends State<MessageCenter> {
-  RefreshController _refreshController = RefreshController(initialRefresh: false);
+  RefreshController _refreshController =
+      RefreshController(initialRefresh: false);
 
   @override
   void initState() {
@@ -28,7 +29,7 @@ class _MessageCenterState extends State<MessageCenter> {
     });
   }
 
-  void _onRefresh() async{
+  void _onRefresh() async {
     await Airship.refreshInbox();
     _refreshController.refreshCompleted();
   }
@@ -51,22 +52,28 @@ class _MessageCenterState extends State<MessageCenter> {
               key: Key(UniqueKey().toString()),
               background: Container(color: Styles.airshipRed),
               onDismissed: (direction) {
-                ScaffoldMessenger
-                    .of(context)
-                    .showSnackBar(SnackBar(content: Text("Message \"${message.messageId}\" removed")));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text("Message \"${message.messageId}\" removed")));
                 messages.remove(message);
                 Airship.deleteInboxMessage(message);
                 setState(() {});
               },
               // Add stream to check isRead
               child: ListTile(
-                title: message.isRead ? Text('${message.title}') : Text('${message.title}', style:TextStyle(fontWeight: FontWeight.bold)),
+                title: message.isRead
+                    ? Text('${message.title}')
+                    : Text('${message.title}',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                 subtitle: Text('${message.sentDate}'),
-                leading: Icon(message.isRead ? Icons.check_circle: Icons.markunread),
-                onTap: (){
+                leading: Icon(
+                    message.isRead ? Icons.check_circle : Icons.markunread),
+                onTap: () {
                   Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => MessageView(messageId: message.messageId,)));
+                      MaterialPageRoute(
+                          builder: (context) => MessageView(
+                                messageId: message.messageId,
+                              )));
                 },
               ),
             );
@@ -93,15 +100,12 @@ class _MessageCenterState extends State<MessageCenter> {
               bottom: false,
               child: Column(
                 children: <Widget>[
-                  Expanded(
-                      child: _buildMessageList(list)
-                  ),
+                  Expanded(child: _buildMessageList(list)),
                 ],
               ),
             );
           },
-        )
-    );
+        ));
   }
 
   updateState() {
