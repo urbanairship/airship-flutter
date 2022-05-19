@@ -17,7 +17,7 @@ const String message_center_deep_link = "message_center";
 const String settings_deep_link = "settings";
 
 Future<void> backgroundMessageHandler(
-    Map<String, dynamic> payload, Notification? notification) async {
+    Map<String, dynamic> payload, Notification notification) async {
   print("Background Push Received $payload, $notification");
 }
 
@@ -40,7 +40,7 @@ class MyApp extends StatefulWidget {
 
 // SingleTickerProviderStateMixin is used for animation
 class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
-  late TabController controller;
+  TabController controller;
 
   final GlobalKey<NavigatorState> key = GlobalKey();
 
@@ -92,18 +92,16 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
       }
     });
 
-    Airship.onInboxUpdated?.listen((event) => debugPrint('Inbox updated link'));
+    Airship.onInboxUpdated.listen((event) => debugPrint('Inbox updated link'));
 
-    Airship.onShowInbox?.listen((event) => debugPrint('Show inbox'));
+    Airship.onShowInbox.listen((event) => debugPrint('Show inbox'));
 
     Airship.onShowInboxMessage.listen((messageId) {
       key.currentState
-          ?.push(MaterialPageRoute<Null>(builder: (BuildContext context) {
-        return messageId != null
-            ? MessageView(
-                messageId: messageId,
-              )
-            : SizedBox();
+          .push(MaterialPageRoute<Null>(builder: (BuildContext context) {
+        return MessageView(
+          messageId: messageId,
+        );
       }));
     });
 

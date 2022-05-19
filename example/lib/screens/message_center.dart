@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:airship_flutter/airship_flutter.dart';
 import 'package:airship_example/styles.dart';
 import 'package:airship_example/screens/message_view.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class MessageCenter extends StatefulWidget {
   @override
@@ -9,6 +10,9 @@ class MessageCenter extends StatefulWidget {
 }
 
 class _MessageCenterState extends State<MessageCenter> {
+  RefreshController _refreshController =
+      RefreshController(initialRefresh: false);
+
   @override
   void initState() {
     initAirshipListeners();
@@ -18,28 +22,31 @@ class _MessageCenterState extends State<MessageCenter> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initAirshipListeners() async {
-    Airship.onInboxUpdated?.listen((event) {
+    Airship.onInboxUpdated.listen((event) {
       if (mounted) {
         setState(() {});
       }
     });
   }
 
-  Future<bool?> _onRefresh() async {
-    return await Airship.refreshInbox();
+  void _onRefresh() async {
+    await Airship.refreshInbox();
+    _refreshController.refreshCompleted();
   }
 
   @override
   Widget build(BuildContext context) {
-    Widget _buildMessageList(final List<InboxMessage> messages) {
-      return RefreshIndicator(
-        strokeWidth: 1,
-        displacement: 50,
+    Widget _buildMessageList(List<InboxMessage> messages) {
+      return SmartRefresher(
+        enablePullDown: true,
+        enablePullUp: false,
+        header: MaterialClassicHeader(),
+        controller: _refreshController,
         onRefresh: _onRefresh,
         child: ListView.builder(
-          itemCount: messages.length,
+          itemCount: messages != null ? messages.length : 0,
           itemBuilder: (context, index) {
-            InboxMessage message = messages[index];
+            var message = messages[index];
 
             return Dismissible(
               key: Key(UniqueKey().toString()),
@@ -53,14 +60,13 @@ class _MessageCenterState extends State<MessageCenter> {
               },
               // Add stream to check isRead
               child: ListTile(
-                title: message.isRead ?? false
+                title: message.isRead
                     ? Text('${message.title}')
                     : Text('${message.title}',
                         style: TextStyle(fontWeight: FontWeight.bold)),
                 subtitle: Text('${message.sentDate}'),
-                leading: Icon(message.isRead ?? false
-                    ? Icons.check_circle
-                    : Icons.markunread),
+                leading: Icon(
+                    message.isRead ? Icons.check_circle : Icons.markunread),
                 onTap: () {
                   Navigator.push(
                       context,
@@ -81,13 +87,13 @@ class _MessageCenterState extends State<MessageCenter> {
           title: const Text('Message Center'),
           backgroundColor: Styles.borders,
         ),
-        body: FutureBuilder<List<InboxMessage>>(
+        body: FutureBuilder(
           future: Airship.inboxMessages,
           builder: (context, snapshot) {
             List<InboxMessage> list = [];
 
             if (snapshot.hasData) {
-              list = snapshot.data!;
+              list = List<InboxMessage>.from(snapshot.data);
             }
 
             return SafeArea(
