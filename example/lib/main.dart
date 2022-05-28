@@ -1,3 +1,4 @@
+import 'package:airship_example/config/airship.config.dart';
 import 'package:flutter/material.dart' hide Notification;
 import 'package:airship_example/styles.dart';
 
@@ -29,6 +30,7 @@ void main() {
   ]);
 
   Airship.setBackgroundMessageHandler(backgroundMessageHandler);
+  Airship.takeOff(Config.aiship);
 
   runApp(MyApp());
 }

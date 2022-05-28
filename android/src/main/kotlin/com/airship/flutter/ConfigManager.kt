@@ -8,9 +8,10 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.urbanairship.AirshipConfigOptions
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 
 class ConfigManager(private val context: Context) {
     companion object {
@@ -61,7 +62,7 @@ class ConfigManager(private val context: Context) {
 
 
 fun AirshipConfigOptions.isValid(): Boolean {
-    if (this.appKey.isNullOrEmpty() || this.appSecret.isNullOrEmpty()) {
+    if (this.appKey.isEmpty() || this.appSecret.isEmpty()) {
         return false
     }
 

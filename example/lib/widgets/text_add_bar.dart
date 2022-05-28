@@ -1,4 +1,3 @@
-import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:airship_example/styles.dart';
 import 'package:flutter/services.dart' show SystemChannels;

@@ -263,6 +263,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     private fun takeOff(call: MethodCall, result: Result) {
         val config = call.arguments as HashMap<*, *>
+        println(config.values);
         val appKey = config["app_key"] as String
         val appSecret = config["app_secret"] as String
 
