@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'airship_config.dart';
 import 'custom_event.dart';
 import 'tag_group_editor.dart';
 import 'subscription_list_editor.dart';
@@ -295,11 +296,31 @@ class Airship {
     return _eventStreams[eventType];
   }
 
-  /// Initializes Airship with an [appKey] and [appSecret].
+  /// Initializes Airship with an [AirshipConfig] or
+  /// [appKey] and [appSecret].
   ///
   /// Returns true if Airship has been initialized, otherwise returns false.
-  static Future<bool> takeOff(String appKey, String appSecret) async {
-    Map<String, String> args = {"app_key": appKey, "app_secret": appSecret};
+  /// For backwards compatibility [keyConfig] can be appKey[String] or [AirshipConfig]
+  /// in next major release airship will migrate to [AirshipConfig]
+  static Future<bool> takeOff(final Object keyConfig,
+      [final String appSecret = ""]) async {
+    assert(
+      keyConfig is String || keyConfig is AirshipConfig,
+      "For backwards compatibility [appKey] can be [String] or [AirshipConfig]",
+    );
+    Map<String, String> args = {};
+    if (keyConfig is String) {
+      assert(
+        appSecret.isNotEmpty,
+        "Airship.takeOff(...) requires a none empty appKey and secretKey parameters",
+      );
+      args = {"app_key": keyConfig, "app_secret": appSecret};
+    } else if (keyConfig is AirshipConfig) {
+
+      args = (keyConfig.inProduction
+              ? keyConfig.production
+              : keyConfig.development).toArgs();
+    }
     return await _channel.invokeMethod('takeOff', args);
   }
 
