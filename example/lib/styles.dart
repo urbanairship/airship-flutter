@@ -1,8 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/widgets.dart';
 
 abstract class Styles {
-
   static const homeButtonText = TextStyle(
     color: Color(0xfff0f0f0),
     fontSize: 24,
