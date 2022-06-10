@@ -1,124 +1,148 @@
 package com.airship.flutter
 
 import android.content.Context
+import android.graphics.Color
 import android.net.Uri
 import androidx.annotation.ColorInt
+import androidx.datastore.core.CorruptionException
+import androidx.datastore.core.Serializer
+import com.airship.flutter.config.Config
+import com.google.protobuf.InvalidProtocolBufferException
 import com.urbanairship.AirshipConfigOptions
 import com.urbanairship.PrivacyManager
 import com.urbanairship.json.JsonList
-import com.urbanairship.json.JsonMap
-import com.urbanairship.json.JsonValue
 import com.urbanairship.util.UAStringUtil
+import java.io.InputStream
+import java.io.OutputStream
+
+object  ConfigSerializer: Serializer<Config.AirshipConfig>{
+    override val defaultValue: Config.AirshipConfig = Config.AirshipConfig.getDefaultInstance()
+    override suspend fun readFrom(input: InputStream): Config.AirshipConfig {
+        try {
+            return Config.AirshipConfig.parseFrom(input)
+        } catch (exception: InvalidProtocolBufferException) {
+            throw CorruptionException("Cannot read proto.", exception)
+        }
+    }
+
+    override suspend fun writeTo(t: Config.AirshipConfig, output: OutputStream) {
+        t.writeTo(output)
+    }
+
+}
 
 /// perhaps move this to shared package to avoid duplication across sdks
 object ConfigParser {
 
-    fun parse(context: Context, config: JsonMap?): AirshipConfigOptions? {
-        if (config == null || config.isEmpty) {
-            return null
-        }
-
-        val builder = AirshipConfigOptions.newBuilder()
-            .setRequireInitialRemoteConfigEnabled(true)
-
-        val defaultEnvironment = Environment.fromJson(config.opt("default").map)
-        val developmentEnvironment = Environment.fromJson(config.opt("development").map)
-        val productionEnvironment = Environment.fromJson(config.opt("production").map)
-
-        if (defaultEnvironment.appKey != null && defaultEnvironment.appSecret != null) {
-            builder.setAppKey(defaultEnvironment.appKey)
-                .setAppSecret(defaultEnvironment.appSecret)
-        }
-
-        if (developmentEnvironment.appKey != null && developmentEnvironment.appSecret != null) {
-            builder.setDevelopmentAppKey(developmentEnvironment.appKey)
-                .setDevelopmentAppSecret(developmentEnvironment.appSecret)
-        }
-
-        if (productionEnvironment.appKey != null && productionEnvironment.appSecret != null) {
-            builder.setProductionAppKey(productionEnvironment.appKey)
-                .setProductionAppSecret(productionEnvironment.appSecret)
-        }
-
-        developmentEnvironment.logLevel?.let { builder.setDevelopmentLogLevel(it) }
-        defaultEnvironment.logLevel?.let { builder.setLogLevel(it) }
-        productionEnvironment.logLevel?.let { builder.setProductionLogLevel(it) }
-
-        parseSite(config.opt("site").string)?.let { builder.setSite(it) }
-
-        if (config.containsKey("inProduction")) {
-            builder.setInProduction(config.opt("inProduction").getBoolean(false))
-        }
-
-        parseArray(config.opt("urlAllowList")).let {
-            builder.setUrlAllowList(it)
-        }
-
-        parseArray(config.opt("urlAllowListScopeJavaScriptInterface")).let {
-            builder.setUrlAllowListScopeJavaScriptInterface(it)
-        }
-
-        parseArray(config.opt("urlAllowListScopeOpenUrl")).let {
-            builder.setUrlAllowListScopeOpenUrl(it)
-        }
-
-        config.opt("android").map?.let { android ->
-            if (android.containsKey("appStoreUri")) {
-                builder.setAppStoreUri(
-                    Uri.parse(
-                        android.opt("appStoreUri").optString()
-                    )
-                )
-            }
-
-            if (android.containsKey("fcmFirebaseAppName")) {
-                builder.setFcmFirebaseAppName(android.opt("fcmFirebaseAppName").optString())
-            }
-
-            if (android.containsKey("notificationConfig")) {
-                applyNotificationConfig(
-                    context,
-                    android.opt("notificationConfig").optMap(),
-                    builder
-                )
-            }
-        }
-
-        config.opt("enabledFeatures").list?.let {
-            builder.setEnabledFeatures(parseFeatures(it))
-        }
-
-        return builder.build()
-    }
+//    fun parse(context: Context, config: HashMap<*,*>?): AirshipConfigOptions? {
+//        if (config == null || config.isEmpty()) {
+//            return null
+//        }
+//
+//        val builder = AirshipConfigOptions.newBuilder()
+//            .setRequireInitialRemoteConfigEnabled(true)
+//
+//        val defaultEnvironment = Environment.fromJson(config["default"] as HashMap<*, *> ?/* = java.util.HashMap<*, *> */)
+//        val developmentEnvironment = Environment.fromJson(config["development"] as HashMap<*, *> ?)
+//        val productionEnvironment = Environment.fromJson(config["production"] as HashMap<*, *> ?)
+//
+//        if (defaultEnvironment.appKey != null && defaultEnvironment.appSecret != null) {
+//            builder.setAppKey(defaultEnvironment.appKey)
+//                .setAppSecret(defaultEnvironment.appSecret)
+//        }
+//
+//        if (developmentEnvironment.appKey != null && developmentEnvironment.appSecret != null) {
+//            builder.setDevelopmentAppKey(developmentEnvironment.appKey)
+//                .setDevelopmentAppSecret(developmentEnvironment.appSecret)
+//        }
+//
+//        if (productionEnvironment.appKey != null && productionEnvironment.appSecret != null) {
+//            builder.setProductionAppKey(productionEnvironment.appKey)
+//                .setProductionAppSecret(productionEnvironment.appSecret)
+//        }
+//
+//        developmentEnvironment.logLevel?.let { builder.setDevelopmentLogLevel(it) }
+//        defaultEnvironment.logLevel?.let { builder.setLogLevel(it) }
+//        productionEnvironment.logLevel?.let { builder.setProductionLogLevel(it) }
+//
+//        parseSite(config["site"]?.toString())?.let { builder.setSite(it) }
+//
+//        if (config.containsKey("inProduction")) {
+//            builder.setInProduction(config["inProduction"].toString().toBoolean())
+//        }
+//
+//        parseArray(config["urlAllowList"] as List<String>?).let {
+//            builder.setUrlAllowList(it)
+//        }
+//
+//        parseArray(config["urlAllowListScopeJavaScriptInterface"] as List<String>?).let {
+//            builder.setUrlAllowListScopeJavaScriptInterface(it)
+//        }
+//
+//        parseArray(config["urlAllowListScopeOpenUrl"] as List<String>?).let {
+//            builder.setUrlAllowListScopeOpenUrl(it)
+//        }
+//
+//        (config["android"] as HashMap<*, *> ?)?.let { android ->
+//            if (android.containsKey("appStoreUri")) {
+//                builder.setAppStoreUri(
+//                    Uri.parse(
+//                        android["appStoreUri"].toString()
+//                    )
+//                )
+//            }
+//
+//            if (android.containsKey("fcmFirebaseAppName")) {
+//                builder.setFcmFirebaseAppName(android["fcmFirebaseAppName"].toString())
+//            }
+//
+//            if (android.containsKey("notificationConfig")) {
+//                applyNotificationConfig(
+//                    context,
+//                    android["notificationConfig"] as HashMap<String, *> /* = java.util.HashMap<kotlin.String, *> */,
+//                    builder
+//                )
+//            }
+//        }
+//
+//        (config["enabledFeatures"] as List<String>?)?.let {
+//            builder.setEnabledFeatures(parseFeatures(it))
+//        }
+//
+//        return builder.build()
+//    }
 
     private fun applyNotificationConfig(
         context: Context,
-        notificationConfig: JsonMap,
+        notificationConfig: HashMap<String, *>?,
         builder: AirshipConfigOptions.Builder
     ) {
-        val icon = notificationConfig.opt("icon").string
+        val icon = notificationConfig?.get("icon")?.toString()
         if (icon != null) {
             val resourceId = getNamedResource(context, icon, "drawable")
             builder.setNotificationIcon(resourceId)
         }
-        val largeIcon = notificationConfig.opt("largeIcon").string
+        val largeIcon = notificationConfig?.get("largeIcon")?.toString()
         if (largeIcon != null) {
             val resourceId = getNamedResource(context, largeIcon, "drawable")
             builder.setNotificationLargeIcon(resourceId)
         }
-        val accentColor = notificationConfig.opt("accentColor").integer
+        val accentColor = notificationConfig?.get("accentColor")?.toString()
         if (accentColor != null) {
             builder.setNotificationAccentColor(getHexColor(accentColor, 0))
         }
-        val channelId = notificationConfig.opt("defaultChannelId").string
+        val channelId = notificationConfig?.get("defaultChannelId")?.toString()
         if (channelId != null) {
             builder.setNotificationChannel(channelId)
         }
     }
 
     @ColorInt
-    fun getHexColor(hexColor: Int?, @ColorInt defaultColor: Int): Int {
-        return hexColor?:defaultColor
+    fun getHexColor(hexColor: String?, @ColorInt defaultColor: Int): Int {
+        if (hexColor.isNullOrEmpty()){
+            return  defaultColor;
+        }
+        return Color.parseColor(hexColor)?:defaultColor
     }
 
      fun getNamedResource(context: Context, resourceName: String, resourceFolder: String): Int {
@@ -134,27 +158,25 @@ object ConfigParser {
         return 0
     }
 
-    private fun parseArray(value: JsonValue?): Array<String?>? {
-        if (value == null || !value.isJsonList) {
+    private fun parseArray(value: List<String>?): Array<String?>? {
+        if (value == null) {
             return null
         }
-        return value.optList().map {
-            it.string ?: it.toString()
-        }.toTypedArray()
+        return value.toTypedArray()
     }
 
     @PrivacyManager.Feature
-    private fun parseFeatures(jsonList: JsonList): Int {
+    private fun parseFeatures(jsonList: List<String>): Int {
         var result = PrivacyManager.FEATURE_NONE
         for (value in jsonList) {
-            result = result or parseFeature(value.optString())
+            result = result or parseFeature(value.toString())
         }
         return result
     }
 
     @PrivacyManager.Feature
     fun parseFeature(name: String): Int {
-        return EnabledFeature.valueOf(name.uppercase()).featureSupportLevel()
+        return FeatureEnable.valueOf(name.uppercase()).featureSupportLevel()
     }
 
     @AirshipConfigOptions.Site
@@ -167,23 +189,6 @@ object ConfigParser {
             AirshipConfigOptions.SITE_EU.lowercase() -> AirshipConfigOptions.SITE_EU
             AirshipConfigOptions.SITE_US.lowercase() -> AirshipConfigOptions.SITE_US
             else -> throw IllegalArgumentException("Invalid site $value")
-        }
-    }
-}
-
-internal data class Environment(
-    val appKey: String?,
-    val appSecret: String?,
-    val logLevel: Int?
-) {
-    companion object {
-        fun fromJson(jsonMap: JsonMap?): Environment {
-            val appKey = jsonMap?.opt("appKey")?.string
-            val appSecret = jsonMap?.opt("appSecret")?.string
-            val logLevel = jsonMap?.opt("logLevel")?.string?.uppercase()
-                ?.let { LogLevel.valueOf(it).logLevel() }
-
-            return Environment(appKey, appSecret, logLevel)
         }
     }
 }

@@ -2,7 +2,7 @@ package com.airship.flutter
 
 /// The order of enums constant
 /// is critically important to take full advantage of ordinality.
-enum class EnabledFeature {
+enum class FeatureEnable {
     //FEATURE_NONE
     NONE,
     //FEATURE_IN_APP_AUTOMATION

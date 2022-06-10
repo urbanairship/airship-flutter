@@ -27,7 +27,7 @@ For indepth documentation check [the officicial Airship Documantation](https://d
 
 ```yaml
 dependencies:
-  airship_flutter: ^5.0.0
+  airship_flutter:^5.0.0
 ```
 
 2. Install your flutter package dependencies by running the following in the command line at your project's root directory:

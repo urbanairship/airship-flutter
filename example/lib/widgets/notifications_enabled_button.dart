@@ -23,7 +23,7 @@ class NotificationsEnabledButton extends StatelessWidget {
                 color: Styles.airshipRed,
                 shape: StadiumBorder(),
                 height: 40,
-                minWidth: 400,
+                minWidth: 300,
                 padding: EdgeInsets.symmetric(vertical: 35),
                 onPressed: onPressed)));
   }
