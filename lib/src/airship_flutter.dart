@@ -2,16 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
+import 'package:airship_flutter/airship_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'airship_config.dart';
-import 'custom_event.dart';
-import 'tag_group_editor.dart';
-import 'subscription_list_editor.dart';
-import 'scoped_subscription_list_editor.dart';
-import 'preference_center_config.dart';
-import 'attribute_editor.dart';
 
 /// Inbox message object.
 class InboxMessage {
@@ -300,28 +294,16 @@ class Airship {
   /// [appKey] and [appSecret].
   ///
   /// Returns true if Airship has been initialized, otherwise returns false.
-  /// For backwards compatibility [keyConfig] can be appKey[String] or [AirshipConfig]
+  /// For backwards compatibility [config] can be appKey[String] or [AirshipConfig]
   /// in next major release airship will migrate to [AirshipConfig]
-  static Future<bool> takeOff(final Object keyConfig,
-      [final String appSecret = ""]) async {
-    assert(
-      keyConfig is String || keyConfig is AirshipConfig,
-      "For backwards compatibility [appKey] can be [String] or [AirshipConfig]",
-    );
-    Map<String, String> args = {};
-    if (keyConfig is String) {
-      assert(
-        appSecret.isNotEmpty,
-        "Airship.takeOff(...) requires a none empty appKey and secretKey parameters",
-      );
-      args = {"app_key": keyConfig, "app_secret": appSecret};
-    } else if (keyConfig is AirshipConfig) {
-
-      args = (keyConfig.inProduction
-              ? keyConfig.production
-              : keyConfig.development).toArgs();
-    }
-    return await _channel.invokeMethod('takeOff', args);
+  static Future<bool> takeOff(final AirshipConfig config) async {
+    // Map<String, dynamic> args = {};
+    //   args = config.writeToJsonMap();
+      // HashMap<String, *>
+      // validate
+      // store
+      // attemptTakeOff
+    return await _channel.invokeMethod('takeOff', config.writeToBuffer());
   }
 
   /// Sets a background message handler.

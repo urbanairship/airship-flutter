@@ -30,7 +30,7 @@ void main() {
   ]);
 
   Airship.setBackgroundMessageHandler(backgroundMessageHandler);
-  Airship.takeOff(Config.aiship);
+  Airship.takeOff(Config.airship);
 
   runApp(MyApp());
 }

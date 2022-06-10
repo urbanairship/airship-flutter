@@ -1,7 +1,7 @@
 group 'com.airship.airship'
 version '1.0-SNAPSHOT'
 
-buildscript {  
+buildscript {
     ext.kotlin_version = '1.5.31'
     ext.coroutine_version = '1.5.2'
     ext.airship_version = '16.5.1'
@@ -13,7 +13,7 @@ buildscript {
 
     dependencies {
         classpath 'org.yaml:snakeyaml:1.17'
-        classpath 'com.android.tools.build:gradle:7.0.0'
+        classpath 'com.android.tools.build:gradle:7.0.4'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -59,4 +59,6 @@ dependencies {
     implementation "com.urbanairship.android:urbanairship-automation:$airship_version"
     implementation "com.urbanairship.android:urbanairship-preference-center:$airship_version"
     implementation "androidx.datastore:datastore-preferences:1.0.0"
+    implementation "androidx.datastore:datastore:1.0.0"
+    implementation 'com.google.protobuf:protobuf-kotlin:3.21.1'
 }

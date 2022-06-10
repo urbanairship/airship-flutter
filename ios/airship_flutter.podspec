@@ -25,5 +25,6 @@ Airship flutter plugin.
   s.dependency              'Airship/MessageCenter', '~> 16.7.0'
   s.dependency              'Airship/Automation', '~> 16.7.0'
   s.dependency              'Airship/PreferenceCenter', '~> 16.7.0'
+  s.dependency              'SwiftProtobuf', '~> 1.19.0'
 end
 

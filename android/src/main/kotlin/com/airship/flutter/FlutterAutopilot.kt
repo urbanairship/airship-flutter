@@ -25,7 +25,7 @@ import kotlinx.coroutines.runBlocking
 const val PUSH_MESSAGE_BUNDLE_EXTRA = "com.urbanairship.push_bundle"
 
 class FlutterAutopilot : Autopilot() {
-    var config: AirshipConfigOptions? = null
+    private var config: AirshipConfigOptions? = null
 
     private val appContext: Context
         get() = getApplicationContext()
@@ -116,21 +116,20 @@ class FlutterAutopilot : Autopilot() {
             true
         }
 
-        PreferenceCenter.shared().openListener =  object : PreferenceCenter.OnOpenListener {
-            override fun onOpenPreferenceCenter(preferenceCenterId: String): Boolean {
+        PreferenceCenter.shared().openListener =
+            PreferenceCenter.OnOpenListener { preferenceCenterId ->
                 val preferences =  getApplicationContext().getSharedPreferences("com.urbanairship.flutter", Context.MODE_PRIVATE)
                 val enabled = preferences.getBoolean(AUTO_LAUNCH_PREFERENCE_CENTER_KEY, true)
 
                 if (enabled) {
-                    return false
+                    false
                 } else {
                     EventManager.shared.notifyEvent(ShowPreferenceCenterEvent(preferenceCenterId))
-                    return true
+                    true
                 }
             }
-        }
 
-        airship.getAnalytics().registerSDKExtension(Analytics.EXTENSION_FLUTTER, AirshipPluginVersion.AIRSHIP_PLUGIN_VERSION);
+        airship.analytics.registerSDKExtension(Analytics.EXTENSION_FLUTTER, AirshipPluginVersion.AIRSHIP_PLUGIN_VERSION)
 
         loadCustomNotificationChannels(appContext, airship)
         loadCustomNotificationButtonGroups(appContext, airship)

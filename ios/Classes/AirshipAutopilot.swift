@@ -13,19 +13,24 @@ public class AirshipAutopilot: NSObject {
             return
         }
         
-        let config = Config.default()
-        config.developmentAppKey = config.developmentAppKey ?? PluginConfig.appKey
-        config.developmentAppSecret = config.developmentAppSecret ?? PluginConfig.appSecret
+        guard let configDict = PluginStore.config else {
+                  return
+        }
 
-        config.productionAppKey = config.productionAppKey ?? PluginConfig.appKey
-        config.productionAppSecret = config.productionAppSecret ?? PluginConfig.appSecret
-        
-        guard config.validate() else {
-            return
+        do {
+          
+              let config = try Config.parse(configDict)
+              AirshipLogger.debug("Taking off! \(config)")
+
+            Airship.takeOff(config, launchOptions: self.launchOptions)
+        } catch {
+              AirshipLogger.error("Failed to takeOff \(error)")
         }
         
+        
         SwiftAirshipPlugin.defaults.set(true, forKey: SwiftAirshipPlugin.shared.autoLaunchPreferenceCenterKey)
-        Airship.takeOff(config, launchOptions: self.launchOptions)
+    
+        
         Airship.analytics.registerSDKExtension(SDKExtension.flutter, version: AirshipPluginVersion.pluginVersion)
         Airship.push.defaultPresentationOptions = [.alert]
         AirshipAutopilot.loadCustomNotificationCategories()
