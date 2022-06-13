@@ -9,7 +9,6 @@ class MessageCenter extends StatefulWidget {
 }
 
 class _MessageCenterState extends State<MessageCenter> {
-
   @override
   void initState() {
     initAirshipListeners();
@@ -32,13 +31,13 @@ class _MessageCenterState extends State<MessageCenter> {
 
   @override
   Widget build(BuildContext context) {
-    Widget _buildMessageList(final  List<InboxMessage> messages) {
+    Widget _buildMessageList(final List<InboxMessage> messages) {
       return RefreshIndicator(
         strokeWidth: 1,
         displacement: 50,
         onRefresh: _onRefresh,
         child: ListView.builder(
-          itemCount:  messages.length,
+          itemCount: messages.length,
           itemBuilder: (context, index) {
             InboxMessage message = messages[index];
 
@@ -54,13 +53,14 @@ class _MessageCenterState extends State<MessageCenter> {
               },
               // Add stream to check isRead
               child: ListTile(
-                title: message.isRead??false
+                title: message.isRead ?? false
                     ? Text('${message.title}')
                     : Text('${message.title}',
                         style: TextStyle(fontWeight: FontWeight.bold)),
                 subtitle: Text('${message.sentDate}'),
-                leading: Icon(
-                    message.isRead??false ? Icons.check_circle : Icons.markunread),
+                leading: Icon(message.isRead ?? false
+                    ? Icons.check_circle
+                    : Icons.markunread),
                 onTap: () {
                   Navigator.push(
                       context,

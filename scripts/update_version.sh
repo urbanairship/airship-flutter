@@ -1,5 +1,5 @@
-#!/bin/bash -ex
-SCRIPT_DIRECTORY=$(dirname "$0")
+#!/bin/bash  -ex
+SCRIPT_DIRECTORY="$(dirname "$0")"
 ROOT_PATH=$SCRIPT_DIRECTORY/../
 
 #the version supplied as first argument
@@ -20,3 +20,6 @@ sed -i '' "s/\(^AIRSHIP_FLUTTER_VERSION *= *\)\".*\"/\1\"$VERSION\"/g" "$ROOT_PA
 
 # Update version in README.md with the current
 sed -i '' "s/\(^  airship_flutter *: *\).*/\1\^$VERSION/g" "$ROOT_PATH/README.md"
+
+#  Update version in pubspec.yaml with the current
+sed -i '' "s/\(^version: *\).*/\1$VERSION/g" "$ROOT_PATH/pubspec.yaml"

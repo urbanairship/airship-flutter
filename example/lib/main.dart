@@ -45,7 +45,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   final GlobalKey<NavigatorState> key = GlobalKey();
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
     controller = TabController(length: 4, vsync: this);
     initPlatformState();

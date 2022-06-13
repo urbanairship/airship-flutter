@@ -38,9 +38,10 @@ class _PreferenceCenterState extends State<PreferenceCenter>
   void fillInSubscriptionList() async {
     SubscriptionList subscriptionList =
         await Airship.getSubscriptionLists(["channel", "contact"]);
-    activeChannelSubscriptions = subscriptionList.channelSubscriptionLists??[];
+    activeChannelSubscriptions =
+        subscriptionList.channelSubscriptionLists ?? [];
     List<ContactSubscriptionList> contactSubscriptionLists =
-        subscriptionList.contactSubscriptionLists??[];
+        subscriptionList.contactSubscriptionLists ?? [];
     for (ContactSubscriptionList contact in contactSubscriptionLists) {
       activeContactSubscriptions[contact.identifier] = contact.scopes;
     }
@@ -48,7 +49,7 @@ class _PreferenceCenterState extends State<PreferenceCenter>
   }
 
   bool isSubscribedChannelSubscription(String subscriptionId) {
-      return activeChannelSubscriptions.contains(subscriptionId);
+    return activeChannelSubscriptions.contains(subscriptionId);
   }
 
   bool isSubscribedContactSubscription(
@@ -198,7 +199,7 @@ class _PreferenceCenterState extends State<PreferenceCenter>
 
   Widget item(IndexPath indexPath) {
     List<PreferenceCenterItem> items =
-        preferenceCenterConfig?.sections[indexPath.section].items??[];
+        preferenceCenterConfig?.sections[indexPath.section].items ?? [];
     PreferenceCenterItem item = items[indexPath.item];
     switch (item.type) {
       case PreferenceCenterItemType.channelSubscription:
@@ -227,12 +228,12 @@ class _PreferenceCenterState extends State<PreferenceCenter>
 
   @override
   int numberOfSections() {
-     return  preferenceCenterConfig?.sections.length??0;
+    return preferenceCenterConfig?.sections.length ?? 0;
   }
 
   @override
   int numberOfItems(int section) {
-      return preferenceCenterConfig?.sections[section].items?.length??0;
+    return preferenceCenterConfig?.sections[section].items?.length ?? 0;
   }
 
   @override
