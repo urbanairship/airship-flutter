@@ -2,8 +2,8 @@ group 'com.airship.airship'
 version '1.0-SNAPSHOT'
 
 buildscript {  
-    ext.kotlin_version = '1.7.0'
-    ext.coroutine_version = '1.6.2'
+    ext.kotlin_version = '1.5.31'
+    ext.coroutine_version = '1.5.2'
     ext.airship_version = '16.5.1'
 
     repositories {
