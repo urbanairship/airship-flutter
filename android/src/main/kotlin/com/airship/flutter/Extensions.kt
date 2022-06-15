@@ -35,7 +35,6 @@ fun NotificationInfo.eventData() : JsonMap {
             .build()
 }
 
-@RequiresApi(Build.VERSION_CODES.KITKAT)
 fun StatusBarNotification.pushMessage(): PushMessage {
     val extras = this.notification.extras ?: return PushMessage(Bundle())
 

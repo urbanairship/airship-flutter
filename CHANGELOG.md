@@ -1,5 +1,16 @@
 # Flutter Plugin Changelog
 
+## Version 6.0.0 - June 13, 2022
+Major release that supports flutter 3.
+
+- Updated Airship Android SDK to 16.5.1.
+- Updated Airship iOS SDK to 16.7.0.
+- Updated Flutter SDK to 3.0.2 and dart SDK 2.17.3.
+- Fixed code flutter formatting.
+- Fixed pubspec to follow Dart file conventions.
+- Updated Flutter example to flutter 3.
+
+
 ## Version 5.5.0 - May 4, 2022
 Minor release that updates Airship Android SDK to 16.4.0, and iOS SDK to 16.6.0. These SDK releases fix several issues with Scenes and Surveys. Apps using Scenes & Surveys should update.
 

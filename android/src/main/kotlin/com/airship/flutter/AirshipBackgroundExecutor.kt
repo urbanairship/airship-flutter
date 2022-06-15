@@ -107,7 +107,7 @@ class AirshipBackgroundExecutor(
                 channel.close()
             }
 
-            override fun error(errorCode: String?, errorMessage: String?, errorDetails: Any?) {
+            override fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {
                 trySend(Unit)
                 channel.close()
             }

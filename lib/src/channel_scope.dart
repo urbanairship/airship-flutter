@@ -1,7 +1,2 @@
 /// Channel Scope types.
-enum ChannelScope {
-  app,
-  web,
-  email,
-  sms
-}
+enum ChannelScope { app, web, email, sms }

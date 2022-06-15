@@ -1,4 +1,3 @@
-import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:airship_example/styles.dart';
 import 'package:flutter/services.dart' show SystemChannels;
@@ -12,8 +11,8 @@ class TextAddBar extends StatelessWidget {
   final focusNode = FocusNode();
 
   TextAddBar({
-    @required this.label,
-    @required this.onTap,
+    required this.label,
+    required this.onTap,
   });
 
   @override
@@ -33,10 +32,8 @@ class TextAddBar extends StatelessWidget {
               child: TextField(
                 controller: controller,
                 focusNode: focusNode,
-                decoration: InputDecoration(
-                    border: InputBorder.none,
-                    hintText: label
-                ),
+                decoration:
+                    InputDecoration(border: InputBorder.none, hintText: label),
                 cursorColor: Styles.airshipBlue,
               ),
             ),

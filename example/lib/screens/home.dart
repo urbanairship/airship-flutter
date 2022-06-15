@@ -20,7 +20,6 @@ class _HomeState extends State<Home> {
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initAirshipListeners() async {
     Airship.onChannelRegistration.listen((event) {
-     
       if (mounted) {
         setState(() {});
       }
@@ -31,46 +30,46 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Styles.background,
-        body: Center (
-          child:Container(
+        body: Center(
+          child: Container(
             alignment: Alignment.center,
-            child:Wrap(
-                children: <Widget>[ Image.asset(
-                  'assets/airship.png',
+            child: Wrap(children: <Widget>[
+              Image.asset(
+                'assets/airship.png',
+              ),
+              Center(
+                child: FutureBuilder<bool?>(
+                  future: Airship.userNotificationsEnabled,
+                  builder: (context, AsyncSnapshot<bool?> snapshot) {
+                    Center enableNotificationsButton;
+                    bool pushEnabled = snapshot.data ?? false;
+                    enableNotificationsButton =
+                        Center(child: NotificationsEnabledButton(
+                      onPressed: () {
+                        Airship.setUserNotificationsEnabled(true);
+                        setState(() {});
+                      },
+                    ));
+                    return Visibility(
+                        visible: !pushEnabled,
+                        child: enableNotificationsButton);
+                  },
                 ),
-                  Center(
-                    child: FutureBuilder(
-                      future: Airship.userNotificationsEnabled,
-                      builder: (context, AsyncSnapshot<bool> snapshot) {
-                        Center enableNotificationsButton;
-                        bool pushEnabled = snapshot.data ?? false;
-                        enableNotificationsButton = Center (child: NotificationsEnabledButton(onPressed:(){
-                          Airship.setUserNotificationsEnabled(true);
-                          setState(() {});
-                        },)
-                        );
-                        return Visibility(
-                            visible:!pushEnabled,
-                            child:enableNotificationsButton);
-                      },
-                    ),
-                  ),
-                  Center(
-                    child: FutureBuilder(
-                      future: Airship.channelId,
-                      builder: (context, snapshot) {
-                        return Text(
-                          '${snapshot.hasData ? snapshot.data : "Channel not set"}',
-                          textAlign: TextAlign.center,
-                          style: Styles.homePrimaryText,
-                        );
-                      },
-                    ),
-                  ),
-
-                ]),
+              ),
+              Center(
+                child: FutureBuilder(
+                  future: Airship.channelId,
+                  builder: (context, snapshot) {
+                    return Text(
+                      '${snapshot.hasData ? snapshot.data : "Channel not set"}',
+                      textAlign: TextAlign.center,
+                      style: Styles.homePrimaryText,
+                    );
+                  },
+                ),
+              ),
+            ]),
           ),
-        )
-    );
+        ));
   }
 }

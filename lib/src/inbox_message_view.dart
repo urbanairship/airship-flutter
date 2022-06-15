@@ -8,7 +8,6 @@ import 'package:flutter/widgets.dart';
 
 /// Inbox message view component.
 class InboxMessageView extends StatelessWidget {
-
   /// The message Id.
   final String messageId;
 
@@ -27,14 +26,18 @@ class InboxMessageView extends StatelessWidget {
   /// A flag to use flutter hybrid composition method or not. Default to false.
   static bool hybridComposition = false;
 
-  InboxMessageView({
-    required this.messageId, this.onLoadStarted, this.onLoadFinished, this.onLoadError, this.onClose
-  });
+  InboxMessageView(
+      {required this.messageId,
+      this.onLoadStarted,
+      this.onLoadFinished,
+      this.onLoadError,
+      this.onClose});
 
   Future<void> onPlatformViewCreated(id) async {
-    MethodChannel _channel = new MethodChannel('com.airship.flutter/InboxMessageView_$id');
+    MethodChannel _channel =
+        new MethodChannel('com.airship.flutter/InboxMessageView_$id');
     _channel.setMethodCallHandler(methodCallHandler);
-    _channel.invokeMethod('loadMessage', messageId).catchError( (error) {
+    _channel.invokeMethod('loadMessage', messageId).catchError((error) {
       if (onLoadError != null) {
         onLoadError!(error);
       }
@@ -114,6 +117,4 @@ class InboxMessageView extends StatelessWidget {
       );
     }
   }
-
-
 }

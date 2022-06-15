@@ -9,7 +9,7 @@ class TagAdd extends StatefulWidget {
   TagAdd({this.updateParent});
 
   @override
-  _TagAddState createState() => _TagAddState(updateParent:updateParent);
+  _TagAddState createState() => _TagAddState(updateParent: updateParent);
 }
 
 class _TagAddState extends State<TagAdd> {
@@ -27,7 +27,7 @@ class _TagAddState extends State<TagAdd> {
   Widget build(BuildContext context) {
     Widget _buildTagList(List<String> tags) {
       return ListView.builder(
-        itemCount: tags != null ? tags.length : 0,
+        itemCount: tags.length,
         itemBuilder: (context, index) {
           var tag = tags[index];
 
@@ -35,9 +35,8 @@ class _TagAddState extends State<TagAdd> {
             key: Key(UniqueKey().toString()),
             background: Container(color: Styles.airshipRed),
             onDismissed: (direction) {
-              ScaffoldMessenger
-                  .of(context)
-                  .showSnackBar(SnackBar(content: Text("tag \"$tag\" removed")));
+              ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("tag \"$tag\" removed")));
               tags.remove(tag);
               Airship.removeTags([tag]);
               updateState();
@@ -46,8 +45,7 @@ class _TagAddState extends State<TagAdd> {
                 elevation: 5.0,
                 child: ListTile(
                   title: Text('$tag'),
-                )
-            ),
+                )),
           );
         },
       );
@@ -61,13 +59,10 @@ class _TagAddState extends State<TagAdd> {
         body: FutureBuilder<List<String>>(
           future: Airship.tags,
           builder: (context, snapshot) {
-
-            Expanded expandedList;
+            Expanded? expandedList;
 
             if (snapshot.hasData) {
-              expandedList = Expanded(
-                  child: _buildTagList(List<String>.from(snapshot.data))
-              );
+              expandedList = Expanded(child: _buildTagList(snapshot.data!));
             }
 
             return SafeArea(
@@ -78,7 +73,7 @@ class _TagAddState extends State<TagAdd> {
                     padding: const EdgeInsets.all(12.0),
                     child: TextAddBar(
                       label: "Add a tag",
-                      onTap: (tagText){
+                      onTap: (tagText) {
                         FocusScope.of(context).unfocus();
                         Airship.addTags([tagText]);
                         updateState();
