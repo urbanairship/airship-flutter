@@ -73,7 +73,7 @@ jobs:
           cp ~/.pub-cache/credentials.json $PUB_CACHE/credentials.json
 
       - name: Publish Dart/Flutter package
-        run: pub publish -f
+        run: flutter pub publish -f
 
       - name: Github Release
         uses: actions/create-release@v1.0.1
