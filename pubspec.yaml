@@ -1,6 +1,5 @@
 name: airship_flutter
-description: "The Airship flutter cross-platform plugin interface to Airship's iOS and Android native SDKs.
-Simplifies adding core Airship support to be Flutter dart apps."
+description: "Cross-platform plugin interface for the native Airship iOS and Android SDKs. Simplifies adding Airship to Flutter apps."
 version: 6.0.0
 homepage: https://www.airship.com/
 repository: https://github.com/urbanairship/airship-flutter
