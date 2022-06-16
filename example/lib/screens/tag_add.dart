@@ -27,7 +27,7 @@ class _TagAddState extends State<TagAdd> {
   Widget build(BuildContext context) {
     Widget _buildTagList(List<String> tags) {
       return ListView.builder(
-        itemCount: tags != null ? tags.length : 0,
+        itemCount: tags.length,
         itemBuilder: (context, index) {
           var tag = tags[index];
 
@@ -59,11 +59,10 @@ class _TagAddState extends State<TagAdd> {
         body: FutureBuilder<List<String>>(
           future: Airship.tags,
           builder: (context, snapshot) {
-            Expanded expandedList;
+            Expanded? expandedList;
 
             if (snapshot.hasData) {
-              expandedList = Expanded(
-                  child: _buildTagList(List<String>.from(snapshot.data)));
+              expandedList = Expanded(child: _buildTagList(snapshot.data!));
             }
 
             return SafeArea(

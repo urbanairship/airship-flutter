@@ -11,8 +11,8 @@ class TextAddBar extends StatelessWidget {
   final focusNode = FocusNode();
 
   TextAddBar({
-    @required this.label,
-    @required this.onTap,
+    required this.label,
+    required this.onTap,
   });
 
   @override

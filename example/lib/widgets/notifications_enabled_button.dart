@@ -7,7 +7,7 @@ class NotificationsEnabledButton extends StatelessWidget {
   final onPressed;
 
   NotificationsEnabledButton({
-    @required this.onPressed,
+    required this.onPressed,
   });
 
   @override

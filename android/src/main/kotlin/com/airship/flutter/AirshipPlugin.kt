@@ -56,11 +56,10 @@ private const val ATTRIBUTE_MUTATION_SET = "set"
 
 const val AUTO_LAUNCH_PREFERENCE_CENTER_KEY = "com.airship.flutter.auto_launch_pc"
 
-class InboxMessageViewFactory(private val binaryMessenger: BinaryMessenger) :
-    PlatformViewFactory(StandardMessageCodec.INSTANCE) {
-    override fun create(context: Context, viewId: Int, arguments: Any?): PlatformView {
+class InboxMessageViewFactory(private val binaryMessenger: BinaryMessenger) : PlatformViewFactory(StandardMessageCodec.INSTANCE) {
+    override fun create(context: Context?, viewId: Int, args: Any?): PlatformView {
         val channel = MethodChannel(binaryMessenger, "com.airship.flutter/InboxMessageView_$viewId")
-        val view = FlutterInboxMessageView(context, channel)
+        val view = FlutterInboxMessageView(checkNotNull(context), channel)
         channel.setMethodCallHandler(view)
         return view
     }

@@ -2,21 +2,20 @@ name: airship_example
 description: Demonstrates how to use the airship plugin.
 publish_to: 'none'
 
+version: 0.0.1
+
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.17.2 <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  pull_to_refresh: ^2.0.0
-  flutter_section_list: ^1.1.0
-  flutter_dotenv: ^5.0.2
-  envify: ^2.0.2
+  flutter_section_list: ^1.1.1
+
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  envify_generator: ^2.0.2
   build_runner:
   flutter_lints: ^1.0.4
   analyzer:

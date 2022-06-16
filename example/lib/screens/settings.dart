@@ -28,7 +28,7 @@ class _SettingsState extends State<Settings> {
             children: ListTile.divideTiles(
           context: context,
           tiles: [
-            FutureBuilder(
+            FutureBuilder<bool?>(
                 future: Airship.userNotificationsEnabled,
                 builder: (context, snapshot) {
                   return SwitchListTile(
@@ -43,7 +43,7 @@ class _SettingsState extends State<Settings> {
                     },
                   );
                 }),
-            FutureBuilder(
+            FutureBuilder<String?>(
                 future: Airship.namedUser,
                 builder: (context, snapshot) {
                   return ListTile(
@@ -51,7 +51,7 @@ class _SettingsState extends State<Settings> {
                     title:
                         Text('Named User', style: Styles.settingsPrimaryText),
                     subtitle: Text(
-                        snapshot.hasData ? snapshot.data : "None set",
+                        snapshot.hasData ? snapshot.data! : "None set",
                         style: Styles.settingsSecondaryText),
                     onTap: () {
                       Navigator.push(
@@ -62,15 +62,15 @@ class _SettingsState extends State<Settings> {
                     },
                   );
                 }),
-            FutureBuilder(
+            FutureBuilder<List<String>>(
                 future: Airship.tags,
                 builder: (context, snapshot) {
                   return ListTile(
                     trailing: Icon(Icons.edit),
                     title: Text('Tags', style: Styles.settingsPrimaryText),
                     subtitle: Text(
-                        snapshot.hasData && snapshot.data.join(', ') != ""
-                            ? snapshot.data.join(', ')
+                        snapshot.hasData && snapshot.data!.join(', ') != ""
+                            ? snapshot.data!.join(', ')
                             : "None set",
                         style: Styles.settingsSecondaryText),
                     onTap: () {

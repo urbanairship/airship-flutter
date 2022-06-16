@@ -1,7 +1,8 @@
-#!/bin/bash -ex
-SCRIPT_DIRECTORY=$(dirname "${0}")
-ROOT_PATH=$(dirname "${0}")/../
+#!/bin/bash  -ex
+SCRIPT_DIRECTORY="$(dirname "$0")"
+ROOT_PATH=$SCRIPT_DIRECTORY/../
 
+#the version supplied as first argument
 VERSION=$1
 
 if [ -z "$1" ]
@@ -17,5 +18,8 @@ sed -i '' "s/\(AIRSHIP_PLUGIN_VERSION *= *\)\".*\"/\1\"$VERSION\"/g" "$ROOT_PATH
 # Update podspec
 sed -i '' "s/\(^AIRSHIP_FLUTTER_VERSION *= *\)\".*\"/\1\"$VERSION\"/g" "$ROOT_PATH/ios/airship_flutter.podspec"
 
-# Update readme
+# Update version in README.md with the current
 sed -i '' "s/\(^  airship_flutter *: *\).*/\1\^$VERSION/g" "$ROOT_PATH/README.md"
+
+#  Update version in pubspec.yaml with the current
+sed -i '' "s/\(^version: *\).*/\1$VERSION/g" "$ROOT_PATH/pubspec.yaml"
