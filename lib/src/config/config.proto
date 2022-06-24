@@ -17,8 +17,7 @@ enum Site {
 
 /// Enum of authorized/enabled Features.
 enum Feature{
-    ENABLE_ALL = 0;
-    ENABLE_NONE = 1;
+    ENABLE_NONE = 0;
     ENABLE_IN_APP_AUTOMATION = 2;
     ENABLE_MESSAGE_CENTER = 3;
     ENABLE_PUSH = 4;
@@ -27,6 +26,7 @@ enum Feature{
     ENABLE_TAGS_AND_ATTRIBUTES = 7;
     ENABLE_CONTACTS = 8;
     ENABLE_LOCATION = 9;
+    ENABLE_ALL = 1;
 }
 
 message AirshipEnv {

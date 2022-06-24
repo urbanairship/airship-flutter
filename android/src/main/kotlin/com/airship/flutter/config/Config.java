@@ -32,9 +32,9 @@ public final class Config {
      */
     NONE(0),
     /**
-     * <code>VERBOSE = 2;</code>
+     * <code>VERBOSE = 8;</code>
      */
-    VERBOSE(2),
+    VERBOSE(8),
     /**
      * <code>DEBUG = 3;</code>
      */
@@ -63,9 +63,9 @@ public final class Config {
      */
     public static final int NONE_VALUE = 0;
     /**
-     * <code>VERBOSE = 2;</code>
+     * <code>VERBOSE = 8;</code>
      */
-    public static final int VERBOSE_VALUE = 2;
+    public static final int VERBOSE_VALUE = 8;
     /**
      * <code>DEBUG = 3;</code>
      */
@@ -109,7 +109,7 @@ public final class Config {
     public static LogLevel forNumber(int value) {
       switch (value) {
         case 0: return NONE;
-        case 2: return VERBOSE;
+        case 8: return VERBOSE;
         case 3: return DEBUG;
         case 4: return INFO;
         case 5: return WARN;
@@ -7495,7 +7495,7 @@ public final class Config {
       "uire_initial_remote_config_enabled\030\n \001(\010" +
       "\022\"\n\020features_enabled\030\013 \003(\0162\010.Feature\022\027\n\003" +
       "ios\030\014 \001(\0132\n.IosConfig*K\n\010LogLevel\022\010\n\004NON" +
-      "E\020\000\022\013\n\007VERBOSE\020\002\022\t\n\005DEBUG\020\003\022\010\n\004INFO\020\004\022\010\n" +
+      "E\020\000\022\013\n\007VERBOSE\020\010\022\t\n\005DEBUG\020\003\022\010\n\004INFO\020\004\022\010\n" +
       "\004WARN\020\005\022\t\n\005ERROR\020\006* \n\004Site\022\013\n\007SITE_US\020\000\022" +
       "\013\n\007SITE_EU\020\001*\345\001\n\007Feature\022\016\n\nENABLE_ALL\020\000" +
       "\022\017\n\013ENABLE_NONE\020\001\022\034\n\030ENABLE_IN_APP_AUTOM" +

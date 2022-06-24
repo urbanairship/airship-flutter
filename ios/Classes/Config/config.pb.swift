@@ -26,7 +26,7 @@ enum LogLevel: SwiftProtobuf.Enum {
 
   //// normalizes to NONE
   case none // = 0
-  case verbose // = 2
+  case verbose // = 8
   case debug // = 3
   case info // = 4
   case warn // = 5
@@ -40,11 +40,11 @@ enum LogLevel: SwiftProtobuf.Enum {
   init?(rawValue: Int) {
     switch rawValue {
     case 0: self = .none
-    case 2: self = .verbose
     case 3: self = .debug
     case 4: self = .info
     case 5: self = .warn
     case 6: self = .error
+    case 8: self = .verbose
     default: self = .UNRECOGNIZED(rawValue)
     }
   }
@@ -52,11 +52,11 @@ enum LogLevel: SwiftProtobuf.Enum {
   var rawValue: Int {
     switch self {
     case .none: return 0
-    case .verbose: return 2
     case .debug: return 3
     case .info: return 4
     case .warn: return 5
     case .error: return 6
+    case .verbose: return 8
     case .UNRECOGNIZED(let i): return i
     }
   }
@@ -402,11 +402,11 @@ extension AirshipConfig: @unchecked Sendable {}
 extension LogLevel: SwiftProtobuf._ProtoNameProviding {
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
     0: .same(proto: "NONE"),
-    2: .same(proto: "VERBOSE"),
     3: .same(proto: "DEBUG"),
     4: .same(proto: "INFO"),
     5: .same(proto: "WARN"),
     6: .same(proto: "ERROR"),
+    8: .same(proto: "VERBOSE"),
   ]
 }
 
