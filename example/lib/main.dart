@@ -18,7 +18,7 @@ const String message_center_deep_link = "message_center";
 const String settings_deep_link = "settings";
 
 Future<void> backgroundMessageHandler(
-    Map<String, dynamic> payload, Notification notification) async {
+    Map<String, dynamic> payload, Notification? notification) async {
   print("Background Push Received $payload, $notification");
 }
 

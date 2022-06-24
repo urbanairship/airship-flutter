@@ -13,7 +13,7 @@ const LogLevel$json = const {
   '1': 'LogLevel',
   '2': const [
     const {'1': 'NONE', '2': 0},
-    const {'1': 'VERBOSE', '2': 2},
+    const {'1': 'VERBOSE', '2': 8},
     const {'1': 'DEBUG', '2': 3},
     const {'1': 'INFO', '2': 4},
     const {'1': 'WARN', '2': 5},
@@ -22,7 +22,7 @@ const LogLevel$json = const {
 };
 
 /// Descriptor for `LogLevel`. Decode as a `google.protobuf.EnumDescriptorProto`.
-final $typed_data.Uint8List logLevelDescriptor = $convert.base64Decode('CghMb2dMZXZlbBIICgROT05FEAASCwoHVkVSQk9TRRACEgkKBURFQlVHEAMSCAoESU5GTxAEEggKBFdBUk4QBRIJCgVFUlJPUhAG');
+final $typed_data.Uint8List logLevelDescriptor = $convert.base64Decode('CghMb2dMZXZlbBIICgROT05FEAASCwoHVkVSQk9TRRAIEgkKBURFQlVHEAMSCAoESU5GTxAEEggKBFdBUk4QBRIJCgVFUlJPUhAG');
 @$core.Deprecated('Use siteDescriptor instead')
 const Site$json = const {
   '1': 'Site',

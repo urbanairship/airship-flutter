@@ -11,7 +11,7 @@ import 'package:protobuf/protobuf.dart' as $pb;
 
 class LogLevel extends $pb.ProtobufEnum {
   static const LogLevel NONE = LogLevel._(0, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'NONE');
-  static const LogLevel VERBOSE = LogLevel._(2, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'VERBOSE');
+  static const LogLevel VERBOSE = LogLevel._(8, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'VERBOSE');
   static const LogLevel DEBUG = LogLevel._(3, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'DEBUG');
   static const LogLevel INFO = LogLevel._(4, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'INFO');
   static const LogLevel WARN = LogLevel._(5, const $core.bool.fromEnvironment('protobuf.omit_enum_names') ? '' : 'WARN');
