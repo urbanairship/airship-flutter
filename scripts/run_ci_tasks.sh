@@ -19,8 +19,18 @@ ANDROID=true
 ANALYZE=true
 IOS=true
 
+# rename 'package:airship_example/config/airship.config.sample.dart' if config
+# does not already exists
+CONFIG_FILE=$(pwd)/example/lib/config/airship.config.dart
+SAMPLE_CONFIG_FILE=$(pwd)/example/lib/config/airship.config.sample.dart
+if [[ ! -f "$CONFIG_FILE" ]] && [[ -f "$SAMPLE_CONFIG_FILE" ]]; then
+  cp "$SAMPLE_CONFIG_FILE" "$CONFIG_FILE"
+  echo "$CONFIG_FILE does not exists."
+fi
+
+
 # Parse arguments
-OPTS=`getopt haiz $*`
+OPTS=$(getopt haiz "$*")
 if [ $? != 0 ] ; then echo "Failed parsing options." >&2 ; exit 1 ; fi
 eval set -- "$OPTS"
 
