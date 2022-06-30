@@ -13,10 +13,9 @@ public class AirshipAutopilot: NSObject {
             return
         }
         
-        guard let configDict = PluginStore.config else {
+        guard let configDict = PluginStore.protoConfig else {
                   return
         }
-
         do {
           
               let config = try Config.parse(configDict)

@@ -48,171 +48,128 @@ class PluginConfig {
 
 
 extension Config {
-     static func parse(_ configDict: FlutterStandardTypedData(bytes: Data)) throws -> Config {
+     static func parse(_ configDict: AirshipConfig) throws -> Config {
          let airshipConfig = Config.default()
 
-        
-         let defaultEnvironment = try Environment.fromConfig(configDict["default"])
-         let prodEnvironment = try Environment.fromConfig(configDict["production"])
-         let devEnvironment = try Environment.fromConfig(configDict["development"])
-
-         if let appKey = defaultEnvironment?.appKey, let appSecret = defaultEnvironment?.appSecret {
-             airshipConfig.defaultAppKey = appKey
-             airshipConfig.defaultAppSecret = appSecret
-         }
+         airshipConfig.parseDefaultEnv(configDict.defaultEnv)
+         airshipConfig.parseProductionEnv(configDict.production)
+         airshipConfig.parseDevelopmentEnv(configDict.development)
          
-         if let appKey = prodEnvironment?.appKey, let appSecret = prodEnvironment?.appSecret {
-             airshipConfig.productionAppKey = appKey
-             airshipConfig.productionAppSecret = appSecret
-         }
+    
+         airshipConfig.inProduction = configDict.inProduction
+        
+         airshipConfig.itunesID = configDict.ios.itunesID
+        
+         airshipConfig.site =  configDict.site.toSite()
 
-         if let appKey = devEnvironment?.appKey, let appSecret = devEnvironment?.appSecret {
-             airshipConfig.developmentAppKey = appKey
-             airshipConfig.developmentAppSecret = appSecret
-         }
+      
+         airshipConfig.enabledFeatures =  configDict.featuresEnabled.value()
+         
 
-         if let logLevel = (prodEnvironment?.logLevel ?? defaultEnvironment?.logLevel) {
-             airshipConfig.productionLogLevel = logLevel;
-         }
+         airshipConfig.urlAllowList = configDict.urlAllowList
 
-         if let logLevel = (devEnvironment?.logLevel ?? defaultEnvironment?.logLevel) {
-             airshipConfig.developmentLogLevel = logLevel;
-         }
+        
+         airshipConfig.urlAllowListScopeOpenURL = configDict.urlAllowListScopeOpenURL
 
-         if configDict["inProduction"] != nil {
-             airshipConfig.inProduction = configDict["inProduction"] as? Bool ?? false
-         }
-
-         if let iOSConfig = configDict["iOS"] as? [String: Any] {
-             airshipConfig.itunesID = iOSConfig["itunesId"] as? String
-         }
-
-         if let siteString = configDict["site"] as? String {
-             airshipConfig.site =   CloudSite.parse(name: siteString) ?? CloudSite.us
-         }
-
-         if let features = configDict["enabledFeatures"] as? [String] {
-             airshipConfig.enabledFeatures = try Features.parse(features)
-         }
-
-         if let allowList = configDict["urlAllowList"] as? [String] {
-             airshipConfig.urlAllowList = allowList
-         }
-
-         if let allowList = configDict["urlAllowListScopeOpenUrl"] as? [String] {
-             airshipConfig.urlAllowListScopeOpenURL = allowList
-         }
-
-         if let allowList = configDict["urlAllowListScopeJavaScriptInterface"] as? [String] {
-             airshipConfig.urlAllowListScopeJavaScriptInterface = allowList
-         }
+       
+         airshipConfig.urlAllowListScopeJavaScriptInterface = configDict.urlAllowlistScopeJavascriptInterface
+         
 
          return airshipConfig
      }
+    
+    private func parseDefaultEnv(_ defaultEnv: AirshipEnv){
+        defaultAppKey = defaultEnv.appKey
+        defaultAppSecret = defaultEnv.appSecret
+        productionLogLevel = defaultEnv.logLevel.value()
+    }
+    
+    private func parseDevelopmentEnv(_ developmentEnv: AirshipEnv){
+        developmentAppKey = developmentEnv.appKey
+        developmentAppSecret = developmentEnv.appSecret
+        developmentLogLevel = developmentEnv.logLevel.value()
+    }
+    
+    private func parseProductionEnv(_ productionEnv: AirshipEnv){
+        productionAppKey = productionEnv.appKey
+        productionAppSecret = productionEnv.appSecret
+        productionLogLevel = productionEnv.logLevel.value()
+    }
+    
  }
 
 
-private enum CloudSiteNames: String {
-    case eu
-    case us
-
+extension Site {
     func toSite() -> CloudSite {
         switch (self) {
         case .eu:
             return CloudSite.eu
         case .us:
             return CloudSite.us
+        case .UNRECOGNIZED(_):
+            return CloudSite.us
         }
     }
 }
 
 
-extension CloudSite {
-    static func parse(name: String) -> CloudSite? {
-        return   CloudSiteNames(rawValue: name.lowercased())?.toSite()
-
-    }
-}
-
-
-extension Features {
-   func toStringArray() -> [String] {
-       var names: [String] = []
-       FeatureNames.allCases.forEach { value in
-           if (value != FeatureNames.none && value != FeatureNames.all) {
-               if (self.contains(value.toFeature())) {
-                   names.append(value.rawValue)
-               }
-           }
-       }
-
-       return names
-   }
-
-   static func parse(_ names: [String]) throws -> Features {
+extension Array where Element == Feature {
+    func value() -> Features {
        var features: Features = []
-
-       try names.forEach { name in
-           guard let feature = FeatureNames.init(rawValue:name) else {
-               throw AirshipErrors.error("Invalid feature \(name)")
-           }
-
-           features.update(with: feature.toFeature())
+       forEach { feature in
+           features.update(with: feature.value())
        }
 
        return features
    }
 }
 
-struct LogLevelNames {
-    static let map: [String: LogLevel] = [
-        verbose: LogLevel.trace,
-        debug: LogLevel.debug,
-        info: LogLevel.info,
-        warning: LogLevel.warn,
-        error: LogLevel.error,
-        assert: LogLevel.debug,
-        LogLevelNames.none: LogLevel.none
-    ]
-
-    static let verbose = "verbose"
-    static let debug = "debug"
-    static let info = "info"
-    static let warning = "warning"
-    static let error = "error"
-    static let assert = "assert"
-    static let none = "none"
-}
-
-extension LogLevel {
-    static func parse(name: String) throws -> LogLevel {
-        guard let logLevel = LogLevelNames.map[name.lowercased()] else {
-            throw AirshipErrors.error("Invalid log level: \(name)")
+extension Feature{
+    func value() -> Features {
+        switch(self){
+        case .enableAll:
+            return Features.all
+        case .enableNone:
+            return []
+        case .enableInAppAutomation:
+            return Features.inAppAutomation
+        case .enableMessageCenter:
+            return Features.messageCenter
+        case .enablePush:
+            return Features.push
+        case .enableChat:
+            return Features.chat
+        case .enableAnalytics:
+            return Features.analytics
+        case .enableTagsAndAttributes:
+            return Features.tagsAndAttributes
+        case .enableContacts:
+            return Features.contacts
+        case .enableLocation:
+            return Features.location
+        case .UNRECOGNIZED(_):
+            return []
         }
-
-        return logLevel
     }
 }
 
- private struct Environment {
-     let logLevel: LogLevel?
-     let appKey: String?
-     let appSecret: String?
-
-     static func fromConfig(_ config: Any?) throws -> Environment? {
-         guard let config = config as? [String: String] else {
-             return nil
-         }
-       
-         
-         var logLevel: LogLevel?
-         if let logLevelString = config["logLevel"] {
-             logLevel = try LogLevel.parse(name: logLevelString)
-         }
-      
-         return Environment(logLevel: logLevel,
-                 appKey: config["appKey"],
-                 appSecret: config["appSecret"])
-
-     }
- }
+extension airship_flutter.LogLevel {
+    func value() -> AirshipKit.LogLevel{
+        switch(self){
+        case .none:
+           return AirshipKit.LogLevel.none
+        case .verbose:
+            return AirshipKit.LogLevel.trace
+        case .debug:
+            return AirshipKit.LogLevel.debug
+        case .info:
+            return AirshipKit.LogLevel.info
+        case .warn:
+            return AirshipKit.LogLevel.warn
+        case .error:
+            return AirshipKit.LogLevel.error
+        case .UNRECOGNIZED(_):
+            return AirshipKit.LogLevel.undefined
+        }
+    }
+}

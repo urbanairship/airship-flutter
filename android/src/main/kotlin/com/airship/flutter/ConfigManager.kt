@@ -1,14 +1,15 @@
 package com.airship.flutter
 
+import PluginLogger
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.net.Uri
+import android.util.Log
 import androidx.annotation.ColorInt
 import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.airship.flutter.config.Config
@@ -47,13 +48,6 @@ class ConfigManager(private val context: Context) {
         fileName = "airship.flutter.plugin.pb",
         ConfigSerializer
     )
-
-    suspend fun updateConfig(appKey: String, appSecret: String) {
-        context.airshipFlutterPluginStore.edit { preferences ->
-            preferences[APP_KEY] = appKey
-            preferences[APP_SECRET] = appSecret
-        }
-    }
 
     suspend fun updateConfig(configByteArray: ByteArray) {
         val appCredentialsOverride =
@@ -229,3 +223,16 @@ fun AirshipConfigOptions.isValid(): Boolean {
         false
     }
 }
+
+val Config.LogLevel.value: Int
+    get() {
+        return when (this) {
+            Config.LogLevel.VERBOSE -> Log.VERBOSE
+            Config.LogLevel.DEBUG -> Log.DEBUG
+            Config.LogLevel.INFO -> Log.INFO
+            Config.LogLevel.WARN -> Log.WARN
+            Config.LogLevel.ERROR -> Log.ERROR
+            Config.LogLevel.NONE -> Log.ASSERT
+            else -> Log.ASSERT
+        }
+    }
