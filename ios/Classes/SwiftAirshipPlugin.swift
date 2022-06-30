@@ -167,18 +167,21 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDe
 
     private func takeOff(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         AirshipLogger.debug("\(String(describing:call.arguments))")
-        
-        guard let configDict = call.arguments as FlutterStandardTypedData(bytes: Data) else {
+        guard let configDict = call.arguments as? FlutterStandardTypedData else {
             result(false)
             fatalError("Invalid arguments: \(String(describing: call.arguments))")
-            //return
         }
-        
-        PluginStore.config = configDict
+        do{
+         PluginStore.protoConfig = try AirshipConfig.init(serializedData:configDict.data)
+            AirshipAutopilot.attemptTakeOff()
+            
+            result(Airship.isFlying)
+        }catch{
+            result(false)
+            fatalError("Invalid arguments: \(String(describing: call.arguments))")
+        }
        
-        AirshipAutopilot.attemptTakeOff()
         
-        result(Airship.isFlying)
     }
         
     private func getUserNotificationsEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {

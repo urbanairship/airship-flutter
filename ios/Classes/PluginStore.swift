@@ -15,6 +15,27 @@ class PluginStore {
             self.write("config", value: newValue)
         }
     }
+    
+    public static var protoConfig:  AirshipConfig? {
+        get {
+            do{
+                let data = defaults.value(forKey: "protoConfig")
+                guard data != nil else {
+                    return nil
+                }
+                return try AirshipConfig.init(serializedData: data as! Data);
+            } catch  {
+                fatalError("Invalid config: \(String(describing: error))")
+            }
+        }
+        set  {
+            do {
+                try defaults.set(newValue?.serializedData(), forKey: "protoConfig")
+            }catch{
+                fatalError("Invalid config: \(String(describing: newValue))")
+            }
+        }
+    }
 
     public static var presentationOptions: UNNotificationPresentationOptions {
         get {

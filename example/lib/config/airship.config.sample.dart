@@ -2,7 +2,7 @@ import 'package:airship_flutter/airship_flutter.dart';
 
 abstract class Config {
   static AirshipConfig airship = AirshipConfig(
-      development: AirshipEnv(
+      defaultEnv: AirshipEnv(
         /// Add your appKey
           appKey: "",
           /// Add your appSecret
