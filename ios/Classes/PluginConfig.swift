@@ -1,17 +1,18 @@
+/* Copyright Airship and Contributors */
 import Foundation
 import AirshipKit
 
 
 
 class PluginConfig {
-
+    
     private enum Keys: String {
         case appKey
         case appSecret
     }
-
+    
     private static let defaults = UserDefaults(suiteName: "com.urbanairship.flutter")!
-
+    
     static var appKey: String? {
         get {
             return read(.appKey)
@@ -20,7 +21,7 @@ class PluginConfig {
             write(.appKey, value: newValue)
         }
     }
-
+    
     static var appSecret: String? {
         get {
             return read(.appSecret)
@@ -29,54 +30,52 @@ class PluginConfig {
             write(.appSecret, value: newValue)
         }
     }
-
+    
     private static func read<T>(_ key: Keys) -> T? {
         return defaults.object(forKey: key.rawValue) as? T
     }
-
+    
     private static func write(_ key: Keys, value: Any?) {
         if let value = value {
             defaults.set(value, forKey: key.rawValue)
-                } else {
-                    defaults.removeObject(forKey: key.rawValue)
-                }
+        } else {
+            defaults.removeObject(forKey: key.rawValue)
+        }
     }
 }
-
-/* Copyright Airship and Contributors */
 
 
 
 extension Config {
-     static func parse(_ configDict: AirshipConfig) throws -> Config {
-         let airshipConfig = Config.default()
-
-         airshipConfig.parseDefaultEnv(configDict.defaultEnv)
-         airshipConfig.parseProductionEnv(configDict.production)
-         airshipConfig.parseDevelopmentEnv(configDict.development)
-         
-    
-         airshipConfig.inProduction = configDict.inProduction
+    static func parse(_ configDict: AirshipConfig) throws -> Config {
+        let airshipConfig = Config.default()
         
-         airshipConfig.itunesID = configDict.ios.itunesID
+        airshipConfig.parseDefaultEnv(configDict.defaultEnv)
+        airshipConfig.parseProductionEnv(configDict.production)
+        airshipConfig.parseDevelopmentEnv(configDict.development)
         
-         airshipConfig.site =  configDict.site.toSite()
-
-      
-         airshipConfig.enabledFeatures =  configDict.featuresEnabled.value()
-         
-
-         airshipConfig.urlAllowList = configDict.urlAllowList
-
         
-         airshipConfig.urlAllowListScopeOpenURL = configDict.urlAllowListScopeOpenURL
-
-       
-         airshipConfig.urlAllowListScopeJavaScriptInterface = configDict.urlAllowlistScopeJavascriptInterface
-         
-
-         return airshipConfig
-     }
+        airshipConfig.inProduction = configDict.inProduction
+        
+        airshipConfig.itunesID = configDict.ios.itunesID
+        
+        airshipConfig.site =  configDict.site.toSite()
+        
+        
+        airshipConfig.enabledFeatures =  configDict.featuresEnabled.value()
+        
+        
+        airshipConfig.urlAllowList = configDict.urlAllowList
+        
+        
+        airshipConfig.urlAllowListScopeOpenURL = configDict.urlAllowListScopeOpenURL
+        
+        
+        airshipConfig.urlAllowListScopeJavaScriptInterface = configDict.urlAllowlistScopeJavascriptInterface
+        
+        
+        return airshipConfig
+    }
     
     private func parseDefaultEnv(_ defaultEnv: AirshipEnv){
         defaultAppKey = defaultEnv.appKey
@@ -96,7 +95,7 @@ extension Config {
         productionLogLevel = productionEnv.logLevel.value()
     }
     
- }
+}
 
 
 extension Site {
@@ -115,13 +114,13 @@ extension Site {
 
 extension Array where Element == Feature {
     func value() -> Features {
-       var features: Features = []
-       forEach { feature in
-           features.update(with: feature.value())
-       }
-
-       return features
-   }
+        var features: Features = []
+        forEach { feature in
+            features.update(with: feature.value())
+        }
+        
+        return features
+    }
 }
 
 extension Feature{
@@ -157,7 +156,7 @@ extension airship_flutter.LogLevel {
     func value() -> AirshipKit.LogLevel{
         switch(self){
         case .none:
-           return AirshipKit.LogLevel.none
+            return AirshipKit.LogLevel.none
         case .verbose:
             return AirshipKit.LogLevel.trace
         case .debug:

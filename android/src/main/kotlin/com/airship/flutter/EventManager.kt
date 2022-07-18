@@ -14,7 +14,7 @@ class EventManager {
         val shared = EventManager()
     }
 
-    private val streams : Map<EventType, AirshipEventStream> by lazy {
+    private val streams: Map<EventType, AirshipEventStream> by lazy {
         EventType.values().map {
             it to AirshipEventStream(it)
         }.toMap()
@@ -39,7 +39,7 @@ internal class AirshipEventStream(eventType: EventType) : EventChannel.StreamHan
     private var eventSink: EventChannel.EventSink? = null
     private val pendingEvents = mutableListOf<Event>()
 
-    val name : String = "com.airship.flutter/event/${eventType.name}"
+    val name: String = "com.airship.flutter/event/${eventType.name}"
 
     fun notifyEvent(event: Event) {
         val sink = eventSink

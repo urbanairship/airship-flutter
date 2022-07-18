@@ -9,9 +9,6 @@ import android.util.Log
 import androidx.annotation.ColorInt
 import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import com.airship.flutter.config.Config
 import com.urbanairship.AirshipConfigOptions
 import com.urbanairship.PrivacyManager
@@ -28,8 +25,8 @@ private val Config.AirshipEnv.isSet: Boolean
 
 class ConfigManager(private val context: Context) {
     companion object {
-        private val APP_KEY = stringPreferencesKey("app_key")
-        private val APP_SECRET = stringPreferencesKey("app_secret")
+     /*   private val APP_KEY = stringPreferencesKey("app_key")
+        private val APP_SECRET = stringPreferencesKey("app_secret")*/
 
         @SuppressLint("StaticFieldLeak")
         @Volatile
@@ -40,9 +37,7 @@ class ConfigManager(private val context: Context) {
         }
     }
 
-    private val Context.airshipFlutterPluginStore: DataStore<Preferences> by preferencesDataStore(
-        name = "airshipFlutterPlugin",
-    )
+
 
     private val Context.flutterPluginStore: DataStore<Config.AirshipConfig> by dataStore(
         fileName = "airship.flutter.plugin.pb",
@@ -50,24 +45,8 @@ class ConfigManager(private val context: Context) {
     )
 
     suspend fun updateConfig(configByteArray: ByteArray) {
-        val appCredentialsOverride =
-            context.airshipFlutterPluginStore.data.map { preferences ->
-                Pair(preferences[APP_KEY], preferences[APP_SECRET])
-            }.first()
         context.flutterPluginStore.updateData {
-            Config.AirshipConfig.parseFrom(configByteArray).apply {
-                // if defaultEnv appKey/secretKey has been left blank in dart config,
-                // and there is app credentials stored in preferences;
-                // the stored credentials are used to override defaultEnv
-                if (defaultEnv.isSet) {
-                    if (!(appCredentialsOverride.first.isNullOrEmpty() || appCredentialsOverride.second.isNullOrEmpty())) {
-                        this.defaultEnv.toBuilder().apply {
-                            appKey = appCredentialsOverride.first
-                            appSecret = appCredentialsOverride.second
-                        }.build()
-                    }
-                }
-            }
+            Config.AirshipConfig.parseFrom(configByteArray);
         }
     }
 
@@ -104,7 +83,7 @@ class ConfigManager(private val context: Context) {
 
 
                     this.setSite(
-                        when (pluginConfig.site!!) {
+                        when (pluginConfig.site) {
                             Config.Site.SITE_EU -> AirshipConfigOptions.SITE_EU
                             Config.Site.SITE_US -> AirshipConfigOptions.SITE_US
                             Config.Site.UNRECOGNIZED -> AirshipConfigOptions.SITE_US
@@ -116,7 +95,6 @@ class ConfigManager(private val context: Context) {
                     }
 
                     pluginConfig.urlAllowListList.let {
-                        //println(it.toTypedArray().toString())
                         this.setUrlAllowList(null/*it.toTypedArray()*/)
                     }
 

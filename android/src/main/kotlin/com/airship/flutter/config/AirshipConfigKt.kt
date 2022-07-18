@@ -5,679 +5,783 @@ package com.airship.flutter.config;
 
 @kotlin.jvm.JvmSynthetic
 public inline fun airshipConfig(block: com.airship.flutter.config.AirshipConfigKt.Dsl.() -> kotlin.Unit): com.airship.flutter.config.Config.AirshipConfig =
-  com.airship.flutter.config.AirshipConfigKt.Dsl._create(com.airship.flutter.config.Config.AirshipConfig.newBuilder()).apply { block() }._build()
+    com.airship.flutter.config.AirshipConfigKt.Dsl._create(com.airship.flutter.config.Config.AirshipConfig.newBuilder())
+        .apply { block() }._build()
+
 public object AirshipConfigKt {
-  @kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)
-  @com.google.protobuf.kotlin.ProtoDslMarker
-  public class Dsl private constructor(
-    private val _builder: com.airship.flutter.config.Config.AirshipConfig.Builder
-  ) {
-    public companion object {
-      @kotlin.jvm.JvmSynthetic
-      @kotlin.PublishedApi
-      internal fun _create(builder: com.airship.flutter.config.Config.AirshipConfig.Builder): Dsl = Dsl(builder)
-    }
-
-    @kotlin.jvm.JvmSynthetic
-    @kotlin.PublishedApi
-    internal fun _build(): com.airship.flutter.config.Config.AirshipConfig = _builder.build()
-
-    /**
-     * <pre>
-     *&#47; Production environment.
-     * / Overrides default environment if [inProduction] is true.
-     * </pre>
-     *
-     * <code>.AirshipEnv production = 1;</code>
-     */
-    public var production: com.airship.flutter.config.Config.AirshipEnv
-      @JvmName("getProduction")
-      get() = _builder.getProduction()
-      @JvmName("setProduction")
-      set(value) {
-        _builder.setProduction(value)
-      }
-    /**
-     * <pre>
-     *&#47; Production environment.
-     * / Overrides default environment if [inProduction] is true.
-     * </pre>
-     *
-     * <code>.AirshipEnv production = 1;</code>
-     */
-    public fun clearProduction() {
-      _builder.clearProduction()
-    }
-    /**
-     * <pre>
-     *&#47; Production environment.
-     * / Overrides default environment if [inProduction] is true.
-     * </pre>
-     *
-     * <code>.AirshipEnv production = 1;</code>
-     * @return Whether the production field is set.
-     */
-    public fun hasProduction(): kotlin.Boolean {
-      return _builder.hasProduction()
-    }
-
-    /**
-     * <pre>
-     *&#47; Development environment.
-     * / Overrides default environment if [inProduction] is false.
-     * </pre>
-     *
-     * <code>.AirshipEnv development = 2;</code>
-     */
-    public var development: com.airship.flutter.config.Config.AirshipEnv
-      @JvmName("getDevelopment")
-      get() = _builder.getDevelopment()
-      @JvmName("setDevelopment")
-      set(value) {
-        _builder.setDevelopment(value)
-      }
-    /**
-     * <pre>
-     *&#47; Development environment.
-     * / Overrides default environment if [inProduction] is false.
-     * </pre>
-     *
-     * <code>.AirshipEnv development = 2;</code>
-     */
-    public fun clearDevelopment() {
-      _builder.clearDevelopment()
-    }
-    /**
-     * <pre>
-     *&#47; Development environment.
-     * / Overrides default environment if [inProduction] is false.
-     * </pre>
-     *
-     * <code>.AirshipEnv development = 2;</code>
-     * @return Whether the development field is set.
-     */
-    public fun hasDevelopment(): kotlin.Boolean {
-      return _builder.hasDevelopment()
-    }
-
-    /**
-     * <code>.AirshipEnv default_env = 13;</code>
-     */
-    public var defaultEnv: com.airship.flutter.config.Config.AirshipEnv
-      @JvmName("getDefaultEnv")
-      get() = _builder.getDefaultEnv()
-      @JvmName("setDefaultEnv")
-      set(value) {
-        _builder.setDefaultEnv(value)
-      }
-    /**
-     * <code>.AirshipEnv default_env = 13;</code>
-     */
-    public fun clearDefaultEnv() {
-      _builder.clearDefaultEnv()
-    }
-    /**
-     * <code>.AirshipEnv default_env = 13;</code>
-     * @return Whether the defaultEnv field is set.
-     */
-    public fun hasDefaultEnv(): kotlin.Boolean {
-      return _builder.hasDefaultEnv()
-    }
-
-    /**
-     * <code>.AndroidConfig android = 3;</code>
-     */
-    public var android: com.airship.flutter.config.Config.AndroidConfig
-      @JvmName("getAndroid")
-      get() = _builder.getAndroid()
-      @JvmName("setAndroid")
-      set(value) {
-        _builder.setAndroid(value)
-      }
-    /**
-     * <code>.AndroidConfig android = 3;</code>
-     */
-    public fun clearAndroid() {
-      _builder.clearAndroid()
-    }
-    /**
-     * <code>.AndroidConfig android = 3;</code>
-     * @return Whether the android field is set.
-     */
-    public fun hasAndroid(): kotlin.Boolean {
-      return _builder.hasAndroid()
-    }
-
-    /**
-     * <pre>
-     *&#47; Switches the environment from development or production.
-     * / If the value is not set,
-     * / Airship will determine the value at runtime.
-     * </pre>
-     *
-     * <code>bool in_production = 4;</code>
-     */
-    public var inProduction: kotlin.Boolean
-      @JvmName("getInProduction")
-      get() = _builder.getInProduction()
-      @JvmName("setInProduction")
-      set(value) {
-        _builder.setInProduction(value)
-      }
-    /**
-     * <pre>
-     *&#47; Switches the environment from development or production.
-     * / If the value is not set,
-     * / Airship will determine the value at runtime.
-     * </pre>
-     *
-     * <code>bool in_production = 4;</code>
-     */
-    public fun clearInProduction() {
-      _builder.clearInProduction()
-    }
-
-    /**
-     * <pre>
-     *&#47; Cloud site.
-     * </pre>
-     *
-     * <code>.Site site = 5;</code>
-     */
-    public var site: com.airship.flutter.config.Config.Site
-      @JvmName("getSite")
-      get() = _builder.getSite()
-      @JvmName("setSite")
-      set(value) {
-        _builder.setSite(value)
-      }
-    /**
-     * <pre>
-     *&#47; Cloud site.
-     * </pre>
-     *
-     * <code>.Site site = 5;</code>
-     */
-    public fun clearSite() {
-      _builder.clearSite()
-    }
-
-    /**
-     * An uninstantiable, behaviorless type to represent the field in
-     * generics.
-     */
     @kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)
-    public class UrlAllowListProxy private constructor() : com.google.protobuf.kotlin.DslProxy()
-    /**
-     * <pre>
-     *&#47; URL allow list.
-     * </pre>
-     *
-     * <code>repeated string url_allow_list = 6;</code>
-     * @return A list containing the urlAllowList.
-     */
-    public val urlAllowList: com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowListProxy>
-      @kotlin.jvm.JvmSynthetic
-      get() = com.google.protobuf.kotlin.DslList(
-        _builder.getUrlAllowListList()
-      )
-    /**
-     * <pre>
-     *&#47; URL allow list.
-     * </pre>
-     *
-     * <code>repeated string url_allow_list = 6;</code>
-     * @param value The urlAllowList to add.
-     */
-    @kotlin.jvm.JvmSynthetic
-    @kotlin.jvm.JvmName("addUrlAllowList")
-    public fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowListProxy>.add(value: kotlin.String) {
-      _builder.addUrlAllowList(value)
-    }
-    /**
-     * <pre>
-     *&#47; URL allow list.
-     * </pre>
-     *
-     * <code>repeated string url_allow_list = 6;</code>
-     * @param value The urlAllowList to add.
-     */
-    @kotlin.jvm.JvmSynthetic
-    @kotlin.jvm.JvmName("plusAssignUrlAllowList")
-    @Suppress("NOTHING_TO_INLINE")
-    public inline operator fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowListProxy>.plusAssign(value: kotlin.String) {
-      add(value)
-    }
-    /**
-     * <pre>
-     *&#47; URL allow list.
-     * </pre>
-     *
-     * <code>repeated string url_allow_list = 6;</code>
-     * @param values The urlAllowList to add.
-     */
-    @kotlin.jvm.JvmSynthetic
-    @kotlin.jvm.JvmName("addAllUrlAllowList")
-    public fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowListProxy>.addAll(values: kotlin.collections.Iterable<kotlin.String>) {
-      _builder.addAllUrlAllowList(values)
-    }
-    /**
-     * <pre>
-     *&#47; URL allow list.
-     * </pre>
-     *
-     * <code>repeated string url_allow_list = 6;</code>
-     * @param values The urlAllowList to add.
-     */
-    @kotlin.jvm.JvmSynthetic
-    @kotlin.jvm.JvmName("plusAssignAllUrlAllowList")
-    @Suppress("NOTHING_TO_INLINE")
-    public inline operator fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowListProxy>.plusAssign(values: kotlin.collections.Iterable<kotlin.String>) {
-      addAll(values)
-    }
-    /**
-     * <pre>
-     *&#47; URL allow list.
-     * </pre>
-     *
-     * <code>repeated string url_allow_list = 6;</code>
-     * @param index The index to set the value at.
-     * @param value The urlAllowList to set.
-     */
-    @kotlin.jvm.JvmSynthetic
-    @kotlin.jvm.JvmName("setUrlAllowList")
-    public operator fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowListProxy>.set(index: kotlin.Int, value: kotlin.String) {
-      _builder.setUrlAllowList(index, value)
-    }/**
-     * <pre>
-     *&#47; URL allow list.
-     * </pre>
-     *
-     * <code>repeated string url_allow_list = 6;</code>
-     */
-    @kotlin.jvm.JvmSynthetic
-    @kotlin.jvm.JvmName("clearUrlAllowList")
-    public fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowListProxy>.clear() {
-      _builder.clearUrlAllowList()
-    }
-    /**
-     * An uninstantiable, behaviorless type to represent the field in
-     * generics.
-     */
-    @kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)
-    public class UrlAllowListScopeOpenUrlProxy private constructor() : com.google.protobuf.kotlin.DslProxy()
-    /**
-     * <pre>
-     *&#47; URL allow list for open URL scope.
-     * </pre>
-     *
-     * <code>repeated string url_allow_list_scope_open_url = 7;</code>
-     * @return A list containing the urlAllowListScopeOpenUrl.
-     */
-    public val urlAllowListScopeOpenUrl: com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowListScopeOpenUrlProxy>
-      @kotlin.jvm.JvmSynthetic
-      get() = com.google.protobuf.kotlin.DslList(
-        _builder.getUrlAllowListScopeOpenUrlList()
-      )
-    /**
-     * <pre>
-     *&#47; URL allow list for open URL scope.
-     * </pre>
-     *
-     * <code>repeated string url_allow_list_scope_open_url = 7;</code>
-     * @param value The urlAllowListScopeOpenUrl to add.
-     */
-    @kotlin.jvm.JvmSynthetic
-    @kotlin.jvm.JvmName("addUrlAllowListScopeOpenUrl")
-    public fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowListScopeOpenUrlProxy>.add(value: kotlin.String) {
-      _builder.addUrlAllowListScopeOpenUrl(value)
-    }
-    /**
-     * <pre>
-     *&#47; URL allow list for open URL scope.
-     * </pre>
-     *
-     * <code>repeated string url_allow_list_scope_open_url = 7;</code>
-     * @param value The urlAllowListScopeOpenUrl to add.
-     */
-    @kotlin.jvm.JvmSynthetic
-    @kotlin.jvm.JvmName("plusAssignUrlAllowListScopeOpenUrl")
-    @Suppress("NOTHING_TO_INLINE")
-    public inline operator fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowListScopeOpenUrlProxy>.plusAssign(value: kotlin.String) {
-      add(value)
-    }
-    /**
-     * <pre>
-     *&#47; URL allow list for open URL scope.
-     * </pre>
-     *
-     * <code>repeated string url_allow_list_scope_open_url = 7;</code>
-     * @param values The urlAllowListScopeOpenUrl to add.
-     */
-    @kotlin.jvm.JvmSynthetic
-    @kotlin.jvm.JvmName("addAllUrlAllowListScopeOpenUrl")
-    public fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowListScopeOpenUrlProxy>.addAll(values: kotlin.collections.Iterable<kotlin.String>) {
-      _builder.addAllUrlAllowListScopeOpenUrl(values)
-    }
-    /**
-     * <pre>
-     *&#47; URL allow list for open URL scope.
-     * </pre>
-     *
-     * <code>repeated string url_allow_list_scope_open_url = 7;</code>
-     * @param values The urlAllowListScopeOpenUrl to add.
-     */
-    @kotlin.jvm.JvmSynthetic
-    @kotlin.jvm.JvmName("plusAssignAllUrlAllowListScopeOpenUrl")
-    @Suppress("NOTHING_TO_INLINE")
-    public inline operator fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowListScopeOpenUrlProxy>.plusAssign(values: kotlin.collections.Iterable<kotlin.String>) {
-      addAll(values)
-    }
-    /**
-     * <pre>
-     *&#47; URL allow list for open URL scope.
-     * </pre>
-     *
-     * <code>repeated string url_allow_list_scope_open_url = 7;</code>
-     * @param index The index to set the value at.
-     * @param value The urlAllowListScopeOpenUrl to set.
-     */
-    @kotlin.jvm.JvmSynthetic
-    @kotlin.jvm.JvmName("setUrlAllowListScopeOpenUrl")
-    public operator fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowListScopeOpenUrlProxy>.set(index: kotlin.Int, value: kotlin.String) {
-      _builder.setUrlAllowListScopeOpenUrl(index, value)
-    }/**
-     * <pre>
-     *&#47; URL allow list for open URL scope.
-     * </pre>
-     *
-     * <code>repeated string url_allow_list_scope_open_url = 7;</code>
-     */
-    @kotlin.jvm.JvmSynthetic
-    @kotlin.jvm.JvmName("clearUrlAllowListScopeOpenUrl")
-    public fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowListScopeOpenUrlProxy>.clear() {
-      _builder.clearUrlAllowListScopeOpenUrl()
-    }
-    /**
-     * An uninstantiable, behaviorless type to represent the field in
-     * generics.
-     */
-    @kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)
-    public class UrlAllowlistScopeJavascriptInterfaceProxy private constructor() : com.google.protobuf.kotlin.DslProxy()
-    /**
-     * <pre>
-     *&#47; URL allow list for JS bridge injection.
-     * </pre>
-     *
-     * <code>repeated string url_allowlist_scope_javascript_interface = 8;</code>
-     * @return A list containing the urlAllowlistScopeJavascriptInterface.
-     */
-    public val urlAllowlistScopeJavascriptInterface: com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowlistScopeJavascriptInterfaceProxy>
-      @kotlin.jvm.JvmSynthetic
-      get() = com.google.protobuf.kotlin.DslList(
-        _builder.getUrlAllowlistScopeJavascriptInterfaceList()
-      )
-    /**
-     * <pre>
-     *&#47; URL allow list for JS bridge injection.
-     * </pre>
-     *
-     * <code>repeated string url_allowlist_scope_javascript_interface = 8;</code>
-     * @param value The urlAllowlistScopeJavascriptInterface to add.
-     */
-    @kotlin.jvm.JvmSynthetic
-    @kotlin.jvm.JvmName("addUrlAllowlistScopeJavascriptInterface")
-    public fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowlistScopeJavascriptInterfaceProxy>.add(value: kotlin.String) {
-      _builder.addUrlAllowlistScopeJavascriptInterface(value)
-    }
-    /**
-     * <pre>
-     *&#47; URL allow list for JS bridge injection.
-     * </pre>
-     *
-     * <code>repeated string url_allowlist_scope_javascript_interface = 8;</code>
-     * @param value The urlAllowlistScopeJavascriptInterface to add.
-     */
-    @kotlin.jvm.JvmSynthetic
-    @kotlin.jvm.JvmName("plusAssignUrlAllowlistScopeJavascriptInterface")
-    @Suppress("NOTHING_TO_INLINE")
-    public inline operator fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowlistScopeJavascriptInterfaceProxy>.plusAssign(value: kotlin.String) {
-      add(value)
-    }
-    /**
-     * <pre>
-     *&#47; URL allow list for JS bridge injection.
-     * </pre>
-     *
-     * <code>repeated string url_allowlist_scope_javascript_interface = 8;</code>
-     * @param values The urlAllowlistScopeJavascriptInterface to add.
-     */
-    @kotlin.jvm.JvmSynthetic
-    @kotlin.jvm.JvmName("addAllUrlAllowlistScopeJavascriptInterface")
-    public fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowlistScopeJavascriptInterfaceProxy>.addAll(values: kotlin.collections.Iterable<kotlin.String>) {
-      _builder.addAllUrlAllowlistScopeJavascriptInterface(values)
-    }
-    /**
-     * <pre>
-     *&#47; URL allow list for JS bridge injection.
-     * </pre>
-     *
-     * <code>repeated string url_allowlist_scope_javascript_interface = 8;</code>
-     * @param values The urlAllowlistScopeJavascriptInterface to add.
-     */
-    @kotlin.jvm.JvmSynthetic
-    @kotlin.jvm.JvmName("plusAssignAllUrlAllowlistScopeJavascriptInterface")
-    @Suppress("NOTHING_TO_INLINE")
-    public inline operator fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowlistScopeJavascriptInterfaceProxy>.plusAssign(values: kotlin.collections.Iterable<kotlin.String>) {
-      addAll(values)
-    }
-    /**
-     * <pre>
-     *&#47; URL allow list for JS bridge injection.
-     * </pre>
-     *
-     * <code>repeated string url_allowlist_scope_javascript_interface = 8;</code>
-     * @param index The index to set the value at.
-     * @param value The urlAllowlistScopeJavascriptInterface to set.
-     */
-    @kotlin.jvm.JvmSynthetic
-    @kotlin.jvm.JvmName("setUrlAllowlistScopeJavascriptInterface")
-    public operator fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowlistScopeJavascriptInterfaceProxy>.set(index: kotlin.Int, value: kotlin.String) {
-      _builder.setUrlAllowlistScopeJavascriptInterface(index, value)
-    }/**
-     * <pre>
-     *&#47; URL allow list for JS bridge injection.
-     * </pre>
-     *
-     * <code>repeated string url_allowlist_scope_javascript_interface = 8;</code>
-     */
-    @kotlin.jvm.JvmSynthetic
-    @kotlin.jvm.JvmName("clearUrlAllowlistScopeJavascriptInterface")
-    public fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowlistScopeJavascriptInterfaceProxy>.clear() {
-      _builder.clearUrlAllowlistScopeJavascriptInterface()
-    }
-    /**
-     * <pre>
-     *&#47; Enables delayed channel creation.
-     * </pre>
-     *
-     * <code>bool is_channel_creation_delay_enabled = 9;</code>
-     */
-    public var isChannelCreationDelayEnabled: kotlin.Boolean
-      @JvmName("getIsChannelCreationDelayEnabled")
-      get() = _builder.getIsChannelCreationDelayEnabled()
-      @JvmName("setIsChannelCreationDelayEnabled")
-      set(value) {
-        _builder.setIsChannelCreationDelayEnabled(value)
-      }
-    /**
-     * <pre>
-     *&#47; Enables delayed channel creation.
-     * </pre>
-     *
-     * <code>bool is_channel_creation_delay_enabled = 9;</code>
-     */
-    public fun clearIsChannelCreationDelayEnabled() {
-      _builder.clearIsChannelCreationDelayEnabled()
-    }
+    @com.google.protobuf.kotlin.ProtoDslMarker
+    public class Dsl private constructor(
+        private val _builder: com.airship.flutter.config.Config.AirshipConfig.Builder
+    ) {
+        public companion object {
+            @kotlin.jvm.JvmSynthetic
+            @kotlin.PublishedApi
+            internal fun _create(builder: com.airship.flutter.config.Config.AirshipConfig.Builder): Dsl =
+                Dsl(builder)
+        }
 
-    /**
-     * <pre>
-     *&#47; Enables/disables requiring initial remote config fetch before
-     * / creating a channel.
-     * </pre>
-     *
-     * <code>bool require_initial_remote_config_enabled = 10;</code>
-     */
-    public var requireInitialRemoteConfigEnabled: kotlin.Boolean
-      @JvmName("getRequireInitialRemoteConfigEnabled")
-      get() = _builder.getRequireInitialRemoteConfigEnabled()
-      @JvmName("setRequireInitialRemoteConfigEnabled")
-      set(value) {
-        _builder.setRequireInitialRemoteConfigEnabled(value)
-      }
-    /**
-     * <pre>
-     *&#47; Enables/disables requiring initial remote config fetch before
-     * / creating a channel.
-     * </pre>
-     *
-     * <code>bool require_initial_remote_config_enabled = 10;</code>
-     */
-    public fun clearRequireInitialRemoteConfigEnabled() {
-      _builder.clearRequireInitialRemoteConfigEnabled()
-    }
+        @kotlin.jvm.JvmSynthetic
+        @kotlin.PublishedApi
+        internal fun _build(): com.airship.flutter.config.Config.AirshipConfig = _builder.build()
 
-    /**
-     * An uninstantiable, behaviorless type to represent the field in
-     * generics.
-     */
-    @kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)
-    public class FeaturesEnabledProxy private constructor() : com.google.protobuf.kotlin.DslProxy()
-    /**
-     * <pre>
-     *&#47; Enabled features. Defaults to all.
-     * </pre>
-     *
-     * <code>repeated .Feature features_enabled = 11;</code>
-     */
-     public val featuresEnabled: com.google.protobuf.kotlin.DslList<com.airship.flutter.config.Config.Feature, FeaturesEnabledProxy>
-      @kotlin.jvm.JvmSynthetic
-      get() = com.google.protobuf.kotlin.DslList(
-        _builder.getFeaturesEnabledList()
-      )
-    /**
-     * <pre>
-     *&#47; Enabled features. Defaults to all.
-     * </pre>
-     *
-     * <code>repeated .Feature features_enabled = 11;</code>
-     * @param value The featuresEnabled to add.
-     */
-    @kotlin.jvm.JvmSynthetic
-    @kotlin.jvm.JvmName("addFeaturesEnabled")
-    public fun com.google.protobuf.kotlin.DslList<com.airship.flutter.config.Config.Feature, FeaturesEnabledProxy>.add(value: com.airship.flutter.config.Config.Feature) {
-      _builder.addFeaturesEnabled(value)
-    }/**
-     * <pre>
-     *&#47; Enabled features. Defaults to all.
-     * </pre>
-     *
-     * <code>repeated .Feature features_enabled = 11;</code>
-     * @param value The featuresEnabled to add.
-     */
-    @kotlin.jvm.JvmSynthetic
-    @kotlin.jvm.JvmName("plusAssignFeaturesEnabled")
-    @Suppress("NOTHING_TO_INLINE")
-    public inline operator fun com.google.protobuf.kotlin.DslList<com.airship.flutter.config.Config.Feature, FeaturesEnabledProxy>.plusAssign(value: com.airship.flutter.config.Config.Feature) {
-      add(value)
-    }/**
-     * <pre>
-     *&#47; Enabled features. Defaults to all.
-     * </pre>
-     *
-     * <code>repeated .Feature features_enabled = 11;</code>
-     * @param values The featuresEnabled to add.
-     */
-    @kotlin.jvm.JvmSynthetic
-    @kotlin.jvm.JvmName("addAllFeaturesEnabled")
-    public fun com.google.protobuf.kotlin.DslList<com.airship.flutter.config.Config.Feature, FeaturesEnabledProxy>.addAll(values: kotlin.collections.Iterable<com.airship.flutter.config.Config.Feature>) {
-      _builder.addAllFeaturesEnabled(values)
-    }/**
-     * <pre>
-     *&#47; Enabled features. Defaults to all.
-     * </pre>
-     *
-     * <code>repeated .Feature features_enabled = 11;</code>
-     * @param values The featuresEnabled to add.
-     */
-    @kotlin.jvm.JvmSynthetic
-    @kotlin.jvm.JvmName("plusAssignAllFeaturesEnabled")
-    @Suppress("NOTHING_TO_INLINE")
-    public inline operator fun com.google.protobuf.kotlin.DslList<com.airship.flutter.config.Config.Feature, FeaturesEnabledProxy>.plusAssign(values: kotlin.collections.Iterable<com.airship.flutter.config.Config.Feature>) {
-      addAll(values)
-    }/**
-     * <pre>
-     *&#47; Enabled features. Defaults to all.
-     * </pre>
-     *
-     * <code>repeated .Feature features_enabled = 11;</code>
-     * @param index The index to set the value at.
-     * @param value The featuresEnabled to set.
-     */
-    @kotlin.jvm.JvmSynthetic
-    @kotlin.jvm.JvmName("setFeaturesEnabled")
-    public operator fun com.google.protobuf.kotlin.DslList<com.airship.flutter.config.Config.Feature, FeaturesEnabledProxy>.set(index: kotlin.Int, value: com.airship.flutter.config.Config.Feature) {
-      _builder.setFeaturesEnabled(index, value)
-    }/**
-     * <pre>
-     *&#47; Enabled features. Defaults to all.
-     * </pre>
-     *
-     * <code>repeated .Feature features_enabled = 11;</code>
-     */
-    @kotlin.jvm.JvmSynthetic
-    @kotlin.jvm.JvmName("clearFeaturesEnabled")
-    public fun com.google.protobuf.kotlin.DslList<com.airship.flutter.config.Config.Feature, FeaturesEnabledProxy>.clear() {
-      _builder.clearFeaturesEnabled()
+        /**
+         * <pre>
+         *&#47; Production environment.
+         * / Overrides default environment if [inProduction] is true.
+         * </pre>
+         *
+         * <code>.AirshipEnv production = 1;</code>
+         */
+        public var production: com.airship.flutter.config.Config.AirshipEnv
+            @JvmName("getProduction")
+            get() = _builder.getProduction()
+            @JvmName("setProduction")
+            set(value) {
+                _builder.setProduction(value)
+            }
+
+        /**
+         * <pre>
+         *&#47; Production environment.
+         * / Overrides default environment if [inProduction] is true.
+         * </pre>
+         *
+         * <code>.AirshipEnv production = 1;</code>
+         */
+        public fun clearProduction() {
+            _builder.clearProduction()
+        }
+
+        /**
+         * <pre>
+         *&#47; Production environment.
+         * / Overrides default environment if [inProduction] is true.
+         * </pre>
+         *
+         * <code>.AirshipEnv production = 1;</code>
+         * @return Whether the production field is set.
+         */
+        public fun hasProduction(): kotlin.Boolean {
+            return _builder.hasProduction()
+        }
+
+        /**
+         * <pre>
+         *&#47; Development environment.
+         * / Overrides default environment if [inProduction] is false.
+         * </pre>
+         *
+         * <code>.AirshipEnv development = 2;</code>
+         */
+        public var development: com.airship.flutter.config.Config.AirshipEnv
+            @JvmName("getDevelopment")
+            get() = _builder.getDevelopment()
+            @JvmName("setDevelopment")
+            set(value) {
+                _builder.setDevelopment(value)
+            }
+
+        /**
+         * <pre>
+         *&#47; Development environment.
+         * / Overrides default environment if [inProduction] is false.
+         * </pre>
+         *
+         * <code>.AirshipEnv development = 2;</code>
+         */
+        public fun clearDevelopment() {
+            _builder.clearDevelopment()
+        }
+
+        /**
+         * <pre>
+         *&#47; Development environment.
+         * / Overrides default environment if [inProduction] is false.
+         * </pre>
+         *
+         * <code>.AirshipEnv development = 2;</code>
+         * @return Whether the development field is set.
+         */
+        public fun hasDevelopment(): kotlin.Boolean {
+            return _builder.hasDevelopment()
+        }
+
+        /**
+         * <code>.AirshipEnv default_env = 13;</code>
+         */
+        public var defaultEnv: com.airship.flutter.config.Config.AirshipEnv
+            @JvmName("getDefaultEnv")
+            get() = _builder.getDefaultEnv()
+            @JvmName("setDefaultEnv")
+            set(value) {
+                _builder.setDefaultEnv(value)
+            }
+
+        /**
+         * <code>.AirshipEnv default_env = 13;</code>
+         */
+        public fun clearDefaultEnv() {
+            _builder.clearDefaultEnv()
+        }
+
+        /**
+         * <code>.AirshipEnv default_env = 13;</code>
+         * @return Whether the defaultEnv field is set.
+         */
+        public fun hasDefaultEnv(): kotlin.Boolean {
+            return _builder.hasDefaultEnv()
+        }
+
+        /**
+         * <code>.AndroidConfig android = 3;</code>
+         */
+        public var android: com.airship.flutter.config.Config.AndroidConfig
+            @JvmName("getAndroid")
+            get() = _builder.getAndroid()
+            @JvmName("setAndroid")
+            set(value) {
+                _builder.setAndroid(value)
+            }
+
+        /**
+         * <code>.AndroidConfig android = 3;</code>
+         */
+        public fun clearAndroid() {
+            _builder.clearAndroid()
+        }
+
+        /**
+         * <code>.AndroidConfig android = 3;</code>
+         * @return Whether the android field is set.
+         */
+        public fun hasAndroid(): kotlin.Boolean {
+            return _builder.hasAndroid()
+        }
+
+        /**
+         * <pre>
+         *&#47; Switches the environment from development or production.
+         * / If the value is not set,
+         * / Airship will determine the value at runtime.
+         * </pre>
+         *
+         * <code>bool in_production = 4;</code>
+         */
+        public var inProduction: kotlin.Boolean
+            @JvmName("getInProduction")
+            get() = _builder.getInProduction()
+            @JvmName("setInProduction")
+            set(value) {
+                _builder.setInProduction(value)
+            }
+
+        /**
+         * <pre>
+         *&#47; Switches the environment from development or production.
+         * / If the value is not set,
+         * / Airship will determine the value at runtime.
+         * </pre>
+         *
+         * <code>bool in_production = 4;</code>
+         */
+        public fun clearInProduction() {
+            _builder.clearInProduction()
+        }
+
+        /**
+         * <pre>
+         *&#47; Cloud site.
+         * </pre>
+         *
+         * <code>.Site site = 5;</code>
+         */
+        public var site: com.airship.flutter.config.Config.Site
+            @JvmName("getSite")
+            get() = _builder.getSite()
+            @JvmName("setSite")
+            set(value) {
+                _builder.setSite(value)
+            }
+
+        /**
+         * <pre>
+         *&#47; Cloud site.
+         * </pre>
+         *
+         * <code>.Site site = 5;</code>
+         */
+        public fun clearSite() {
+            _builder.clearSite()
+        }
+
+        /**
+         * An uninstantiable, behaviorless type to represent the field in
+         * generics.
+         */
+        @kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)
+        public class UrlAllowListProxy private constructor() : com.google.protobuf.kotlin.DslProxy()
+
+        /**
+         * <pre>
+         *&#47; URL allow list.
+         * </pre>
+         *
+         * <code>repeated string url_allow_list = 6;</code>
+         * @return A list containing the urlAllowList.
+         */
+        public val urlAllowList: com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowListProxy>
+            @kotlin.jvm.JvmSynthetic
+            get() = com.google.protobuf.kotlin.DslList(
+                _builder.getUrlAllowListList()
+            )
+
+        /**
+         * <pre>
+         *&#47; URL allow list.
+         * </pre>
+         *
+         * <code>repeated string url_allow_list = 6;</code>
+         * @param value The urlAllowList to add.
+         */
+        @kotlin.jvm.JvmSynthetic
+        @kotlin.jvm.JvmName("addUrlAllowList")
+        public fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowListProxy>.add(value: kotlin.String) {
+            _builder.addUrlAllowList(value)
+        }
+
+        /**
+         * <pre>
+         *&#47; URL allow list.
+         * </pre>
+         *
+         * <code>repeated string url_allow_list = 6;</code>
+         * @param value The urlAllowList to add.
+         */
+        @kotlin.jvm.JvmSynthetic
+        @kotlin.jvm.JvmName("plusAssignUrlAllowList")
+        @Suppress("NOTHING_TO_INLINE")
+        public inline operator fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowListProxy>.plusAssign(
+            value: kotlin.String
+        ) {
+            add(value)
+        }
+
+        /**
+         * <pre>
+         *&#47; URL allow list.
+         * </pre>
+         *
+         * <code>repeated string url_allow_list = 6;</code>
+         * @param values The urlAllowList to add.
+         */
+        @kotlin.jvm.JvmSynthetic
+        @kotlin.jvm.JvmName("addAllUrlAllowList")
+        public fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowListProxy>.addAll(
+            values: kotlin.collections.Iterable<kotlin.String>
+        ) {
+            _builder.addAllUrlAllowList(values)
+        }
+
+        /**
+         * <pre>
+         *&#47; URL allow list.
+         * </pre>
+         *
+         * <code>repeated string url_allow_list = 6;</code>
+         * @param values The urlAllowList to add.
+         */
+        @kotlin.jvm.JvmSynthetic
+        @kotlin.jvm.JvmName("plusAssignAllUrlAllowList")
+        @Suppress("NOTHING_TO_INLINE")
+        public inline operator fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowListProxy>.plusAssign(
+            values: kotlin.collections.Iterable<kotlin.String>
+        ) {
+            addAll(values)
+        }
+
+        /**
+         * <pre>
+         *&#47; URL allow list.
+         * </pre>
+         *
+         * <code>repeated string url_allow_list = 6;</code>
+         * @param index The index to set the value at.
+         * @param value The urlAllowList to set.
+         */
+        @kotlin.jvm.JvmSynthetic
+        @kotlin.jvm.JvmName("setUrlAllowList")
+        public operator fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowListProxy>.set(
+            index: kotlin.Int,
+            value: kotlin.String
+        ) {
+            _builder.setUrlAllowList(index, value)
+        }
+
+        /**
+         * <pre>
+         *&#47; URL allow list.
+         * </pre>
+         *
+         * <code>repeated string url_allow_list = 6;</code>
+         */
+        @kotlin.jvm.JvmSynthetic
+        @kotlin.jvm.JvmName("clearUrlAllowList")
+        public fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowListProxy>.clear() {
+            _builder.clearUrlAllowList()
+        }
+
+        /**
+         * An uninstantiable, behaviorless type to represent the field in
+         * generics.
+         */
+        @kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)
+        public class UrlAllowListScopeOpenUrlProxy private constructor() :
+            com.google.protobuf.kotlin.DslProxy()
+
+        /**
+         * <pre>
+         *&#47; URL allow list for open URL scope.
+         * </pre>
+         *
+         * <code>repeated string url_allow_list_scope_open_url = 7;</code>
+         * @return A list containing the urlAllowListScopeOpenUrl.
+         */
+        public val urlAllowListScopeOpenUrl: com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowListScopeOpenUrlProxy>
+            @kotlin.jvm.JvmSynthetic
+            get() = com.google.protobuf.kotlin.DslList(
+                _builder.getUrlAllowListScopeOpenUrlList()
+            )
+
+        /**
+         * <pre>
+         *&#47; URL allow list for open URL scope.
+         * </pre>
+         *
+         * <code>repeated string url_allow_list_scope_open_url = 7;</code>
+         * @param value The urlAllowListScopeOpenUrl to add.
+         */
+        @kotlin.jvm.JvmSynthetic
+        @kotlin.jvm.JvmName("addUrlAllowListScopeOpenUrl")
+        public fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowListScopeOpenUrlProxy>.add(
+            value: kotlin.String
+        ) {
+            _builder.addUrlAllowListScopeOpenUrl(value)
+        }
+
+        /**
+         * <pre>
+         *&#47; URL allow list for open URL scope.
+         * </pre>
+         *
+         * <code>repeated string url_allow_list_scope_open_url = 7;</code>
+         * @param value The urlAllowListScopeOpenUrl to add.
+         */
+        @kotlin.jvm.JvmSynthetic
+        @kotlin.jvm.JvmName("plusAssignUrlAllowListScopeOpenUrl")
+        @Suppress("NOTHING_TO_INLINE")
+        public inline operator fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowListScopeOpenUrlProxy>.plusAssign(
+            value: kotlin.String
+        ) {
+            add(value)
+        }
+
+        /**
+         * <pre>
+         *&#47; URL allow list for open URL scope.
+         * </pre>
+         *
+         * <code>repeated string url_allow_list_scope_open_url = 7;</code>
+         * @param values The urlAllowListScopeOpenUrl to add.
+         */
+        @kotlin.jvm.JvmSynthetic
+        @kotlin.jvm.JvmName("addAllUrlAllowListScopeOpenUrl")
+        public fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowListScopeOpenUrlProxy>.addAll(
+            values: kotlin.collections.Iterable<kotlin.String>
+        ) {
+            _builder.addAllUrlAllowListScopeOpenUrl(values)
+        }
+
+        /**
+         * <pre>
+         *&#47; URL allow list for open URL scope.
+         * </pre>
+         *
+         * <code>repeated string url_allow_list_scope_open_url = 7;</code>
+         * @param values The urlAllowListScopeOpenUrl to add.
+         */
+        @kotlin.jvm.JvmSynthetic
+        @kotlin.jvm.JvmName("plusAssignAllUrlAllowListScopeOpenUrl")
+        @Suppress("NOTHING_TO_INLINE")
+        public inline operator fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowListScopeOpenUrlProxy>.plusAssign(
+            values: kotlin.collections.Iterable<kotlin.String>
+        ) {
+            addAll(values)
+        }
+
+        /**
+         * <pre>
+         *&#47; URL allow list for open URL scope.
+         * </pre>
+         *
+         * <code>repeated string url_allow_list_scope_open_url = 7;</code>
+         * @param index The index to set the value at.
+         * @param value The urlAllowListScopeOpenUrl to set.
+         */
+        @kotlin.jvm.JvmSynthetic
+        @kotlin.jvm.JvmName("setUrlAllowListScopeOpenUrl")
+        public operator fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowListScopeOpenUrlProxy>.set(
+            index: kotlin.Int,
+            value: kotlin.String
+        ) {
+            _builder.setUrlAllowListScopeOpenUrl(index, value)
+        }
+
+        /**
+         * <pre>
+         *&#47; URL allow list for open URL scope.
+         * </pre>
+         *
+         * <code>repeated string url_allow_list_scope_open_url = 7;</code>
+         */
+        @kotlin.jvm.JvmSynthetic
+        @kotlin.jvm.JvmName("clearUrlAllowListScopeOpenUrl")
+        public fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowListScopeOpenUrlProxy>.clear() {
+            _builder.clearUrlAllowListScopeOpenUrl()
+        }
+
+        /**
+         * An uninstantiable, behaviorless type to represent the field in
+         * generics.
+         */
+        @kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)
+        public class UrlAllowlistScopeJavascriptInterfaceProxy private constructor() :
+            com.google.protobuf.kotlin.DslProxy()
+
+        /**
+         * <pre>
+         *&#47; URL allow list for JS bridge injection.
+         * </pre>
+         *
+         * <code>repeated string url_allowlist_scope_javascript_interface = 8;</code>
+         * @return A list containing the urlAllowlistScopeJavascriptInterface.
+         */
+        public val urlAllowlistScopeJavascriptInterface: com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowlistScopeJavascriptInterfaceProxy>
+            @kotlin.jvm.JvmSynthetic
+            get() = com.google.protobuf.kotlin.DslList(
+                _builder.getUrlAllowlistScopeJavascriptInterfaceList()
+            )
+
+        /**
+         * <pre>
+         *&#47; URL allow list for JS bridge injection.
+         * </pre>
+         *
+         * <code>repeated string url_allowlist_scope_javascript_interface = 8;</code>
+         * @param value The urlAllowlistScopeJavascriptInterface to add.
+         */
+        @kotlin.jvm.JvmSynthetic
+        @kotlin.jvm.JvmName("addUrlAllowlistScopeJavascriptInterface")
+        public fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowlistScopeJavascriptInterfaceProxy>.add(
+            value: kotlin.String
+        ) {
+            _builder.addUrlAllowlistScopeJavascriptInterface(value)
+        }
+
+        /**
+         * <pre>
+         *&#47; URL allow list for JS bridge injection.
+         * </pre>
+         *
+         * <code>repeated string url_allowlist_scope_javascript_interface = 8;</code>
+         * @param value The urlAllowlistScopeJavascriptInterface to add.
+         */
+        @kotlin.jvm.JvmSynthetic
+        @kotlin.jvm.JvmName("plusAssignUrlAllowlistScopeJavascriptInterface")
+        @Suppress("NOTHING_TO_INLINE")
+        public inline operator fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowlistScopeJavascriptInterfaceProxy>.plusAssign(
+            value: kotlin.String
+        ) {
+            add(value)
+        }
+
+        /**
+         * <pre>
+         *&#47; URL allow list for JS bridge injection.
+         * </pre>
+         *
+         * <code>repeated string url_allowlist_scope_javascript_interface = 8;</code>
+         * @param values The urlAllowlistScopeJavascriptInterface to add.
+         */
+        @kotlin.jvm.JvmSynthetic
+        @kotlin.jvm.JvmName("addAllUrlAllowlistScopeJavascriptInterface")
+        public fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowlistScopeJavascriptInterfaceProxy>.addAll(
+            values: kotlin.collections.Iterable<kotlin.String>
+        ) {
+            _builder.addAllUrlAllowlistScopeJavascriptInterface(values)
+        }
+
+        /**
+         * <pre>
+         *&#47; URL allow list for JS bridge injection.
+         * </pre>
+         *
+         * <code>repeated string url_allowlist_scope_javascript_interface = 8;</code>
+         * @param values The urlAllowlistScopeJavascriptInterface to add.
+         */
+        @kotlin.jvm.JvmSynthetic
+        @kotlin.jvm.JvmName("plusAssignAllUrlAllowlistScopeJavascriptInterface")
+        @Suppress("NOTHING_TO_INLINE")
+        public inline operator fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowlistScopeJavascriptInterfaceProxy>.plusAssign(
+            values: kotlin.collections.Iterable<kotlin.String>
+        ) {
+            addAll(values)
+        }
+
+        /**
+         * <pre>
+         *&#47; URL allow list for JS bridge injection.
+         * </pre>
+         *
+         * <code>repeated string url_allowlist_scope_javascript_interface = 8;</code>
+         * @param index The index to set the value at.
+         * @param value The urlAllowlistScopeJavascriptInterface to set.
+         */
+        @kotlin.jvm.JvmSynthetic
+        @kotlin.jvm.JvmName("setUrlAllowlistScopeJavascriptInterface")
+        public operator fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowlistScopeJavascriptInterfaceProxy>.set(
+            index: kotlin.Int,
+            value: kotlin.String
+        ) {
+            _builder.setUrlAllowlistScopeJavascriptInterface(index, value)
+        }
+
+        /**
+         * <pre>
+         *&#47; URL allow list for JS bridge injection.
+         * </pre>
+         *
+         * <code>repeated string url_allowlist_scope_javascript_interface = 8;</code>
+         */
+        @kotlin.jvm.JvmSynthetic
+        @kotlin.jvm.JvmName("clearUrlAllowlistScopeJavascriptInterface")
+        public fun com.google.protobuf.kotlin.DslList<kotlin.String, UrlAllowlistScopeJavascriptInterfaceProxy>.clear() {
+            _builder.clearUrlAllowlistScopeJavascriptInterface()
+        }
+
+        /**
+         * <pre>
+         *&#47; Enables delayed channel creation.
+         * </pre>
+         *
+         * <code>bool is_channel_creation_delay_enabled = 9;</code>
+         */
+        public var isChannelCreationDelayEnabled: kotlin.Boolean
+            @JvmName("getIsChannelCreationDelayEnabled")
+            get() = _builder.getIsChannelCreationDelayEnabled()
+            @JvmName("setIsChannelCreationDelayEnabled")
+            set(value) {
+                _builder.setIsChannelCreationDelayEnabled(value)
+            }
+
+        /**
+         * <pre>
+         *&#47; Enables delayed channel creation.
+         * </pre>
+         *
+         * <code>bool is_channel_creation_delay_enabled = 9;</code>
+         */
+        public fun clearIsChannelCreationDelayEnabled() {
+            _builder.clearIsChannelCreationDelayEnabled()
+        }
+
+        /**
+         * <pre>
+         *&#47; Enables/disables requiring initial remote config fetch before
+         * / creating a channel.
+         * </pre>
+         *
+         * <code>bool require_initial_remote_config_enabled = 10;</code>
+         */
+        public var requireInitialRemoteConfigEnabled: kotlin.Boolean
+            @JvmName("getRequireInitialRemoteConfigEnabled")
+            get() = _builder.getRequireInitialRemoteConfigEnabled()
+            @JvmName("setRequireInitialRemoteConfigEnabled")
+            set(value) {
+                _builder.setRequireInitialRemoteConfigEnabled(value)
+            }
+
+        /**
+         * <pre>
+         *&#47; Enables/disables requiring initial remote config fetch before
+         * / creating a channel.
+         * </pre>
+         *
+         * <code>bool require_initial_remote_config_enabled = 10;</code>
+         */
+        public fun clearRequireInitialRemoteConfigEnabled() {
+            _builder.clearRequireInitialRemoteConfigEnabled()
+        }
+
+        /**
+         * An uninstantiable, behaviorless type to represent the field in
+         * generics.
+         */
+        @kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)
+        public class FeaturesEnabledProxy private constructor() :
+            com.google.protobuf.kotlin.DslProxy()
+
+        /**
+         * <pre>
+         *&#47; Enabled features. Defaults to all.
+         * </pre>
+         *
+         * <code>repeated .Feature features_enabled = 11;</code>
+         */
+        public val featuresEnabled: com.google.protobuf.kotlin.DslList<com.airship.flutter.config.Config.Feature, FeaturesEnabledProxy>
+            @kotlin.jvm.JvmSynthetic
+            get() = com.google.protobuf.kotlin.DslList(
+                _builder.getFeaturesEnabledList()
+            )
+
+        /**
+         * <pre>
+         *&#47; Enabled features. Defaults to all.
+         * </pre>
+         *
+         * <code>repeated .Feature features_enabled = 11;</code>
+         * @param value The featuresEnabled to add.
+         */
+        @kotlin.jvm.JvmSynthetic
+        @kotlin.jvm.JvmName("addFeaturesEnabled")
+        public fun com.google.protobuf.kotlin.DslList<com.airship.flutter.config.Config.Feature, FeaturesEnabledProxy>.add(
+            value: com.airship.flutter.config.Config.Feature
+        ) {
+            _builder.addFeaturesEnabled(value)
+        }
+
+        /**
+         * <pre>
+         *&#47; Enabled features. Defaults to all.
+         * </pre>
+         *
+         * <code>repeated .Feature features_enabled = 11;</code>
+         * @param value The featuresEnabled to add.
+         */
+        @kotlin.jvm.JvmSynthetic
+        @kotlin.jvm.JvmName("plusAssignFeaturesEnabled")
+        @Suppress("NOTHING_TO_INLINE")
+        public inline operator fun com.google.protobuf.kotlin.DslList<com.airship.flutter.config.Config.Feature, FeaturesEnabledProxy>.plusAssign(
+            value: com.airship.flutter.config.Config.Feature
+        ) {
+            add(value)
+        }
+
+        /**
+         * <pre>
+         *&#47; Enabled features. Defaults to all.
+         * </pre>
+         *
+         * <code>repeated .Feature features_enabled = 11;</code>
+         * @param values The featuresEnabled to add.
+         */
+        @kotlin.jvm.JvmSynthetic
+        @kotlin.jvm.JvmName("addAllFeaturesEnabled")
+        public fun com.google.protobuf.kotlin.DslList<com.airship.flutter.config.Config.Feature, FeaturesEnabledProxy>.addAll(
+            values: kotlin.collections.Iterable<com.airship.flutter.config.Config.Feature>
+        ) {
+            _builder.addAllFeaturesEnabled(values)
+        }
+
+        /**
+         * <pre>
+         *&#47; Enabled features. Defaults to all.
+         * </pre>
+         *
+         * <code>repeated .Feature features_enabled = 11;</code>
+         * @param values The featuresEnabled to add.
+         */
+        @kotlin.jvm.JvmSynthetic
+        @kotlin.jvm.JvmName("plusAssignAllFeaturesEnabled")
+        @Suppress("NOTHING_TO_INLINE")
+        public inline operator fun com.google.protobuf.kotlin.DslList<com.airship.flutter.config.Config.Feature, FeaturesEnabledProxy>.plusAssign(
+            values: kotlin.collections.Iterable<com.airship.flutter.config.Config.Feature>
+        ) {
+            addAll(values)
+        }
+
+        /**
+         * <pre>
+         *&#47; Enabled features. Defaults to all.
+         * </pre>
+         *
+         * <code>repeated .Feature features_enabled = 11;</code>
+         * @param index The index to set the value at.
+         * @param value The featuresEnabled to set.
+         */
+        @kotlin.jvm.JvmSynthetic
+        @kotlin.jvm.JvmName("setFeaturesEnabled")
+        public operator fun com.google.protobuf.kotlin.DslList<com.airship.flutter.config.Config.Feature, FeaturesEnabledProxy>.set(
+            index: kotlin.Int,
+            value: com.airship.flutter.config.Config.Feature
+        ) {
+            _builder.setFeaturesEnabled(index, value)
+        }
+
+        /**
+         * <pre>
+         *&#47; Enabled features. Defaults to all.
+         * </pre>
+         *
+         * <code>repeated .Feature features_enabled = 11;</code>
+         */
+        @kotlin.jvm.JvmSynthetic
+        @kotlin.jvm.JvmName("clearFeaturesEnabled")
+        public fun com.google.protobuf.kotlin.DslList<com.airship.flutter.config.Config.Feature, FeaturesEnabledProxy>.clear() {
+            _builder.clearFeaturesEnabled()
+        }
+
+        /**
+         * <pre>
+         *&#47; iOS config.
+         * </pre>
+         *
+         * <code>.IosConfig ios = 12;</code>
+         */
+        public var ios: com.airship.flutter.config.Config.IosConfig
+            @JvmName("getIos")
+            get() = _builder.getIos()
+            @JvmName("setIos")
+            set(value) {
+                _builder.setIos(value)
+            }
+
+        /**
+         * <pre>
+         *&#47; iOS config.
+         * </pre>
+         *
+         * <code>.IosConfig ios = 12;</code>
+         */
+        public fun clearIos() {
+            _builder.clearIos()
+        }
+
+        /**
+         * <pre>
+         *&#47; iOS config.
+         * </pre>
+         *
+         * <code>.IosConfig ios = 12;</code>
+         * @return Whether the ios field is set.
+         */
+        public fun hasIos(): kotlin.Boolean {
+            return _builder.hasIos()
+        }
     }
-    /**
-     * <pre>
-     *&#47; iOS config.
-     * </pre>
-     *
-     * <code>.IosConfig ios = 12;</code>
-     */
-    public var ios: com.airship.flutter.config.Config.IosConfig
-      @JvmName("getIos")
-      get() = _builder.getIos()
-      @JvmName("setIos")
-      set(value) {
-        _builder.setIos(value)
-      }
-    /**
-     * <pre>
-     *&#47; iOS config.
-     * </pre>
-     *
-     * <code>.IosConfig ios = 12;</code>
-     */
-    public fun clearIos() {
-      _builder.clearIos()
-    }
-    /**
-     * <pre>
-     *&#47; iOS config.
-     * </pre>
-     *
-     * <code>.IosConfig ios = 12;</code>
-     * @return Whether the ios field is set.
-     */
-    public fun hasIos(): kotlin.Boolean {
-      return _builder.hasIos()
-    }
-  }
 }
+
 @kotlin.jvm.JvmSynthetic
 public inline fun com.airship.flutter.config.Config.AirshipConfig.copy(block: com.airship.flutter.config.AirshipConfigKt.Dsl.() -> kotlin.Unit): com.airship.flutter.config.Config.AirshipConfig =
-  com.airship.flutter.config.AirshipConfigKt.Dsl._create(this.toBuilder()).apply { block() }._build()
+    com.airship.flutter.config.AirshipConfigKt.Dsl._create(this.toBuilder()).apply { block() }
+        ._build()

@@ -7,7 +7,7 @@ import com.google.protobuf.InvalidProtocolBufferException
 import java.io.InputStream
 import java.io.OutputStream
 
-object  ConfigSerializer: Serializer<Config.AirshipConfig>{
+object ConfigSerializer : Serializer<Config.AirshipConfig> {
     override val defaultValue: Config.AirshipConfig = Config.AirshipConfig.getDefaultInstance()
     override suspend fun readFrom(input: InputStream): Config.AirshipConfig {
         try {
