@@ -290,19 +290,10 @@ class Airship {
     return _eventStreams[eventType];
   }
 
-  /// Initializes Airship with an [AirshipConfig] or
-  /// [appKey] and [appSecret].
+  /// Initializes Airship with an [AirshipConfig]
   ///
   /// Returns true if Airship has been initialized, otherwise returns false.
-  /// For backwards compatibility [config] can be appKey[String] or [AirshipConfig]
-  /// in next major release airship will migrate to [AirshipConfig]
   static Future<bool> takeOff(final AirshipConfig config) async {
-    // Map<String, dynamic> args = {};
-    //   args = config.writeToJsonMap();
-      // HashMap<String, *>
-      // validate
-      // store
-      // attemptTakeOff
     return await _channel.invokeMethod('takeOff', config.writeToBuffer());
   }
 

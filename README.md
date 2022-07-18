@@ -21,7 +21,7 @@ The available core Airship functionality currently includes:
 
 ## Usage
 This is just an overview. 
-For indepth documentation check [the officicial Airship Documantation](https://docs.airship.com/platform/flutter)
+For in-depth documentation check [the official Airship Documentation](https://docs.airship.com/platform/flutter)
 
 1. Add the airship_flutter dependency to your package's pubspec.yaml file:
 

@@ -2,17 +2,17 @@ import Foundation
 import AirshipKit
 
 class AirshipInboxMessageViewFactory : NSObject, FlutterPlatformViewFactory {
-
+    
     let registrar : FlutterPluginRegistrar
-
+    
     init(_ registrar: FlutterPluginRegistrar) {
         self.registrar = registrar
     }
-
+    
     func create(withFrame frame: CGRect, viewIdentifier viewId: Int64, arguments args: Any?) -> FlutterPlatformView {
         return AirshipInboxMessageView(frame: frame, viewId: viewId, registrar: self.registrar)
     }
-
+    
     func createArgsCodec() -> FlutterMessageCodec & NSObjectProtocol {
         return FlutterStandardMessageCodec.sharedInstance()
     }
@@ -23,18 +23,18 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView, NativeBridgeDeleg
     let nativeBridge = NativeBridge()
     let channel : FlutterMethodChannel
     var webviewResult : FlutterResult
-
+    
     init(frame: CGRect, viewId: Int64, registrar: FlutterPluginRegistrar) {
         self.webView = WKWebView(frame: frame)
         self.webView.allowsLinkPreview = !MessageCenter.shared.defaultUI.disableMessageLinkPreviewAndCallouts
         self.webView.configuration.dataDetectorTypes = [.all]
-
+        
         let channelName = "com.airship.flutter/InboxMessageView_\(viewId)"
         self.channel = FlutterMethodChannel(name: channelName, binaryMessenger: registrar.messenger())
         self.webviewResult = { result in print(result!) }
         
         super.init()
-
+        
         self.webView.navigationDelegate = self.nativeBridge
         self.nativeBridge.forwardNavigationDelegate = self
         self.nativeBridge.nativeBridgeDelegate = self
@@ -49,7 +49,7 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView, NativeBridgeDeleg
             }
         }
     }
-
+    
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
         case "loadMessage":
@@ -60,7 +60,7 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView, NativeBridgeDeleg
                                 details:nil))
         }
     }
-
+    
     private func loadMessage(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         webviewResult = result
         channel.invokeMethod("onLoadStarted", arguments: nil)
@@ -81,12 +81,12 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView, NativeBridgeDeleg
         if let message = MessageCenter.shared.messageList.message(forID: messageId) {
             var request = URLRequest(url: message.messageBodyURL)
             let user = MessageCenter.shared.user
-
+            
             user.getData({ (userData) in
                 guard let auth = Utils.authHeader(username: userData.username, password: userData.password) else {
                     result(FlutterError(code:"InvalidState",
-                                     message:"User not created.",
-                                     details:nil))
+                                        message:"User not created.",
+                                        details:nil))
                     return
                 }
                 request.addValue(auth, forHTTPHeaderField: "Authorization")
@@ -94,37 +94,37 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView, NativeBridgeDeleg
                     self.webView.load(request)
                     message.markRead(completionHandler: nil)
                 }
-
+                
             })
         } else {
             result(FlutterError(code:"InvalidMessage",
-                             message:"Unable to load message: \(messageId)",
-                             details:nil))
-       }
+                                message:"Unable to load message: \(messageId)",
+                                details:nil))
+        }
     }
-
+    
     func view() -> UIView {
         return webView
     }
-
+    
     func close() {
         channel.invokeMethod("onClose", arguments: nil)
     }
     
     func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse,
                  decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
-
+        
         if let response = navigationResponse.response as? HTTPURLResponse {
             if (response.statusCode >= 400 && response.statusCode <= 599) {
                 decisionHandler(.cancel)
                 if (response.statusCode == 410) {
                     webviewResult(FlutterError(code:"MessageLoadFailed",
-                           message:"Unable to load message",
-                           details:"Message not available"))
+                                               message:"Unable to load message",
+                                               details:"Message not available"))
                 } else {
                     webviewResult(FlutterError(code:"MessageLoadFailed",
-                           message:"Unable to load message",
-                           details:"Message load failed"))
+                                               message:"Unable to load message",
+                                               details:"Message load failed"))
                 }
             }
         }

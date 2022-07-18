@@ -8,13 +8,13 @@
 
 + (void)load {
     NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
-       [center addObserverForName:UIApplicationDidFinishLaunchingNotification
-                                                         object:nil
-                                                          queue:nil usingBlock:^(NSNotification * _Nonnull note) {
-           
-           FlutterAirshipAutopilot.launchOptions = note.userInfo;
-           
-           [FlutterAirshipAutopilot attemptTakeOff];
+    [center addObserverForName:UIApplicationDidFinishLaunchingNotification
+                        object:nil
+                         queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+        
+        FlutterAirshipAutopilot.launchOptions = note.userInfo;
+        
+        [FlutterAirshipAutopilot attemptTakeOff];
     }];
 }
 @end

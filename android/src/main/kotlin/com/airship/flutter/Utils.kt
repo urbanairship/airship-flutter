@@ -11,7 +11,11 @@ class Utils {
     }
 
     @Throws(JSONException::class)
-    fun notificationObject(message: PushMessage, notificationTag: String, notificationId: String?): Map<String, Any?> {
+    fun notificationObject(
+        message: PushMessage,
+        notificationTag: String,
+        notificationId: String?
+    ): Map<String, Any?> {
         val notification = mutableMapOf<String, Any?>()
         val extras = mutableMapOf<String, String>()
         for (key in message.pushBundle.keySet()) {

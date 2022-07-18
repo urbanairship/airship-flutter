@@ -5,49 +5,54 @@ package com.airship.flutter.config;
 
 @kotlin.jvm.JvmSynthetic
 public inline fun iosConfig(block: com.airship.flutter.config.IosConfigKt.Dsl.() -> kotlin.Unit): com.airship.flutter.config.Config.IosConfig =
-  com.airship.flutter.config.IosConfigKt.Dsl._create(com.airship.flutter.config.Config.IosConfig.newBuilder()).apply { block() }._build()
+    com.airship.flutter.config.IosConfigKt.Dsl._create(com.airship.flutter.config.Config.IosConfig.newBuilder())
+        .apply { block() }._build()
+
 public object IosConfigKt {
-  @kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)
-  @com.google.protobuf.kotlin.ProtoDslMarker
-  public class Dsl private constructor(
-    private val _builder: com.airship.flutter.config.Config.IosConfig.Builder
-  ) {
-    public companion object {
-      @kotlin.jvm.JvmSynthetic
-      @kotlin.PublishedApi
-      internal fun _create(builder: com.airship.flutter.config.Config.IosConfig.Builder): Dsl = Dsl(builder)
-    }
+    @kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)
+    @com.google.protobuf.kotlin.ProtoDslMarker
+    public class Dsl private constructor(
+        private val _builder: com.airship.flutter.config.Config.IosConfig.Builder
+    ) {
+        public companion object {
+            @kotlin.jvm.JvmSynthetic
+            @kotlin.PublishedApi
+            internal fun _create(builder: com.airship.flutter.config.Config.IosConfig.Builder): Dsl =
+                Dsl(builder)
+        }
 
-    @kotlin.jvm.JvmSynthetic
-    @kotlin.PublishedApi
-    internal fun _build(): com.airship.flutter.config.Config.IosConfig = _builder.build()
+        @kotlin.jvm.JvmSynthetic
+        @kotlin.PublishedApi
+        internal fun _build(): com.airship.flutter.config.Config.IosConfig = _builder.build()
 
-    /**
-     * <pre>
-     *&#47; itunesId for rate app and app store deep links.
-     * </pre>
-     *
-     * <code>string itunes_id = 1;</code>
-     */
-    public var itunesId: kotlin.String
-      @JvmName("getItunesId")
-      get() = _builder.getItunesId()
-      @JvmName("setItunesId")
-      set(value) {
-        _builder.setItunesId(value)
-      }
-    /**
-     * <pre>
-     *&#47; itunesId for rate app and app store deep links.
-     * </pre>
-     *
-     * <code>string itunes_id = 1;</code>
-     */
-    public fun clearItunesId() {
-      _builder.clearItunesId()
+        /**
+         * <pre>
+         *&#47; itunesId for rate app and app store deep links.
+         * </pre>
+         *
+         * <code>string itunes_id = 1;</code>
+         */
+        public var itunesId: kotlin.String
+            @JvmName("getItunesId")
+            get() = _builder.getItunesId()
+            @JvmName("setItunesId")
+            set(value) {
+                _builder.setItunesId(value)
+            }
+
+        /**
+         * <pre>
+         *&#47; itunesId for rate app and app store deep links.
+         * </pre>
+         *
+         * <code>string itunes_id = 1;</code>
+         */
+        public fun clearItunesId() {
+            _builder.clearItunesId()
+        }
     }
-  }
 }
+
 @kotlin.jvm.JvmSynthetic
 public inline fun com.airship.flutter.config.Config.IosConfig.copy(block: com.airship.flutter.config.IosConfigKt.Dsl.() -> kotlin.Unit): com.airship.flutter.config.Config.IosConfig =
-  com.airship.flutter.config.IosConfigKt.Dsl._create(this.toBuilder()).apply { block() }._build()
+    com.airship.flutter.config.IosConfigKt.Dsl._create(this.toBuilder()).apply { block() }._build()
