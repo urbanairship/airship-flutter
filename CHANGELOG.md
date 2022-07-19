@@ -1,5 +1,8 @@
 # Flutter Plugin Changelog
 
+## Version 5.5.1 - August 3, 2022
+Patch release that fixes background message handler for silent pushes and a crash on iOS message center buttons with the action: "No Action".
+
 ## Version 5.5.0 - May 4, 2022
 Minor release that updates Airship Android SDK to 16.4.0, and iOS SDK to 16.6.0. These SDK releases fix several issues with Scenes and Surveys. Apps using Scenes & Surveys should update.
 
