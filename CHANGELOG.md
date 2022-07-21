@@ -1,6 +1,6 @@
 # Flutter Plugin Changelog
 
-## Version 6.0.1 - July 20, 2022
+## Version 6.0.1 - July 21, 2022
 Patch release that fixes background message handler for silent pushes.
 
 ## Version 6.0.0 - June 13, 2022
