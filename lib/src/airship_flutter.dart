@@ -146,6 +146,7 @@ class ContactSubscriptionList {
 
 /// Event fired when the user initiates a notification response.
 class NotificationResponseEvent {
+
   /// The action button ID, if available.
   final String? actionId;
 
@@ -181,6 +182,7 @@ class NotificationResponseEvent {
 
 /// Event fired when a push is received.
 class PushReceivedEvent {
+
   /// The notification payload.
   final Map<String, dynamic>? payload;
 
@@ -241,6 +243,7 @@ typedef BackgroundMessageHandler = Future<void> Function(
 
 /// Event fired when a channel registration occurs.
 class ChannelEvent {
+
   /// The channel ID.
   final String? channelId;
 
@@ -618,3 +621,4 @@ class Airship {
     return await _channel.invokeMethod('setAutoLaunchDefaultPreferenceCenter');
   }
 }
+
