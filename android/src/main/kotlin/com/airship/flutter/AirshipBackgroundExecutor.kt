@@ -118,11 +118,11 @@ class AirshipBackgroundExecutor(
             }
         }
 
-        val eventData = notificationInfo?.eventData()?.toJsonValue() ?: JsonValue.NULL
+        val eventData = notificationInfo?.eventData()?.toJsonValue()?.toString()
         val args = mapOf(
             "messageCallback" to messageCallback,
             "payload" to pushMessage.toJsonValue().toString(),
-            "notification" to eventData.toString()
+            "notification" to eventData
         )
 
         mainHandler.post {
