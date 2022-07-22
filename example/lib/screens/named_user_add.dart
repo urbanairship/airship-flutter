@@ -9,14 +9,14 @@ class NamedUserAdd extends StatefulWidget {
   NamedUserAdd({this.updateParent});
 
   @override
-  _NamedUserAddState createState() =>
-      _NamedUserAddState(updateParent: updateParent);
+  NamedUserAddState createState() =>
+      NamedUserAddState(updateParent: updateParent);
 }
 
-class _NamedUserAddState extends State<NamedUserAdd> {
+class NamedUserAddState extends State<NamedUserAdd> {
   final updateParent;
 
-  _NamedUserAddState({this.updateParent});
+  NamedUserAddState({this.updateParent});
 
   @override
   void initState() {
@@ -31,7 +31,7 @@ class _NamedUserAddState extends State<NamedUserAdd> {
           title: Text("Add Named User"),
           backgroundColor: Styles.background,
         ),
-        body: FutureBuilder(
+        body: FutureBuilder<String?>(
           future: Airship.namedUser,
           builder: (context, snapshot) {
             return SafeArea(
@@ -41,7 +41,7 @@ class _NamedUserAddState extends State<NamedUserAdd> {
                   Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: TextAddBar(
-                      label: snapshot.hasData ? snapshot.data : "Not set",
+                      label: snapshot.hasData ? snapshot.data! : "Not set",
                       onTap: (text) {
                         Airship.setNamedUser(text);
                         updateParent();

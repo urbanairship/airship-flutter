@@ -16,18 +16,9 @@ import com.urbanairship.util.UAStringUtil
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
-
-private val Config.AirshipEnv.isSet: Boolean
-    get() {
-        return isInitialized && allFields.size == 3;
-    }
 
 class ConfigManager(private val context: Context) {
     companion object {
-     /*   private val APP_KEY = stringPreferencesKey("app_key")
-        private val APP_SECRET = stringPreferencesKey("app_secret")*/
-
         @SuppressLint("StaticFieldLeak")
         @Volatile
         private var instance: ConfigManager? = null
@@ -46,7 +37,7 @@ class ConfigManager(private val context: Context) {
 
     suspend fun updateConfig(configByteArray: ByteArray) {
         context.flutterPluginStore.updateData {
-            Config.AirshipConfig.parseFrom(configByteArray);
+            Config.AirshipConfig.parseFrom(configByteArray)
         }
     }
 
@@ -56,9 +47,28 @@ class ConfigManager(private val context: Context) {
             val pluginConfig = context.flutterPluginStore.data.first()
 
             val config = AirshipConfigOptions.newBuilder()
-                .applyDefaultProperties(context)
+                //.applyDefaultProperties(context)
                 .setRequireInitialRemoteConfigEnabled(true)
                 .apply {
+                    pluginConfig.inProduction.let {
+                        println(it)
+                        this.setInProduction(it)
+                    }
+
+                    pluginConfig.development.let {
+                        this.setDevelopmentAppKey(it.appKey)
+                            .setDevelopmentAppSecret(it.appSecret)
+                            .setDevelopmentLogLevel(it.logLevel.value)
+                            .build()
+                    }
+
+                    pluginConfig.production.let {
+                        this.setProductionAppKey(it.appKey)
+                            .setProductionAppSecret(it.appSecret)
+                            .setProductionLogLevel(it.logLevel.value)
+                            .build()
+                    }
+
                     /// since proto buf defaults to empty string,
                     // check for empty string instead of null
                     pluginConfig.defaultEnv.let {
@@ -68,31 +78,23 @@ class ConfigManager(private val context: Context) {
                             .build()
                     }
 
-                    pluginConfig.development.let {
-                        this.setDevelopmentAppKey(it.appKey)
-                            .setDevelopmentAppSecret(it.appSecret)
-                            .setDevelopmentLogLevel(it.logLevel.value)
-                            .build()
-                    }
-                    pluginConfig.production.let {
-                        this.setProductionAppKey(it.appKey)
-                            .setProductionAppSecret(it.appSecret)
-                            .setProductionLogLevel(it.logLevel.value)
-                            .build()
-                    }
-
 
                     this.setSite(
                         when (pluginConfig.site) {
-                            Config.Site.SITE_EU -> AirshipConfigOptions.SITE_EU
-                            Config.Site.SITE_US -> AirshipConfigOptions.SITE_US
-                            Config.Site.UNRECOGNIZED -> AirshipConfigOptions.SITE_US
+                            Config.Site.SITE_EU -> {
+                                AirshipConfigOptions.SITE_EU
+                            }
+                            Config.Site.SITE_US -> {
+                                AirshipConfigOptions.SITE_US
+                            }
+                            Config.Site.UNRECOGNIZED -> {
+                                AirshipConfigOptions.SITE_US
+                            }
+                            else-> AirshipConfigOptions.SITE_US
                         }
                     )
 
-                    pluginConfig.inProduction.let {
-                        this.setInProduction(it)
-                    }
+
 
                     pluginConfig.urlAllowListList.let {
                         this.setUrlAllowList(null/*it.toTypedArray()*/)
@@ -103,6 +105,7 @@ class ConfigManager(private val context: Context) {
                     }
 
                     pluginConfig.urlAllowListScopeOpenUrlList.let {
+
                         this.setUrlAllowListScopeOpenUrl(it.toTypedArray())
                     }
 
@@ -141,7 +144,7 @@ class ConfigManager(private val context: Context) {
     @ColorInt
     fun getHexColor(hexColor: String?, @ColorInt defaultColor: Int): Int {
         if (hexColor.isNullOrEmpty()) {
-            return defaultColor;
+            return defaultColor
         }
         return Color.parseColor(hexColor)
     }
@@ -170,6 +173,8 @@ fun List<Config.Feature>.supportValue(): Int {
     for (feature in this) {
         result = result or feature.value()
     }
+
+    println("${result}/////////////////////${this.size.toString()}")
     return result
 }
 

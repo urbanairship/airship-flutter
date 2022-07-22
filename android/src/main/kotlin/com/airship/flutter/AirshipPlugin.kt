@@ -58,9 +58,9 @@ const val AUTO_LAUNCH_PREFERENCE_CENTER_KEY = "com.airship.flutter.auto_launch_p
 
 class InboxMessageViewFactory(private val binaryMessenger: BinaryMessenger) :
     PlatformViewFactory(StandardMessageCodec.INSTANCE) {
-    override fun create(context: Context, viewId: Int, arguments: Any?): PlatformView {
+    override fun create(context: Context?, viewId: Int, args: Any?): PlatformView {
         val channel = MethodChannel(binaryMessenger, "com.airship.flutter/InboxMessageView_$viewId")
-        val view = FlutterInboxMessageView(context, channel)
+        val view = FlutterInboxMessageView(checkNotNull(context), channel)
         channel.setMethodCallHandler(view)
         return view
     }
@@ -293,17 +293,6 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     private fun takeOff(call: MethodCall, result: Result) {
         val configByteArray = call.arguments as ByteArray
-        // todo add serialization
-        // println(config.values);
-        // val appKey = config["appKey"] as String
-        // val appSecret = config["appSecret"] as String
-
-        /// 1.Get AirshipEnv config
-        /// 2.Save config to sharedDataStore
-        /// 3.AutoPilot.attemptingAutomaticTakeOff reads config from DataStore
-        ///    4.Config.parse(Config from DataStore) updates the AirshipConfigOptions
-        //     5.Attempts AutomaticTakeOff.
-
 
         CoroutineScope(Dispatchers.IO).launch {
             ConfigManager.shared(context).updateConfig(configByteArray)

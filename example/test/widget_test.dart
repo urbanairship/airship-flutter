@@ -1,27 +1,92 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility that Flutter provides. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
+import 'package:airship_example/screens/tag_add.dart';
+import 'package:airship_example/screens/named_user_add.dart';
+import 'package:airship_example/styles.dart';
+import 'package:airship_flutter/airship_flutter.dart';
 
-import 'package:airship_example/main.dart';
+class Settings extends StatefulWidget {
+  @override
+  SettingsState createState() => SettingsState();
+}
 
-void main() {
-  testWidgets('Verify Platform version', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(MyApp());
+class SettingsState extends State<Settings> {
+  @override
+  void initState() {
+    Airship.trackScreen('Settings');
+    super.initState();
+  }
 
-    // Verify that platform version is retrieved.
-    expect(
-      find.byWidgetPredicate(
-        (Widget widget) =>
-            widget is Text && widget.data.startsWith('Running on:'),
-      ),
-      findsOneWidget,
-    );
-  });
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: const Text('Settings'),
+          backgroundColor: Styles.borders,
+        ),
+        backgroundColor: Colors.white,
+        body: ListView(
+            children: ListTile.divideTiles(
+              context: context,
+              tiles: [
+                FutureBuilder<bool?>(
+                    future: Airship.userNotificationsEnabled,
+                    builder: (context, snapshot) {
+                      return SwitchListTile(
+                        title: Text(
+                          'Push Enabled',
+                          style: Styles.settingsPrimaryText,
+                        ),
+                        value: snapshot.data ?? false,
+                        onChanged: (bool enabled) {
+                          Airship.setUserNotificationsEnabled(enabled);
+                          updateState();
+                        },
+                      );
+                    }),
+                FutureBuilder<String?>(
+                    future: Airship.namedUser,
+                    builder: (context, snapshot) {
+                      return ListTile(
+                        trailing: Icon(Icons.edit),
+                        title:
+                        Text('Named User', style: Styles.settingsPrimaryText),
+                        subtitle: Text(
+                            snapshot.hasData ? snapshot.data! : "None set",
+                            style: Styles.settingsSecondaryText),
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      NamedUserAdd(updateParent: updateState)));
+                        },
+                      );
+                    }),
+                FutureBuilder<List<String>>(
+                    future: Airship.tags,
+                    builder: (context, snapshot) {
+                      return ListTile(
+                        trailing: Icon(Icons.edit),
+                        title: Text('Tags', style: Styles.settingsPrimaryText),
+                        subtitle: Text(
+                            snapshot.hasData && snapshot.data!.join(', ') != ""
+                                ? snapshot.data!.join(', ')
+                                : "None set",
+                            style: Styles.settingsSecondaryText),
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      TagAdd(updateParent: updateState)));
+                        },
+                      );
+                    }),
+              ],
+            ).toList()));
+  }
+
+  updateState() {
+    setState(() {});
+  }
 }

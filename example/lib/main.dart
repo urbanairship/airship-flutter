@@ -28,10 +28,8 @@ void main() {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-
   Airship.setBackgroundMessageHandler(backgroundMessageHandler);
   Airship.takeOff(Config.airship);
-
   runApp(MyApp());
 }
 
@@ -42,7 +40,7 @@ class MyApp extends StatefulWidget {
 
 // SingleTickerProviderStateMixin is used for animation
 class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
-  TabController controller;
+   late TabController controller;
 
   final GlobalKey<NavigatorState> key = GlobalKey();
 
@@ -94,16 +92,18 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
       }
     });
 
-    Airship.onInboxUpdated.listen((event) => debugPrint('Inbox updated link'));
+    Airship.onInboxUpdated?.listen((event) => debugPrint('Inbox updated link'));
 
-    Airship.onShowInbox.listen((event) => debugPrint('Show inbox'));
+    Airship.onShowInbox?.listen((event) => debugPrint('Show inbox'));
 
     Airship.onShowInboxMessage.listen((messageId) {
       key.currentState
-          .push(MaterialPageRoute<Null>(builder: (BuildContext context) {
-        return MessageView(
-          messageId: messageId,
-        );
+          ?.push(MaterialPageRoute<Null>(builder: (BuildContext context) {
+        return messageId != null
+            ? MessageView(
+                messageId: messageId,
+              )
+            : SizedBox();
       }));
     });
 

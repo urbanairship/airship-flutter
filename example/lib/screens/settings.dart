@@ -6,10 +6,10 @@ import 'package:airship_flutter/airship_flutter.dart';
 
 class Settings extends StatefulWidget {
   @override
-  _SettingsState createState() => _SettingsState();
+  SettingsState createState() => SettingsState();
 }
 
-class _SettingsState extends State<Settings> {
+class SettingsState extends State<Settings> {
   @override
   void initState() {
     Airship.trackScreen('Settings');
@@ -26,64 +26,64 @@ class _SettingsState extends State<Settings> {
         backgroundColor: Colors.white,
         body: ListView(
             children: ListTile.divideTiles(
-          context: context,
-          tiles: [
-            FutureBuilder(
-                future: Airship.userNotificationsEnabled,
-                builder: (context, snapshot) {
-                  return SwitchListTile(
-                    title: Text(
-                      'Push Enabled',
-                      style: Styles.settingsPrimaryText,
-                    ),
-                    value: snapshot.data ?? false,
-                    onChanged: (bool enabled) {
-                      Airship.setUserNotificationsEnabled(enabled);
-                      updateState();
-                    },
-                  );
-                }),
-            FutureBuilder(
-                future: Airship.namedUser,
-                builder: (context, snapshot) {
-                  return ListTile(
-                    trailing: Icon(Icons.edit),
-                    title:
+              context: context,
+              tiles: [
+                FutureBuilder<bool?>(
+                    future: Airship.userNotificationsEnabled,
+                    builder: (context, snapshot) {
+                      return SwitchListTile(
+                        title: Text(
+                          'Push Enabled',
+                          style: Styles.settingsPrimaryText,
+                        ),
+                        value: snapshot.data ?? false,
+                        onChanged: (bool enabled) {
+                          Airship.setUserNotificationsEnabled(enabled);
+                          updateState();
+                        },
+                      );
+                    }),
+                FutureBuilder<String?>(
+                    future: Airship.namedUser,
+                    builder: (context, snapshot) {
+                      return ListTile(
+                        trailing: Icon(Icons.edit),
+                        title:
                         Text('Named User', style: Styles.settingsPrimaryText),
-                    subtitle: Text(
-                        snapshot.hasData ? snapshot.data : "None set",
-                        style: Styles.settingsSecondaryText),
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  NamedUserAdd(updateParent: updateState)));
-                    },
-                  );
-                }),
-            FutureBuilder(
-                future: Airship.tags,
-                builder: (context, snapshot) {
-                  return ListTile(
-                    trailing: Icon(Icons.edit),
-                    title: Text('Tags', style: Styles.settingsPrimaryText),
-                    subtitle: Text(
-                        snapshot.hasData && snapshot.data.join(', ') != ""
-                            ? snapshot.data.join(', ')
-                            : "None set",
-                        style: Styles.settingsSecondaryText),
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  TagAdd(updateParent: updateState)));
-                    },
-                  );
-                }),
-          ],
-        ).toList()));
+                        subtitle: Text(
+                            snapshot.hasData ? snapshot.data! : "None set",
+                            style: Styles.settingsSecondaryText),
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      NamedUserAdd(updateParent: updateState)));
+                        },
+                      );
+                    }),
+                FutureBuilder<List<String>>(
+                    future: Airship.tags,
+                    builder: (context, snapshot) {
+                      return ListTile(
+                        trailing: Icon(Icons.edit),
+                        title: Text('Tags', style: Styles.settingsPrimaryText),
+                        subtitle: Text(
+                            snapshot.hasData && snapshot.data!.join(', ') != ""
+                                ? snapshot.data!.join(', ')
+                                : "None set",
+                            style: Styles.settingsSecondaryText),
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      TagAdd(updateParent: updateState)));
+                        },
+                      );
+                    }),
+              ],
+            ).toList()));
   }
 
   updateState() {

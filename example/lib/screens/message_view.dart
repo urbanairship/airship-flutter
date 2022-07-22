@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:airship_flutter/airship_flutter.dart';
 import 'package:airship_example/styles.dart';
 import 'package:flutter/services.dart';
+import 'package:collection/collection.dart';
 
 class MessageView extends StatefulWidget {
   final String messageId;
 
-  MessageView({this.messageId});
+  MessageView({required this.messageId});
 
   @override
   _MessageViewState createState() => _MessageViewState();
@@ -26,17 +27,14 @@ class _MessageViewState extends State<MessageView> {
     return FutureBuilder<List<InboxMessage>>(
         future: Airship.inboxMessages,
         builder: (context, snapshot) {
-          InboxMessage message;
-
           List<InboxMessage> list = [];
 
           if (snapshot.hasData) {
-            list = List<InboxMessage>.from(snapshot.data);
+            list = snapshot.data!;
           }
 
-          message = list.firstWhere(
-              (thisMessage) => widget.messageId == thisMessage.messageId,
-              orElse: () => null);
+          InboxMessage? message = list.firstWhereOrNull(
+                  (thisMessage) => widget.messageId == thisMessage.messageId);
 
           return Scaffold(
             appBar: AppBar(
@@ -82,10 +80,10 @@ class _MessageViewState extends State<MessageView> {
       showDialog(
           context: context,
           builder: (context) => AlertDialog(
-                title: Text(
-                    e.message != null ? e.message : "Unable to load message"),
-                content: Text(e.details != null ? e.details : ""),
-              ));
+            title: Text(
+                e.message != null ? e.message! : "Unable to load message"),
+            content: Text(e.details != null ? e.details : ""),
+          ));
     });
   }
 

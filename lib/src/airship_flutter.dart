@@ -25,7 +25,7 @@ class InboxMessage {
   final String? listIcon;
 
   /// The unread / read status of the message.
-  final bool? isRead;
+  final bool isRead;
 
   /// String to String map of any message extras.
   final Map<String, dynamic>? extras;
@@ -39,7 +39,7 @@ class InboxMessage {
     var sentDate = json["sent_date"];
     var expirationDate = json["expiration_date"];
     var listIcon = json["list_icon"];
-    var isRead = json["is_read"];
+    bool isRead = json["is_read"]?? false;
     var extras = json["extras"];
     return InboxMessage._internal(
         title, messageId, sentDate, expirationDate, listIcon, isRead, extras);
@@ -447,8 +447,8 @@ class Airship {
   }
 
   /// Tells if user notifications are enabled or not.
-  static Future<bool?> get userNotificationsEnabled async {
-    return await _channel.invokeMethod('getUserNotificationsEnabled');
+  static Future<bool> get userNotificationsEnabled async {
+    return await _channel.invokeMethod('getUserNotificationsEnabled')??false;
   }
 
   /// Gets all the active notifications for the application.
@@ -583,7 +583,7 @@ class Airship {
   }
 
   /// Returns a [List] with the enabled features.
-  static Future<List<String>> getEnabledFeatures() async {
+  static FutureOr<List<String>> getEnabledFeatures() async {
     return await _channel.invokeMethod('getEnabledFeatures');
   }
 

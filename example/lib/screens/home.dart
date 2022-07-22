@@ -5,10 +5,10 @@ import 'package:airship_flutter/airship_flutter.dart';
 
 class Home extends StatefulWidget {
   @override
-  _HomeState createState() => _HomeState();
+  HomeState createState() => HomeState();
 }
 
-class _HomeState extends State<Home> {
+class HomeState extends State<Home> {
   @override
   void initState() {
     initAirshipListeners();
@@ -38,7 +38,7 @@ class _HomeState extends State<Home> {
                 'assets/airship.png',
               ),
               Center(
-                child: FutureBuilder(
+                child: FutureBuilder<bool>(
                   future: Airship.userNotificationsEnabled,
                   builder: (context, AsyncSnapshot<bool> snapshot) {
                     Center enableNotificationsButton;
