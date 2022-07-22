@@ -40,7 +40,7 @@ class MyApp extends StatefulWidget {
 
 // SingleTickerProviderStateMixin is used for animation
 class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
-   late TabController controller;
+  late TabController controller;
 
   final GlobalKey<NavigatorState> key = GlobalKey();
 

@@ -39,7 +39,7 @@ class InboxMessage {
     var sentDate = json["sent_date"];
     var expirationDate = json["expiration_date"];
     var listIcon = json["list_icon"];
-    bool isRead = json["is_read"]?? false;
+    bool isRead = json["is_read"] ?? false;
     var extras = json["extras"];
     return InboxMessage._internal(
         title, messageId, sentDate, expirationDate, listIcon, isRead, extras);
@@ -146,7 +146,6 @@ class ContactSubscriptionList {
 
 /// Event fired when the user initiates a notification response.
 class NotificationResponseEvent {
-
   /// The action button ID, if available.
   final String? actionId;
 
@@ -182,7 +181,6 @@ class NotificationResponseEvent {
 
 /// Event fired when a push is received.
 class PushReceivedEvent {
-
   /// The notification payload.
   final Map<String, dynamic>? payload;
 
@@ -243,7 +241,6 @@ typedef BackgroundMessageHandler = Future<void> Function(
 
 /// Event fired when a channel registration occurs.
 class ChannelEvent {
-
   /// The channel ID.
   final String? channelId;
 
@@ -448,7 +445,7 @@ class Airship {
 
   /// Tells if user notifications are enabled or not.
   static Future<bool> get userNotificationsEnabled async {
-    return await _channel.invokeMethod('getUserNotificationsEnabled')??false;
+    return await _channel.invokeMethod('getUserNotificationsEnabled') ?? false;
   }
 
   /// Gets all the active notifications for the application.
@@ -621,4 +618,3 @@ class Airship {
     return await _channel.invokeMethod('setAutoLaunchDefaultPreferenceCenter');
   }
 }
-

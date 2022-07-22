@@ -13,7 +13,7 @@ class PreferenceCenterState extends State<PreferenceCenter>
   PreferenceCenterConfig? preferenceCenterConfig;
   List<String> activeChannelSubscriptions = [];
   Map<String, List<String>> activeContactSubscriptions =
-  <String, List<String>>{};
+      <String, List<String>>{};
 
   @override
   void initState() {
@@ -31,13 +31,13 @@ class PreferenceCenterState extends State<PreferenceCenter>
 
   Future updatePreferenceCenterConfig() async {
     preferenceCenterConfig =
-    await Airship.getPreferenceCenterConfig(preferenceCenterId);
+        await Airship.getPreferenceCenterConfig(preferenceCenterId);
     setState(() {});
   }
 
   void fillInSubscriptionList() async {
     SubscriptionList subscriptionList =
-    await Airship.getSubscriptionLists(["channel", "contact"]);
+        await Airship.getSubscriptionLists(["channel", "contact"]);
     activeChannelSubscriptions =
         subscriptionList.channelSubscriptionLists ?? [];
     List<ContactSubscriptionList> contactSubscriptionLists =
@@ -60,7 +60,7 @@ class PreferenceCenterState extends State<PreferenceCenter>
 
     if (activeContactSubscriptions[subscriptionId] != null) {
       List<String> activeContactSubscriptionsScopes =
-      activeContactSubscriptions[subscriptionId]!;
+          activeContactSubscriptions[subscriptionId]!;
       if (scopes
           .every((item) => activeContactSubscriptionsScopes.contains(item))) {
         return true;
@@ -101,7 +101,7 @@ class PreferenceCenterState extends State<PreferenceCenter>
   void onPreferenceContactSubscriptionItemToggled(
       String subscriptionId, List<String> scopes, bool subscribe) {
     ScopedSubscriptionListEditor editor =
-    Airship.editContactSubscriptionLists();
+        Airship.editContactSubscriptionLists();
     if (subscribe) {
       editor.subscribe(subscriptionId, scopes);
     } else {
@@ -152,7 +152,7 @@ class PreferenceCenterState extends State<PreferenceCenter>
         item.components;
     List<Widget> widgets = [];
     for (PreferenceCenterContactSubscriptionGroupItemComponent component
-    in components) {
+        in components) {
       String? componentLabel = component.display.title;
       List<String> scopes = scopesFromComponents(component.scopes);
       Widget widget = FilterChip(

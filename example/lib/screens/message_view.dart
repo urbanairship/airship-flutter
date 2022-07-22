@@ -34,7 +34,7 @@ class _MessageViewState extends State<MessageView> {
           }
 
           InboxMessage? message = list.firstWhereOrNull(
-                  (thisMessage) => widget.messageId == thisMessage.messageId);
+              (thisMessage) => widget.messageId == thisMessage.messageId);
 
           return Scaffold(
             appBar: AppBar(
@@ -80,10 +80,10 @@ class _MessageViewState extends State<MessageView> {
       showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: Text(
-                e.message != null ? e.message! : "Unable to load message"),
-            content: Text(e.details != null ? e.details : ""),
-          ));
+                title: Text(
+                    e.message != null ? e.message! : "Unable to load message"),
+                content: Text(e.details != null ? e.details : ""),
+              ));
     });
   }
 

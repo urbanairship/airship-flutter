@@ -56,18 +56,17 @@ class MessageCenterState extends State<MessageCenter> {
                 title: message.isRead
                     ? Text('${message.title}')
                     : Text('${message.title}',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                 subtitle: Text('${message.sentDate}'),
-                leading: Icon(message.isRead
-                    ? Icons.check_circle
-                    : Icons.markunread),
+                leading: Icon(
+                    message.isRead ? Icons.check_circle : Icons.markunread),
                 onTap: () {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
                           builder: (context) => MessageView(
-                            messageId: message.messageId,
-                          )));
+                                messageId: message.messageId,
+                              )));
                 },
               ),
             );

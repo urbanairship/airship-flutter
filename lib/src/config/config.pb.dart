@@ -14,12 +14,31 @@ import 'config.pbenum.dart';
 export 'config.pbenum.dart';
 
 class AirshipEnv extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'AirshipEnv', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'appKey')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'appSecret')
-    ..e<LogLevel>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'logLevel', $pb.PbFieldType.OE, defaultOrMaker: LogLevel.NONE, valueOf: LogLevel.valueOf, enumValues: LogLevel.values)
-    ..hasRequiredFields = false
-  ;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      const $core.bool.fromEnvironment('protobuf.omit_message_names')
+          ? ''
+          : 'AirshipEnv',
+      createEmptyInstance: create)
+    ..aOS(
+        1,
+        const $core.bool.fromEnvironment('protobuf.omit_field_names')
+            ? ''
+            : 'appKey')
+    ..aOS(
+        2,
+        const $core.bool.fromEnvironment('protobuf.omit_field_names')
+            ? ''
+            : 'appSecret')
+    ..e<LogLevel>(
+        3,
+        const $core.bool.fromEnvironment('protobuf.omit_field_names')
+            ? ''
+            : 'logLevel',
+        $pb.PbFieldType.OE,
+        defaultOrMaker: LogLevel.NONE,
+        valueOf: LogLevel.valueOf,
+        enumValues: LogLevel.values)
+    ..hasRequiredFields = false;
 
   AirshipEnv._() : super();
   factory AirshipEnv({
@@ -39,31 +58,39 @@ class AirshipEnv extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory AirshipEnv.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory AirshipEnv.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  factory AirshipEnv.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory AirshipEnv.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   AirshipEnv clone() => AirshipEnv()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  AirshipEnv copyWith(void Function(AirshipEnv) updates) => super.copyWith((message) => updates(message as AirshipEnv)) as AirshipEnv; // ignore: deprecated_member_use
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  AirshipEnv copyWith(void Function(AirshipEnv) updates) =>
+      super.copyWith((message) => updates(message as AirshipEnv))
+          as AirshipEnv; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static AirshipEnv create() => AirshipEnv._();
   AirshipEnv createEmptyInstance() => create();
   static $pb.PbList<AirshipEnv> createRepeated() => $pb.PbList<AirshipEnv>();
   @$core.pragma('dart2js:noInline')
-  static AirshipEnv getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<AirshipEnv>(create);
+  static AirshipEnv getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<AirshipEnv>(create);
   static AirshipEnv? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get appKey => $_getSZ(0);
   @$pb.TagNumber(1)
-  set appKey($core.String v) { $_setString(0, v); }
+  set appKey($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasAppKey() => $_has(0);
   @$pb.TagNumber(1)
@@ -72,7 +99,10 @@ class AirshipEnv extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.String get appSecret => $_getSZ(1);
   @$pb.TagNumber(2)
-  set appSecret($core.String v) { $_setString(1, v); }
+  set appSecret($core.String v) {
+    $_setString(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasAppSecret() => $_has(1);
   @$pb.TagNumber(2)
@@ -81,7 +111,10 @@ class AirshipEnv extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   LogLevel get logLevel => $_getN(2);
   @$pb.TagNumber(3)
-  set logLevel(LogLevel v) { setField(3, v); }
+  set logLevel(LogLevel v) {
+    setField(3, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasLogLevel() => $_has(2);
   @$pb.TagNumber(3)
@@ -89,13 +122,32 @@ class AirshipEnv extends $pb.GeneratedMessage {
 }
 
 class AndroidNotificationConfig extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'AndroidNotificationConfig', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'icon')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'largeIcon')
-    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'accentColor')
-    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'defaultChannelId')
-    ..hasRequiredFields = false
-  ;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      const $core.bool.fromEnvironment('protobuf.omit_message_names')
+          ? ''
+          : 'AndroidNotificationConfig',
+      createEmptyInstance: create)
+    ..aOS(
+        1,
+        const $core.bool.fromEnvironment('protobuf.omit_field_names')
+            ? ''
+            : 'icon')
+    ..aOS(
+        2,
+        const $core.bool.fromEnvironment('protobuf.omit_field_names')
+            ? ''
+            : 'largeIcon')
+    ..aOS(
+        3,
+        const $core.bool.fromEnvironment('protobuf.omit_field_names')
+            ? ''
+            : 'accentColor')
+    ..aOS(
+        4,
+        const $core.bool.fromEnvironment('protobuf.omit_field_names')
+            ? ''
+            : 'defaultChannelId')
+    ..hasRequiredFields = false;
 
   AndroidNotificationConfig._() : super();
   factory AndroidNotificationConfig({
@@ -119,31 +171,42 @@ class AndroidNotificationConfig extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory AndroidNotificationConfig.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory AndroidNotificationConfig.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  AndroidNotificationConfig clone() => AndroidNotificationConfig()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  AndroidNotificationConfig copyWith(void Function(AndroidNotificationConfig) updates) => super.copyWith((message) => updates(message as AndroidNotificationConfig)) as AndroidNotificationConfig; // ignore: deprecated_member_use
+  factory AndroidNotificationConfig.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory AndroidNotificationConfig.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
+  AndroidNotificationConfig clone() =>
+      AndroidNotificationConfig()..mergeFromMessage(this);
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  AndroidNotificationConfig copyWith(
+          void Function(AndroidNotificationConfig) updates) =>
+      super.copyWith((message) => updates(message as AndroidNotificationConfig))
+          as AndroidNotificationConfig; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static AndroidNotificationConfig create() => AndroidNotificationConfig._();
   AndroidNotificationConfig createEmptyInstance() => create();
-  static $pb.PbList<AndroidNotificationConfig> createRepeated() => $pb.PbList<AndroidNotificationConfig>();
+  static $pb.PbList<AndroidNotificationConfig> createRepeated() =>
+      $pb.PbList<AndroidNotificationConfig>();
   @$core.pragma('dart2js:noInline')
-  static AndroidNotificationConfig getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<AndroidNotificationConfig>(create);
+  static AndroidNotificationConfig getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<AndroidNotificationConfig>(create);
   static AndroidNotificationConfig? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get icon => $_getSZ(0);
   @$pb.TagNumber(1)
-  set icon($core.String v) { $_setString(0, v); }
+  set icon($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasIcon() => $_has(0);
   @$pb.TagNumber(1)
@@ -152,7 +215,10 @@ class AndroidNotificationConfig extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.String get largeIcon => $_getSZ(1);
   @$pb.TagNumber(2)
-  set largeIcon($core.String v) { $_setString(1, v); }
+  set largeIcon($core.String v) {
+    $_setString(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasLargeIcon() => $_has(1);
   @$pb.TagNumber(2)
@@ -161,7 +227,10 @@ class AndroidNotificationConfig extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $core.String get accentColor => $_getSZ(2);
   @$pb.TagNumber(3)
-  set accentColor($core.String v) { $_setString(2, v); }
+  set accentColor($core.String v) {
+    $_setString(2, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasAccentColor() => $_has(2);
   @$pb.TagNumber(3)
@@ -170,7 +239,10 @@ class AndroidNotificationConfig extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $core.String get defaultChannelId => $_getSZ(3);
   @$pb.TagNumber(4)
-  set defaultChannelId($core.String v) { $_setString(3, v); }
+  set defaultChannelId($core.String v) {
+    $_setString(3, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasDefaultChannelId() => $_has(3);
   @$pb.TagNumber(4)
@@ -178,12 +250,28 @@ class AndroidNotificationConfig extends $pb.GeneratedMessage {
 }
 
 class AndroidConfig extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'AndroidConfig', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'appStoreUri')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fcmFirebaseAppName')
-    ..aOM<AndroidNotificationConfig>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'notification', subBuilder: AndroidNotificationConfig.create)
-    ..hasRequiredFields = false
-  ;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      const $core.bool.fromEnvironment('protobuf.omit_message_names')
+          ? ''
+          : 'AndroidConfig',
+      createEmptyInstance: create)
+    ..aOS(
+        1,
+        const $core.bool.fromEnvironment('protobuf.omit_field_names')
+            ? ''
+            : 'appStoreUri')
+    ..aOS(
+        2,
+        const $core.bool.fromEnvironment('protobuf.omit_field_names')
+            ? ''
+            : 'fcmFirebaseAppName')
+    ..aOM<AndroidNotificationConfig>(
+        3,
+        const $core.bool.fromEnvironment('protobuf.omit_field_names')
+            ? ''
+            : 'notification',
+        subBuilder: AndroidNotificationConfig.create)
+    ..hasRequiredFields = false;
 
   AndroidConfig._() : super();
   factory AndroidConfig({
@@ -203,31 +291,40 @@ class AndroidConfig extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory AndroidConfig.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory AndroidConfig.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  factory AndroidConfig.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory AndroidConfig.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   AndroidConfig clone() => AndroidConfig()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  AndroidConfig copyWith(void Function(AndroidConfig) updates) => super.copyWith((message) => updates(message as AndroidConfig)) as AndroidConfig; // ignore: deprecated_member_use
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  AndroidConfig copyWith(void Function(AndroidConfig) updates) =>
+      super.copyWith((message) => updates(message as AndroidConfig))
+          as AndroidConfig; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static AndroidConfig create() => AndroidConfig._();
   AndroidConfig createEmptyInstance() => create();
-  static $pb.PbList<AndroidConfig> createRepeated() => $pb.PbList<AndroidConfig>();
+  static $pb.PbList<AndroidConfig> createRepeated() =>
+      $pb.PbList<AndroidConfig>();
   @$core.pragma('dart2js:noInline')
-  static AndroidConfig getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<AndroidConfig>(create);
+  static AndroidConfig getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<AndroidConfig>(create);
   static AndroidConfig? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get appStoreUri => $_getSZ(0);
   @$pb.TagNumber(1)
-  set appStoreUri($core.String v) { $_setString(0, v); }
+  set appStoreUri($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasAppStoreUri() => $_has(0);
   @$pb.TagNumber(1)
@@ -236,7 +333,10 @@ class AndroidConfig extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   $core.String get fcmFirebaseAppName => $_getSZ(1);
   @$pb.TagNumber(2)
-  set fcmFirebaseAppName($core.String v) { $_setString(1, v); }
+  set fcmFirebaseAppName($core.String v) {
+    $_setString(1, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasFcmFirebaseAppName() => $_has(1);
   @$pb.TagNumber(2)
@@ -245,7 +345,10 @@ class AndroidConfig extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   AndroidNotificationConfig get notification => $_getN(2);
   @$pb.TagNumber(3)
-  set notification(AndroidNotificationConfig v) { setField(3, v); }
+  set notification(AndroidNotificationConfig v) {
+    setField(3, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasNotification() => $_has(2);
   @$pb.TagNumber(3)
@@ -255,10 +358,17 @@ class AndroidConfig extends $pb.GeneratedMessage {
 }
 
 class IosConfig extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'IosConfig', createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'itunesId')
-    ..hasRequiredFields = false
-  ;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      const $core.bool.fromEnvironment('protobuf.omit_message_names')
+          ? ''
+          : 'IosConfig',
+      createEmptyInstance: create)
+    ..aOS(
+        1,
+        const $core.bool.fromEnvironment('protobuf.omit_field_names')
+            ? ''
+            : 'itunesId')
+    ..hasRequiredFields = false;
 
   IosConfig._() : super();
   factory IosConfig({
@@ -270,31 +380,39 @@ class IosConfig extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory IosConfig.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory IosConfig.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  factory IosConfig.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory IosConfig.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   IosConfig clone() => IosConfig()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  IosConfig copyWith(void Function(IosConfig) updates) => super.copyWith((message) => updates(message as IosConfig)) as IosConfig; // ignore: deprecated_member_use
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  IosConfig copyWith(void Function(IosConfig) updates) =>
+      super.copyWith((message) => updates(message as IosConfig))
+          as IosConfig; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static IosConfig create() => IosConfig._();
   IosConfig createEmptyInstance() => create();
   static $pb.PbList<IosConfig> createRepeated() => $pb.PbList<IosConfig>();
   @$core.pragma('dart2js:noInline')
-  static IosConfig getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<IosConfig>(create);
+  static IosConfig getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<IosConfig>(create);
   static IosConfig? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get itunesId => $_getSZ(0);
   @$pb.TagNumber(1)
-  set itunesId($core.String v) { $_setString(0, v); }
+  set itunesId($core.String v) {
+    $_setString(0, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasItunesId() => $_has(0);
   @$pb.TagNumber(1)
@@ -302,22 +420,89 @@ class IosConfig extends $pb.GeneratedMessage {
 }
 
 class AirshipConfig extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'AirshipConfig', createEmptyInstance: create)
-    ..aOM<AirshipEnv>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'production', subBuilder: AirshipEnv.create)
-    ..aOM<AirshipEnv>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'development', subBuilder: AirshipEnv.create)
-    ..aOM<AndroidConfig>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'android', subBuilder: AndroidConfig.create)
-    ..aOB(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'inProduction')
-    ..e<Site>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'site', $pb.PbFieldType.OE, defaultOrMaker: Site.SITE_US, valueOf: Site.valueOf, enumValues: Site.values)
-    ..pPS(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'urlAllowList')
-    ..pPS(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'urlAllowListScopeOpenUrl')
-    ..pPS(8, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'urlAllowlistScopeJavascriptInterface')
-    ..aOB(9, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'isChannelCreationDelayEnabled')
-    ..aOB(10, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'requireInitialRemoteConfigEnabled')
-    ..pc<Feature>(11, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'featuresEnabled', $pb.PbFieldType.PE, valueOf: Feature.valueOf, enumValues: Feature.values)
-    ..aOM<IosConfig>(12, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'ios', subBuilder: IosConfig.create)
-    ..aOM<AirshipEnv>(13, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'defaultEnv', subBuilder: AirshipEnv.create)
-    ..hasRequiredFields = false
-  ;
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      const $core.bool.fromEnvironment('protobuf.omit_message_names')
+          ? ''
+          : 'AirshipConfig',
+      createEmptyInstance: create)
+    ..aOM<AirshipEnv>(
+        1,
+        const $core.bool.fromEnvironment('protobuf.omit_field_names')
+            ? ''
+            : 'production',
+        subBuilder: AirshipEnv.create)
+    ..aOM<AirshipEnv>(
+        2,
+        const $core.bool.fromEnvironment('protobuf.omit_field_names')
+            ? ''
+            : 'development',
+        subBuilder: AirshipEnv.create)
+    ..aOM<AndroidConfig>(
+        3,
+        const $core.bool.fromEnvironment('protobuf.omit_field_names')
+            ? ''
+            : 'android',
+        subBuilder: AndroidConfig.create)
+    ..aOB(
+        4,
+        const $core.bool.fromEnvironment('protobuf.omit_field_names')
+            ? ''
+            : 'inProduction')
+    ..e<Site>(
+        5,
+        const $core.bool.fromEnvironment('protobuf.omit_field_names')
+            ? ''
+            : 'site',
+        $pb.PbFieldType.OE,
+        defaultOrMaker: Site.SITE_US,
+        valueOf: Site.valueOf,
+        enumValues: Site.values)
+    ..pPS(
+        6,
+        const $core.bool.fromEnvironment('protobuf.omit_field_names')
+            ? ''
+            : 'urlAllowList')
+    ..pPS(
+        7,
+        const $core.bool.fromEnvironment('protobuf.omit_field_names')
+            ? ''
+            : 'urlAllowListScopeOpenUrl')
+    ..pPS(
+        8,
+        const $core.bool.fromEnvironment('protobuf.omit_field_names')
+            ? ''
+            : 'urlAllowlistScopeJavascriptInterface')
+    ..aOB(
+        9,
+        const $core.bool.fromEnvironment('protobuf.omit_field_names')
+            ? ''
+            : 'isChannelCreationDelayEnabled')
+    ..aOB(
+        10,
+        const $core.bool.fromEnvironment('protobuf.omit_field_names')
+            ? ''
+            : 'requireInitialRemoteConfigEnabled')
+    ..pc<Feature>(
+        11,
+        const $core.bool.fromEnvironment('protobuf.omit_field_names')
+            ? ''
+            : 'featuresEnabled',
+        $pb.PbFieldType.PE,
+        valueOf: Feature.valueOf,
+        enumValues: Feature.values)
+    ..aOM<IosConfig>(
+        12,
+        const $core.bool.fromEnvironment('protobuf.omit_field_names')
+            ? ''
+            : 'ios',
+        subBuilder: IosConfig.create)
+    ..aOM<AirshipEnv>(
+        13,
+        const $core.bool.fromEnvironment('protobuf.omit_field_names')
+            ? ''
+            : 'defaultEnv',
+        subBuilder: AirshipEnv.create)
+    ..hasRequiredFields = false;
 
   AirshipConfig._() : super();
   factory AirshipConfig({
@@ -358,13 +543,15 @@ class AirshipConfig extends $pb.GeneratedMessage {
       _result.urlAllowListScopeOpenUrl.addAll(urlAllowListScopeOpenUrl);
     }
     if (urlAllowlistScopeJavascriptInterface != null) {
-      _result.urlAllowlistScopeJavascriptInterface.addAll(urlAllowlistScopeJavascriptInterface);
+      _result.urlAllowlistScopeJavascriptInterface
+          .addAll(urlAllowlistScopeJavascriptInterface);
     }
     if (isChannelCreationDelayEnabled != null) {
       _result.isChannelCreationDelayEnabled = isChannelCreationDelayEnabled;
     }
     if (requireInitialRemoteConfigEnabled != null) {
-      _result.requireInitialRemoteConfigEnabled = requireInitialRemoteConfigEnabled;
+      _result.requireInitialRemoteConfigEnabled =
+          requireInitialRemoteConfigEnabled;
     }
     if (featuresEnabled != null) {
       _result.featuresEnabled.addAll(featuresEnabled);
@@ -377,31 +564,40 @@ class AirshipConfig extends $pb.GeneratedMessage {
     }
     return _result;
   }
-  factory AirshipConfig.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory AirshipConfig.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
+  factory AirshipConfig.fromBuffer($core.List<$core.int> i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(i, r);
+  factory AirshipConfig.fromJson($core.String i,
+          [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(i, r);
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+      'Will be removed in next major version')
   AirshipConfig clone() => AirshipConfig()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  AirshipConfig copyWith(void Function(AirshipConfig) updates) => super.copyWith((message) => updates(message as AirshipConfig)) as AirshipConfig; // ignore: deprecated_member_use
+  @$core.Deprecated('Using this can add significant overhead to your binary. '
+      'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+      'Will be removed in next major version')
+  AirshipConfig copyWith(void Function(AirshipConfig) updates) =>
+      super.copyWith((message) => updates(message as AirshipConfig))
+          as AirshipConfig; // ignore: deprecated_member_use
   $pb.BuilderInfo get info_ => _i;
   @$core.pragma('dart2js:noInline')
   static AirshipConfig create() => AirshipConfig._();
   AirshipConfig createEmptyInstance() => create();
-  static $pb.PbList<AirshipConfig> createRepeated() => $pb.PbList<AirshipConfig>();
+  static $pb.PbList<AirshipConfig> createRepeated() =>
+      $pb.PbList<AirshipConfig>();
   @$core.pragma('dart2js:noInline')
-  static AirshipConfig getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<AirshipConfig>(create);
+  static AirshipConfig getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<AirshipConfig>(create);
   static AirshipConfig? _defaultInstance;
 
   @$pb.TagNumber(1)
   AirshipEnv get production => $_getN(0);
   @$pb.TagNumber(1)
-  set production(AirshipEnv v) { setField(1, v); }
+  set production(AirshipEnv v) {
+    setField(1, v);
+  }
+
   @$pb.TagNumber(1)
   $core.bool hasProduction() => $_has(0);
   @$pb.TagNumber(1)
@@ -412,7 +608,10 @@ class AirshipConfig extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   AirshipEnv get development => $_getN(1);
   @$pb.TagNumber(2)
-  set development(AirshipEnv v) { setField(2, v); }
+  set development(AirshipEnv v) {
+    setField(2, v);
+  }
+
   @$pb.TagNumber(2)
   $core.bool hasDevelopment() => $_has(1);
   @$pb.TagNumber(2)
@@ -423,7 +622,10 @@ class AirshipConfig extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   AndroidConfig get android => $_getN(2);
   @$pb.TagNumber(3)
-  set android(AndroidConfig v) { setField(3, v); }
+  set android(AndroidConfig v) {
+    setField(3, v);
+  }
+
   @$pb.TagNumber(3)
   $core.bool hasAndroid() => $_has(2);
   @$pb.TagNumber(3)
@@ -434,7 +636,10 @@ class AirshipConfig extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $core.bool get inProduction => $_getBF(3);
   @$pb.TagNumber(4)
-  set inProduction($core.bool v) { $_setBool(3, v); }
+  set inProduction($core.bool v) {
+    $_setBool(3, v);
+  }
+
   @$pb.TagNumber(4)
   $core.bool hasInProduction() => $_has(3);
   @$pb.TagNumber(4)
@@ -443,7 +648,10 @@ class AirshipConfig extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   Site get site => $_getN(4);
   @$pb.TagNumber(5)
-  set site(Site v) { setField(5, v); }
+  set site(Site v) {
+    setField(5, v);
+  }
+
   @$pb.TagNumber(5)
   $core.bool hasSite() => $_has(4);
   @$pb.TagNumber(5)
@@ -456,12 +664,16 @@ class AirshipConfig extends $pb.GeneratedMessage {
   $core.List<$core.String> get urlAllowListScopeOpenUrl => $_getList(6);
 
   @$pb.TagNumber(8)
-  $core.List<$core.String> get urlAllowlistScopeJavascriptInterface => $_getList(7);
+  $core.List<$core.String> get urlAllowlistScopeJavascriptInterface =>
+      $_getList(7);
 
   @$pb.TagNumber(9)
   $core.bool get isChannelCreationDelayEnabled => $_getBF(8);
   @$pb.TagNumber(9)
-  set isChannelCreationDelayEnabled($core.bool v) { $_setBool(8, v); }
+  set isChannelCreationDelayEnabled($core.bool v) {
+    $_setBool(8, v);
+  }
+
   @$pb.TagNumber(9)
   $core.bool hasIsChannelCreationDelayEnabled() => $_has(8);
   @$pb.TagNumber(9)
@@ -470,7 +682,10 @@ class AirshipConfig extends $pb.GeneratedMessage {
   @$pb.TagNumber(10)
   $core.bool get requireInitialRemoteConfigEnabled => $_getBF(9);
   @$pb.TagNumber(10)
-  set requireInitialRemoteConfigEnabled($core.bool v) { $_setBool(9, v); }
+  set requireInitialRemoteConfigEnabled($core.bool v) {
+    $_setBool(9, v);
+  }
+
   @$pb.TagNumber(10)
   $core.bool hasRequireInitialRemoteConfigEnabled() => $_has(9);
   @$pb.TagNumber(10)
@@ -482,7 +697,10 @@ class AirshipConfig extends $pb.GeneratedMessage {
   @$pb.TagNumber(12)
   IosConfig get ios => $_getN(11);
   @$pb.TagNumber(12)
-  set ios(IosConfig v) { setField(12, v); }
+  set ios(IosConfig v) {
+    setField(12, v);
+  }
+
   @$pb.TagNumber(12)
   $core.bool hasIos() => $_has(11);
   @$pb.TagNumber(12)
@@ -493,7 +711,10 @@ class AirshipConfig extends $pb.GeneratedMessage {
   @$pb.TagNumber(13)
   AirshipEnv get defaultEnv => $_getN(12);
   @$pb.TagNumber(13)
-  set defaultEnv(AirshipEnv v) { setField(13, v); }
+  set defaultEnv(AirshipEnv v) {
+    setField(13, v);
+  }
+
   @$pb.TagNumber(13)
   $core.bool hasDefaultEnv() => $_has(12);
   @$pb.TagNumber(13)
@@ -501,4 +722,3 @@ class AirshipConfig extends $pb.GeneratedMessage {
   @$pb.TagNumber(13)
   AirshipEnv ensureDefaultEnv() => $_ensure(12);
 }
-
