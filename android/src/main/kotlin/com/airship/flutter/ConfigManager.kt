@@ -10,6 +10,7 @@ import androidx.annotation.ColorInt
 import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
 import com.airship.flutter.config.Config
+import com.google.protobuf.GeneratedMessageV3
 import com.urbanairship.AirshipConfigOptions
 import com.urbanairship.PrivacyManager
 import com.urbanairship.util.UAStringUtil
@@ -19,7 +20,9 @@ import kotlinx.coroutines.flow.flow
 
 class ConfigManager(private val context: Context) {
     companion object {
+
         @SuppressLint("StaticFieldLeak")
+
         @Volatile
         private var instance: ConfigManager? = null
 
@@ -29,7 +32,6 @@ class ConfigManager(private val context: Context) {
     }
 
 
-
     private val Context.flutterPluginStore: DataStore<Config.AirshipConfig> by dataStore(
         fileName = "airship.flutter.plugin.pb",
         ConfigSerializer
@@ -37,7 +39,7 @@ class ConfigManager(private val context: Context) {
 
     suspend fun updateConfig(configByteArray: ByteArray) {
         context.flutterPluginStore.updateData {
-            Config.AirshipConfig.parseFrom(configByteArray)
+            ConfigSerializer.readFrom(  configByteArray.inputStream())
         }
     }
 
@@ -47,37 +49,41 @@ class ConfigManager(private val context: Context) {
             val pluginConfig = context.flutterPluginStore.data.first()
 
             val config = AirshipConfigOptions.newBuilder()
-                //.applyDefaultProperties(context)
-                .setRequireInitialRemoteConfigEnabled(true)
+                .applyDefaultProperties(context)
+                .setRequireInitialRemoteConfigEnabled(pluginConfig.requireInitialRemoteConfigEnabled)
                 .apply {
                     pluginConfig.inProduction.let {
-                        println(it)
                         this.setInProduction(it)
                     }
 
                     pluginConfig.development.let {
-                        this.setDevelopmentAppKey(it.appKey)
-                            .setDevelopmentAppSecret(it.appSecret)
-                            .setDevelopmentLogLevel(it.logLevel.value)
-                            .build()
+                        if (it.isNotEmptyOrPartial) {
+                            this.setDevelopmentAppKey(it.appKey)
+                                .setDevelopmentAppSecret(it.appSecret)
+                                .setDevelopmentLogLevel(it.logLevel.value)
+                                .build()
+                        }
                     }
 
                     pluginConfig.production.let {
-                        this.setProductionAppKey(it.appKey)
-                            .setProductionAppSecret(it.appSecret)
-                            .setProductionLogLevel(it.logLevel.value)
-                            .build()
+                        if (it.isNotEmptyOrPartial) {
+                            this.setProductionAppKey(it.appKey)
+                                .setProductionAppSecret(it.appSecret)
+                                .setProductionLogLevel(it.logLevel.value)
+                                .build()
+                        }
                     }
 
                     /// since proto buf defaults to empty string,
                     // check for empty string instead of null
                     pluginConfig.defaultEnv.let {
-                        this.setAppKey(it.appKey)
-                            .setAppSecret(it.appSecret)
-                            .setLogLevel(it.logLevel.value)
-                            .build()
+                        if (it.isNotEmptyOrPartial) {
+                            this.setAppKey(it.appKey)
+                                .setAppSecret(it.appSecret)
+                                .setLogLevel(it.logLevel.value)
+                                .build()
+                        }
                     }
-
 
                     this.setSite(
                         when (pluginConfig.site) {
@@ -90,73 +96,81 @@ class ConfigManager(private val context: Context) {
                             Config.Site.UNRECOGNIZED -> {
                                 AirshipConfigOptions.SITE_US
                             }
-                            else-> AirshipConfigOptions.SITE_US
+                            else -> AirshipConfigOptions.SITE_US
                         }
                     )
 
-
-
                     pluginConfig.urlAllowListList.let {
-                        this.setUrlAllowList(null/*it.toTypedArray()*/)
-                    }
-
-                    pluginConfig.urlAllowlistScopeJavascriptInterfaceList.let {
-                        this.setUrlAllowListScopeJavaScriptInterface(it.toTypedArray())
+                        if (it.isNotEmpty()) this.setUrlAllowList(it.toTypedArray())
                     }
 
                     pluginConfig.urlAllowListScopeOpenUrlList.let {
+                        if (it.isNotEmpty()) this.setUrlAllowListScopeOpenUrl(it.toTypedArray())
+                    }
 
-                        this.setUrlAllowListScopeOpenUrl(it.toTypedArray())
+                    pluginConfig.urlAllowlistScopeJavascriptInterfaceList.let {
+                        if (it.isNotEmpty()) this.setUrlAllowListScopeJavaScriptInterface(it.toTypedArray())
                     }
 
                     this.setEnabledFeatures(pluginConfig.featuresEnabledList.supportValue())
 
-                    this.setAppStoreUri(Uri.parse(pluginConfig.android.appStoreUri))
-                    this.setFcmFirebaseAppName(pluginConfig.android.fcmFirebaseAppName)
-                    this.setNotificationAccentColor(
-                        getHexColor(pluginConfig.android.notification.accentColor, 0x000)
-                    )
-                    this.setNotificationChannel(pluginConfig.android.notification.defaultChannelId)
-                    this.setNotificationIcon(
-                        getNamedResource(
-                            context,
-                            pluginConfig.android.notification.largeIcon,
-                            "drawable"
-                        )
-                    )
-                    this.setNotificationLargeIcon(
-                        getNamedResource(
-                            context,
-                            pluginConfig.android.notification.largeIcon,
-                            "drawable"
-                        )
-                    )
-                    this.setNotificationChannel(pluginConfig.android.notification.defaultChannelId)
+                    pluginConfig.android.appStoreUri.let {
+                        if (it.isNotEmpty()) this.setAppStoreUri(Uri.parse(it))
+                    }
 
+                    pluginConfig.android.fcmFirebaseAppName.let {
+                        if (it.isNotEmpty()) this.setFcmFirebaseAppName(it)
+                    }
+                    pluginConfig.android.notification.accentColor.let {
+                        if (it.isNotEmpty()) this.setNotificationAccentColor(
+                            getHexColor(it)
+                        )
+                    }
 
+                    pluginConfig.android.notification.defaultChannelId.let {
+                        if (it.isNotEmpty()) this.setNotificationChannel(it)
+                    }
+
+                    pluginConfig.android.notification.largeIcon.let {
+                        if (it.isNotEmpty()) this.setNotificationIcon(
+                            getNamedResource(
+                                context,
+                                it
+                            )
+                        )
+                    }
+
+                    pluginConfig.android.notification.largeIcon.let {
+                        if (it.isNotEmpty()) this.setNotificationLargeIcon(
+                            getNamedResource(
+                                context,
+                                it,
+
+                            )
+                        )
+                    }
+
+                    pluginConfig.android.notification.defaultChannelId.let {
+                        if (it.isNotEmpty()) this.setNotificationChannel(it)
+                    }
                 }
                 .build()
-
             emit(config)
         }
 
 
     @ColorInt
-    fun getHexColor(hexColor: String?, @ColorInt defaultColor: Int): Int {
-        if (hexColor.isNullOrEmpty()) {
-            return defaultColor
-        }
+    fun getHexColor(hexColor: String): Int {
         return Color.parseColor(hexColor)
     }
 
     private fun getNamedResource(
         context: Context,
-        resourceName: String,
-        resourceFolder: String
+        resourceName: String
     ): Int {
         if (!UAStringUtil.isEmpty(resourceName)) {
             val id =
-                context.resources.getIdentifier(resourceName, resourceFolder, context.packageName)
+                context.resources.getIdentifier(resourceName, "drawable", context.packageName)
             if (id != 0) {
                 return id
             } else {
@@ -173,8 +187,6 @@ fun List<Config.Feature>.supportValue(): Int {
     for (feature in this) {
         result = result or feature.value()
     }
-
-    println("${result}/////////////////////${this.size.toString()}")
     return result
 }
 
@@ -190,7 +202,7 @@ fun Config.Feature.value(): Int {
         Config.Feature.ENABLE_TAGS_AND_ATTRIBUTES -> PrivacyManager.FEATURE_TAGS_AND_ATTRIBUTES
         Config.Feature.ENABLE_CONTACTS -> PrivacyManager.FEATURE_CONTACTS
         Config.Feature.ENABLE_LOCATION -> PrivacyManager.FEATURE_LOCATION
-        Config.Feature.UNRECOGNIZED -> PrivacyManager.FEATURE_NONE
+        Config.Feature.UNRECOGNIZED -> PrivacyManager.FEATURE_ALL
     }
 }
 
@@ -198,7 +210,6 @@ fun AirshipConfigOptions.isValid(): Boolean {
     if (this.appKey.isEmpty() || this.appSecret.isEmpty()) {
         return false
     }
-
     return try {
         validate()
         true
@@ -219,3 +230,47 @@ val Config.LogLevel.value: Int
             else -> Log.ASSERT
         }
     }
+
+val GeneratedMessageV3.isEmptyOPartial: Boolean
+    get() = allFields.isEmpty() || allFields.size < javaClass.fields.size || allFields.values.any {
+        it.toString().isEmpty()
+    }
+
+
+val GeneratedMessageV3.isNotEmptyOrPartial: Boolean
+    get() = !isEmptyOPartial
+
+
+fun AirshipConfigOptions.debugString(): String {
+    return "AirshipConfigOptions{" +
+            "appKey='$appKey',\n" +
+            "appSecret='$appSecret',\n" +
+            "deviceUrl='$deviceUrl',\n" +
+            "analyticsUrl='$analyticsUrl',\n" +
+            "remoteDataUrl='$remoteDataUrl',\n" +
+            "walletUrl='$walletUrl',\n" +
+            "chatUrl='$chatUrl',\n" +
+            "chatSocketUrl='$chatSocketUrl',\n" +
+            "appStoreUri=$appStoreUri,\n" +
+            "allowedTransports=$allowedTransports,\n" +
+            "customPushProvider=$customPushProvider,\n" +
+            "urlAllowList=$urlAllowList,\n" +
+            "urlAllowListScopeJavaScriptInterface=$urlAllowListScopeJavaScriptInterface,\n" +
+            "urlAllowListScopeOpenUrl=$urlAllowListScopeOpenUrl,\n" +
+            "analyticsEnabled=$analyticsEnabled,\n" +
+            "backgroundReportingIntervalMS=$backgroundReportingIntervalMS,\n" +
+            "logLevel=$logLevel,\n" +
+            "autoLaunchApplication=$autoLaunchApplication,\n" +
+            "channelCreationDelayEnabled=$channelCreationDelayEnabled,\n" +
+            "channelCaptureEnabled=$channelCaptureEnabled,\n" +
+            "enabledFeatures=$enabledFeatures,\n" +
+            "extendedBroadcastsEnabled=$extendedBroadcastsEnabled,\n" +
+            "notificationIcon=$notificationIcon,\n" +
+            "notificationLargeIcon=$notificationLargeIcon,\n" +
+            "notificationAccentColor=$notificationAccentColor,\n" +
+            "notificationChannel='$notificationChannel',\n" +
+            "inProduction=$inProduction,\n" +
+            "requireInitialRemoteConfigEnabled=$requireInitialRemoteConfigEnabled,\n" +
+            "fcmFirebaseAppName='$fcmFirebaseAppName'" +
+            "}"
+}

@@ -42,7 +42,6 @@ const Feature$json = const {
   '1': 'Feature',
   '2': const [
     const {'1': 'ENABLE_ALL', '2': 0},
-    const {'1': 'ENABLE_NONE', '2': 1},
     const {'1': 'ENABLE_IN_APP_AUTOMATION', '2': 2},
     const {'1': 'ENABLE_MESSAGE_CENTER', '2': 3},
     const {'1': 'ENABLE_PUSH', '2': 4},
@@ -51,12 +50,13 @@ const Feature$json = const {
     const {'1': 'ENABLE_TAGS_AND_ATTRIBUTES', '2': 7},
     const {'1': 'ENABLE_CONTACTS', '2': 8},
     const {'1': 'ENABLE_LOCATION', '2': 9},
+    const {'1': 'ENABLE_NONE', '2': 1},
   ],
 };
 
 /// Descriptor for `Feature`. Decode as a `google.protobuf.EnumDescriptorProto`.
 final $typed_data.Uint8List featureDescriptor = $convert.base64Decode(
-    'CgdGZWF0dXJlEg4KCkVOQUJMRV9BTEwQABIPCgtFTkFCTEVfTk9ORRABEhwKGEVOQUJMRV9JTl9BUFBfQVVUT01BVElPThACEhkKFUVOQUJMRV9NRVNTQUdFX0NFTlRFUhADEg8KC0VOQUJMRV9QVVNIEAQSDwoLRU5BQkxFX0NIQVQQBRIUChBFTkFCTEVfQU5BTFlUSUNTEAYSHgoaRU5BQkxFX1RBR1NfQU5EX0FUVFJJQlVURVMQBxITCg9FTkFCTEVfQ09OVEFDVFMQCBITCg9FTkFCTEVfTE9DQVRJT04QCQ==');
+    'CgdGZWF0dXJlEg4KCkVOQUJMRV9BTEwQABIcChhFTkFCTEVfSU5fQVBQX0FVVE9NQVRJT04QAhIZChVFTkFCTEVfTUVTU0FHRV9DRU5URVIQAxIPCgtFTkFCTEVfUFVTSBAEEg8KC0VOQUJMRV9DSEFUEAUSFAoQRU5BQkxFX0FOQUxZVElDUxAGEh4KGkVOQUJMRV9UQUdTX0FORF9BVFRSSUJVVEVTEAcSEwoPRU5BQkxFX0NPTlRBQ1RTEAgSEwoPRU5BQkxFX0xPQ0FUSU9OEAkSDwoLRU5BQkxFX05PTkUQAQ==');
 @$core.Deprecated('Use airshipEnvDescriptor instead')
 const AirshipEnv$json = const {
   '1': 'AirshipEnv',

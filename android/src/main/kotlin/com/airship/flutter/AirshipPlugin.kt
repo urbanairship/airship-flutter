@@ -291,16 +291,13 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         result.success(messages)
     }
 
-    private fun takeOff(call: MethodCall, result: Result) {
+    private fun takeOff(call: MethodCall, result: Result) = runBlocking<Unit> {
         val configByteArray = call.arguments as ByteArray
-
-        CoroutineScope(Dispatchers.IO).launch {
-            ConfigManager.shared(context).updateConfig(configByteArray)
-            withContext(Dispatchers.Main) {
-                Autopilot.automaticTakeOff(context)
-                result.success(UAirship.isFlying() || UAirship.isTakingOff())
-            }
+        ConfigManager.shared(context).updateConfig(configByteArray).let {
+            Autopilot.automaticTakeOff(context)
+            result.success(UAirship.isFlying() || UAirship.isTakingOff())
         }
+
     }
 
     private fun refreshInbox(result: Result) {

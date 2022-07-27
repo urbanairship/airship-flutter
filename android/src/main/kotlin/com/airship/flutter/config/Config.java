@@ -292,10 +292,6 @@ public final class Config {
      */
     ENABLE_ALL(0),
     /**
-     * <code>ENABLE_NONE = 1;</code>
-     */
-    ENABLE_NONE(1),
-    /**
      * <code>ENABLE_IN_APP_AUTOMATION = 2;</code>
      */
     ENABLE_IN_APP_AUTOMATION(2),
@@ -327,6 +323,10 @@ public final class Config {
      * <code>ENABLE_LOCATION = 9;</code>
      */
     ENABLE_LOCATION(9),
+    /**
+     * <code>ENABLE_NONE = 1;</code>
+     */
+    ENABLE_NONE(1),
     UNRECOGNIZED(-1),
     ;
 
@@ -334,10 +334,6 @@ public final class Config {
      * <code>ENABLE_ALL = 0;</code>
      */
     public static final int ENABLE_ALL_VALUE = 0;
-    /**
-     * <code>ENABLE_NONE = 1;</code>
-     */
-    public static final int ENABLE_NONE_VALUE = 1;
     /**
      * <code>ENABLE_IN_APP_AUTOMATION = 2;</code>
      */
@@ -370,6 +366,10 @@ public final class Config {
      * <code>ENABLE_LOCATION = 9;</code>
      */
     public static final int ENABLE_LOCATION_VALUE = 9;
+    /**
+     * <code>ENABLE_NONE = 1;</code>
+     */
+    public static final int ENABLE_NONE_VALUE = 1;
 
 
     public final int getNumber() {
@@ -397,7 +397,6 @@ public final class Config {
     public static Feature forNumber(int value) {
       switch (value) {
         case 0: return ENABLE_ALL;
-        case 1: return ENABLE_NONE;
         case 2: return ENABLE_IN_APP_AUTOMATION;
         case 3: return ENABLE_MESSAGE_CENTER;
         case 4: return ENABLE_PUSH;
@@ -406,6 +405,7 @@ public final class Config {
         case 7: return ENABLE_TAGS_AND_ATTRIBUTES;
         case 8: return ENABLE_CONTACTS;
         case 9: return ENABLE_LOCATION;
+        case 1: return ENABLE_NONE;
         default: return null;
       }
     }
@@ -7498,12 +7498,12 @@ public final class Config {
       "E\020\000\022\013\n\007VERBOSE\020\010\022\t\n\005DEBUG\020\003\022\010\n\004INFO\020\004\022\010\n" +
       "\004WARN\020\005\022\t\n\005ERROR\020\006* \n\004Site\022\013\n\007SITE_US\020\000\022" +
       "\013\n\007SITE_EU\020\001*\345\001\n\007Feature\022\016\n\nENABLE_ALL\020\000" +
-      "\022\017\n\013ENABLE_NONE\020\001\022\034\n\030ENABLE_IN_APP_AUTOM" +
-      "ATION\020\002\022\031\n\025ENABLE_MESSAGE_CENTER\020\003\022\017\n\013EN" +
-      "ABLE_PUSH\020\004\022\017\n\013ENABLE_CHAT\020\005\022\024\n\020ENABLE_A" +
-      "NALYTICS\020\006\022\036\n\032ENABLE_TAGS_AND_ATTRIBUTES" +
-      "\020\007\022\023\n\017ENABLE_CONTACTS\020\010\022\023\n\017ENABLE_LOCATI" +
-      "ON\020\tB\034\n\032com.airship.flutter.configb\006prot" +
+      "\022\034\n\030ENABLE_IN_APP_AUTOMATION\020\002\022\031\n\025ENABLE" +
+      "_MESSAGE_CENTER\020\003\022\017\n\013ENABLE_PUSH\020\004\022\017\n\013EN" +
+      "ABLE_CHAT\020\005\022\024\n\020ENABLE_ANALYTICS\020\006\022\036\n\032ENA" +
+      "BLE_TAGS_AND_ATTRIBUTES\020\007\022\023\n\017ENABLE_CONT" +
+      "ACTS\020\010\022\023\n\017ENABLE_LOCATION\020\t\022\017\n\013ENABLE_NO" +
+      "NE\020\001B\034\n\032com.airship.flutter.configb\006prot" +
       "o3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor

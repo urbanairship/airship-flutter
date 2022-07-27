@@ -17,7 +17,7 @@ enum Site {
 
 /// Enum of authorized/enabled Features.
 enum Feature{
-    ENABLE_NONE = 0;
+    ENABLE_ALL = 0;
     ENABLE_IN_APP_AUTOMATION = 2;
     ENABLE_MESSAGE_CENTER = 3;
     ENABLE_PUSH = 4;
@@ -26,13 +26,12 @@ enum Feature{
     ENABLE_TAGS_AND_ATTRIBUTES = 7;
     ENABLE_CONTACTS = 8;
     ENABLE_LOCATION = 9;
-    ENABLE_ALL = 1;
+    ENABLE_NONE = 1;
 }
 
 message AirshipEnv {
     string app_key = 1;
     string app_secret = 2;
-
     LogLevel log_level = 3;
 }
 
@@ -74,7 +73,6 @@ message IosConfig {
 
 message AirshipConfig {
 
-
     /// Production environment.
      /// Overrides default environment if [inProduction] is true.
     AirshipEnv production = 1;
@@ -84,7 +82,6 @@ message AirshipConfig {
     AirshipEnv development = 2;
 
     AirshipEnv default_env = 13;
-
 
     AndroidConfig android = 3;
 
@@ -114,7 +111,6 @@ message AirshipConfig {
 
     /// Enabled features. Defaults to all.
     repeated Feature features_enabled = 11;
-
 
     /// iOS config.
     IosConfig ios = 12;

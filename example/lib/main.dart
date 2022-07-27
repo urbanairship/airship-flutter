@@ -22,14 +22,14 @@ Future<void> backgroundMessageHandler(
   print("Background Push Received $payload, $notification");
 }
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  Airship.setBackgroundMessageHandler(backgroundMessageHandler);
-  Airship.takeOff(Config.airship);
+  await Airship.takeOff(Config.airship);
+  await Airship.setBackgroundMessageHandler(backgroundMessageHandler);
   runApp(MyApp());
 }
 

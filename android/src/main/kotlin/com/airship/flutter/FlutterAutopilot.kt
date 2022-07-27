@@ -159,11 +159,12 @@ class FlutterAutopilot : Autopilot() {
         val config = runBlocking(Dispatchers.IO) {
             ConfigManager.shared(context).config.first()
         }
-
         return if (config.isValid()) {
+            Log.d("FlutterAutopilot", config.debugString())
             this.config = config
             true
         } else {
+            Log.e("FlutterAutopilot", "Invalid configuration")
             false
         }
     }

@@ -87,11 +87,6 @@ class Feature extends $pb.ProtobufEnum {
       const $core.bool.fromEnvironment('protobuf.omit_enum_names')
           ? ''
           : 'ENABLE_ALL');
-  static const Feature ENABLE_NONE = Feature._(
-      1,
-      const $core.bool.fromEnvironment('protobuf.omit_enum_names')
-          ? ''
-          : 'ENABLE_NONE');
   static const Feature ENABLE_IN_APP_AUTOMATION = Feature._(
       2,
       const $core.bool.fromEnvironment('protobuf.omit_enum_names')
@@ -132,10 +127,14 @@ class Feature extends $pb.ProtobufEnum {
       const $core.bool.fromEnvironment('protobuf.omit_enum_names')
           ? ''
           : 'ENABLE_LOCATION');
+  static const Feature ENABLE_NONE = Feature._(
+      1,
+      const $core.bool.fromEnvironment('protobuf.omit_enum_names')
+          ? ''
+          : 'ENABLE_NONE');
 
   static const $core.List<Feature> values = <Feature>[
     ENABLE_ALL,
-    ENABLE_NONE,
     ENABLE_IN_APP_AUTOMATION,
     ENABLE_MESSAGE_CENTER,
     ENABLE_PUSH,
@@ -144,6 +143,7 @@ class Feature extends $pb.ProtobufEnum {
     ENABLE_TAGS_AND_ATTRIBUTES,
     ENABLE_CONTACTS,
     ENABLE_LOCATION,
+    ENABLE_NONE,
   ];
 
   static final $core.Map<$core.int, Feature> _byValue =
