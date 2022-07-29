@@ -126,6 +126,7 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView, NativeBridgeDeleg
                            message:"Unable to load message",
                            details:"Message load failed"))
                 }
+                return
             }
         }
         decisionHandler(.allow)
