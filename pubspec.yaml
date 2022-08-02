@@ -1,11 +1,6 @@
 name: airship_flutter
-<<<<<<< HEAD
 description: "The Airship flutter plugin. This package implements a cross-platform plugin interface to Airship's iOS and Android native SDKs. This allows core Airship functionality to be implemented by Flutter apps written in dart. The available core Airship functionality currently includes: push, in-app message, message center, actions, custom events and more."
-version: 5.5.0
-=======
-description: "Cross-platform plugin interface for the native Airship iOS and Android SDKs. Simplifies adding Airship to Flutter apps."
-version: 6.0.1
->>>>>>> 9504f64 (fix background message notification arg on android)
+version: 5.5.1
 homepage: https://www.airship.com/
 repository: https://github.com/urbanairship/airship-flutter
 issue_tracker: https://github.com/urbanairship/airship-flutter/issues
