@@ -1,5 +1,12 @@
 # Flutter Plugin Changelog
 
+## Version 6.1.0 - August 3, 2022
+Minor release that updates Airship Android SDK to 16.7.0, and iOS SDK to 16.9.0. This also fixes a crash on No Action buttons on iOS.
+
+- Updated Airship Android SDK to 16.7.0.
+- Updated Airship iOS SDK to 16.9.0.
+- Fix crash on iOS message center buttons with the action: "No Action".
+
 ## Version 6.0.1 - July 21, 2022
 Patch release that fixes background message handler for silent pushes.
 
