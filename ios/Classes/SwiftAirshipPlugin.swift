@@ -173,9 +173,11 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDe
         }
         do{
             PluginStore.protoConfig = try AirshipConfig.init(serializedData:configDict.data)
-            AirshipAutopilot.attemptTakeOff()
             
-            result(Airship.isFlying)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.016) {  AirshipAutopilot.attemptTakeOff()
+                result(Airship.isFlying)
+            }
+           
         }catch{
             result(false)
             fatalError("Invalid arguments: \(String(describing: call.arguments))")

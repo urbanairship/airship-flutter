@@ -15,22 +15,18 @@ object ConfigSerializer : Serializer<Config.AirshipConfig> {
             val configIO = async(Dispatchers.IO) {
                 Config.AirshipConfig.parseFrom(input)
             }
-
             try {
                 configIO.await()
-            } catch (exception: InvalidProtocolBufferException) {
+            }
+            catch (exception: InvalidProtocolBufferException) {
                 throw CorruptionException("Cannot read proto.", exception)
             }
-
         }
 
     override suspend fun writeTo(t: Config.AirshipConfig, output: OutputStream) {
-        withContext(Dispatchers.IO) {
-            val v = launch (Dispatchers.IO) {
+        withContext(Dispatchers.IO) { launch (Dispatchers.IO) {
                 t.writeTo(output)
             }
         }
     }
-
-
 }

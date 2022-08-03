@@ -1,7 +1,7 @@
 /* Copyright Airship and Contributors */
 import Foundation
 import AirshipKit
-
+import SwiftProtobuf
 
 
 class PluginConfig {
@@ -61,8 +61,8 @@ extension Config {
         
         airshipConfig.site =  configDict.site.toSite()
         
-        
         airshipConfig.enabledFeatures =  configDict.featuresEnabled.value()
+        
         
         
         airshipConfig.urlAllowList = configDict.urlAllowList
@@ -78,25 +78,39 @@ extension Config {
     }
     
     private func parseDefaultEnv(_ defaultEnv: AirshipEnv){
+        if(!defaultEnv.isEmptyOrPatial){
         defaultAppKey = defaultEnv.appKey
         defaultAppSecret = defaultEnv.appSecret
         productionLogLevel = defaultEnv.logLevel.value()
+        }
     }
     
     private func parseDevelopmentEnv(_ developmentEnv: AirshipEnv){
+        if(!developmentEnv.isEmptyOrPatial){
         developmentAppKey = developmentEnv.appKey
         developmentAppSecret = developmentEnv.appSecret
         developmentLogLevel = developmentEnv.logLevel.value()
+        }
     }
     
     private func parseProductionEnv(_ productionEnv: AirshipEnv){
-        productionAppKey = productionEnv.appKey
-        productionAppSecret = productionEnv.appSecret
-        productionLogLevel = productionEnv.logLevel.value()
+        if(!productionEnv.isEmptyOrPatial){
+            productionAppKey = productionEnv.appKey
+            productionAppSecret = productionEnv.appSecret
+            productionLogLevel = productionEnv.logLevel.value()
+        }
     }
     
 }
 
+extension AirshipEnv{
+    var isEmptyOrPatial: Bool {
+        get{
+            return appKey.isEmpty || appSecret.isEmpty
+        }
+        
+    }
+}
 
 extension Site {
     func toSite() -> CloudSite {
@@ -114,6 +128,9 @@ extension Site {
 
 extension Array where Element == Feature {
     func value() -> Features {
+        if(isEmpty){
+            return Features.all
+        }
         var features: Features = []
         forEach { feature in
             features.update(with: feature.value())
@@ -147,7 +164,7 @@ extension Feature{
         case .enableLocation:
             return Features.location
         case .UNRECOGNIZED(_):
-            return []
+            return Features.all
         }
     }
 }

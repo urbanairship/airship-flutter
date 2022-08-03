@@ -184,6 +184,9 @@ class ConfigManager(private val context: Context) {
 
 fun List<Config.Feature>.supportValue(): Int {
     var result = PrivacyManager.FEATURE_NONE
+    if (isEmpty()){
+        return PrivacyManager.FEATURE_ALL
+    }
     for (feature in this) {
         result = result or feature.value()
     }

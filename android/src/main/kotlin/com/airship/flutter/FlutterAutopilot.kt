@@ -30,6 +30,7 @@ class FlutterAutopilot : Autopilot() {
     private val appContext: Context
         get() = getApplicationContext()
 
+
     override fun onAirshipReady(airship: UAirship) {
         super.onAirshipReady(airship)
 
@@ -169,7 +170,13 @@ class FlutterAutopilot : Autopilot() {
         }
     }
 
+
     override fun createAirshipConfigOptions(context: Context): AirshipConfigOptions? {
-        return config
+       return config
     }
+
+    override fun allowEarlyTakeOff(context: Context): Boolean {
+        return  false
+    }
+
 }

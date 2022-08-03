@@ -3,12 +3,14 @@ import AirshipKit
 
 @objc(FlutterAirshipAutopilot)
 public class AirshipAutopilot: NSObject {
+
     
     @objc
     public static var launchOptions: [UIApplication.LaunchOptionsKey : Any]?
     
     @objc
     public static func attemptTakeOff() {
+        print("Taking off -----------------------------")
         if (Airship.isFlying) {
             return
         }
@@ -20,7 +22,6 @@ public class AirshipAutopilot: NSObject {
             
             let config = try Config.parse(configDict)
             AirshipLogger.debug("Taking off! \(config)")
-            
             Airship.takeOff(config, launchOptions: self.launchOptions)
         } catch {
             AirshipLogger.error("Failed to takeOff \(error)")
@@ -35,6 +36,7 @@ public class AirshipAutopilot: NSObject {
         AirshipAutopilot.loadCustomNotificationCategories()
         SwiftAirshipPlugin.shared.onAirshipReady()
     }
+    
     
     private static func loadCustomNotificationCategories() {
         guard let categoriesPath = Bundle.main.path(forResource: "UACustomNotificationCategories", ofType: "plist") else { return }
