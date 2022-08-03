@@ -4,7 +4,7 @@ version '1.0-SNAPSHOT'
 buildscript {  
     ext.kotlin_version = '1.5.31'
     ext.coroutine_version = '1.5.2'
-    ext.airship_version = '16.5.1'
+    ext.airship_version = '16.7.0'
 
     repositories {
         google()
