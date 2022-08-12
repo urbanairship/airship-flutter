@@ -163,7 +163,7 @@ public final class Config {
 
     private final int value;
 
-    private LogLevel(int value) {
+    LogLevel(int value) {
       this.value = value;
     }
 
@@ -271,7 +271,7 @@ public final class Config {
 
     private final int value;
 
-    private Site(int value) {
+    Site(int value) {
       this.value = value;
     }
 
@@ -455,7 +455,7 @@ public final class Config {
 
     private final int value;
 
-    private Feature(int value) {
+    Feature(int value) {
       this.value = value;
     }
 
@@ -756,8 +756,7 @@ public final class Config {
       if (!getAppSecret()
           .equals(other.getAppSecret())) return false;
       if (logLevel_ != other.logLevel_) return false;
-      if (!unknownFields.equals(other.unknownFields)) return false;
-      return true;
+      return unknownFields.equals(other.unknownFields);
     }
 
     @java.lang.Override
@@ -1738,8 +1737,7 @@ public final class Config {
           .equals(other.getAccentColor())) return false;
       if (!getDefaultChannelId()
           .equals(other.getDefaultChannelId())) return false;
-      if (!unknownFields.equals(other.unknownFields)) return false;
-      return true;
+      return unknownFields.equals(other.unknownFields);
     }
 
     @java.lang.Override
@@ -2838,8 +2836,7 @@ public final class Config {
         if (!getNotification()
             .equals(other.getNotification())) return false;
       }
-      if (!unknownFields.equals(other.unknownFields)) return false;
-      return true;
+      return unknownFields.equals(other.unknownFields);
     }
 
     @java.lang.Override
@@ -3720,8 +3717,7 @@ public final class Config {
 
       if (!getItunesId()
           .equals(other.getItunesId())) return false;
-      if (!unknownFields.equals(other.unknownFields)) return false;
-      return true;
+      return unknownFields.equals(other.unknownFields);
     }
 
     @java.lang.Override
@@ -5371,8 +5367,7 @@ public final class Config {
         if (!getIos()
             .equals(other.getIos())) return false;
       }
-      if (!unknownFields.equals(other.unknownFields)) return false;
-      return true;
+      return unknownFields.equals(other.unknownFields);
     }
 
     @java.lang.Override
@@ -7470,7 +7465,7 @@ public final class Config {
       getDescriptor() {
     return descriptor;
   }
-  private static  com.google.protobuf.Descriptors.FileDescriptor
+  private static final com.google.protobuf.Descriptors.FileDescriptor
       descriptor;
   static {
     java.lang.String[] descriptorData = {

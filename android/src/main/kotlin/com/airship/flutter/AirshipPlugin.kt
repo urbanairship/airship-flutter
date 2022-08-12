@@ -69,7 +69,7 @@ class InboxMessageViewFactory(private val binaryMessenger: BinaryMessenger) :
 class FlutterInboxMessageView(private var context: Context, channel: MethodChannel) : PlatformView,
     MethodCallHandler {
 
-    lateinit private var webviewResult: Result
+    private lateinit var webviewResult: Result
 
     private val webView: MessageWebView by lazy {
         val view = MessageWebView(context)
@@ -408,7 +408,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             }
         }
 
-        editor.apply();
+        editor.apply()
     }
 
     private fun editChannelAttributes(call: MethodCall, result: Result) {
@@ -547,7 +547,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
 
     private fun clearNotifications(result: Result) {
-        NotificationManagerCompat.from(UAirship.getApplicationContext()).cancelAll();
+        NotificationManagerCompat.from(UAirship.getApplicationContext()).cancelAll()
         result.success(true)
     }
 
@@ -696,7 +696,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             }
         }
 
-        editor.apply();
+        editor.apply()
 
         result.success(null)
     }
@@ -722,7 +722,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             }
         }
 
-        editor.apply();
+        editor.apply()
 
         result.success(null)
     }

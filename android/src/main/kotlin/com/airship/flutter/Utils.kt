@@ -45,7 +45,7 @@ class Utils {
         if (message.summary != null) {
             notification["subtitle"] = message.summary
         }
-        notification["extras"] = extras;
+        notification["extras"] = extras
 
         if (notificationId != null) {
             notification["notification_id"] = notificationId

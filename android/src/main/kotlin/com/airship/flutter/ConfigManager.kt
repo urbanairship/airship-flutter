@@ -129,9 +129,11 @@ class ConfigManager(private val context: Context) {
                         }
                     }
                     pluginConfig.android.notification.accentColor.let {
-                        if (it.isNotEmpty()) this.setNotificationAccentColor(
-                            getHexColor(it)
-                        )
+                        if (it.isNotEmpty()) {
+                            this.setNotificationAccentColor(
+                                getHexColor(it)
+                            )
+                        }
                     }
 
                     pluginConfig.android.notification.defaultChannelId.let {
