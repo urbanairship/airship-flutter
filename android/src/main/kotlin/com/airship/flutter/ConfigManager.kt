@@ -39,7 +39,7 @@ class ConfigManager(private val context: Context) {
 
     suspend fun updateConfig(configByteArray: ByteArray) {
         context.flutterPluginStore.updateData {
-            ConfigSerializer.readFrom(  configByteArray.inputStream())
+            ConfigSerializer.readFrom(configByteArray.inputStream())
         }
     }
 
@@ -98,19 +98,19 @@ class ConfigManager(private val context: Context) {
                     )
 
                     pluginConfig.urlAllowListList.let {
-                        if (it.isNotEmpty()){
+                        if (it.isNotEmpty()) {
                             this.setUrlAllowList(it.toTypedArray())
                         }
                     }
 
                     pluginConfig.urlAllowListScopeOpenUrlList.let {
-                        if (it.isNotEmpty()){
+                        if (it.isNotEmpty()) {
                             this.setUrlAllowListScopeOpenUrl(it.toTypedArray())
                         }
                     }
 
                     pluginConfig.urlAllowlistScopeJavascriptInterfaceList.let {
-                        if (it.isNotEmpty()){
+                        if (it.isNotEmpty()) {
                             this.setUrlAllowListScopeJavaScriptInterface(it.toTypedArray())
                         }
                     }
@@ -118,13 +118,13 @@ class ConfigManager(private val context: Context) {
                     this.setEnabledFeatures(pluginConfig.featuresEnabledList.supportValue())
 
                     pluginConfig.android.appStoreUri.let {
-                        if (it.isNotEmpty()){
+                        if (it.isNotEmpty()) {
                             this.setAppStoreUri(Uri.parse(it))
                         }
                     }
 
                     pluginConfig.android.fcmFirebaseAppName.let {
-                        if (it.isNotEmpty()){
+                        if (it.isNotEmpty()) {
                             this.setFcmFirebaseAppName(it)
                         }
                     }
@@ -135,7 +135,7 @@ class ConfigManager(private val context: Context) {
                     }
 
                     pluginConfig.android.notification.defaultChannelId.let {
-                        if (it.isNotEmpty()) this.setNotificationChannel(it)
+                        if (it.isNotEmpty()){ this.setNotificationChannel(it)}
                     }
 
                     pluginConfig.android.notification.largeIcon.let {
@@ -151,14 +151,15 @@ class ConfigManager(private val context: Context) {
                         if (it.isNotEmpty()) this.setNotificationLargeIcon(
                             getNamedResource(
                                 context,
-                                it,
-
+                                it
                             )
                         )
                     }
 
                     pluginConfig.android.notification.defaultChannelId.let {
-                        if (it.isNotEmpty()) this.setNotificationChannel(it)
+                        if (it.isNotEmpty()) {
+                            this.setNotificationChannel(it)
+                        }
                     }
                 }
                 .build()
@@ -191,7 +192,7 @@ class ConfigManager(private val context: Context) {
 
 fun List<Config.Feature>.supportValue(): Int {
     var result = PrivacyManager.FEATURE_NONE
-    if (isEmpty()){
+    if (isEmpty()) {
         return PrivacyManager.FEATURE_ALL
     }
     for (feature in this) {
