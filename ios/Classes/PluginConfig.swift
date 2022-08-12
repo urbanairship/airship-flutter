@@ -1,7 +1,6 @@
 /* Copyright Airship and Contributors */
 import Foundation
 import AirshipKit
-import SwiftProtobuf
 
 
 class PluginConfig {

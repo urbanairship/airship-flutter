@@ -7,15 +7,6 @@ class PluginStore {
     
     private static let defaults = SwiftAirshipPlugin.defaults
     
-    public static var config: [String: Any]? {
-        get {
-            return self.read("config")
-        }
-        set {
-            self.write("config", value: newValue)
-        }
-    }
-    
     public static var protoConfig:  AirshipConfig? {
         get {
             do{
