@@ -161,7 +161,6 @@ class FlutterAutopilot : Autopilot() {
             ConfigManager.shared(context).config.first()
         }
         return if (config.isValid()) {
-            Log.d("FlutterAutopilot", config.debugString())
             this.config = config
             true
         } else {
