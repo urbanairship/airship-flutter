@@ -10,7 +10,6 @@ public class AirshipAutopilot: NSObject {
     
     @objc
     public static func attemptTakeOff() {
-        print("Taking off -----------------------------")
         if (Airship.isFlying) {
             return
         }
@@ -21,7 +20,6 @@ public class AirshipAutopilot: NSObject {
         do {
             
             let config = try Config.parse(configDict)
-            AirshipLogger.debug("Taking off! \(config)")
             Airship.takeOff(config, launchOptions: self.launchOptions)
         } catch {
             AirshipLogger.error("Failed to takeOff \(error)")

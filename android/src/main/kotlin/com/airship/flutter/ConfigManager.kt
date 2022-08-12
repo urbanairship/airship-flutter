@@ -61,7 +61,6 @@ class ConfigManager(private val context: Context) {
                             this.setDevelopmentAppKey(it.appKey)
                                 .setDevelopmentAppSecret(it.appSecret)
                                 .setDevelopmentLogLevel(it.logLevel.value)
-                                .build()
                         }
                     }
 
@@ -70,7 +69,6 @@ class ConfigManager(private val context: Context) {
                             this.setProductionAppKey(it.appKey)
                                 .setProductionAppSecret(it.appSecret)
                                 .setProductionLogLevel(it.logLevel.value)
-                                .build()
                         }
                     }
 
@@ -81,7 +79,6 @@ class ConfigManager(private val context: Context) {
                             this.setAppKey(it.appKey)
                                 .setAppSecret(it.appSecret)
                                 .setLogLevel(it.logLevel.value)
-                                .build()
                         }
                     }
 
@@ -101,25 +98,35 @@ class ConfigManager(private val context: Context) {
                     )
 
                     pluginConfig.urlAllowListList.let {
-                        if (it.isNotEmpty()) this.setUrlAllowList(it.toTypedArray())
+                        if (it.isNotEmpty()){
+                            this.setUrlAllowList(it.toTypedArray())
+                        }
                     }
 
                     pluginConfig.urlAllowListScopeOpenUrlList.let {
-                        if (it.isNotEmpty()) this.setUrlAllowListScopeOpenUrl(it.toTypedArray())
+                        if (it.isNotEmpty()){
+                            this.setUrlAllowListScopeOpenUrl(it.toTypedArray())
+                        }
                     }
 
                     pluginConfig.urlAllowlistScopeJavascriptInterfaceList.let {
-                        if (it.isNotEmpty()) this.setUrlAllowListScopeJavaScriptInterface(it.toTypedArray())
+                        if (it.isNotEmpty()){
+                            this.setUrlAllowListScopeJavaScriptInterface(it.toTypedArray())
+                        }
                     }
 
                     this.setEnabledFeatures(pluginConfig.featuresEnabledList.supportValue())
 
                     pluginConfig.android.appStoreUri.let {
-                        if (it.isNotEmpty()) this.setAppStoreUri(Uri.parse(it))
+                        if (it.isNotEmpty()){
+                            this.setAppStoreUri(Uri.parse(it))
+                        }
                     }
 
                     pluginConfig.android.fcmFirebaseAppName.let {
-                        if (it.isNotEmpty()) this.setFcmFirebaseAppName(it)
+                        if (it.isNotEmpty()){
+                            this.setFcmFirebaseAppName(it)
+                        }
                     }
                     pluginConfig.android.notification.accentColor.let {
                         if (it.isNotEmpty()) this.setNotificationAccentColor(
@@ -242,38 +249,3 @@ val GeneratedMessageV3.isEmptyOPartial: Boolean
 
 val GeneratedMessageV3.isNotEmptyOrPartial: Boolean
     get() = !isEmptyOPartial
-
-
-fun AirshipConfigOptions.debugString(): String {
-    return "AirshipConfigOptions{" +
-            "appKey='$appKey',\n" +
-            "appSecret='$appSecret',\n" +
-            "deviceUrl='$deviceUrl',\n" +
-            "analyticsUrl='$analyticsUrl',\n" +
-            "remoteDataUrl='$remoteDataUrl',\n" +
-            "walletUrl='$walletUrl',\n" +
-            "chatUrl='$chatUrl',\n" +
-            "chatSocketUrl='$chatSocketUrl',\n" +
-            "appStoreUri=$appStoreUri,\n" +
-            "allowedTransports=$allowedTransports,\n" +
-            "customPushProvider=$customPushProvider,\n" +
-            "urlAllowList=$urlAllowList,\n" +
-            "urlAllowListScopeJavaScriptInterface=$urlAllowListScopeJavaScriptInterface,\n" +
-            "urlAllowListScopeOpenUrl=$urlAllowListScopeOpenUrl,\n" +
-            "analyticsEnabled=$analyticsEnabled,\n" +
-            "backgroundReportingIntervalMS=$backgroundReportingIntervalMS,\n" +
-            "logLevel=$logLevel,\n" +
-            "autoLaunchApplication=$autoLaunchApplication,\n" +
-            "channelCreationDelayEnabled=$channelCreationDelayEnabled,\n" +
-            "channelCaptureEnabled=$channelCaptureEnabled,\n" +
-            "enabledFeatures=$enabledFeatures,\n" +
-            "extendedBroadcastsEnabled=$extendedBroadcastsEnabled,\n" +
-            "notificationIcon=$notificationIcon,\n" +
-            "notificationLargeIcon=$notificationLargeIcon,\n" +
-            "notificationAccentColor=$notificationAccentColor,\n" +
-            "notificationChannel='$notificationChannel',\n" +
-            "inProduction=$inProduction,\n" +
-            "requireInitialRemoteConfigEnabled=$requireInitialRemoteConfigEnabled,\n" +
-            "fcmFirebaseAppName='$fcmFirebaseAppName'" +
-            "}"
-}
