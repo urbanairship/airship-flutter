@@ -3,7 +3,7 @@ import AirshipKit
 
 @objc(FlutterAirshipAutopilot)
 public class AirshipAutopilot: NSObject {
-
+    
     
     @objc
     public static var launchOptions: [UIApplication.LaunchOptionsKey : Any]?

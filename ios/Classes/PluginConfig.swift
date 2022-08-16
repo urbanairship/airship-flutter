@@ -2,7 +2,6 @@
 import Foundation
 import AirshipKit
 
-
 class PluginConfig {
     
     private enum Keys: String {
@@ -78,17 +77,17 @@ extension Config {
     
     private func parseDefaultEnv(_ defaultEnv: AirshipEnv){
         if(!defaultEnv.isEmptyOrPatial){
-        defaultAppKey = defaultEnv.appKey
-        defaultAppSecret = defaultEnv.appSecret
-        productionLogLevel = defaultEnv.logLevel.value()
+            defaultAppKey = defaultEnv.appKey
+            defaultAppSecret = defaultEnv.appSecret
+            productionLogLevel = defaultEnv.logLevel.value()
         }
     }
     
     private func parseDevelopmentEnv(_ developmentEnv: AirshipEnv){
         if(!developmentEnv.isEmptyOrPatial){
-        developmentAppKey = developmentEnv.appKey
-        developmentAppSecret = developmentEnv.appSecret
-        developmentLogLevel = developmentEnv.logLevel.value()
+            developmentAppKey = developmentEnv.appKey
+            developmentAppSecret = developmentEnv.appSecret
+            developmentLogLevel = developmentEnv.logLevel.value()
         }
     }
     

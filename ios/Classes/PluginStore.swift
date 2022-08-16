@@ -10,11 +10,10 @@ class PluginStore {
     public static var protoConfig:  AirshipConfig? {
         get {
             do{
-                let data = defaults.value(forKey: "protoConfig")
-                guard data != nil else {
+                guard let data = defaults.value(forKey: "protoConfig") as? Data else {
                     return nil
                 }
-                return try AirshipConfig.init(serializedData: data as! Data);
+                return try AirshipConfig(serializedData: data);
             } catch  {
                 fatalError("Invalid config: \(String(describing: error))")
             }
