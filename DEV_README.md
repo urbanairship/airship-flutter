@@ -20,6 +20,15 @@
 
 4. To edit Android plugin in Android Studio right click `android` folder to open the menu and click Flutter -> Open Android module in Android Studio
 
+5. To edit Config proto file find it in `lib/src/config/config.proto`, new definitions can be added in protobuf fashion
+
+6. To generate config classes code in `Dart`, `Kotlin`, and `Swift` use  `./scripts/gen_config.sh`. This command will generate uniform Code in all platforms
+   1. Flutter   in  `lib/src/config/`
+   2. Android  in  `android/src/main/kotlin/com/airship/flutter/config/` 
+   3. IOS   in `ios/Classes/Config/`
+7. The sample config in `src/config` folder is used to generate config on `ci`, keep it blank, add no credentials to it. 
+
+
 ### Updating Plugin Version
 
 To update the plugin version, use the update_version script by running the following command at the project root directory:

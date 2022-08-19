@@ -25,7 +25,7 @@ CONFIG_FILE=$(pwd)/example/lib/config/airship.config.dart
 SAMPLE_CONFIG_FILE=$(pwd)/example/lib/config/airship.config.sample.dart
 if [[ ! -f "$CONFIG_FILE" ]] && [[ -f "$SAMPLE_CONFIG_FILE" ]]; then
   cp "$SAMPLE_CONFIG_FILE" "$CONFIG_FILE"
-  echo "$CONFIG_FILE does not exists."
+  echo "copied $CONFIG_FILE from sample."
 fi
 
 
