@@ -2,13 +2,32 @@
 
 The Airship Flutter plugin allows using Airship's native iOS and Android APIs with Flutter apps written in Dart.
 
+
+##  
+The available core Airship functionality currently includes:
+
+| Feature                                                                             |    Android  |     IOS   |
+|                                      ---                                            |      ---     | ---      |
+|[Push  Notifications](https://docs.airship.com/platform/flutter/push-notifications/)   |    ✅        | ✅        | 
+|[In-app Message](https://docs.airship.com/platform/flutter/push-notifications/)       |    ✅        | ✅        | 
+|[Message Center ](https://docs.airship.com/platform/flutter/message-center/)         |    ✅        | ✅        | 
+|[Actions ](https://docs.airship.com/platform/flutter/push-notifications/)             |    ✅        | ✅        | 
+|[Custom events ](https://docs.airship.com/platform/flutter/push-notifications/)       |    ✅        | ✅        | 
+|[Data Collection](https://docs.airship.com/platform/flutter/data-collection/)        |    ✅        | ✅        |
+|[Segmentation](https://docs.airship.com/platform/flutter/segmentation/)              |    ✅        | ✅        | 
+| [Preference center](https://docs.airship.com/platform/flutter/preference-center/)   |    ✅        | ✅        | 
+
+
+
 ## Usage
+This is just an overview. 
+For in-depth documentation check [the official Airship Documentation](https://docs.airship.com/platform/flutter)
 
 1. Add the airship_flutter dependency to your package's pubspec.yaml file:
 
 ```yaml
 dependencies:
-  airship_flutter: ^6.1.0
+  airship_flutter: ^7.0.0
 ```
 
 2. Install your flutter package dependencies by running the following in the command line at your project's root directory:

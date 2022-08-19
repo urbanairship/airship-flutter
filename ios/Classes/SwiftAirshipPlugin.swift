@@ -15,7 +15,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDe
     private let tagOperationAdd = "add"
     private let tagOperationRemove = "remove"
     private let tagOperationSet = "set"
-
+    
     private let attributeOperationType = "action"
     private let attributeOperationSet = "set"
     private let attributeOperationRemove = "remove"
@@ -26,7 +26,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDe
     let autoLaunchPreferenceCenterKey = "auto_launch_pc"
     
     static let shared = SwiftAirshipPlugin()
-
+    
     let eventHandler = AirshipEventHandler()
     
     public static func register(with registrar: FlutterPluginRegistrar) {
@@ -34,7 +34,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDe
                                            binaryMessenger: registrar.messenger())
         registrar.addMethodCallDelegate(shared, channel: channel)
         AirshipEventManager.shared.register(registrar)
-
+        
         registrar.register(AirshipInboxMessageViewFactory(registrar), withId: "com.airship.flutter/InboxMessageView")
     }
     
@@ -52,8 +52,8 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDe
         
         guard (Airship.isFlying) else {
             result(FlutterError(code:"AIRSHIP_GROUNDED",
-                              message:"TakeOff not called.",
-                               details: nil))
+                                message:"TakeOff not called.",
+                                details: nil))
             return
         }
         
@@ -143,18 +143,18 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDe
             result(true)
         default:
             result(FlutterError(code:"UNAVAILABLE",
-                message:"Unknown method: \(call.method)",
-                details:nil))
+                                message:"Unknown method: \(call.method)",
+                                details:nil))
         }
     }
-
+    
     private func getChannelId(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         result(Airship.channel.identifier)
     }
-
+    
     private func setUserNotificationsEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let enable = call.arguments as! Bool
-
+        
         if (enable) {
             Airship.push.enableUserPushNotifications({ (success) in
                 result(success)
@@ -164,86 +164,91 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDe
             result(true)
         }
     }
-
+    
     private func takeOff(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        
-        guard let args = call.arguments as? [String: String] else {
+        AirshipLogger.debug("\(String(describing:call.arguments))")
+        guard let configDict = call.arguments as? FlutterStandardTypedData else {
             result(false)
-            return
+            fatalError("Invalid arguments: \(String(describing: call.arguments))")
+        }
+        do{
+            PluginStore.protoConfig = try AirshipConfig.init(serializedData:configDict.data)
+            AirshipAutopilot.attemptTakeOff()
+            result(Airship.isFlying)
+            
+        }catch{
+            result(false)
+            fatalError("Invalid arguments: \(String(describing: call.arguments))")
         }
         
-        PluginConfig.appKey = args["app_key"]
-        PluginConfig.appSecret = args["app_secret"]
-        AirshipAutopilot.attemptTakeOff()
         
-        result(Airship.isFlying)
     }
-        
+    
     private func getUserNotificationsEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         result(Airship.push.userPushNotificationsEnabled)
     }
-
+    
     private func getActiveNotifications(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         UNUserNotificationCenter.current().getDeliveredNotifications { (notifications) in
-
+            
             let airshipNotifications = NSMutableArray()
-
+            
             for notification in notifications {
                 let content = notification.request.content
                 airshipNotifications.add(content.userInfo)
             }
-
+            
             result(airshipNotifications)
         }
-
+        
     }
-
+    
     private func clearNotification(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let identifier = call.arguments as! String
         UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers:[identifier])
         result(nil)
     }
-
+    
     private func clearNotifications(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         UNUserNotificationCenter.current().removeAllDeliveredNotifications()
         result(nil)
     }
-
+    
     private func addEvent(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         guard let event = call.arguments as? Dictionary<String, Any> else {
             result(nil)
             return
         }
-
+        
         guard let name = event[eventNameKey] as? String else {
             result(nil)
             return
         }
-
+        
         guard let value = event[eventValueKey] as? Int else {
             result(nil)
             return
         }
-
+        
         // Decode event string
         let customEvent = CustomEvent(name:name, value:NSNumber(value: value))
-
+        
         if let properties = event[propertiesKey] as? Dictionary<String, Any> {
             customEvent.properties = properties
         }
-
+        
         if let transactionID = event[transactionIDKey] as? String {
             customEvent.transactionID = transactionID
         }
-
+        
         if let interactionID = event[interactionIDKey] as? String {
             customEvent.interactionID = interactionID
         }
-
+        
         if let interactionType = event[interactionTypeKey] as? String {
             customEvent.interactionType = interactionType
         }
-
+        
         if customEvent.isValid() {
             customEvent.track()
             result(true)
@@ -251,7 +256,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDe
             result(false)
         }
     }
-
+    
     private func addTags(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let tags = call.arguments as! [String]
         Airship.channel.editTags { editor in
@@ -261,7 +266,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDe
         Airship.channel.updateRegistration()
         result(nil)
     }
-
+    
     private func removeTags(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let tags = call.arguments as! [String]
         Airship.channel.editTags { editor in
@@ -271,11 +276,11 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDe
         Airship.channel.updateRegistration()
         result(nil)
     }
-
+    
     private func getTags(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         result(Airship.channel.tags)
     }
-
+    
     private func editChannelAttributes(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let operations = call.arguments as! [Dictionary<String, Any>]
         
@@ -283,7 +288,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDe
             for operation in operations {
                 guard let operationType = operation[attributeOperationType] as? String else { continue }
                 guard let name = operation[attributeOperationKey] as? String else { continue }
-
+                
                 if (operationType == attributeOperationSet) {
                     if let value = operation[attributeOperationValue] as? String {
                         editor.set(string: value, attribute: name)
@@ -302,7 +307,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDe
         
         result(nil)
     }
-
+    
     private func editNamedUserAttributes(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let operations = call.arguments as! [Dictionary<String, Any>]
         
@@ -310,7 +315,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDe
             for operation in operations {
                 guard let operationType = operation[attributeOperationType] as? String else { continue }
                 guard let name = operation[attributeOperationKey] as? String else { continue }
-
+                
                 if (operationType == attributeOperationSet) {
                     if let value = operation[attributeOperationValue] as? String {
                         editor.set(string: value, attribute: name)
@@ -332,7 +337,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDe
     
     private func editNamedUserTagGroups(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let operations = call.arguments as! [Dictionary<String, Any>]
-
+        
         for operation in operations {
             let group = operation[tagOperationGroupName] as! String
             let operationType = operation[tagOperationType] as! String
@@ -352,10 +357,10 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDe
         
         result(nil)
     }
-
+    
     private func editChannelTagGroups(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let operations = call.arguments as! [Dictionary<String, Any>]
-
+        
         for operation in operations {
             let group = operation[tagOperationGroupName] as! String
             let operationType = operation[tagOperationType] as! String
@@ -371,11 +376,11 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDe
                 editor.apply()
             }
         }
-
+        
         Airship.push.updateRegistration()
         result(nil)
     }
-
+    
     private func setNamedUser(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let namedUser = call.arguments as? String
         
@@ -384,14 +389,14 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDe
         } else {
             Airship.contact.reset()
         }
-
+        
         result(nil)
     }
-
+    
     private func getNamedUser(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         result(Airship.contact.namedUserID)
     }
-
+    
     private func getInboxMessages(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let messages = MessageCenter.shared.messageList.messages.map { (message) -> String in
             var payload = ["title": message.title,
@@ -399,32 +404,32 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDe
                            "sent_date": Utils.isoDateFormatterUTCWithDelimiter().string(from: message.messageSent),
                            "is_read": !message.unread,
                            "extras": message.extra] as [String : Any]
-
-
+            
+            
             if let icons = message.rawMessageObject["icons"] as? [String:Any] {
                 if let listIcon = icons["list_icon"] {
                     payload["list_icon"] = listIcon
                 }
             }
-
+            
             if let expiration = message.messageExpiration {
                 payload["expiration_date"] = Utils.isoDateFormatterUTCWithDelimiter().string(from: expiration)
             }
-
+            
             let data = try! JSONSerialization.data(withJSONObject: payload as Any, options: [])
             return String(data: data, encoding: .utf8)!
         }
-
+        
         result(messages)
     }
-
+    
     private func markInboxMessageRead(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let message = MessageCenter.shared.messageList.message(forID: call.arguments as! String)
         MessageCenter.shared.messageList.markMessagesRead([message as Any]) {
             result(nil)
         }
     }
-
+    
     private func refreshInbox(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         MessageCenter.shared.messageList.retrieveMessageList(successBlock: {
             result(true)
@@ -432,35 +437,35 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDe
             result(false)
         })
     }
-
+    
     private func deleteInboxMessage(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let message = MessageCenter.shared.messageList.message(forID: call.arguments as! String)
         MessageCenter.shared.messageList.markMessagesDeleted([message as Any]) {
             result(nil)
         }
     }
-
+    
     private func loadCustomNotificationCategories() {
         guard let categoriesPath = Bundle.main.path(forResource: "UACustomNotificationCategories", ofType: "plist") else { return }
         let customNotificationCategories = NotificationCategories.createCategories(fromFile: categoriesPath)
-
+        
         if customNotificationCategories.count != 0 {
             Airship.push.customCategories = customNotificationCategories
             Airship.push.updateRegistration()
         }
     }
-
+    
     private func setInAppAutomationPaused(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let paused = call.arguments as! Bool
-
+        
         InAppAutomation.shared.isPaused = paused
         result(true)
     }
-
+    
     private func getInAppAutomationPaused(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         result(InAppAutomation.shared.isPaused)
     }
-
+    
     private func enableChannelCreation(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         Airship.channel.enableChannelCreation()
         result(nil)
@@ -472,7 +477,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDe
         Airship.analytics.trackScreen(screen)
         result(nil)
     }
-
+    
     private func setBadge(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let badge = call.arguments as! Int
         Airship.push.badgeNumber = badge
@@ -585,7 +590,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDe
         }
         
         PreferenceCenter.shared.open(preferenceCenterID)
-    
+        
         result(nil)
     }
     
@@ -668,8 +673,8 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDe
                         }
                         catch {
                             result(FlutterError(code:"INVALID_SCOPE",
-                                              message:"Subscription List scope is invalid.",
-                                               details: nil))
+                                                message:"Subscription List scope is invalid.",
+                                                details: nil))
                         }
                     }
                 }
@@ -680,8 +685,8 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDe
                         }
                         catch {
                             result(FlutterError(code:"INVALID_SCOPE",
-                                              message:"Subscription List scope is invalid.",
-                                               details: nil))
+                                                message:"Subscription List scope is invalid.",
+                                                details: nil))
                         }
                     }
                 }
@@ -696,12 +701,12 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDe
             result(nil)
             return
         }
-
+        
         PreferenceCenter.shared.jsonConfig(preferenceCenterID: configID) { config in
             result(JSONUtils.string(config))
         }
     }
-
+    
     private func setAutoLaunchDefaultPreferenceCenter(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         guard let enabled = call.arguments as? Bool else {
             result(nil)

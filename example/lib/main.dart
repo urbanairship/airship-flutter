@@ -1,3 +1,4 @@
+import 'package:airship_example/config/airship.config.dart';
 import 'package:flutter/material.dart' hide Notification;
 import 'package:airship_example/styles.dart';
 
@@ -21,15 +22,14 @@ Future<void> backgroundMessageHandler(
   print("Background Push Received $payload, $notification");
 }
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-
-  Airship.setBackgroundMessageHandler(backgroundMessageHandler);
-
+  await Airship.takeOff(Config.airship);
+  await Airship.setBackgroundMessageHandler(backgroundMessageHandler);
   runApp(MyApp());
 }
 

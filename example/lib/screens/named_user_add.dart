@@ -9,14 +9,14 @@ class NamedUserAdd extends StatefulWidget {
   NamedUserAdd({this.updateParent});
 
   @override
-  _NamedUserAddState createState() =>
-      _NamedUserAddState(updateParent: updateParent);
+  NamedUserAddState createState() =>
+      NamedUserAddState(updateParent: updateParent);
 }
 
-class _NamedUserAddState extends State<NamedUserAdd> {
+class NamedUserAddState extends State<NamedUserAdd> {
   final updateParent;
 
-  _NamedUserAddState({this.updateParent});
+  NamedUserAddState({this.updateParent});
 
   @override
   void initState() {

@@ -1,0 +1,117 @@
+syntax = "proto3";
+option java_package = "com.airship.flutter.config";
+//option java_multiple_files = true;
+enum LogLevel {
+    NONE = 0; /// normalizes to NONE
+    VERBOSE = 8;
+    DEBUG = 3;
+    INFO = 4;
+    WARN = 5;
+    ERROR = 6;
+}
+
+enum Site {
+    SITE_US = 0;
+    SITE_EU = 1;
+}
+
+/// Enum of authorized/enabled Features.
+enum Feature{
+    ENABLE_ALL = 0;
+    ENABLE_IN_APP_AUTOMATION = 2;
+    ENABLE_MESSAGE_CENTER = 3;
+    ENABLE_PUSH = 4;
+    ENABLE_CHAT = 5;
+    ENABLE_ANALYTICS = 6;
+    ENABLE_TAGS_AND_ATTRIBUTES = 7;
+    ENABLE_CONTACTS = 8;
+    ENABLE_LOCATION = 9;
+    ENABLE_NONE = 1;
+}
+
+message AirshipEnv {
+    string app_key = 1;
+    string app_secret = 2;
+    LogLevel log_level = 3;
+}
+
+message AndroidNotificationConfig {
+    /// The icon resource name.
+    string icon = 1;
+
+    /// The large icon resource name.
+    string large_icon = 2;
+
+    /// The accent color.
+    /// Must be a hex value #AARRGGBB.
+    /// Provide it as Color in flutter
+    string accent_color = 3;
+
+    /// The default android notification channel ID.
+    string default_channel_id = 4;
+}
+
+message AndroidConfig {
+    /// App store URI
+    string app_store_uri = 1;
+
+    /// Fcm app name if using multiple FCM projects.
+    string fcm_firebase_app_name = 2;
+
+    /// Notification config.
+    AndroidNotificationConfig notification = 3;
+}
+
+
+message IosConfig {
+    /// itunesId for rate app and app store deep links.
+    string itunes_id = 1;
+}
+
+
+
+
+message AirshipConfig {
+
+    /// Production environment.
+     /// Overrides default environment if [inProduction] is true.
+    AirshipEnv production = 1;
+
+    /// Development environment.
+    /// Overrides default environment if [inProduction] is false.
+    AirshipEnv development = 2;
+
+    AirshipEnv default_env = 13;
+
+    AndroidConfig android = 3;
+
+    /// Switches the environment from development or production.
+    /// If the value is not set,
+    /// Airship will determine the value at runtime.
+    bool in_production = 4;
+
+    /// Cloud site.
+    Site site = 5;
+
+    /// URL allow list.
+    repeated string url_allow_list = 6;
+
+    /// URL allow list for open URL scope.
+    repeated string url_allow_list_scope_open_url = 7;
+
+    /// URL allow list for JS bridge injection.
+    repeated string url_allowlist_scope_javascript_interface = 8;
+
+    /// Enables delayed channel creation.
+    bool is_channel_creation_delay_enabled = 9;
+
+    /// Enables/disables requiring initial remote config fetch before
+    /// creating a channel.
+    bool require_initial_remote_config_enabled = 10;
+
+    /// Enabled features. Defaults to all.
+    repeated Feature features_enabled = 11;
+
+    /// iOS config.
+    IosConfig ios = 12;
+}

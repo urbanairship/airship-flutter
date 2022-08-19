@@ -56,7 +56,8 @@ private const val ATTRIBUTE_MUTATION_SET = "set"
 
 const val AUTO_LAUNCH_PREFERENCE_CENTER_KEY = "com.airship.flutter.auto_launch_pc"
 
-class InboxMessageViewFactory(private val binaryMessenger: BinaryMessenger) : PlatformViewFactory(StandardMessageCodec.INSTANCE) {
+class InboxMessageViewFactory(private val binaryMessenger: BinaryMessenger) :
+    PlatformViewFactory(StandardMessageCodec.INSTANCE) {
     override fun create(context: Context?, viewId: Int, args: Any?): PlatformView {
         val channel = MethodChannel(binaryMessenger, "com.airship.flutter/InboxMessageView_$viewId")
         val view = FlutterInboxMessageView(checkNotNull(context), channel)
@@ -65,13 +66,14 @@ class InboxMessageViewFactory(private val binaryMessenger: BinaryMessenger) : Pl
     }
 }
 
-class FlutterInboxMessageView(private var context: Context, channel: MethodChannel) : PlatformView, MethodCallHandler {
+class FlutterInboxMessageView(private var context: Context, channel: MethodChannel) : PlatformView,
+    MethodCallHandler {
 
-    lateinit private var webviewResult:Result
+    private lateinit var webviewResult: Result
 
     private val webView: MessageWebView by lazy {
         val view = MessageWebView(context)
-        view.webViewClient = object: MessageWebViewClient() {
+        view.webViewClient = object : MessageWebViewClient() {
             override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
                 super.onPageStarted(view, url, favicon)
                 channel.invokeMethod("onLoadStarted", null)
@@ -87,12 +89,25 @@ class FlutterInboxMessageView(private var context: Context, channel: MethodChann
                 channel.invokeMethod("onClose", null)
             }
 
-            override fun onReceivedError(view: WebView?, errorCode: Int, description: String?, failingUrl: String?) {
+            override fun onReceivedError(
+                view: WebView?,
+                errorCode: Int,
+                description: String?,
+                failingUrl: String?
+            ) {
                 super.onReceivedError(view, errorCode, description, failingUrl)
                 if (errorCode == 410) {
-                    webviewResult.error("InvalidMessage", "Unable to load message", "Message not available")
+                    webviewResult.error(
+                        "InvalidMessage",
+                        "Unable to load message",
+                        "Message not available"
+                    )
                 } else {
-                    webviewResult.error("InvalidMessage", "Unable to load message", "Message load failed")
+                    webviewResult.error(
+                        "InvalidMessage",
+                        "Unable to load message",
+                        "Message load failed"
+                    )
                 }
             }
         }
@@ -131,7 +146,7 @@ class FlutterInboxMessageView(private var context: Context, channel: MethodChann
 
 class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
-    private lateinit var channel : MethodChannel
+    private lateinit var channel: MethodChannel
 
     private lateinit var context: Context
 
@@ -147,7 +162,11 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         @JvmStatic
         fun registerWith(registrar: Registrar) {
             val plugin = AirshipPlugin()
-            plugin.register(registrar.context().applicationContext, registrar.messenger(), registrar.platformViewRegistry())
+            plugin.register(
+                registrar.context().applicationContext,
+                registrar.messenger(),
+                registrar.platformViewRegistry()
+            )
         }
 
         internal const val AIRSHIP_SHARED_PREFS = "com.urbanairship.flutter"
@@ -161,12 +180,19 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         channel.setMethodCallHandler(null)
     }
 
-    private fun register(context: Context, binaryMessenger: BinaryMessenger, platformViewRegistry: PlatformViewRegistry) {
+    private fun register(
+        context: Context,
+        binaryMessenger: BinaryMessenger,
+        platformViewRegistry: PlatformViewRegistry
+    ) {
         this.context = context
         this.channel = MethodChannel(binaryMessenger, "com.airship.flutter/airship")
         this.channel.setMethodCallHandler(this)
         EventManager.shared.register(binaryMessenger)
-        platformViewRegistry.registerViewFactory("com.airship.flutter/InboxMessageView", InboxMessageViewFactory(binaryMessenger))
+        platformViewRegistry.registerViewFactory(
+            "com.airship.flutter/InboxMessageView",
+            InboxMessageViewFactory(binaryMessenger)
+        )
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {
@@ -217,7 +243,10 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             "editContactSubscriptionLists" -> editContactSubscriptionLists(call, result)
             "editChannelSubscriptionLists" -> editChannelSubscriptionLists(call, result)
             "getPreferenceCenterConfig" -> getPreferenceCenterConfig(call, result)
-            "setAutoLaunchDefaultPreferenceCenter" -> setAutoLaunchDefaultPreferenceCenter(call, result)
+            "setAutoLaunchDefaultPreferenceCenter" -> setAutoLaunchDefaultPreferenceCenter(
+                call,
+                result
+            )
 
             else -> result.notImplemented()
         }
@@ -237,40 +266,38 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     private fun getInboxMessages(result: Result) {
         val messages = MessageCenter.shared().inbox.messages
-                .map { message ->
-                    val extras = message.extras.keySet().map { key ->
-                        key to message.extras.getString(key)
-                    }.toMap()
+            .map { message ->
+                val extras = message.extras.keySet().map { key ->
+                    key to message.extras.getString(key)
+                }.toMap()
 
-                    JsonMap.newBuilder()
-                            .putOpt("title", message.title)
-                            .putOpt("message_id", message.messageId)
-                            .putOpt("sent_date", DateUtils.createIso8601TimeStamp(message.sentDateMS))
-                            .putOpt("list_icon", message.listIconUrl)
-                            .putOpt("is_read", message.isRead)
-                            .putOpt("extras", JsonValue.wrap(extras))
-                            .apply {
-                                if (message.expirationDateMS != null) {
-                                    putOpt("expiration_date", DateUtils.createIso8601TimeStamp(message.expirationDateMS!!))
-                                }
-                            }.build().toString()
-                }
+                JsonMap.newBuilder()
+                    .putOpt("title", message.title)
+                    .putOpt("message_id", message.messageId)
+                    .putOpt("sent_date", DateUtils.createIso8601TimeStamp(message.sentDateMS))
+                    .putOpt("list_icon", message.listIconUrl)
+                    .putOpt("is_read", message.isRead)
+                    .putOpt("extras", JsonValue.wrap(extras))
+                    .apply {
+                        if (message.expirationDateMS != null) {
+                            putOpt(
+                                "expiration_date",
+                                DateUtils.createIso8601TimeStamp(message.expirationDateMS!!)
+                            )
+                        }
+                    }.build().toString()
+            }
 
         result.success(messages)
     }
 
-    private fun takeOff(call: MethodCall, result: Result) {
-        val config = call.arguments as HashMap<*, *>
-        val appKey = config["app_key"] as String
-        val appSecret = config["app_secret"] as String
-
-        CoroutineScope(Dispatchers.IO).launch {
-            ConfigManager.shared(context).updateConfig(appKey, appSecret)
-            withContext(Dispatchers.Main) {
-                Autopilot.automaticTakeOff(context)
-                result.success(UAirship.isFlying() || UAirship.isTakingOff())
-            }
+    private fun takeOff(call: MethodCall, result: Result) = runBlocking<Unit> {
+        val configByteArray = call.arguments as ByteArray
+        ConfigManager.shared(context).updateConfig(configByteArray).let {
+            Autopilot.automaticTakeOff(context)
+            result.success(UAirship.isFlying() || UAirship.isTakingOff())
         }
+
     }
 
     private fun refreshInbox(result: Result) {
@@ -354,7 +381,10 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         result.success(null)
     }
 
-    private fun applyTagGroupOperations(editor: TagGroupsEditor, operations: ArrayList<Map<String, Any?>>) {
+    private fun applyTagGroupOperations(
+        editor: TagGroupsEditor,
+        operations: ArrayList<Map<String, Any?>>
+    ) {
         for (i in 0 until operations.size) {
             val operation: Map<String, Any?> = operations[i]
             val group = operation[TAG_OPERATION_GROUP_NAME] as String
@@ -378,7 +408,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             }
         }
 
-        editor.apply();
+        editor.apply()
     }
 
     private fun editChannelAttributes(call: MethodCall, result: Result) {
@@ -393,7 +423,10 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         result.success(null)
     }
 
-    private fun applyAttributesOperations(editor: AttributeEditor, operations: ArrayList<Map<String, Any?>>) {
+    private fun applyAttributesOperations(
+        editor: AttributeEditor,
+        operations: ArrayList<Map<String, Any?>>
+    ) {
         for (operation in operations) {
             val action = operation[ATTRIBUTE_MUTATION_TYPE] as? String ?: continue
             val key = operation[ATTRIBUTE_MUTATION_KEY] as? String ?: continue
@@ -456,7 +489,8 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val notifications = arrayListOf<Map<String, Any?>>()
 
-            val notificationManager = UAirship.getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val notificationManager = UAirship.getApplicationContext()
+                .getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             val statusBarNotifications = notificationManager.activeNotifications
 
             for (statusBarNotification in statusBarNotifications) {
@@ -467,7 +501,11 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             }
             result.success(notifications)
         } else {
-            result.error("UNSUPPORTED", "Getting active notifications is only supported on Marshmallow and newer devices.", null)
+            result.error(
+                "UNSUPPORTED",
+                "Getting active notifications is only supported on Marshmallow and newer devices.",
+                null
+            )
         }
     }
 
@@ -509,7 +547,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
 
     private fun clearNotifications(result: Result) {
-        NotificationManagerCompat.from(UAirship.getApplicationContext()).cancelAll();
+        NotificationManagerCompat.from(UAirship.getApplicationContext()).cancelAll()
         result.success(true)
     }
 
@@ -602,14 +640,15 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         val feature = call.arguments as String
         var isEnabled = false
         (FeatureNames.values().firstOrNull { it.toString() == feature })?.also { featureName ->
-            isEnabled = UAirship.shared().privacyManager.isEnabled(FeatureNames.toFeature(featureName))
+            isEnabled =
+                UAirship.shared().privacyManager.isEnabled(FeatureNames.toFeature(featureName))
         }
         result.success(isEnabled)
     }
 
     private fun openPreferenceCenter(call: MethodCall, result: Result) {
         val preferenceCenterID = call.arguments as String
-        
+
         PreferenceCenter.shared().open(preferenceCenterID)
 
         result.success(null)
@@ -657,7 +696,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             }
         }
 
-        editor.apply();
+        editor.apply()
 
         result.success(null)
     }
@@ -683,7 +722,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             }
         }
 
-        editor.apply();
+        editor.apply()
 
         result.success(null)
     }

@@ -1,5 +1,12 @@
 # Flutter Plugin Changelog
 
+## Version 7.0.0 - August 19, 2022 (WIP)
+Major release that adds TakeOff convenience.
+
+- Updated Airship Android SDK to 16.7.0.
+- Updated Airship iOS SDK to 16.9.1.
+- Added takeOff to use single config in app for both iOS and Android.
+
 ## Version 6.1.0 - August 3, 2022
 Minor release that updates Airship Android SDK to 16.7.0, and iOS SDK to 16.9.0. This also fixes a crash on No Action buttons on iOS.
 

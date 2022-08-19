@@ -2,15 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
+import 'package:airship_flutter/airship_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'custom_event.dart';
-import 'tag_group_editor.dart';
-import 'subscription_list_editor.dart';
-import 'scoped_subscription_list_editor.dart';
-import 'preference_center_config.dart';
-import 'attribute_editor.dart';
 
 /// Inbox message object.
 class InboxMessage {
@@ -30,7 +25,7 @@ class InboxMessage {
   final String? listIcon;
 
   /// The unread / read status of the message.
-  final bool? isRead;
+  final bool isRead;
 
   /// String to String map of any message extras.
   final Map<String, dynamic>? extras;
@@ -44,7 +39,7 @@ class InboxMessage {
     var sentDate = json["sent_date"];
     var expirationDate = json["expiration_date"];
     var listIcon = json["list_icon"];
-    var isRead = json["is_read"];
+    bool isRead = json["is_read"] ?? false;
     var extras = json["extras"];
     return InboxMessage._internal(
         title, messageId, sentDate, expirationDate, listIcon, isRead, extras);
@@ -295,12 +290,11 @@ class Airship {
     return _eventStreams[eventType];
   }
 
-  /// Initializes Airship with an [appKey] and [appSecret].
+  /// Initializes Airship with an [AirshipConfig]
   ///
   /// Returns true if Airship has been initialized, otherwise returns false.
-  static Future<bool> takeOff(String appKey, String appSecret) async {
-    Map<String, String> args = {"app_key": appKey, "app_secret": appSecret};
-    return await _channel.invokeMethod('takeOff', args);
+  static Future<bool> takeOff(final AirshipConfig config) async {
+    return await _channel.invokeMethod('takeOff', config.writeToBuffer());
   }
 
   /// Sets a background message handler.
@@ -450,8 +444,8 @@ class Airship {
   }
 
   /// Tells if user notifications are enabled or not.
-  static Future<bool?> get userNotificationsEnabled async {
-    return await _channel.invokeMethod('getUserNotificationsEnabled');
+  static Future<bool> get userNotificationsEnabled async {
+    return await _channel.invokeMethod('getUserNotificationsEnabled') ?? false;
   }
 
   /// Gets all the active notifications for the application.
@@ -586,7 +580,7 @@ class Airship {
   }
 
   /// Returns a [List] with the enabled features.
-  static Future<List<String>> getEnabledFeatures() async {
+  static FutureOr<List<String>> getEnabledFeatures() async {
     return await _channel.invokeMethod('getEnabledFeatures');
   }
 

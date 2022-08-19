@@ -4,10 +4,10 @@ import 'package:flutter_section_list/flutter_section_list.dart';
 
 class PreferenceCenter extends StatefulWidget {
   @override
-  _PreferenceCenterState createState() => _PreferenceCenterState();
+  PreferenceCenterState createState() => PreferenceCenterState();
 }
 
-class _PreferenceCenterState extends State<PreferenceCenter>
+class PreferenceCenterState extends State<PreferenceCenter>
     with SectionAdapterMixin {
   String preferenceCenterId = "neat";
   PreferenceCenterConfig? preferenceCenterConfig;

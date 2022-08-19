@@ -9,13 +9,13 @@ class TagAdd extends StatefulWidget {
   TagAdd({this.updateParent});
 
   @override
-  _TagAddState createState() => _TagAddState(updateParent: updateParent);
+  TagAddState createState() => TagAddState(updateParent: updateParent);
 }
 
-class _TagAddState extends State<TagAdd> {
+class TagAddState extends State<TagAdd> {
   final updateParent;
 
-  _TagAddState({this.updateParent});
+  TagAddState({this.updateParent});
 
   @override
   void initState() {

@@ -6,10 +6,10 @@ import 'package:airship_flutter/airship_flutter.dart';
 
 class Settings extends StatefulWidget {
   @override
-  _SettingsState createState() => _SettingsState();
+  SettingsState createState() => SettingsState();
 }
 
-class _SettingsState extends State<Settings> {
+class SettingsState extends State<Settings> {
   @override
   void initState() {
     Airship.trackScreen('Settings');

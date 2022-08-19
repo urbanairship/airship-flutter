@@ -30,35 +30,35 @@ public class AirshipEventHandler: NSObject,
         AirshipEventManager.shared.notify(event)
         completionHandler()
     }
-
+    
     // MARK: - PushNotificationDelegate
     public func receivedForegroundNotification(_ userInfo:[AnyHashable : Any], completionHandler: @escaping () -> Void) {
         let event = AirshipPushReceivedEvent(userInfo)
         AirshipEventManager.shared.notify(event)
         completionHandler()
     }
-
+    
     public func receivedBackgroundNotification(_ userInfo:[AnyHashable : Any], completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         let event = AirshipPushReceivedEvent(userInfo)
         AirshipEventManager.shared.notify(event)
         completionHandler(.noData)
     }
-
+    
     public func receivedNotificationResponse(_ notificationResponse: UNNotificationResponse, completionHandler: @escaping () -> Void) {
         let event = AirshipNotificationResponseEvent(notificationResponse)
         AirshipEventManager.shared.notify(event)
         completionHandler()
     }
-
+    
     // MARK: - MessageCenterDisplayDelegate
     public func displayMessageCenter(forMessageID messageID: String, animated: Bool) {
         self.showMessage(forID: messageID)
     }
-
+    
     public func displayMessageCenter(animated: Bool) {
         self.showInbox()
     }
-
+    
     public func dismissMessageCenter(animated: Bool) {
         //
     }
@@ -74,7 +74,7 @@ public class AirshipEventHandler: NSObject,
         let event = AirshipShowInboxMessageEvent(messageID)
         AirshipEventManager.shared.notify(event)
     }
-
+    
     @objc
     public func inboxUpdated() {
         let event = AirshipInboxUpdatedEvent()
