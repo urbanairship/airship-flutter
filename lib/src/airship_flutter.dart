@@ -4,8 +4,9 @@ import 'dart:io';
 import 'dart:ui';
 import 'package:airship_flutter/airship_flutter.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart' hide Notification;
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
+
 
 /// Inbox message object.
 class InboxMessage {
@@ -48,45 +49,6 @@ class InboxMessage {
   @override
   String toString() {
     return "InboxMessage(title=$title, messageId=$messageId)";
-  }
-}
-
-/// Push notification object.
-class Notification {
-  /// The notification ID.
-  final String? notificationId;
-
-  /// The notification alert.
-  final String? alert;
-
-  /// The notification title.
-  final String? title;
-
-  /// The notification subtitle.
-  final String? subtitle;
-
-  /// The notification extras.
-  final Map<String, dynamic>? extras;
-
-  const Notification._internal(
-      this.notificationId, this.alert, this.title, this.subtitle, this.extras);
-
-  static Notification _fromJson(Map<String, dynamic> json) {
-    var notificationId = json["notification_id"];
-    var alert = json["alert"];
-    var title = json["title"];
-    var subtitle = json["subtitle"];
-    var extras;
-    if (json["extras"] != null) {
-      extras = Map<String, dynamic>.from(json["extras"]);
-    }
-    return Notification._internal(
-        notificationId, alert, title, subtitle, extras);
-  }
-
-  @override
-  String toString() {
-    return "Notification(notificationId=$notificationId, alert=$alert, title=$title, subtitle=$subtitle, extras=$extras)";
   }
 }
 
@@ -167,7 +129,7 @@ class NotificationResponseEvent {
   static NotificationResponseEvent _fromJson(Map<String, dynamic> json) {
     var actionId = json["action_id"];
     var isForeground = json["is_foreground"];
-    var notification = Notification._fromJson(json["notification"]);
+    var notification = Notification.fromJson(json["notification"]);
     var payload = json["payload"];
     return NotificationResponseEvent._internal(
         actionId, isForeground, notification, payload);
@@ -194,7 +156,7 @@ class PushReceivedEvent {
 
     var notification;
     if (json["notification"] != null) {
-      notification = Notification._fromJson(json["notification"]);
+      notification = Notification.fromJson(json["notification"]);
     }
 
     return PushReceivedEvent._internal(payload, notification);
@@ -205,6 +167,7 @@ class PushReceivedEvent {
     return "PushReceivedEvent(payload=$payload, notification=$notification)";
   }
 }
+
 
 void _backgroundMessageIsolateCallback() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -220,7 +183,7 @@ void _backgroundMessageIsolateCallback() {
         var notification;
         if (args["notification"] != null) {
           notification =
-              Notification._fromJson(jsonDecode(args["notification"]));
+              Notification.fromJson(jsonDecode(args["notification"]));
         }
         await callback(payload, notification);
       } catch (e) {
@@ -323,26 +286,26 @@ class Airship {
     return await _channel.invokeMethod('getChannelId');
   }
 
-  /// Enables or disables the user notifications.
-  static Future<bool?> setUserNotificationsEnabled(bool enabled) async {
-    return await _channel.invokeMethod('setUserNotificationsEnabled', enabled);
+
+  /// iOS namespace
+  static AirshipIOS get iOS => AirshipIOS();
+
+  /// push namespace
+  static AirshipPush get push => AirshipPush();
+
+
+  /// Gets push received event stream.
+  static Stream<PushReceivedEvent> get onPushReceived {
+    return _getEventStream("PUSH_RECEIVED")!
+        .map((dynamic value) => PushReceivedEvent._fromJson(jsonDecode(value)));
   }
 
-  /// Clears a specific [notification].
-  ///
-  /// The [notification] parameter is the notification ID.
-  /// Supported on Android and iOS 10+.
-  static Future<void> clearNotification(String notification) async {
-    return await _channel.invokeMethod('clearNotification', notification);
+  /// Gets notification response event stream.
+  static Stream<NotificationResponseEvent> get onNotificationResponse {
+    return _getEventStream("NOTIFICATION_RESPONSE")!.map((dynamic value) =>
+        NotificationResponseEvent._fromJson(jsonDecode(value)));
   }
 
-  /// Clears all notifications for the application.
-  ///
-  /// Supported on Android and iOS 10+. For older iOS devices, you can set
-  /// the badge number to 0 to clear notifications.
-  static Future<void> clearNotifications() async {
-    return await _channel.invokeMethod('clearNotifications');
-  }
 
   /// Gets the channel tags.
   static Future<List<String>> get tags async {
@@ -443,21 +406,7 @@ class Airship {
     return await _channel.invokeMethod('getNamedUser');
   }
 
-  /// Tells if user notifications are enabled or not.
-  static Future<bool> get userNotificationsEnabled async {
-    return await _channel.invokeMethod('getUserNotificationsEnabled') ?? false;
-  }
 
-  /// Gets all the active notifications for the application.
-  ///
-  /// Supported on Android Marshmallow (23)+ and iOS 10+.
-  static Future<List<Notification>> get activeNotifications async {
-    List notifications =
-        await (_channel.invokeMethod('getActiveNotifications'));
-    return notifications.map((dynamic payload) {
-      return Notification._fromJson(Map<String, dynamic>.from(payload));
-    }).toList();
-  }
 
   /// Enables channel creation.
   static Future<void> enableChannelCreation() async {
@@ -486,17 +435,7 @@ class Airship {
         .map((dynamic value) => jsonDecode(value) as String?);
   }
 
-  /// Gets push received event stream.
-  static Stream<PushReceivedEvent> get onPushReceived {
-    return _getEventStream("PUSH_RECEIVED")!
-        .map((dynamic value) => PushReceivedEvent._fromJson(jsonDecode(value)));
-  }
 
-  /// Gets notification response event stream.
-  static Stream<NotificationResponseEvent> get onNotificationResponse {
-    return _getEventStream("NOTIFICATION_RESPONSE")!.map((dynamic value) =>
-        NotificationResponseEvent._fromJson(jsonDecode(value)));
-  }
 
   /// Gets channel registration event stream.
   static Stream<ChannelEvent> get onChannelRegistration {

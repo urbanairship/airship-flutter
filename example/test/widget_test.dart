@@ -29,7 +29,7 @@ class SettingsState extends State<Settings> {
           context: context,
           tiles: [
             FutureBuilder<bool?>(
-                future: Airship.userNotificationsEnabled,
+                future: Airship.push.userNotificationsEnabled,
                 builder: (context, snapshot) {
                   return SwitchListTile(
                     title: Text(
@@ -38,7 +38,7 @@ class SettingsState extends State<Settings> {
                     ),
                     value: snapshot.data ?? false,
                     onChanged: (bool enabled) {
-                      Airship.setUserNotificationsEnabled(enabled);
+                      Airship.push.setUserNotificationsEnabled(enabled);
                       updateState();
                     },
                   );

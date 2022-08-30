@@ -1,20 +1,21 @@
-import 'package:flutter/services.dart';
+import 'package:airship_flutter/src/airship_flutter.dart';
+import 'package:airship_flutter/src/components/airship_ios.dart';
+import 'package:airship_flutter/src/components/airship_push.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  const MethodChannel channel = MethodChannel('airship');
 
-  setUp(() {
-    channel.setMockMethodCallHandler((MethodCall methodCall) async {
-      return '42';
+  /// test Airship IOS
+  group("Airship.ios", () {
+    test('ios namespace', () async {
+      expect( Airship.iOS, isA<AirshipIOS>());
     });
   });
 
-  tearDown(() {
-    channel.setMockMethodCallHandler(null);
+  /// test Airship Push
+  group("Airship.push", () {
+    test('ios namespace', () async {
+      expect( Airship.push, isA<AirshipPush>());
+    });
   });
-//
-//  test('getPlatformVersion', () async {
-//    expect(await Airship.platformVersion, '42');
-//  });
 }

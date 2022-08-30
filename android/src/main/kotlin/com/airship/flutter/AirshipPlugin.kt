@@ -211,6 +211,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             "getChannelId" -> getChannelId(result)
             "setUserNotificationsEnabled" -> setUserNotificationsEnabled(call, result)
             "getUserNotificationsEnabled" -> getUserNotificationsEnabled(result)
+            "getPushToken"-> getPushToken(result)
             "clearNotification" -> clearNotification(call, result)
             "clearNotifications" -> clearNotifications(result)
             "getActiveNotifications" -> getActiveNotifications(result)
@@ -369,6 +370,8 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         result.success(ArrayList<String>(UAirship.shared().channel.tags))
     }
 
+
+
     private fun editChannelTagGroups(call: MethodCall, result: Result) {
         var operations = call.arguments as ArrayList<Map<String, Any?>>
         this.applyTagGroupOperations(UAirship.shared().channel.editTagGroups(), operations)
@@ -476,14 +479,21 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         result.success(UAirship.shared().contact.namedUserId)
     }
 
+    /// Push Notifications Management methods
+
     private fun setUserNotificationsEnabled(call: MethodCall, result: Result) {
         UAirship.shared().pushManager.userNotificationsEnabled = call.arguments as Boolean
         result.success(true)
     }
 
+    private fun getPushToken(result: Result) {
+        result.success(UAirship.shared().pushManager.pushToken)
+    }
+
     private fun getUserNotificationsEnabled(result: Result) {
         result.success(UAirship.shared().pushManager.userNotificationsEnabled)
     }
+
 
     private fun getActiveNotifications(result: Result) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

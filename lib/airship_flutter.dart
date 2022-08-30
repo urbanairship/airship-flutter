@@ -11,3 +11,5 @@ export 'src/channel_scope.dart';
 export 'src/subscription_list_editor.dart';
 export 'src/scoped_subscription_list_editor.dart';
 export 'src/channel_scope.dart';
+export 'src/components/airship_push.dart';
+export 'src/components/airship_ios.dart';
