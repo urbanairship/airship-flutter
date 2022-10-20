@@ -78,30 +78,32 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView, NativeBridgeDeleg
             return
         }
         
-        if let message = MessageCenter.shared.messageList.message(forID: messageId) {
-            var request = URLRequest(url: message.messageBodyURL)
-            let user = MessageCenter.shared.user
+        MessageCenter.shared.messageList.retrieveMessageList {
+            if let message = MessageCenter.shared.messageList.message(forID: messageId) {
+                var request = URLRequest(url: message.messageBodyURL)
+                let user = MessageCenter.shared.user
 
-            user.getData({ (userData) in
-                guard let auth = Utils.authHeader(username: userData.username, password: userData.password) else {
-                    result(FlutterError(code:"InvalidState",
-                                     message:"User not created.",
-                                     details:nil))
-                    return
-                }
-                request.addValue(auth, forHTTPHeaderField: "Authorization")
-                DispatchQueue.main.async {
-                    self.webView.load(request)
-                    message.markRead(completionHandler: nil)
-                }
+                user.getData({ (userData) in
+                    guard let auth = Utils.authHeader(username: userData.username, password: userData.password) else {
+                        result(FlutterError(code:"InvalidState",
+                                         message:"User not created.",
+                                         details:nil))
+                        return
+                    }
+                    request.addValue(auth, forHTTPHeaderField: "Authorization")
+                    DispatchQueue.main.async {
+                        self.webView.load(request)
+                        message.markRead(completionHandler: nil)
+                    }
 
-            })
-        } else {
-            result(FlutterError(code:"InvalidMessage",
-                             message:"Unable to load message: \(messageId)",
-                             details:nil))
-       }
-    }
+                })
+            } else {
+                result(FlutterError(code:"InvalidMessage",
+                                    message:"Unable to load message: \(messageId))",
+                                 details:nil))
+           }
+        }
+      }
 
     func view() -> UIView {
         return webView
