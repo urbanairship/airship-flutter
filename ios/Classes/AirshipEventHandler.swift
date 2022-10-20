@@ -71,6 +71,16 @@ public class AirshipEventHandler: NSObject,
     
     @objc
     public func showMessage(forID messageID: String) {
+        if (MessageCenter.shared.messageList.message(forID: messageID) != nil) {
+            self.sendShowInboxMessageEvent(for: messageID)
+        } else {
+            MessageCenter.shared.messageList.retrieveMessageList {
+                self.sendShowInboxMessageEvent(for: messageID)
+            }
+        }
+    }
+    
+    func sendShowInboxMessageEvent(for messageID: String) {
         let event = AirshipShowInboxMessageEvent(messageID)
         AirshipEventManager.shared.notify(event)
     }
