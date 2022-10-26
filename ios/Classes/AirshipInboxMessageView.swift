@@ -81,12 +81,12 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView, NativeBridgeDeleg
         if let message = MessageCenter.shared.messageList.message(forID: messageId) {
             var request = URLRequest(url: message.messageBodyURL)
             let user = MessageCenter.shared.user
-
+            
             user.getData({ (userData) in
                 guard let auth = Utils.authHeader(username: userData.username, password: userData.password) else {
                     result(FlutterError(code:"InvalidState",
-                                     message:"User not created.",
-                                     details:nil))
+                                        message:"User not created.",
+                                        details:nil))
                     return
                 }
                 request.addValue(auth, forHTTPHeaderField: "Authorization")
@@ -94,14 +94,16 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView, NativeBridgeDeleg
                     self.webView.load(request)
                     message.markRead(completionHandler: nil)
                 }
-
+                
             })
         } else {
+            
             result(FlutterError(code:"InvalidMessage",
-                             message:"Unable to load message: \(messageId)",
-                             details:nil))
-       }
-    }
+                                message:"Unable to load message: \(messageId))",
+                                details:nil))
+        }
+        
+      }
 
     func view() -> UIView {
         return webView
