@@ -36,6 +36,13 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDe
         AirshipEventManager.shared.register(registrar)
 
         registrar.register(AirshipInboxMessageViewFactory(registrar), withId: "com.airship.flutter/InboxMessageView")
+        registrar.addApplicationDelegate(shared)
+    }
+
+
+    public func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) -> Bool {
+        completionHandler(.noData)
+        return true
     }
     
     public func onAirshipReady() {
