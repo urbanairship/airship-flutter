@@ -211,6 +211,7 @@ class PushReceivedEvent {
   }
 }
 
+@pragma('vm:entry-point')
 void _backgroundMessageIsolateCallback() {
   WidgetsFlutterBinding.ensureInitialized();
 
