@@ -77,6 +77,14 @@ so it is not possible to interact with the application UI or update application 
 Care should be taken to ensure the handler logic completes as soon as possible in order to avoid 
 ANRs (Application Not Responding), which may trigger the OS to automatically terminate the process.
 
+####EU Cloud Site
+If your app uses Airship’s EU cloud site, you will need to add that to `airshipconfig.properties`. By default, the Airship SDK will use the `US` cloud site.
+
+```
+# EU Cloud Site
+site = EU
+```
+
 ### iOS Setup
 
 1) Add the following capabilities for your application target:
@@ -103,6 +111,13 @@ ANRs (Application Not Responding), which may trigger the OS to automatically ter
 
 3) Optional. In order to take advantage of iOS 10 notification attachments, such as images, animated gifs, and
 video, you will need to create a notification service extension by following the [iOS Notification Service Extension Guide](https://docs.urbanairship.com/platform/reference/ios-extension/)
+
+####EU Cloud Site
+If your app uses Airship’s EU cloud site, you will need to add that to `AirshipConfig.plist`. By default, the Airship SDK will use the `US` cloud site.
+```
+<key>site</key>
+  <string>EU</string>
+```
 
 
 ### Example Usage
