@@ -1,5 +1,8 @@
 # Flutter Plugin Changelog
 
+## Version 6.2.1 - December 2, 2022
+Minor release that updates the Airship iOS SDK to 16.10.5.
+
 ## Version 6.2.0 - November 18, 2022
 Minor release that updates the Airship iOS SDK to 16.10.3 and Android SDK to 16.8.0.
 
