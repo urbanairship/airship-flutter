@@ -19,9 +19,11 @@ public class AirshipEventHandler: NSObject,
     }
     
     // MARK: - RegistrationDelegate
-    public func registrationSucceeded(forChannelID channelID: String, deviceToken: String) {
-        let event = AirshipChannelRegistrationEvent(channelID, registrationToken: deviceToken)
-        AirshipEventManager.shared.notify(event)
+    public func apnsRegistrationSucceeded(withDeviceToken deviceToken: Data) {
+        if let channelID = Airship.channel.identifier {
+            let event = AirshipChannelRegistrationEvent(channelID, registrationToken: Utils.deviceTokenStringFromDeviceToken(deviceToken))
+            AirshipEventManager.shared.notify(event)
+        }
     }
     
     // MARK: - DeepLinkDelegate
