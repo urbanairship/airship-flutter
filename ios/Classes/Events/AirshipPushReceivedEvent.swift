@@ -2,10 +2,13 @@ import Foundation
 import AirshipKit
 
 class AirshipPushReceivedEvent : AirshipEvent {
-    let payload: [AnyHashable : Any]
+    let body: [AnyHashable : Any]
 
     init(_ userInfo : [AnyHashable : Any]) {
-        self.payload = userInfo
+        self.body = [
+            "payload": userInfo,
+            "notification": PushUtils.contentPayload(userInfo)
+        ]
     }
 
     var eventType: AirshipEventType {
@@ -16,29 +19,7 @@ class AirshipPushReceivedEvent : AirshipEvent {
 
     var data: Any? {
         get {
-            var payload = ["payload": self.payload]
-            var notificationPayload : [String:Any] = [:]
-            
-            if let aps = self.payload["aps"] as? [String : Any] {
-                if let alert = aps["alert"] as? [String : Any] {
-                    if let body = alert["body"] {
-                        notificationPayload["alert"] = body
-                    }
-                    if let title = alert["title"] {
-                        notificationPayload["title"] = title
-                    }
-                } else if let alert = aps["alert"] as? String {
-                    notificationPayload["alert"] = alert
-                }
-               
-                var extras = self.payload
-                extras["_"] = nil
-                extras["aps"] = nil
-                notificationPayload["extras"] = extras
-                payload["notification"] = notificationPayload
-            }
-             
-            return payload
+            return self.body
         }
     }
 }
