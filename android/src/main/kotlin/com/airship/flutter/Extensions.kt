@@ -32,7 +32,7 @@ fun NotificationInfo.eventData() : JsonMap {
             .putOpt("title", message.title)
             .putOpt("subtitle", message.summary)
             .putOpt("extras", message.toJsonValue())
-            .putOpt("notification_id", canonicalNotificationId())
+            .putOpt("notificationId", canonicalNotificationId())
             .build()
 }
 
