@@ -12,16 +12,37 @@ public class AirshipEventHandler: NSObject,
         Airship.push.pushNotificationDelegate = self
         MessageCenter.shared.displayDelegate = self
         
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(inboxUpdated),
-                                               name: NSNotification.Name.UAInboxMessageListUpdated,
-                                               object: nil)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(inboxUpdated),
+            name: NSNotification.Name.UAInboxMessageListUpdated,
+            object: nil
+        )
+        
+        NotificationCenter.default.addObserver(
+            forName: Channel.channelCreatedEvent,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.channelCreated()
+        }
+        
     }
     
     // MARK: - RegistrationDelegate
     public func apnsRegistrationSucceeded(withDeviceToken deviceToken: Data) {
         if let channelID = Airship.channel.identifier {
             let event = AirshipChannelRegistrationEvent(channelID, registrationToken: Utils.deviceTokenStringFromDeviceToken(deviceToken))
+            AirshipEventManager.shared.notify(event)
+        }
+    }
+    
+    func channelCreated() {
+        if let channelID = Airship.channel.identifier {
+            let event = AirshipChannelRegistrationEvent(
+                channelID,
+                registrationToken: Airship.push.deviceToken
+            )
             AirshipEventManager.shared.notify(event)
         }
     }
