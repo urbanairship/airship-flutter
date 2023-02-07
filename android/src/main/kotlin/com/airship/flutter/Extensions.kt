@@ -30,6 +30,7 @@ fun NotificationInfo.eventData() : JsonMap {
     return JsonMap.newBuilder()
             .putOpt("alert", message.alert)
             .putOpt("title", message.title)
+            .putOpt("subtitle", message.summary)
             .putOpt("extras", message.toJsonValue())
             .putOpt("notification_id", canonicalNotificationId())
             .build()

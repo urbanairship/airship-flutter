@@ -184,18 +184,14 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDe
     }
 
     private func getActiveNotifications(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        UNUserNotificationCenter.current().getDeliveredNotifications { (notifications) in
-
-            let airshipNotifications = NSMutableArray()
-
-            for notification in notifications {
-                let content = notification.request.content
-                airshipNotifications.add(content.userInfo)
-            }
-
-            result(airshipNotifications)
+        UNUserNotificationCenter.current().getDeliveredNotifications { notifications in
+            result(notifications.map { notification in
+                PushUtils.contentPayload(
+                    notification.request.content.userInfo,
+                    notificationID: notification.request.identifier
+                )
+            })
         }
-
     }
 
     private func clearNotification(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -738,6 +734,8 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDe
         }
     }
 }
+
+
 
 
 public enum FeatureNames : String, CaseIterable {
