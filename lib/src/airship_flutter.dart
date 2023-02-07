@@ -77,7 +77,7 @@ class Notification {
       this.notificationId, this.alert, this.title, this.subtitle, this.extras);
 
   static Notification _fromJson(Map<String, dynamic> json) {
-    var notificationId = json["notification_id"];
+    var notificationId = json["notificationId"];
     var alert = json["alert"];
     var title = json["title"];
     var subtitle = json["subtitle"];

@@ -44,7 +44,6 @@ class Utils {
         notification["extras"] = extras;
 
         if (notificationId != null) {
-            notification["notification_id"] = notificationId
             notification["notificationId"] = getNotificationId(notificationId, notificationTag)
         }
         return notification

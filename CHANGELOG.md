@@ -1,7 +1,17 @@
 # Flutter Plugin Changelog
 
+## Version 6.2.2 - February 7, 2023
+Patch release with several bug fixes.
+
+### Changes
+- Updated iOS SDK to 16.10.7
+- Added extended actions pod spec to iOS, enabling rate-app action
+- Fixed parsing active notifications on iOS
+- Fixed ChannelRegistration event not firing on channel create on iOS
+- Fixed push received events on iOS  
+
 ## Version 6.2.1 - December 2, 2022
-Minor release that updates the Airship iOS SDK to 16.10.5.
+Patch release that updates the Airship iOS SDK to 16.10.5.
 
 ## Version 6.2.0 - November 18, 2022
 Minor release that updates the Airship iOS SDK to 16.10.3 and Android SDK to 16.8.0.
