@@ -25,5 +25,7 @@ Airship flutter plugin.
   s.dependency              'Airship/MessageCenter', '~> 16.10.5'
   s.dependency              'Airship/Automation', '~> 16.10.5'
   s.dependency              'Airship/PreferenceCenter', '~> 16.10.5'
+  s.dependency              'Airship/ExtendedActions', '~> 16.10.5'
+
 end
 
