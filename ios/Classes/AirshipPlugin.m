@@ -11,10 +11,7 @@
        [center addObserverForName:UIApplicationDidFinishLaunchingNotification
                                                          object:nil
                                                           queue:nil usingBlock:^(NSNotification * _Nonnull note) {
-           
-           FlutterAirshipAutopilot.launchOptions = note.userInfo;
-           
-           [FlutterAirshipAutopilot attemptTakeOff];
+           [FlutterAirshipAutopilot.shared onLoadWithLaunchOptions:note.userInfo];
     }];
 }
 @end

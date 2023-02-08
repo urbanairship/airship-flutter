@@ -1,812 +1,510 @@
 import Flutter
 import UIKit
 import AirshipKit
+import AirshipFrameworkProxy
 
-public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDelegate {
-    private let eventNameKey = "event_name"
-    private let eventValueKey = "event_value"
-    private let propertiesKey = "properties"
-    private let transactionIDKey = "transaction_id"
-    private let interactionIDKey = "interaction_id"
-    private let interactionTypeKey = "interaction_type"
-    private let tagOperationGroupName = "group"
-    private let tagOperationType = "operationType"
-    private let tagOperationTags = "tags"
-    private let tagOperationAdd = "add"
-    private let tagOperationRemove = "remove"
-    private let tagOperationSet = "set"
+// TODO: proxy updates
+// - Add subtitle to push payload
+// - Add proper addCustomEvent method
 
-    private let attributeOperationType = "action"
-    private let attributeOperationSet = "set"
-    private let attributeOperationRemove = "remove"
-    private let attributeOperationKey = "key"
-    private let attributeOperationValue = "value"
-    
-    static let defaults = UserDefaults(suiteName: "com.urbanairship.flutter")!
-    let autoLaunchPreferenceCenterKey = "auto_launch_pc"
-    
-    static let shared = SwiftAirshipPlugin()
+public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
+    private static let eventNames: [AirshipProxyEventType: String] = [
+        .deepLinkReceived: "com.airship.flutter/event/deep_link_received",
+        .channelCreated: "com.airship.flutter/event/channel_created",
+        .pushTokenReceived: "com.airship.flutter/event/.push_token_received",
+        .messageCenterUpdated: "com.airship.flutter/event/message_center_updated",
+        .displayMessageCenter: "com.airship.flutter/event/display_message_center",
+        .displayPreferenceCenter: "com.airship.flutter/event/display_preference_center",
+        .notificationResponseReceived: "com.airship.flutter/event/notification_response",
+        .pushReceived: "com.airship.flutter/event/push_received",
+        .notificationOptInStatusChanged: "com.airship.flutter/event/notification_opt_in_status"
+    ]
 
-    let eventHandler = AirshipEventHandler()
+    private static let streams: [AirshipProxyEventType: AirshipEventStream] = {
+        var streams: [AirshipProxyEventType: AirshipEventStream] = [:]
+        SwiftAirshipPlugin.eventNames.forEach { (key: AirshipProxyEventType, value: String) in
+            streams[key] = AirshipEventStream(key, name: value)
+        }
+        return streams
+    }()
     
     public static func register(with registrar: FlutterPluginRegistrar) {
-        let channel = FlutterMethodChannel(name: "com.airship.flutter/airship",
-                                           binaryMessenger: registrar.messenger())
-        registrar.addMethodCallDelegate(shared, channel: channel)
-        AirshipEventManager.shared.register(registrar)
-
+        let channel = FlutterMethodChannel(
+            name: "com.airship.flutter/airship",
+            binaryMessenger: registrar.messenger()
+        )
+        
+        Task {
+            let stream = await AirshipProxyEventEmitter.shared.pendingEventTypeAdded
+            for await eventType in stream {
+                await self.streams[eventType]?.processPendingEvents()
+            }
+        }
+        
+        let instance = SwiftAirshipPlugin()
+        
+        registrar.addMethodCallDelegate(instance, channel: channel)
+        
+        self.streams.values.forEach { stream in
+            stream.register(registrar: registrar)
+        }
+        
         registrar.register(AirshipInboxMessageViewFactory(registrar), withId: "com.airship.flutter/InboxMessageView")
-        registrar.addApplicationDelegate(shared)
+        registrar.addApplicationDelegate(instance)
     }
 
-
-    public func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) -> Bool {
+    public func application(
+        _ application: UIApplication,
+        didReceiveRemoteNotification userInfo: [AnyHashable : Any],
+        fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
+    ) -> Bool {
         completionHandler(.noData)
         return true
     }
     
-    public func onAirshipReady() {
-        eventHandler.register()
-        PreferenceCenter.shared.openDelegate = self
-    }
-    
     // MARK: - handle methods call
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        if (call.method == "takeOff") {
-            takeOff(call, result: result)
-            return
-        }
-        
-        guard (Airship.isFlying) else {
-            result(FlutterError(code:"AIRSHIP_GROUNDED",
-                              message:"TakeOff not called.",
-                               details: nil))
-            return
-        }
-        
-        switch call.method {
-        case "getChannelId":
-            getChannelId(call, result: result)
-        case "setUserNotificationsEnabled":
-            setUserNotificationsEnabled(call, result: result)
-        case "getUserNotificationsEnabled":
-            getUserNotificationsEnabled(call, result: result)
-        case "clearNotification":
-            clearNotification(call, result: result)
-        case "clearNotifications":
-            clearNotifications(call, result: result)
-        case "getActiveNotifications":
-            getActiveNotifications(call, result: result)
-        case "addTags":
-            addTags(call, result: result)
-        case "addEvent":
-            addEvent(call, result: result)
-        case "removeTags":
-            removeTags(call, result: result)
-        case "getTags":
-            getTags(call, result: result)
-        case "editAttributes":
-            editChannelAttributes(call, result: result)
-        case "editChannelAttributes":
-            editChannelAttributes(call, result: result)
-        case "editNamedUserAttributes":
-            editNamedUserAttributes(call, result: result)
-        case "editNamedUserTagGroups":
-            editNamedUserTagGroups(call, result: result)
-        case "editChannelTagGroups":
-            editChannelTagGroups(call, result: result)
-        case "setNamedUser":
-            setNamedUser(call, result: result)
-        case "getNamedUser":
-            getNamedUser(call, result: result)
-        case "getInboxMessages":
-            getInboxMessages(call, result: result)
-        case "markInboxMessageRead":
-            markInboxMessageRead(call, result: result)
-        case "deleteInboxMessage":
-            deleteInboxMessage(call, result: result)
-        case "setInAppAutomationPaused":
-            setInAppAutomationPaused(call, result: result)
-        case "getInAppAutomationPaused":
-            getInAppAutomationPaused(call, result: result)
-        case "enableChannelCreation":
-            enableChannelCreation(call, result: result)
-        case "trackScreen":
-            trackScreen(call, result: result)
-        case "refreshInbox":
-            refreshInbox(call, result: result)
-        case "setBadge":
-            setBadge(call, result: result)
-        case "resetBadge":
-            resetBadge(call, result: result)
-        case "setAutoBadgeEnabled":
-            setAutoBadgeEnabled(call, result: result)
-        case "isAutoBadgeEnabled":
-            isAutoBadgeEnabled(call, result: result)
-        case "enableFeatures":
-            enableFeatures(call, result: result)
-        case "disableFeatures":
-            disableFeatures(call, result: result)
-        case "setEnabledFeatures":
-            setEnabledFeatures(call, result: result)
-        case "getEnabledFeatures":
-            getEnabledFeatures(call, result: result)
-        case "isFeatureEnabled":
-            isFeatureEnabled(call, result: result)
-        case "openPreferenceCenter":
-            openPreferenceCenter(call, result: result)
-        case "getSubscriptionLists":
-            getSubscriptionLists(call, result: result)
-        case "editChannelSubscriptionLists":
-            editChannelSubscriptionLists(call, result: result)
-        case "editContactSubscriptionLists":
-            editContactSubscriptionLists(call, result: result)
-        case "getPreferenceCenterConfig":
-            getPreferenceCenterConfig(call, result: result)
-        case "setAutoLaunchDefaultPreferenceCenter":
-            setAutoLaunchDefaultPreferenceCenter(call, result: result)
-        case "startBackgroundIsolate":
-            // Android only. No-op on iOS.
-            result(true)
-        default:
-            result(FlutterError(code:"UNAVAILABLE",
-                message:"Unknown method: \(call.method)",
-                details:nil))
-        }
-    }
-
-    private func getChannelId(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        result(Airship.channel.identifier)
-    }
-
-    private func setUserNotificationsEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let enable = call.arguments as! Bool
-
-        if (enable) {
-            Airship.push.enableUserPushNotifications({ (success) in
-                result(success)
-            })
-        } else {
-            Airship.push.userPushNotificationsEnabled = false
-            result(true)
-        }
-    }
-
-    private func takeOff(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        
-        guard let args = call.arguments as? [String: String] else {
-            result(false)
-            return
-        }
-        
-        PluginConfig.appKey = args["app_key"]
-        PluginConfig.appSecret = args["app_secret"]
-        AirshipAutopilot.attemptTakeOff()
-        
-        result(Airship.isFlying)
-    }
-        
-    private func getUserNotificationsEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        result(Airship.push.userPushNotificationsEnabled)
-    }
-
-    private func getActiveNotifications(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        UNUserNotificationCenter.current().getDeliveredNotifications { notifications in
-            result(notifications.map { notification in
-                PushUtils.contentPayload(
-                    notification.request.content.userInfo,
-                    notificationID: notification.request.identifier
+        Task {
+            do {
+               result(
+                try await handle(call)
+               )
+            } catch {
+                result(
+                    FlutterError(
+                        code:"AIRSHIP_ERROR",
+                        message:error.localizedDescription,
+                        details:"Method: \(call.method)"
+                    )
                 )
-            })
-        }
-    }
-
-    private func clearNotification(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let identifier = call.arguments as! String
-        UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers:[identifier])
-        result(nil)
-    }
-
-    private func clearNotifications(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        UNUserNotificationCenter.current().removeAllDeliveredNotifications()
-        result(nil)
-    }
-
-    private func addEvent(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let event = call.arguments as? Dictionary<String, Any> else {
-            result(nil)
-            return
-        }
-
-        guard let name = event[eventNameKey] as? String else {
-            result(nil)
-            return
-        }
-
-        guard let value = event[eventValueKey] as? Int else {
-            result(nil)
-            return
-        }
-
-        // Decode event string
-        let customEvent = CustomEvent(name:name, value:NSNumber(value: value))
-
-        if let properties = event[propertiesKey] as? Dictionary<String, Any> {
-            customEvent.properties = properties
-        }
-
-        if let transactionID = event[transactionIDKey] as? String {
-            customEvent.transactionID = transactionID
-        }
-
-        if let interactionID = event[interactionIDKey] as? String {
-            customEvent.interactionID = interactionID
-        }
-
-        if let interactionType = event[interactionTypeKey] as? String {
-            customEvent.interactionType = interactionType
-        }
-
-        if customEvent.isValid() {
-            customEvent.track()
-            result(true)
-        } else {
-            result(false)
-        }
-    }
-
-    private func addTags(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let tags = call.arguments as! [String]
-        Airship.channel.editTags { editor in
-            editor.add(tags)
-            editor.apply()
-        }
-        Airship.channel.updateRegistration()
-        result(nil)
-    }
-
-    private func removeTags(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let tags = call.arguments as! [String]
-        Airship.channel.editTags { editor in
-            editor.remove(tags)
-            editor.apply()
-        }
-        Airship.channel.updateRegistration()
-        result(nil)
-    }
-
-    private func getTags(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        result(Airship.channel.tags)
-    }
-
-    private func editChannelAttributes(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let operations = call.arguments as! [Dictionary<String, Any>]
-        
-        Airship.channel.editAttributes { editor in
-            for operation in operations {
-                guard let operationType = operation[attributeOperationType] as? String else { continue }
-                guard let name = operation[attributeOperationKey] as? String else { continue }
-
-                if (operationType == attributeOperationSet) {
-                    if let value = operation[attributeOperationValue] as? String {
-                        editor.set(string: value, attribute: name)
-                        continue
-                    }
-                    if let value = operation[attributeOperationValue] as? NSNumber, CFGetTypeID(value) == CFNumberGetTypeID() {
-                        editor.set(number: value, attribute: name)
-                        continue
-                    }
-                } else if (operationType == attributeOperationRemove) {
-                    editor.remove(name)
-                }
             }
-            editor.apply()
         }
-        
-        result(nil)
-    }
-
-    private func editNamedUserAttributes(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let operations = call.arguments as! [Dictionary<String, Any>]
-        
-        Airship.contact.editAttributes { editor in
-            for operation in operations {
-                guard let operationType = operation[attributeOperationType] as? String else { continue }
-                guard let name = operation[attributeOperationKey] as? String else { continue }
-
-                if (operationType == attributeOperationSet) {
-                    if let value = operation[attributeOperationValue] as? String {
-                        editor.set(string: value, attribute: name)
-                        continue
-                    }
-                    if let value = operation[attributeOperationValue] as? NSNumber, CFGetTypeID(value) == CFNumberGetTypeID() {
-                        editor.set(number: value, attribute: name)
-                        continue
-                    }
-                } else if (operationType == attributeOperationRemove) {
-                    editor.remove(name)
-                }
-            }
-            editor.apply()
-        }
-        
-        result(nil)
     }
     
-    private func editNamedUserTagGroups(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let operations = call.arguments as! [Dictionary<String, Any>]
-
-        for operation in operations {
-            let group = operation[tagOperationGroupName] as! String
-            let operationType = operation[tagOperationType] as! String
-            let tags = operation[tagOperationTags] as! [String]
+    @MainActor
+    private func handle(_ call: FlutterMethodCall) async throws -> Any? {
+        switch call.method {
             
-            Airship.contact.editTagGroups() { editor in
-                if (operationType == tagOperationAdd) {
-                    editor.add(tags, group: group)
-                } else if (operationType == tagOperationRemove) {
-                    editor.remove(tags, group: group)
-                } else if (operationType == tagOperationSet) {
-                    editor.set(tags, group: group)
-                }
-                editor.apply()
+        // Flutter
+        case "startBackgroundIsolate":
+            return true
+
+        // Airship
+        case "takeOff":
+            return try AirshipProxy.shared.takeOff(
+                json: try call.requireAnyArg(),
+                launchOptions: AirshipAutopilot.shared.launchOptions
+            )
+            
+        case "isFlying":
+            return AirshipProxy.shared.isFlying()
+            
+        // Channel
+        case "channel#getChannelId":
+            return try AirshipProxy.shared.channel.getChannelId()
+            
+        case "channel#addTags":
+            return try AirshipProxy.shared.channel.addTags(
+                try call.requireStringArrayArg()
+            )
+            
+        case "channel#removeTags":
+            return try AirshipProxy.shared.channel.removeTags(
+                try call.requireStringArrayArg()
+            )
+        
+        case "channel#getTags":
+            return try AirshipProxy.shared.channel.getTags()
+            
+        case "channel#editTagGroups":
+            return try AirshipProxy.shared.channel.editTagGroups(
+                json: try call.requireAnyArg()
+            )
+            
+        case "channel#editSubscriptionLists":
+            return try AirshipProxy.shared.channel.editSubscriptionLists(
+                json: try call.requireAnyArg()
+            )
+            
+        case "channel#editAttributes":
+            return try AirshipProxy.shared.channel.editAttributes(
+                json: try call.requireAnyArg()
+            )
+        
+        case "channel#getSubscriptionLists":
+            return try await AirshipProxy.shared.channel.getSubscriptionLists()
+    
+            
+        // Contact
+        case "contact#editTagGroups":
+            return try AirshipProxy.shared.contact.editTagGroups(
+                json: try call.requireAnyArg()
+            )
+            
+        case "contact#editSubscriptionLists":
+            return try AirshipProxy.shared.contact.editSubscriptionLists(
+                json: try call.requireAnyArg()
+            )
+            
+        case "contact#editAttributes":
+            return try AirshipProxy.shared.contact.editAttributes(
+                json: try call.requireAnyArg()
+            )
+        
+        case "contact#getSubscriptionLists":
+            return try await AirshipProxy.shared.contact.getSubscriptionLists()
+        
+        case "contact#identify":
+            return try AirshipProxy.shared.contact.identify(
+                try call.requireStringArg()
+            )
+        
+        case "contact#reset":
+            return try AirshipProxy.shared.contact.reset()
+        
+        case "contact#getNamedUserId":
+            return try AirshipProxy.shared.contact.getNamedUser()
+        
+    
+        // Push
+        case "push#setUserNotificationsEnabled":
+            return try AirshipProxy.shared.push.setUserNotificationsEnabled(
+                try call.requireBooleanArg()
+            )
+        
+        case "push#enableUserNotifications":
+            return try await AirshipProxy.shared.push.enableUserPushNotifications()
+            
+        case "push#isUserNotifictionsEnabled":
+            return try AirshipProxy.shared.push.isUserNotificationsEnabled()
+        
+        case "push#getNotificationStatus":
+            return try AirshipProxy.shared.push.getNotificationStatus()
+            
+        case "push#getActiveNotifications":
+            return await AirshipProxy.shared.push.getActiveNotifications()
+            
+        case "push#clearNotification":
+            return AirshipProxy.shared.push.clearNotification(
+                try call.requireStringArg()
+            )
+            
+        case "push#clearNotifications":
+            AirshipProxy.shared.push.clearNotifications()
+            return nil
+            
+        case "push#ios#getBadgeNumber":
+            return try AirshipProxy.shared.push.getBadgeNumber()
+            
+        case "push#ios#setBadgeNumber":
+            return try AirshipProxy.shared.push.setBadgeNumber(
+                try call.requireIntArg()
+            )
+
+        case "push#ios#setAutobadgeEnabled":
+            return try AirshipProxy.shared.push.setAutobadgeEnabled(
+                try call.requireBooleanArg()
+            )
+            
+        case "push#ios#isAutobadgeEnabled":
+            return try AirshipProxy.shared.push.isAutobadgeEnabled()
+            
+        case "push#ios#setNotificationOptions":
+            return try AirshipProxy.shared.push.setNotificationOptions(
+                names: try call.requireStringArrayArg()
+            )
+
+        case "push#ios#setForegroundPresentationOptions":
+            return try AirshipProxy.shared.push.setForegroundPresentationOptions(
+                names: try call.requireStringArrayArg()
+            )
+
+        // In-App
+        case "inApp#setPaused":
+            return try AirshipProxy.shared.inApp.setPaused(
+                try call.requireBooleanArg()
+            )
+            
+        case "inApp#isPaused":
+            return try AirshipProxy.shared.inApp.isPaused()
+            
+        case "inApp#setDisplayInterval":
+            return try AirshipProxy.shared.inApp.setDisplayInterval(
+                try call.requireIntArg()
+            )
+            
+        case "inApp#getDisplayInterval":
+            return try AirshipProxy.shared.inApp.getDisplayInterval()
+
+        // Analytics
+        case "analytics#trackScreen":
+            return try AirshipProxy.shared.analytics.trackScreen(
+                call.arguments as? String
+            )
+            
+        case "analytics#addEvent":
+            // TODO
+            return nil
+            
+        case "analytics#associateIdentifier":
+            let args = try call.requireStringArrayArg()
+            guard args.count == 1 || args.count == 2 else { throw AirshipErrors.error("Call requires 1 to 2 strings.")}
+            return try AirshipProxy.shared.analytics.associateIdentifier(
+                identifier: args.count == 2 ? args[1] : nil,
+                key: args[0]
+            )
+        
+        // Message Center
+        case "messageCenter#getMessages":
+            return try AirshipProxy.shared.messageCenter.getMessagesJSON()
+            
+        case "messageCenter#display":
+            return try AirshipProxy.shared.messageCenter.display(
+                messageID: call.arguments as? String
+            )
+            
+        case "messageCenter#markMessageRead":
+            return try await AirshipProxy.shared.messageCenter.markMessageRead(
+                messageID: call.requireStringArg()
+            )
+            
+        case "messageCenter#deleteMessage":
+            return try await AirshipProxy.shared.messageCenter.deleteMessage(
+                messageID: call.requireStringArg()
+            )
+            
+        case "messageCenter#getUnreadMessageCount":
+            return try await AirshipProxy.shared.messageCenter.getUnreadCount()
+            
+        case "messageCenter#refreshMessages":
+            return try await AirshipProxy.shared.messageCenter.refresh()
+
+        case "messageCenter#setAutoLaunch":
+            return AirshipProxy.shared.messageCenter.setAutoLaunchDefaultMessageCenter(
+                try call.requireBooleanArg()
+            )
+        
+        // Preference Center
+        case "preferenceCenter#display":
+            return try AirshipProxy.shared.preferenceCenter.displayPreferenceCenter(
+                preferenceCenterID: try call.requireStringArg()
+            )
+        case "preferenceCenter#getConfig":
+            return try await AirshipProxy.shared.preferenceCenter.getPreferenceCenterConfig(
+                preferenceCenterID: try call.requireStringArg()
+            )
+            
+        case "preferenceCenter#setAutoLaunch":
+            let args = try call.requireArrayArg()
+            guard
+                args.count == 2,
+                let identifier = args[0] as? String,
+                let autoLaunch = args[1] as? Bool
+            else {
+                throw AirshipErrors.error("Call requires [String, Bool]")
             }
-        }
-        
-        result(nil)
-    }
 
-    private func editChannelTagGroups(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let operations = call.arguments as! [Dictionary<String, Any>]
+            return AirshipProxy.shared.preferenceCenter.setAutoLaunchPreferenceCenter(
+                autoLaunch,
+                preferenceCenterID: identifier
+            )
+            
+        // Privacy Manager
+        case "privacyManager#setEnabledFeatures":
+            return try AirshipProxy.shared.privacyManager.setEnabled(
+                featureNames: try call.requireStringArrayArg()
+            )
+            
+        case "privacyManager#getEnabledFeatures":
+            return try AirshipProxy.shared.privacyManager.getEnabledNames()
+            
+        case "privacyManager#enableFeatures":
+            return try AirshipProxy.shared.privacyManager.enable(
+                featureNames: try call.requireStringArrayArg()
+            )
+            
+        case "privacyManager#disableFeatures":
+            return try AirshipProxy.shared.privacyManager.disable(
+                featureNames: try call.requireStringArrayArg()
+            )
+            
+        case "privacyManager#isFeaturesEnabled":
+            return try AirshipProxy.shared.privacyManager.isEnabled(
+                featuresNames: try call.requireStringArrayArg()
+            )
+            
 
-        for operation in operations {
-            let group = operation[tagOperationGroupName] as! String
-            let operationType = operation[tagOperationType] as! String
-            let tags = operation[tagOperationTags] as! [String]
-            Airship.channel.editTagGroups() { editor in
-                if (operationType == tagOperationAdd) {
-                    editor.add(tags, group: group)
-                } else if (operationType == tagOperationRemove) {
-                    editor.remove(tags, group: group)
-                } else if (operationType == tagOperationSet) {
-                    editor.set(tags, group: group)
-                }
-                editor.apply()
-            }
-        }
+        // Locale
+        case "locale#setLocaleOverride":
+            return try AirshipProxy.shared.locale.setCurrentLocale(
+                try call.requireStringArg()
+            )
+            
+        case "locale#clearLocaleOverride":
+            return try AirshipProxy.shared.locale.clearLocale()
+            
+        case "locale#getCurrentLocale":
+            return try AirshipProxy.shared.locale.getCurrentLocale()
 
-        Airship.push.updateRegistration()
-        result(nil)
-    }
-
-    private func setNamedUser(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let namedUser = call.arguments as? String
-        
-        if let namedUser = namedUser, !namedUser.isEmpty {
-            Airship.contact.identify(namedUser)
-        } else {
-            Airship.contact.reset()
-        }
-
-        result(nil)
-    }
-
-    private func getNamedUser(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        result(Airship.contact.namedUserID)
-    }
-
-    private func getInboxMessages(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let messages = MessageCenter.shared.messageList.messages.map { (message) -> String in
-            var payload = ["title": message.title,
-                           "message_id": message.messageID,
-                           "sent_date": Utils.isoDateFormatterUTCWithDelimiter().string(from: message.messageSent),
-                           "is_read": !message.unread,
-                           "extras": message.extra] as [String : Any]
-
-
-            if let icons = message.rawMessageObject["icons"] as? [String:Any] {
-                if let listIcon = icons["list_icon"] {
-                    payload["list_icon"] = listIcon
-                }
+        // Actions
+        case "actions#run":
+            let args = try call.requireArrayArg()
+            guard
+                args.count == 1 || args.count == 2,
+                let actionName = args[0] as? String
+            else {
+                throw AirshipErrors.error("Call requires [String, Any?]")
             }
 
-            if let expiration = message.messageExpiration {
-                payload["expiration_date"] = Utils.isoDateFormatterUTCWithDelimiter().string(from: expiration)
-            }
+            return try await AirshipProxy.shared.action.runAction(
+                actionName,
+                actionValue: args.count == 2 ? args[1] : nil
+            )
 
-            let data = try! JSONSerialization.data(withJSONObject: payload as Any, options: [])
-            return String(data: data, encoding: .utf8)!
-        }
-
-        result(messages)
-    }
-
-    private func markInboxMessageRead(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let message = MessageCenter.shared.messageList.message(forID: call.arguments as! String)
-        MessageCenter.shared.messageList.markMessagesRead([message as Any]) {
-            result(nil)
-        }
-    }
-
-    private func refreshInbox(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        MessageCenter.shared.messageList.retrieveMessageList(successBlock: {
-            result(true)
-        }, withFailureBlock: {
-            result(false)
-        })
-    }
-
-    private func deleteInboxMessage(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let message = MessageCenter.shared.messageList.message(forID: call.arguments as! String)
-        MessageCenter.shared.messageList.markMessagesDeleted([message as Any]) {
-            result(nil)
-        }
-    }
-
-    private func loadCustomNotificationCategories() {
-        guard let categoriesPath = Bundle.main.path(forResource: "UACustomNotificationCategories", ofType: "plist") else { return }
-        let customNotificationCategories = NotificationCategories.createCategories(fromFile: categoriesPath)
-
-        if customNotificationCategories.count != 0 {
-            Airship.push.customCategories = customNotificationCategories
-            Airship.push.updateRegistration()
-        }
-    }
-
-    private func setInAppAutomationPaused(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let paused = call.arguments as! Bool
-
-        InAppAutomation.shared.isPaused = paused
-        result(true)
-    }
-
-    private func getInAppAutomationPaused(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        result(InAppAutomation.shared.isPaused)
-    }
-
-    private func enableChannelCreation(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        Airship.channel.enableChannelCreation()
-        result(nil)
-    }
-    
-    private func trackScreen(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let screen = call.arguments as! String
-        
-        Airship.analytics.trackScreen(screen)
-        result(nil)
-    }
-
-    private func setBadge(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let badge = call.arguments as! Int
-        Airship.push.badgeNumber = badge
-        result(nil)
-    }
-    
-    private func resetBadge(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        Airship.push.resetBadge()
-        result(nil)
-    }
-    
-    private func setAutoBadgeEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let enable = call.arguments as! Bool
-        Airship.push.autobadgeEnabled = enable
-        result(nil)
-    }
-    
-    private func isAutoBadgeEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        result(Airship.push.autobadgeEnabled)
-    }
-    
-    private func enableFeatures(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let featureArray = call.arguments as? Array<String> else {
-            result(nil)
-            return
-        }
-        
-        var features: Features = []
-        for feature in featureArray {
-            if let featureName = FeatureNames(rawValue: feature) {
-                features.update(with: featureName.toFeature())
-            }
-        }
-        Airship.shared.privacyManager.enableFeatures(features)
-        result(nil)
-    }
-    
-    private func disableFeatures(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let featureArray = call.arguments as? Array<String> else {
-            result(nil)
-            return
-        }
-        
-        var features: Features = []
-        for feature in featureArray {
-            if let featureName = FeatureNames(rawValue: feature) {
-                features.update(with: featureName.toFeature())
-            }
-        }
-        
-        Airship.shared.privacyManager.disableFeatures(features)
-        result(nil)
-    }
-    
-    private func setEnabledFeatures(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let featureArray = call.arguments as? Array<String> else {
-            result(nil)
-            return
-        }
-        
-        var features: Features = []
-        for feature in featureArray {
-            if let featureName = FeatureNames(rawValue: feature) {
-                features.update(with: featureName.toFeature())
-            }
-        }
-        
-        Airship.shared.privacyManager.enabledFeatures = features
-        result(nil)
-    }
-    
-    private func getEnabledFeatures(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let features = Airship.shared.privacyManager.enabledFeatures
-        
-        var featureArray: [String] = []
-        
-        if features == Features.all {
-            result(Features.all.toString())
-            return
-        }
-        if features == [] {
-            result(FeatureNames.none.rawValue)
-            return
-        }
-        
-        for featureName in FeatureNames.allCases {
-            let feature = featureName.toFeature()
-            if ((feature.rawValue & features.rawValue) != 0) && (feature != Features.all) {
-                featureArray.append(featureName.rawValue)
-            }
-        }
-        
-        result(featureArray)
-    }
-    
-    private func isFeatureEnabled(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let feature = call.arguments as? String else {
-            result(nil)
-            return
-        }
-        if let featureName = FeatureNames(rawValue: feature) {
-            result(Airship.shared.privacyManager.isEnabled(featureName.toFeature()))
-        }
-    }
-    
-    private func openPreferenceCenter(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let preferenceCenterID = call.arguments as? String else {
-            result(nil)
-            return
-        }
-        
-        PreferenceCenter.shared.open(preferenceCenterID)
-    
-        result(nil)
-    }
-    
-    private func getSubscriptionLists(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let subscriptionTypes = call.arguments as? [String] else {
-            result(nil)
-            return
-        }
-        
-        if (subscriptionTypes.count == 0) {
-            return
-        }
-        
-        var subscriptionLists: Dictionary<String, Any> = [:]
-        let dispatchGroup = DispatchGroup()
-        
-        if (subscriptionTypes.contains("channel")) {
-            dispatchGroup.enter()
-            Airship.channel.fetchSubscriptionLists { lists, error in
-                subscriptionLists["channel"] = lists ?? []
-                dispatchGroup.leave()
-            }
-        }
-        if (subscriptionTypes.contains("contact")) {
-            dispatchGroup.enter()
-            Airship.contact.fetchSubscriptionLists { lists, error in
-                guard let lists = lists else {
-                    subscriptionLists["contact"] = [:]
-                    dispatchGroup.leave()
-                    return
-                }
-                let listDict = lists.mapValues { value in
-                    return value.values.map { $0.stringValue }
-                }
-                subscriptionLists["contact"] = listDict
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.notify(queue: .main, execute: {
-            result(subscriptionLists)
-        })
-    }
-    
-    private func editChannelSubscriptionLists(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let subscriptionLists = call.arguments as? [[String:String]] else {
-            result(nil)
-            return
-        }
-        
-        let editor = Airship.channel.editSubscriptionLists()
-        
-        for subscription in subscriptionLists {
-            if let listId = subscription["listId"], let listType = subscription["type"] {
-                if listType == "subscribe" {
-                    editor.subscribe(listId)
-                }
-                if listType == "unsubscribe" {
-                    editor.unsubscribe(listId)
-                }
-            }
-        }
-        
-        editor.apply()
-        
-        result(nil)
-    }
-    
-    private func editContactSubscriptionLists(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let subscriptionLists = call.arguments as! [[String:Any]]
-        
-        let editor = Airship.contact.editSubscriptionLists()
-        
-        for subscription in subscriptionLists {
-            if let listId = subscription["listId"] as? String, let listType = subscription["type"] as? String, let scopes = subscription["scopes"] as? [String] {
-                if listType == "subscribe" {
-                    for scope in scopes {
-                        do {
-                            try editor.subscribe(listId, scope:ChannelScope.fromString(scope))
-                        }
-                        catch {
-                            result(FlutterError(code:"INVALID_SCOPE",
-                                              message:"Subscription List scope is invalid.",
-                                               details: nil))
-                        }
-                    }
-                }
-                if listType == "unsubscribe" {
-                    for scope in scopes {
-                        do {
-                            try editor.unsubscribe(listId, scope:ChannelScope.fromString(scope))
-                        }
-                        catch {
-                            result(FlutterError(code:"INVALID_SCOPE",
-                                              message:"Subscription List scope is invalid.",
-                                               details: nil))
-                        }
-                    }
-                }
-            }
-        }
-        
-        result(nil)
-    }
-    
-    private func getPreferenceCenterConfig(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let configID = call.arguments as? String else {
-            result(nil)
-            return
-        }
-
-        PreferenceCenter.shared.jsonConfig(preferenceCenterID: configID) { config in
-            result(JSONUtils.string(config))
-        }
-    }
-
-    private func setAutoLaunchDefaultPreferenceCenter(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let enabled = call.arguments as? Bool else {
-            result(nil)
-            return
-        }
-        
-        SwiftAirshipPlugin.defaults.set(enabled, forKey: autoLaunchPreferenceCenterKey)
-    }
-    
-    public func openPreferenceCenter(_ preferenceCenterID: String) -> Bool {
-        if let autoLaunchPreferenceCenter = SwiftAirshipPlugin.defaults.value(forKey: autoLaunchPreferenceCenterKey) {
-            if (autoLaunchPreferenceCenter as! Bool == true) {
-                return false
-            } else {
-                let event = AirshipShowPreferenceCenterEvent(preferenceCenterID)
-                AirshipEventManager.shared.notify(event)
-                return true
-            }
-        }
-        return false
-    }
-    
-    private enum CloudSiteNames : String {
-        case eu
-        case us
-        
-        func toSite() -> CloudSite {
-            switch (self) {
-            case .eu:
-                return CloudSite.eu
-            case .us:
-                return CloudSite.us
-            }
-        }
-    }
-}
-
-
-
-
-public enum FeatureNames : String, CaseIterable {
-    case push = "FEATURE_PUSH"
-    case chat = "FEATURE_CHAT"
-    case contacts = "FEATURE_CONTACTS"
-    case location = "FEATURE_LOCATION"
-    case messageCenter = "FEATURE_MESSAGE_CENTER"
-    case analytics = "FEATURE_ANALYTICS"
-    case tagsAndAttributes = "FEATURE_TAGS_AND_ATTRIBUTES"
-    case inAppAutomation = "FEATURE_IN_APP_AUTOMATION"
-    case none = "FEATURE_NONE"
-    case all = "FEATURE_ALL"
-    
-    func toFeature() -> Features {
-        switch self {
-        case .push:
-            return Features.push
-        case .chat:
-            return Features.chat
-        case .contacts:
-            return Features.contacts
-        case .location:
-            return Features.location
-        case .messageCenter:
-            return Features.messageCenter
-        case .analytics:
-            return Features.analytics
-        case .tagsAndAttributes:
-            return Features.tagsAndAttributes
-        case .inAppAutomation:
-            return Features.inAppAutomation
-        case .all:
-            return Features.all
         default:
-            return []
+            return FlutterError(
+                code:"UNAVAILABLE",
+                message:"Unknown method: \(call.method)",
+                details:nil
+            )
         }
     }
 }
 
-extension Features {
-    func toString() -> String {
-        switch self {
-        case .push:
-            return FeatureNames.push.rawValue
-        case .chat:
-            return FeatureNames.chat.rawValue
-        case .contacts:
-            return FeatureNames.contacts.rawValue
-        case .location:
-            return FeatureNames.location.rawValue
-        case .messageCenter:
-            return FeatureNames.messageCenter.rawValue
-        case .analytics:
-            return FeatureNames.analytics.rawValue
-        case .tagsAndAttributes:
-            return FeatureNames.tagsAndAttributes.rawValue
-        case .inAppAutomation:
-            return FeatureNames.inAppAutomation.rawValue
-        case .all:
-            return FeatureNames.all.rawValue
-        default:
-            return ""
+extension FlutterMethodCall {
+    func requireArrayArg() throws -> [Any] {
+        guard let args = self.arguments as? [Any] else {
+            throw AirshipErrors.error("Argument must be an array")
         }
+        
+        return args
+    }
+    
+    func requireStringArrayArg() throws -> [String] {
+        guard let args = self.arguments as? [String] else {
+            throw AirshipErrors.error("Argument must be a string array")
+        }
+        
+        return args
+    }
+    
+    func requireAnyArg() throws -> Any {
+        guard let args = self.arguments else {
+            throw AirshipErrors.error("Argument must not be null")
+        }
+        
+        return args
+    }
+    
+    func requireBooleanArg() throws -> Bool {
+        guard let args = self.arguments as? Bool else {
+            throw AirshipErrors.error("Argument must be a boolean")
+        }
+        
+        return args
+    }
+    
+    func requireStringArg() throws -> String {
+        guard let args = self.arguments as? String else {
+            throw AirshipErrors.error("Argument must be a string")
+        }
+        
+        return args
+    }
+    
+    func requireIntArg() throws -> Int {
+        if let int = self.arguments as? Int {
+            return int
+        }
+        
+        if let double = self.arguments as? Double {
+            return Int(double)
+        }
+        
+        if let number = self.arguments as? NSNumber {
+            return number.intValue
+        }
+        
+        throw AirshipErrors.error("Argument must be an int")
+    }
+    
+    func requireDoubleArg() throws -> Double {
+        if let double = self.arguments as? Double {
+            return double
+        }
+        
+        if let int = self.arguments as? Int {
+            return Double(int)
+        }
+        
+        if let number = self.arguments as? NSNumber {
+            return number.doubleValue
+        }
+        
+        
+        throw AirshipErrors.error("Argument must be a double")
     }
 }
 
+internal class AirshipEventStream : NSObject, FlutterStreamHandler {
+
+    private var eventSink : FlutterEventSink?
+    private let eventType: AirshipProxyEventType
+    private let lock = Lock()
+    private let name: String
+    
+    init(_ eventType: AirshipProxyEventType, name: String) {
+        self.eventType = eventType
+        self.name = name
+    }
+
+    private func notify(_ event: AirshipProxyEvent) -> Bool {
+        var result = false
+        lock.sync {
+            if let sink = self.eventSink {
+                sink(event.body)
+                result = true
+            }
+        }
+        
+        return result
+    }
+    
+    func register(registrar: FlutterPluginRegistrar) {
+        let eventChannel = FlutterEventChannel(
+            name: self.name,
+            binaryMessenger: registrar.messenger()
+        )
+        eventChannel.setStreamHandler(self)
+    }
+    
+    func processPendingEvents() async {
+        await AirshipProxyEventEmitter.shared.processPendingEvents(
+            type: eventType,
+            handler: { event in
+                return self.notify(event)
+            }
+        )
+    }
+
+    func onCancel(withArguments arguments: Any?) -> FlutterError? {
+        lock.sync {
+            self.eventSink = nil
+        }
+        
+        return nil
+    }
+
+    
+    func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+        lock.sync {
+            self.eventSink = events
+        }
+        
+        Task {
+           await processPendingEvents()
+        }
+        
+        return nil
+    }
+}
