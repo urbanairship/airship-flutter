@@ -95,29 +95,3 @@ void _backgroundMessageIsolateCallback() {
 typedef BackgroundMessageHandler = Future<void> Function(
     Map<String, dynamic> payload, Notification? notification);
 
-/// Event fired when a channel registration occurs.
-class ChannelEvent {
-  /// The channel ID.
-  final String? channelId;
-
-  /// The registration token.
-  ///
-  /// The registration token might be undefined
-  /// if registration is currently in progress, if the app is not setup properly
-  /// for remote notifications, if running on an iOS simulator, or if running on
-  /// an Android device that has an outdated or missing version of Google Play Services.
-  final String? registrationToken;
-
-  const ChannelEvent._internal(this.channelId, this.registrationToken);
-
-  static ChannelEvent _fromJson(Map<String, dynamic> json) {
-    var channelId = json["channel_id"];
-    var registrationToken = json["registration_token"];
-    return ChannelEvent._internal(channelId, registrationToken);
-  }
-
-  @override
-  String toString() {
-    return "ChannelEvent(channelId=$channelId, registrationToken=$registrationToken)";
-  }
-}

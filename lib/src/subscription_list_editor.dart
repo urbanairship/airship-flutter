@@ -1,44 +1,31 @@
 import 'dart:async';
-import 'package:flutter/services.dart';
 
 /// Subscription list editor.
 class SubscriptionListEditor {
-  static const SUBSCRIPTIONLIST_OPERATION_ID = "listId";
-  static const SUBSCRIPTIONLIST_OPERATION_TYPE = "type";
-  static const SUBSCRIPTIONLIST_OPERATION_SUBSCRIBE = "subscribe";
-  static const SUBSCRIPTIONLIST_OPERATION_UNSUBSCRIBE = "unsubscribe";
 
-  final MethodChannel channel;
+  final List<Map<String, dynamic>> _operations = [];
+  final Future<void> Function(dynamic operations) _onApply;
 
-  /// The subscription list update type.
-  final String type;
-
-  /// The subscription list updates.
-  final List<Map<String, dynamic>> operations;
-
-  SubscriptionListEditor(String type, MethodChannel channel)
-      : this.type = type,
-        this.operations = [],
-        this.channel = channel;
+  SubscriptionListEditor(this._onApply);
 
   /// Subscribes to a list
   void subscribe(String listId) {
-    operations.add({
-      SUBSCRIPTIONLIST_OPERATION_TYPE: SUBSCRIPTIONLIST_OPERATION_SUBSCRIBE,
-      SUBSCRIPTIONLIST_OPERATION_ID: listId
-    });
+    _addOperation(listId, "subscribe");
   }
 
   /// Unsubscribe from a list
   void unsubscribe(String listId) {
-    operations.add({
-      SUBSCRIPTIONLIST_OPERATION_TYPE: SUBSCRIPTIONLIST_OPERATION_UNSUBSCRIBE,
-      SUBSCRIPTIONLIST_OPERATION_ID: listId
-    });
+    _addOperation(listId, "unsubscribe");
+  }
+
+  void _addOperation(String listId, String action) {
+    _operations.add({"action": action, "listId": listId});
   }
 
   /// Applies subscription list changes.
   Future<void> apply() async {
-    return await channel.invokeMethod(type, operations);
+    var result = await this._onApply(_operations);
+    _operations.clear();
+    return result;
   }
 }

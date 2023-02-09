@@ -66,9 +66,8 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         Task {
             do {
-               result(
-                try await handle(call)
-               )
+                let pluginResult = try await handle(call);
+                result(pluginResult)
             } catch {
                 result(
                     FlutterError(
@@ -104,32 +103,37 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             return try AirshipProxy.shared.channel.getChannelId()
             
         case "channel#addTags":
-            return try AirshipProxy.shared.channel.addTags(
+            try AirshipProxy.shared.channel.addTags(
                 try call.requireStringArrayArg()
             )
+            return nil
             
         case "channel#removeTags":
-            return try AirshipProxy.shared.channel.removeTags(
+            try AirshipProxy.shared.channel.removeTags(
                 try call.requireStringArrayArg()
             )
+            return nil
         
         case "channel#getTags":
             return try AirshipProxy.shared.channel.getTags()
             
         case "channel#editTagGroups":
-            return try AirshipProxy.shared.channel.editTagGroups(
+            try AirshipProxy.shared.channel.editTagGroups(
                 json: try call.requireAnyArg()
             )
+            return nil
             
         case "channel#editSubscriptionLists":
-            return try AirshipProxy.shared.channel.editSubscriptionLists(
+            try AirshipProxy.shared.channel.editSubscriptionLists(
                 json: try call.requireAnyArg()
             )
+            return nil
             
         case "channel#editAttributes":
-            return try AirshipProxy.shared.channel.editAttributes(
+            try AirshipProxy.shared.channel.editAttributes(
                 json: try call.requireAnyArg()
             )
+            return nil
         
         case "channel#getSubscriptionLists":
             return try await AirshipProxy.shared.channel.getSubscriptionLists()
@@ -137,30 +141,35 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             
         // Contact
         case "contact#editTagGroups":
-            return try AirshipProxy.shared.contact.editTagGroups(
+            try AirshipProxy.shared.contact.editTagGroups(
                 json: try call.requireAnyArg()
             )
+            return nil
             
         case "contact#editSubscriptionLists":
-            return try AirshipProxy.shared.contact.editSubscriptionLists(
+            try AirshipProxy.shared.contact.editSubscriptionLists(
                 json: try call.requireAnyArg()
             )
+            return nil
             
         case "contact#editAttributes":
-            return try AirshipProxy.shared.contact.editAttributes(
+            try AirshipProxy.shared.contact.editAttributes(
                 json: try call.requireAnyArg()
             )
+            return nil
         
         case "contact#getSubscriptionLists":
             return try await AirshipProxy.shared.contact.getSubscriptionLists()
         
         case "contact#identify":
-            return try AirshipProxy.shared.contact.identify(
+            try AirshipProxy.shared.contact.identify(
                 try call.requireStringArg()
             )
+            return nil
         
         case "contact#reset":
-            return try AirshipProxy.shared.contact.reset()
+            try AirshipProxy.shared.contact.reset()
+            return nil
         
         case "contact#getNamedUserId":
             return try AirshipProxy.shared.contact.getNamedUser()
@@ -168,9 +177,10 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
     
         // Push
         case "push#setUserNotificationsEnabled":
-            return try AirshipProxy.shared.push.setUserNotificationsEnabled(
+            try AirshipProxy.shared.push.setUserNotificationsEnabled(
                 try call.requireBooleanArg()
             )
+            return nil
         
         case "push#enableUserNotifications":
             return try await AirshipProxy.shared.push.enableUserPushNotifications()
@@ -185,9 +195,10 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             return await AirshipProxy.shared.push.getActiveNotifications()
             
         case "push#clearNotification":
-            return AirshipProxy.shared.push.clearNotification(
+            AirshipProxy.shared.push.clearNotification(
                 try call.requireStringArg()
             )
+            return nil
             
         case "push#clearNotifications":
             AirshipProxy.shared.push.clearNotifications()
@@ -197,50 +208,57 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             return try AirshipProxy.shared.push.getBadgeNumber()
             
         case "push#ios#setBadgeNumber":
-            return try AirshipProxy.shared.push.setBadgeNumber(
+            try AirshipProxy.shared.push.setBadgeNumber(
                 try call.requireIntArg()
             )
+            return nil
 
         case "push#ios#setAutobadgeEnabled":
-            return try AirshipProxy.shared.push.setAutobadgeEnabled(
+            try AirshipProxy.shared.push.setAutobadgeEnabled(
                 try call.requireBooleanArg()
             )
+            return nil
             
         case "push#ios#isAutobadgeEnabled":
             return try AirshipProxy.shared.push.isAutobadgeEnabled()
             
         case "push#ios#setNotificationOptions":
-            return try AirshipProxy.shared.push.setNotificationOptions(
+            try AirshipProxy.shared.push.setNotificationOptions(
                 names: try call.requireStringArrayArg()
             )
+            return nil
 
         case "push#ios#setForegroundPresentationOptions":
-            return try AirshipProxy.shared.push.setForegroundPresentationOptions(
+            try AirshipProxy.shared.push.setForegroundPresentationOptions(
                 names: try call.requireStringArrayArg()
             )
+            return nil
 
         // In-App
         case "inApp#setPaused":
-            return try AirshipProxy.shared.inApp.setPaused(
+            try AirshipProxy.shared.inApp.setPaused(
                 try call.requireBooleanArg()
             )
+            return nil
             
         case "inApp#isPaused":
             return try AirshipProxy.shared.inApp.isPaused()
             
         case "inApp#setDisplayInterval":
-            return try AirshipProxy.shared.inApp.setDisplayInterval(
+            try AirshipProxy.shared.inApp.setDisplayInterval(
                 try call.requireIntArg()
             )
+            return nil
             
         case "inApp#getDisplayInterval":
             return try AirshipProxy.shared.inApp.getDisplayInterval()
 
         // Analytics
         case "analytics#trackScreen":
-            return try AirshipProxy.shared.analytics.trackScreen(
+            try AirshipProxy.shared.analytics.trackScreen(
                 call.arguments as? String
             )
+            return nil
             
         case "analytics#addEvent":
             // TODO
@@ -249,46 +267,54 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
         case "analytics#associateIdentifier":
             let args = try call.requireStringArrayArg()
             guard args.count == 1 || args.count == 2 else { throw AirshipErrors.error("Call requires 1 to 2 strings.")}
-            return try AirshipProxy.shared.analytics.associateIdentifier(
+            try AirshipProxy.shared.analytics.associateIdentifier(
                 identifier: args.count == 2 ? args[1] : nil,
                 key: args[0]
             )
+            return nil
         
         // Message Center
         case "messageCenter#getMessages":
             return try AirshipProxy.shared.messageCenter.getMessagesJSON()
             
         case "messageCenter#display":
-            return try AirshipProxy.shared.messageCenter.display(
+            try AirshipProxy.shared.messageCenter.display(
                 messageID: call.arguments as? String
             )
+            return nil
             
         case "messageCenter#markMessageRead":
-            return try await AirshipProxy.shared.messageCenter.markMessageRead(
+            try await AirshipProxy.shared.messageCenter.markMessageRead(
                 messageID: call.requireStringArg()
             )
+            return nil
             
         case "messageCenter#deleteMessage":
-            return try await AirshipProxy.shared.messageCenter.deleteMessage(
+            try await AirshipProxy.shared.messageCenter.deleteMessage(
                 messageID: call.requireStringArg()
             )
+            return nil
             
         case "messageCenter#getUnreadMessageCount":
             return try await AirshipProxy.shared.messageCenter.getUnreadCount()
             
         case "messageCenter#refreshMessages":
-            return try await AirshipProxy.shared.messageCenter.refresh()
+            try await AirshipProxy.shared.messageCenter.refresh()
+            return nil
 
         case "messageCenter#setAutoLaunch":
-            return AirshipProxy.shared.messageCenter.setAutoLaunchDefaultMessageCenter(
+            AirshipProxy.shared.messageCenter.setAutoLaunchDefaultMessageCenter(
                 try call.requireBooleanArg()
             )
+            return nil
         
         // Preference Center
         case "preferenceCenter#display":
-            return try AirshipProxy.shared.preferenceCenter.displayPreferenceCenter(
+            try AirshipProxy.shared.preferenceCenter.displayPreferenceCenter(
                 preferenceCenterID: try call.requireStringArg()
             )
+            return nil
+            
         case "preferenceCenter#getConfig":
             return try await AirshipProxy.shared.preferenceCenter.getPreferenceCenterConfig(
                 preferenceCenterID: try call.requireStringArg()
@@ -304,44 +330,50 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
                 throw AirshipErrors.error("Call requires [String, Bool]")
             }
 
-            return AirshipProxy.shared.preferenceCenter.setAutoLaunchPreferenceCenter(
+            AirshipProxy.shared.preferenceCenter.setAutoLaunchPreferenceCenter(
                 autoLaunch,
                 preferenceCenterID: identifier
             )
+            return nil
             
         // Privacy Manager
         case "privacyManager#setEnabledFeatures":
-            return try AirshipProxy.shared.privacyManager.setEnabled(
+            try AirshipProxy.shared.privacyManager.setEnabled(
                 featureNames: try call.requireStringArrayArg()
             )
+            return nil
             
         case "privacyManager#getEnabledFeatures":
             return try AirshipProxy.shared.privacyManager.getEnabledNames()
             
         case "privacyManager#enableFeatures":
-            return try AirshipProxy.shared.privacyManager.enable(
+            try AirshipProxy.shared.privacyManager.enable(
                 featureNames: try call.requireStringArrayArg()
             )
+            return nil
             
         case "privacyManager#disableFeatures":
-            return try AirshipProxy.shared.privacyManager.disable(
+            try AirshipProxy.shared.privacyManager.disable(
                 featureNames: try call.requireStringArrayArg()
             )
+            return nil
             
         case "privacyManager#isFeaturesEnabled":
             return try AirshipProxy.shared.privacyManager.isEnabled(
                 featuresNames: try call.requireStringArrayArg()
             )
-            
 
+            
         // Locale
         case "locale#setLocaleOverride":
-            return try AirshipProxy.shared.locale.setCurrentLocale(
+            try AirshipProxy.shared.locale.setCurrentLocale(
                 try call.requireStringArg()
             )
+            return nil
             
         case "locale#clearLocaleOverride":
-            return try AirshipProxy.shared.locale.clearLocale()
+            try AirshipProxy.shared.locale.clearLocale()
+            return nil
             
         case "locale#getCurrentLocale":
             return try AirshipProxy.shared.locale.getCurrentLocale()
