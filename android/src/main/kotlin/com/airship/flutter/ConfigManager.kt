@@ -59,16 +59,3 @@ class ConfigManager(private val context: Context) {
         }
 }
 
-
-fun AirshipConfigOptions.isValid(): Boolean {
-    if (this.appKey.isNullOrEmpty() || this.appSecret.isNullOrEmpty()) {
-        return false
-    }
-
-    return try {
-        validate()
-        true
-    } catch (e: IllegalArgumentException) {
-        false
-    }
-}

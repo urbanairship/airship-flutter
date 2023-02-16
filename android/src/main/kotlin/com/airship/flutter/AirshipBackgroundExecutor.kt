@@ -79,11 +79,11 @@ class AirshipBackgroundExecutor(
 
         // Notify the background message callback with any messages that were queued up while the
         // isolate was starting.
-        synchronized(messageQueue) {
-            for ((message, notificationInfo) in messageQueue) {
-                handleBackgroundMessage(appContext, message, notificationInfo)
+        synchronized(eventQueue) {
+            for (body in eventQueue) {
+                handleBackgroundMessage(appContext, body)
             }
-            messageQueue.clear()
+            eventQueue.clear()
         }
     }
 
@@ -92,8 +92,7 @@ class AirshipBackgroundExecutor(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun executeDartCallbackInBackgroundIsolate(
-        pushMessage: PushMessage,
-        notificationInfo: NotificationInfo? = null
+        pushPayload: Map<String, Any>
     ) = callbackFlow<Unit> {
         if (flutterEngine == null) {
             trySend(Unit)
@@ -118,11 +117,9 @@ class AirshipBackgroundExecutor(
             }
         }
 
-        val eventData = notificationInfo?.eventData()?.toJsonValue()?.toString()
         val args = mapOf(
             "messageCallback" to messageCallback,
-            "payload" to pushMessage.toJsonValue().toString(),
-            "notification" to eventData
+            "event" to pushPayload
         )
 
         mainHandler.post {
@@ -141,8 +138,8 @@ class AirshipBackgroundExecutor(
         private const val ISOLATE_CALLBACK = "isolate_callback"
         private const val MESSAGE_CALLBACK = "message_callback"
 
-        private val messageQueue =
-            Collections.synchronizedList(mutableListOf<Pair<PushMessage, NotificationInfo?>>())
+        private val eventQueue =
+            Collections.synchronizedList(mutableListOf<Map<String, Any>>())
 
         @Volatile
         internal var instance: AirshipBackgroundExecutor? = null
@@ -153,6 +150,9 @@ class AirshipBackgroundExecutor(
             if (instance?.isReady == true || callback == 0L) return
 
             startIsolate(context, callback, shellArgs)
+
+
+
         }
 
         private fun startIsolate(
@@ -178,7 +178,7 @@ class AirshipBackgroundExecutor(
 
         internal fun handleBackgroundMessage(
             context: Context,
-            pushMessage: PushMessage,
+            pushPayload: Map<String, Any>,
             notificationInfo: NotificationInfo? = null
         ) {
             if (!hasMessageCallback(context)) return
@@ -187,11 +187,11 @@ class AirshipBackgroundExecutor(
             if (executor?.isReady == true) {
                 // Send the message to the registered handler callback via the background isolate.
                 GlobalScope.launch {
-                    executor.executeDartCallbackInBackgroundIsolate(pushMessage, notificationInfo).first()
+                    executor.executeDartCallbackInBackgroundIsolate(pushPayload).first()
                 }
             } else {
                 // Isolate not ready. Queue the message for later.
-                messageQueue.add(pushMessage to notificationInfo)
+                eventQueue.add(pushPayload)
             }
         }
 

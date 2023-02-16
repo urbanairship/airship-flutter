@@ -1,137 +1,28 @@
 package com.airship.flutter
 
-import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.NotificationManager
 import android.content.Context
-import android.graphics.Bitmap
-import android.os.Build
-import android.view.View
-import android.webkit.WebView
-import androidx.core.app.NotificationManagerCompat
-import com.urbanairship.Autopilot
-import com.urbanairship.PrivacyManager
-import com.urbanairship.UAirship
-import com.urbanairship.analytics.CustomEvent
-import com.urbanairship.automation.InAppAutomation
-import com.urbanairship.channel.AttributeEditor
-import com.urbanairship.channel.TagGroupsEditor
-import com.urbanairship.contacts.Scope
-import com.urbanairship.json.JsonMap
-import com.urbanairship.json.JsonValue
-import com.urbanairship.messagecenter.MessageCenter
-import com.urbanairship.messagecenter.webkit.MessageWebView
-import com.urbanairship.messagecenter.webkit.MessageWebViewClient
-import com.urbanairship.preferencecenter.PreferenceCenter
-import com.urbanairship.util.DateUtils
-import com.urbanairship.util.UAStringUtil
+import com.urbanairship.actions.ActionResult
+import com.urbanairship.android.framework.proxy.EventType
+import com.urbanairship.android.framework.proxy.events.EventEmitter
+import com.urbanairship.android.framework.proxy.proxies.AirshipProxy
 import io.flutter.embedding.engine.FlutterShellArgs
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.BinaryMessenger
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
-import io.flutter.plugin.common.StandardMessageCodec
-import io.flutter.plugin.platform.PlatformView
-import io.flutter.plugin.platform.PlatformViewFactory
 import io.flutter.plugin.platform.PlatformViewRegistry
 import kotlinx.coroutines.*
 
-private const val TAG_OPERATION_GROUP_NAME = "group"
-private const val TAG_OPERATION_TYPE = "operationType"
-private const val TAG_OPERATION_TAGS = "tags"
-private const val TAG_OPERATION_ADD = "add"
-private const val TAG_OPERATION_REMOVE = "remove"
-private const val TAG_OPERATION_SET = "set"
-
-private const val ATTRIBUTE_MUTATION_TYPE = "action"
-private const val ATTRIBUTE_MUTATION_KEY = "key"
-private const val ATTRIBUTE_MUTATION_VALUE = "value"
-private const val ATTRIBUTE_MUTATION_REMOVE = "remove"
-private const val ATTRIBUTE_MUTATION_SET = "set"
-
-const val AUTO_LAUNCH_PREFERENCE_CENTER_KEY = "com.airship.flutter.auto_launch_pc"
-
-class InboxMessageViewFactory(private val binaryMessenger: BinaryMessenger) : PlatformViewFactory(StandardMessageCodec.INSTANCE) {
-    override fun create(context: Context?, viewId: Int, args: Any?): PlatformView {
-        val channel = MethodChannel(binaryMessenger, "com.airship.flutter/InboxMessageView_$viewId")
-        val view = FlutterInboxMessageView(checkNotNull(context), channel)
-        channel.setMethodCallHandler(view)
-        return view
-    }
-}
-
-class FlutterInboxMessageView(private var context: Context, channel: MethodChannel) : PlatformView, MethodCallHandler {
-
-    lateinit private var webviewResult:Result
-
-    private val webView: MessageWebView by lazy {
-        val view = MessageWebView(context)
-        view.webViewClient = object: MessageWebViewClient() {
-            override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
-                super.onPageStarted(view, url, favicon)
-                channel.invokeMethod("onLoadStarted", null)
-            }
-
-            override fun onPageFinished(view: WebView?, url: String?) {
-                super.onPageFinished(view, url)
-                channel.invokeMethod("onLoadFinished", null)
-            }
-
-            override fun onClose(webView: WebView) {
-                super.onClose(webView)
-                channel.invokeMethod("onClose", null)
-            }
-
-            override fun onReceivedError(view: WebView?, errorCode: Int, description: String?, failingUrl: String?) {
-                super.onReceivedError(view, errorCode, description, failingUrl)
-                if (errorCode == 410) {
-                    webviewResult.error("InvalidMessage", "Unable to load message", "Message not available")
-                } else {
-                    webviewResult.error("InvalidMessage", "Unable to load message", "Message load failed")
-                }
-            }
-        }
-        view
-    }
-
-    override fun onMethodCall(call: MethodCall, result: Result) {
-        when (call.method) {
-            "loadMessage" -> loadMessage(call, result)
-            else -> result.notImplemented()
-        }
-    }
-
-    override fun getView(): View = webView
-
-    override fun dispose() {
-
-    }
-
-    private fun loadMessage(call: MethodCall, result: Result) {
-        webviewResult = result
-        if (!(UAirship.isTakingOff() || UAirship.isFlying())) {
-            result.error("AIRSHIP_GROUNDED", "Takeoff not called.", null)
-            return
-        }
-
-        val message = MessageCenter.shared().inbox.getMessage(call.arguments())
-        if (message != null) {
-            webView.loadMessage(message)
-            message.markRead()
-        } else {
-            result.error("InvalidMessage", "Unable to load message: ${call.arguments}", null)
-        }
-    }
-}
-
 class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
-    private lateinit var channel : MethodChannel
+    private lateinit var channel: MethodChannel
 
     private lateinit var context: Context
 
@@ -142,6 +33,8 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Main) + SupervisorJob()
 
     private var mainActivity: Activity? = null
+
+    private lateinit var streams : Map<EventType, AirshipEventStream>
 
     companion object {
         @JvmStatic
@@ -165,59 +58,140 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         this.context = context
         this.channel = MethodChannel(binaryMessenger, "com.airship.flutter/airship")
         this.channel.setMethodCallHandler(this)
-        EventManager.shared.register(binaryMessenger)
+
+        this.streams = EventType.values().associateWith {
+            AirshipEventStream(it, binaryMessenger)
+        }
+
         platformViewRegistry.registerViewFactory("com.airship.flutter/InboxMessageView", InboxMessageViewFactory(binaryMessenger))
+
+        scope.launch {
+            EventEmitter.shared().pendingEventListener.collect {
+                streams[it]?.processPendingEvents()
+            }
+        }
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {
-        if (call.method == "takeOff") {
-            takeOff(call, result)
-            return
-        }
-
-        if (!UAirship.isFlying() && !UAirship.isTakingOff()) {
-            result.error("AIRSHIP_GROUNDED", "TakeOff not called.", null)
-            return
-        }
+        val proxy = AirshipProxy.shared(context)
 
         when (call.method) {
+            // Flutter
             "startBackgroundIsolate" -> startBackgroundIsolate(call, result)
-            "getChannelId" -> getChannelId(result)
-            "setUserNotificationsEnabled" -> setUserNotificationsEnabled(call, result)
-            "getUserNotificationsEnabled" -> getUserNotificationsEnabled(result)
-            "clearNotification" -> clearNotification(call, result)
-            "clearNotifications" -> clearNotifications(result)
-            "getActiveNotifications" -> getActiveNotifications(result)
-            "addTags" -> addTags(call, result)
-            "addEvent" -> addEvent(call, result)
-            "removeTags" -> removeTags(call, result)
-            "getTags" -> getTags(result)
-            "editChannelTagGroups" -> editChannelTagGroups(call, result)
-            "editNamedUserTagGroups" -> editNamedUserTagGroups(call, result)
-            "editAttributes" -> editChannelAttributes(call, result)
-            "editChannelAttributes" -> editChannelAttributes(call, result)
-            "editNamedUserAttributes" -> editNamedUserAttributes(call, result)
-            "setNamedUser" -> setNamedUser(call, result)
-            "getNamedUser" -> getNamedUser(result)
-            "getInboxMessages" -> getInboxMessages(result)
-            "refreshInbox" -> refreshInbox(result)
-            "markInboxMessageRead" -> markInboxMessageRead(call, result)
-            "deleteInboxMessage" -> deleteInboxMessage(call, result)
-            "setInAppAutomationPaused" -> setInAppAutomationPaused(call, result)
-            "getInAppAutomationPaused" -> getInAppAutomationPaused(result)
-            "enableChannelCreation" -> enableChannelCreation(result)
-            "trackScreen" -> trackScreen(call, result)
-            "enableFeatures" -> enableFeatures(call, result)
-            "disableFeatures" -> disableFeatures(call, result)
-            "setEnabledFeatures" -> setEnabledFeatures(call, result)
-            "getEnabledFeatures" -> getEnabledFeatures(result)
-            "isFeatureEnabled" -> isFeatureEnabled(call, result)
-            "openPreferenceCenter" -> openPreferenceCenter(call, result)
-            "getSubscriptionLists" -> getSubscriptionLists(call, result)
-            "editContactSubscriptionLists" -> editContactSubscriptionLists(call, result)
-            "editChannelSubscriptionLists" -> editChannelSubscriptionLists(call, result)
-            "getPreferenceCenterConfig" -> getPreferenceCenterConfig(call, result)
-            "setAutoLaunchDefaultPreferenceCenter" -> setAutoLaunchDefaultPreferenceCenter(call, result)
+
+            // Airship
+            "takeOff" -> result.resolveResult(call) { proxy.takeOff(call.jsonArgs()) }
+            "isFlying" -> result.resolveResult(call) { proxy.isFlying() }
+
+            // Channel
+            "channel#getChannelId" -> result.resolveResult(call) { proxy.channel.getChannelId() }
+            "channel#addTags" -> result.resolveResult(call) {
+                call.stringList().forEach {
+                    proxy.channel.addTag(it)
+                }
+            }
+            "channel#removeTags" ->
+                result.resolveResult(call) {
+                    call.stringList().forEach {
+                        proxy.channel.addTag(it)
+                    }
+                }
+            "channel#getTags" -> result.resolveResult(call) { proxy.channel.getTags() }
+            "channel#editTagGroups" -> result.resolveResult(call) { proxy.channel.editTagGroups(call.jsonArgs()) }
+            "channel#editSubscriptionLists" -> result.resolveResult(call) { proxy.channel.editSubscriptionLists(call.jsonArgs()) }
+            "channel#editAttributes" -> result.resolveResult(call) { proxy.channel.editAttributes(call.jsonArgs()) }
+            "channel#getSubscriptionLists" -> result.resolvePending(call) { proxy.channel.getSubscriptionLists() }
+
+            // Contact
+            "contact#reset" -> result.resolveResult(call) { proxy.contact.reset() }
+            "contact#identify" -> result.resolveResult(call) { proxy.contact.identify(call.stringArg()) }
+            "contact#getNamedUserId" -> result.resolveResult(call) { proxy.contact.getNamedUserId() }
+            "contact#editTagGroups" -> result.resolveResult(call) { proxy.contact.editTagGroups(call.jsonArgs()) }
+            "contact#editSubscriptionLists" -> result.resolveResult(call) { proxy.contact.editSubscriptionLists(call.jsonArgs()) }
+            "contact#editAttributes" -> result.resolveResult(call) { proxy.contact.editAttributes(call.jsonArgs()) }
+            "contact#getSubscriptionLists" -> result.resolvePending(call) { proxy.contact.getSubscriptionLists() }
+
+            // Push
+            "push#setUserNotificationsEnabled" -> result.resolveResult(call) { proxy.push.setUserNotificationsEnabled(call.booleanArg()) }
+            "push#enableUserNotifications" -> result.resolvePending(call) { proxy.push.enableUserPushNotifications() }
+            "push#isUserNotifictionsEnabled" -> result.resolveResult(call) { proxy.push.isUserNotificationsEnabled() }
+            "push#getNotificationStatus" -> result.resolveResult(call) { proxy.push.getNotificationStatus() }
+            "push#getActiveNotifications" -> result.resolveResult(call) { proxy.push.getActiveNotifications() }
+            "push#clearNotification" -> result.resolveResult(call) { proxy.push.clearNotification(call.stringArg()) }
+            "push#clearNotifications" -> result.resolveResult(call) { proxy.push.clearNotifications() }
+            "push#android#isNotificationChannelEnabled" -> result.resolveResult(call) { proxy.push.isNotificationChannelEnabled(call.stringArg()) }
+            "push#android#setNotificationConfig" -> result.resolveResult(call) { proxy.push.setNotificationConfig(call.jsonArgs()) }
+
+            // In-App
+            "inApp#setPaused" -> result.resolveResult(call) { proxy.inApp.setPaused(call.booleanArg()) }
+            "inApp#isPaused" -> result.resolveResult(call) { proxy.inApp.isPaused() }
+            "inApp#setDisplayInterval" -> result.resolveResult(call) { proxy.inApp.setDisplayInterval(call.longArg()) }
+            "inApp#getDisplayInterval" -> result.resolveResult(call) { proxy.inApp.getDisplayInterval() }
+
+            // Analytics
+            "analytics#trackScreen" -> result.resolveResult(call) { proxy.analytics.trackScreen(call.optStringArg()) }
+            "analytics#addEvent" -> TODO()
+            "analytics#associateIdentifier" -> {
+                val args = call.stringList()
+                proxy.analytics.associateIdentifier(
+                        args[0],
+                        args.getOrNull(1)
+                )
+            }
+
+            // Message Center
+            "messageCenter#getMessages" -> result.resolveResult(call) { proxy.messageCenter.getMessages() }
+            "messageCenter#display" -> result.resolveResult(call) { proxy.messageCenter.display(call.optStringArg()) }
+            "messageCenter#markMessageRead" -> result.resolveResult(call) { proxy.messageCenter.markMessageRead(call.stringArg()) }
+            "messageCenter#deleteMessage" -> result.resolveResult(call) { proxy.messageCenter.deleteMessage(call.stringArg()) }
+            "messageCenter#getUnreadMessageCount" -> result.resolveResult(call) { proxy.messageCenter.getUnreadMessagesCount() }
+            "messageCenter#setAutoLaunch" -> result.resolveResult(call) { proxy.messageCenter.setAutoLaunchDefaultMessageCenter(call.booleanArg()) }
+            "messageCenter#refreshMessages" -> result.resolveDeferred(call) { callback ->
+                proxy.messageCenter.refreshInbox().addResultCallback {
+                    if (it == true) {
+                        callback(null, null)
+                    } else {
+                        callback(null, Exception("Failed to refresh"))
+                    }
+                }
+            }
+
+            // Preference Center
+            "preferenceCenter#display" -> result.resolveResult(call) { proxy.preferenceCenter.displayPreferenceCenter(call.stringArg()) }
+            "preferenceCenter#getConfig" -> result.resolvePending(call) { proxy.preferenceCenter.getPreferenceCenterConfig(call.stringArg()) }
+            "preferenceCenter#setAutoLaunch" -> result.resolveResult(call) {
+                val args = call.jsonArgs().requireList()
+                proxy.preferenceCenter.setAutoLaunchPreferenceCenter(
+                        args.get(0).requireString(),
+                        args.get(1).getBoolean(false)
+                )
+            }
+
+            // Privacy Manager
+            "privacyManager#setEnabledFeatures" -> result.resolveResult(call) { proxy.privacyManager.setEnabledFeatures(call.stringList()) }
+            "privacyManager#getEnabledFeatures" -> result.resolveResult(call) { proxy.privacyManager.getFeatureNames() }
+            "privacyManager#enableFeatures" -> result.resolveResult(call) { proxy.privacyManager.enableFeatures(call.stringList()) }
+            "privacyManager#disableFeatures" -> result.resolveResult(call) { proxy.privacyManager.disableFeatures(call.stringList()) }
+            "privacyManager#isFeaturesEnabled" -> result.resolveResult(call) { proxy.privacyManager.isFeatureEnabled(call.stringList()) }
+
+            // Locale
+            "locale#setLocaleOverride" -> result.resolveResult(call) { proxy.locale.setCurrentLocale(call.stringArg()) }
+            "locale#getCurrentLocale" -> result.resolveResult(call) { proxy.locale.getCurrentLocale() }
+            "locale#clearLocaleOverride" -> result.resolveResult(call) { proxy.locale.clearLocale() }
+
+            // Actions
+            "actions#run" -> result.resolveDeferred(call) { callback ->
+                val args = call.jsonArgs().requireList().list
+
+                proxy.actions.runAction(args[0].requireString(), args.getOrNull(1))
+                        .addResultCallback { actionResult ->
+                            if (actionResult != null && actionResult.status == ActionResult.STATUS_COMPLETED) {
+                                callback(actionResult.value, null)
+                            } else {
+                                callback(null, Exception("Action failed ${actionResult?.status}"))
+                            }
+                        }
+            }
 
             else -> result.notImplemented()
         }
@@ -235,518 +209,6 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         result.success(null)
     }
 
-    private fun getInboxMessages(result: Result) {
-        val messages = MessageCenter.shared().inbox.messages
-                .map { message ->
-                    val extras = message.extras.keySet().map { key ->
-                        key to message.extras.getString(key)
-                    }.toMap()
-
-                    JsonMap.newBuilder()
-                            .putOpt("title", message.title)
-                            .putOpt("message_id", message.messageId)
-                            .putOpt("sent_date", DateUtils.createIso8601TimeStamp(message.sentDateMS))
-                            .putOpt("list_icon", message.listIconUrl)
-                            .putOpt("is_read", message.isRead)
-                            .putOpt("extras", JsonValue.wrap(extras))
-                            .apply {
-                                if (message.expirationDateMS != null) {
-                                    putOpt("expiration_date", DateUtils.createIso8601TimeStamp(message.expirationDateMS!!))
-                                }
-                            }.build().toString()
-                }
-
-        result.success(messages)
-    }
-
-    private fun takeOff(call: MethodCall, result: Result) {
-        val config = call.arguments as HashMap<*, *>
-        val appKey = config["app_key"] as String
-        val appSecret = config["app_secret"] as String
-
-        CoroutineScope(Dispatchers.IO).launch {
-            ConfigManager.shared(context).updateConfig(appKey, appSecret)
-            withContext(Dispatchers.Main) {
-                Autopilot.automaticTakeOff(context)
-                result.success(UAirship.isFlying() || UAirship.isTakingOff())
-            }
-        }
-    }
-
-    private fun refreshInbox(result: Result) {
-        MessageCenter.shared().inbox.fetchMessages { success ->
-            result.success(success)
-        }
-    }
-
-    private fun markInboxMessageRead(call: MethodCall, result: Result) {
-        val messageId = call.arguments as String?
-        MessageCenter.shared().inbox.markMessagesRead(setOf(messageId))
-        result.success(null)
-    }
-
-    private fun deleteInboxMessage(call: MethodCall, result: Result) {
-        val messageId = call.arguments as String?
-        MessageCenter.shared().inbox.deleteMessages(setOf(messageId))
-        result.success(null)
-    }
-
-    private fun addTags(call: MethodCall, result: Result) {
-        val tags = uncheckedCast<List<String>>(call.arguments).toSet()
-        UAirship.shared().channel.editTags().addTags(tags).apply()
-        result.success(null)
-    }
-
-    private fun addEvent(call: MethodCall, result: Result) {
-        val eventMap = call.arguments as HashMap<*, *>
-
-        val eventName = eventMap[CustomEvent.EVENT_NAME] as String? ?: run {
-            result.success(false)
-            return
-        }
-
-        val event = CustomEvent.Builder(eventName).apply {
-            (eventMap[CustomEvent.EVENT_VALUE] as Int?)?.let {
-                this.setEventValue(it)
-            }
-
-            this.setProperties(JsonValue.wrapOpt(eventMap[CustomEvent.PROPERTIES]).optMap())
-
-            (eventMap[CustomEvent.TRANSACTION_ID] as String?)?.let {
-                this.setTransactionId(it)
-            }
-
-            val interactionId = eventMap[CustomEvent.INTERACTION_ID] as String?
-            val interactionType = eventMap[CustomEvent.INTERACTION_TYPE] as String?
-
-            if (interactionId != null && interactionType != null) {
-                this.setInteraction(interactionType, interactionId)
-            }
-        }.build()
-
-        if (event.isValid) {
-            event.track()
-            result.success(true)
-        } else {
-            result.success(false)
-        }
-    }
-
-    private fun removeTags(call: MethodCall, result: Result) {
-        val tags = uncheckedCast<List<String>>(call.arguments).toSet()
-        UAirship.shared().channel.editTags().removeTags(tags).apply()
-        result.success(null)
-    }
-
-    private fun getTags(result: Result) {
-        result.success(ArrayList<String>(UAirship.shared().channel.tags))
-    }
-
-    private fun editChannelTagGroups(call: MethodCall, result: Result) {
-        var operations = call.arguments as ArrayList<Map<String, Any?>>
-        this.applyTagGroupOperations(UAirship.shared().channel.editTagGroups(), operations)
-        result.success(null)
-    }
-
-    private fun editNamedUserTagGroups(call: MethodCall, result: Result) {
-        var operations = call.arguments as ArrayList<Map<String, Any?>>
-        this.applyTagGroupOperations(UAirship.shared().namedUser.editTagGroups(), operations)
-        result.success(null)
-    }
-
-    private fun applyTagGroupOperations(editor: TagGroupsEditor, operations: ArrayList<Map<String, Any?>>) {
-        for (i in 0 until operations.size) {
-            val operation: Map<String, Any?> = operations[i]
-            val group = operation[TAG_OPERATION_GROUP_NAME] as String
-            val tags = operation[TAG_OPERATION_TAGS] as ArrayList<String?>
-            val operationType = operation[TAG_OPERATION_TYPE] as String
-
-            val tagSet = mutableSetOf<String?>()
-            for (j in 0 until tags.size) {
-                val tag = tags[j]
-                if (tag != null) {
-                    tagSet.add(tag)
-                }
-            }
-
-            if (TAG_OPERATION_ADD == operationType) {
-                editor.addTags(group, tagSet)
-            } else if (TAG_OPERATION_REMOVE == operationType) {
-                editor.removeTags(group, tagSet)
-            } else if (TAG_OPERATION_SET == operationType) {
-                editor.setTags(group, tagSet)
-            }
-        }
-
-        editor.apply();
-    }
-
-    private fun editChannelAttributes(call: MethodCall, result: Result) {
-        val mutations = call.arguments as ArrayList<Map<String, Any?>>
-        this.applyAttributesOperations(UAirship.shared().channel.editAttributes(), mutations)
-        result.success(null)
-    }
-
-    private fun editNamedUserAttributes(call: MethodCall, result: Result) {
-        val mutations = call.arguments as ArrayList<Map<String, Any?>>
-        this.applyAttributesOperations(UAirship.shared().namedUser.editAttributes(), mutations)
-        result.success(null)
-    }
-
-    private fun applyAttributesOperations(editor: AttributeEditor, operations: ArrayList<Map<String, Any?>>) {
-        for (operation in operations) {
-            val action = operation[ATTRIBUTE_MUTATION_TYPE] as? String ?: continue
-            val key = operation[ATTRIBUTE_MUTATION_KEY] as? String ?: continue
-
-            if (ATTRIBUTE_MUTATION_SET == action) {
-                val value = operation[ATTRIBUTE_MUTATION_VALUE]
-                if (value is String) {
-                    editor.setAttribute(key, value)
-                    continue
-                }
-                if (value is Int) {
-                    editor.setAttribute(key, value)
-                    continue
-                }
-                if (value is Long) {
-                    editor.setAttribute(key, value)
-                    continue
-                }
-                if (value is Double) {
-                    editor.setAttribute(key, value)
-                    continue
-                }
-                if (value is Float) {
-                    editor.setAttribute(key, value)
-                    continue
-                }
-            } else if (ATTRIBUTE_MUTATION_REMOVE == action) {
-                editor.removeAttribute(key)
-            }
-        }
-
-        editor.apply()
-    }
-
-    private fun setNamedUser(call: MethodCall, result: Result) {
-        val arg = call.arguments as String?
-        if (arg.isNullOrEmpty()) {
-            UAirship.shared().contact.reset()
-        } else {
-            UAirship.shared().contact.identify(arg)
-        }
-
-        result.success(null)
-    }
-
-    private fun getNamedUser(result: Result) {
-        result.success(UAirship.shared().contact.namedUserId)
-    }
-
-    private fun setUserNotificationsEnabled(call: MethodCall, result: Result) {
-        UAirship.shared().pushManager.userNotificationsEnabled = call.arguments as Boolean
-        result.success(true)
-    }
-
-    private fun getUserNotificationsEnabled(result: Result) {
-        result.success(UAirship.shared().pushManager.userNotificationsEnabled)
-    }
-
-    private fun getActiveNotifications(result: Result) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val notifications = arrayListOf<Map<String, Any?>>()
-
-            val notificationManager = UAirship.getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            val statusBarNotifications = notificationManager.activeNotifications
-
-            for (statusBarNotification in statusBarNotifications) {
-                var message = statusBarNotification.pushMessage()
-                val tag = statusBarNotification.tag ?: ""
-                val id = statusBarNotification.id.toString()
-                notifications.add(Utils.shared.notificationObject(message, tag, id))
-            }
-            result.success(notifications)
-        } else {
-            result.error("UNSUPPORTED", "Getting active notifications is only supported on Marshmallow and newer devices.", null)
-        }
-    }
-
-    private fun clearNotification(call: MethodCall, result: Result) {
-        val identifier = call.arguments as String
-
-        if (UAStringUtil.isEmpty(identifier)) {
-            result.error("InvalidIdentifierFormat", "Unable to clear notification", null)
-            return
-        }
-
-        val parts = identifier.split(":", ignoreCase = true, limit = 2)
-        if (parts.isEmpty()) {
-            result.error("InvalidIdentifierFormat", "Unable to clear notification", null)
-            return
-        }
-
-        var tag = String()
-        var id: Int
-
-        try {
-            id = (parts[0]).toInt()
-        } catch (e: NumberFormatException) {
-            result.error("InvalidIdentifierFormat", "Unable to clear notification", null)
-            return
-        }
-
-        if (parts.size == 2) {
-            tag = parts[1]
-        }
-
-        if (tag == "") {
-            NotificationManagerCompat.from(UAirship.getApplicationContext()).cancel(null, id)
-        } else {
-            NotificationManagerCompat.from(UAirship.getApplicationContext()).cancel(tag, id)
-        }
-
-        result.success(true)
-    }
-
-    private fun clearNotifications(result: Result) {
-        NotificationManagerCompat.from(UAirship.getApplicationContext()).cancelAll();
-        result.success(true)
-    }
-
-    private fun setInAppAutomationPaused(call: MethodCall, result: Result) {
-        val paused = call.arguments as Boolean
-
-        InAppAutomation.shared().isPaused = paused
-        result.success(true)
-    }
-
-    private fun getInAppAutomationPaused(result: Result) {
-        result.success(InAppAutomation.shared().isPaused)
-    }
-
-    fun getChannelId(result: Result) {
-        result.success(UAirship.shared().channel.id)
-    }
-
-
-    private fun enableChannelCreation(result: Result) {
-        UAirship.shared().channel.enableChannelCreation()
-        result.success(null)
-    }
-
-    private fun trackScreen(call: MethodCall, result: Result) {
-        val screen = call.arguments as String
-        UAirship.shared().analytics.trackScreen(screen)
-        result.success(null)
-    }
-
-    private fun enableFeatures(call: MethodCall, result: Result) {
-        val featureArray = call.arguments as List<String>
-        val features: MutableList<Int> = mutableListOf()
-        for (feature in featureArray) {
-            (FeatureNames.values().firstOrNull { it.toString() == feature })?.also { featureName ->
-                features.add(FeatureNames.toFeature(featureName))
-            }
-        }
-        UAirship.shared().privacyManager.enable(*(features.toIntArray()))
-        result.success(null)
-    }
-
-    private fun disableFeatures(call: MethodCall, result: Result) {
-        val featureArray = call.arguments as List<String>
-        val features: MutableList<Int> = mutableListOf()
-        for (feature in featureArray) {
-            (FeatureNames.values().firstOrNull { it.toString() == feature })?.also { featureName ->
-                features.add(FeatureNames.toFeature(featureName))
-            }
-        }
-        UAirship.shared().privacyManager.disable(*(features.toIntArray()))
-        result.success(null)
-    }
-
-    private fun setEnabledFeatures(call: MethodCall, result: Result) {
-        val featureArray = call.arguments as List<String>
-        val features: MutableList<Int> = mutableListOf()
-        for (feature in featureArray) {
-            (FeatureNames.values().firstOrNull { it.toString() == feature })?.also { featureName ->
-                features.add(FeatureNames.toFeature(featureName))
-            }
-        }
-        UAirship.shared().privacyManager.setEnabledFeatures(*(features.toIntArray()))
-        result.success(null)
-    }
-
-    private fun getEnabledFeatures(result: Result) {
-        val features = UAirship.shared().privacyManager.enabledFeatures
-        val featureArray: MutableList<String> = mutableListOf()
-
-        if (features == PrivacyManager.FEATURE_ALL) {
-            result.success(stringFromFeature(PrivacyManager.FEATURE_ALL))
-            return
-        }
-        if (features == PrivacyManager.FEATURE_NONE) {
-            result.success(stringFromFeature(PrivacyManager.FEATURE_NONE))
-            return
-        }
-
-        for (featureName in FeatureNames.values()) {
-            val feature = FeatureNames.toFeature(featureName)
-            if ((feature and features != 0) && (feature != PrivacyManager.FEATURE_ALL)) {
-                featureArray.add(featureName.toString())
-            }
-        }
-        result.success(featureArray)
-    }
-
-    private fun isFeatureEnabled(call: MethodCall, result: Result) {
-        val feature = call.arguments as String
-        var isEnabled = false
-        (FeatureNames.values().firstOrNull { it.toString() == feature })?.also { featureName ->
-            isEnabled = UAirship.shared().privacyManager.isEnabled(FeatureNames.toFeature(featureName))
-        }
-        result.success(isEnabled)
-    }
-
-    private fun openPreferenceCenter(call: MethodCall, result: Result) {
-        val preferenceCenterID = call.arguments as String
-        
-        PreferenceCenter.shared().open(preferenceCenterID)
-
-        result.success(null)
-    }
-
-    private fun getSubscriptionLists(call: MethodCall, result: Result) {
-        scope.launch(Dispatchers.Main) {
-            val subscriptionLists = withContext(Dispatchers.IO) {
-                val channelSubs = async {
-                    UAirship.shared().channel.getSubscriptionLists(true).get()
-                        ?.toList()
-                        ?: emptyList()
-                }
-                val contactSubs = async {
-                    UAirship.shared().contact.getSubscriptionLists(true).get()
-                        ?.mapValues { it.value.map(Scope::toString) }
-                        ?: emptyMap()
-                }
-
-                // Block until both requests complete and return a map
-                mapOf(
-                    "channel" to channelSubs.await(),
-                    "contact" to contactSubs.await()
-                )
-            }
-
-            // Callback on main dispatcher with result
-            result.success(subscriptionLists)
-        }
-    }
-
-    private fun editChannelSubscriptionLists(call: MethodCall, result: Result) {
-        var operations = call.arguments as ArrayList<Map<String, Any?>>
-
-        var editor = UAirship.shared().channel.editSubscriptionLists()
-
-        operations.forEach {
-            val listId = it["listId"] as String
-            val operationType = it["type"] as String
-
-            if (operationType == "subscribe") {
-                editor.subscribe(listId)
-            } else if (operationType == "unsubscribe") {
-                editor.unsubscribe(listId)
-            }
-        }
-
-        editor.apply();
-
-        result.success(null)
-    }
-
-    private fun editContactSubscriptionLists(call: MethodCall, result: Result) {
-        var operations = call.arguments as ArrayList<Map<String, Any?>>
-
-        var editor = UAirship.shared().contact.editSubscriptionLists()
-
-        operations.forEach {
-            val listId = it["listId"] as String
-            val operationType = it["type"] as String
-            val scopes = it["scopes"] as ArrayList<String>
-
-            if (operationType == "subscribe") {
-                for (scope in scopes) {
-                    editor.subscribe(listId, Scope.fromJson(JsonValue.parseString(scope)))
-                }
-            } else if (operationType == "unsubscribe") {
-                for (scope in scopes) {
-                    editor.unsubscribe(listId, Scope.fromJson(JsonValue.parseString(scope)))
-                }
-            }
-        }
-
-        editor.apply();
-
-        result.success(null)
-    }
-
-    @SuppressLint("RestrictedApi")
-    private fun getPreferenceCenterConfig(call: MethodCall, result: Result) {
-        val preferenceCenterId = call.arguments as String
-
-        PreferenceCenter.shared().getJsonConfig(preferenceCenterId).addResultCallback { config ->
-            result.success(config?.toString() ?: JsonMap.EMPTY_MAP.toString())
-        }
-    }
-
-    private fun setAutoLaunchDefaultPreferenceCenter(call: MethodCall, result: Result) {
-        val enabled = call.arguments as Boolean
-
-        sharedPreferences.edit().putBoolean(AUTO_LAUNCH_PREFERENCE_CENTER_KEY, enabled).apply()
-
-        result.success(null)
-    }
-
-    private enum class FeatureNames {
-        FEATURE_PUSH, FEATURE_CHAT, FEATURE_CONTACTS, FEATURE_LOCATION, FEATURE_MESSAGE_CENTER, FEATURE_ANALYTICS, FEATURE_TAGS_AND_ATTRIBUTES, FEATURE_IN_APP_AUTOMATION, FEATURE_NONE, FEATURE_ALL;
-
-        companion object {
-            fun toFeature(name: FeatureNames): Int {
-                return when (name) {
-                    FEATURE_PUSH -> PrivacyManager.FEATURE_PUSH
-                    FEATURE_CHAT -> PrivacyManager.FEATURE_CHAT
-                    FEATURE_CONTACTS -> PrivacyManager.FEATURE_CONTACTS
-                    FEATURE_LOCATION -> PrivacyManager.FEATURE_LOCATION
-                    FEATURE_MESSAGE_CENTER -> PrivacyManager.FEATURE_MESSAGE_CENTER
-                    FEATURE_ANALYTICS -> PrivacyManager.FEATURE_ANALYTICS
-                    FEATURE_TAGS_AND_ATTRIBUTES -> PrivacyManager.FEATURE_TAGS_AND_ATTRIBUTES
-                    FEATURE_IN_APP_AUTOMATION -> PrivacyManager.FEATURE_IN_APP_AUTOMATION
-                    FEATURE_NONE -> PrivacyManager.FEATURE_NONE
-                    FEATURE_ALL -> PrivacyManager.FEATURE_ALL
-                }
-            }
-        }
-    }
-
-    fun stringFromFeature(feature: Int): String {
-        return when (feature) {
-            PrivacyManager.FEATURE_PUSH -> "FEATURE_PUSH"
-            PrivacyManager.FEATURE_CHAT -> "FEATURE_CHAT"
-            PrivacyManager.FEATURE_CONTACTS -> "FEATURE_CONTACTS"
-            PrivacyManager.FEATURE_LOCATION -> "FEATURE_LOCATION"
-            PrivacyManager.FEATURE_MESSAGE_CENTER -> "FEATURE_MESSAGE_CENTER"
-            PrivacyManager.FEATURE_ANALYTICS -> "FEATURE_ANALYTICS"
-            PrivacyManager.FEATURE_TAGS_AND_ATTRIBUTES -> "FEATURE_TAGS_AND_ATTRIBUTES"
-            PrivacyManager.FEATURE_IN_APP_AUTOMATION -> "FEATURE_IN_APP_AUTOMATION"
-            PrivacyManager.FEATURE_NONE -> "FEATURE_NONE"
-            PrivacyManager.FEATURE_ALL -> "FEATURE_ALL"
-            else -> "unknown feature"
-        }
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    fun <T> uncheckedCast(value: Any): T {
-        return value as T
-    }
-
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         mainActivity = binding.activity
     }
@@ -762,4 +224,45 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     override fun onDetachedFromActivity() {
         mainActivity = null
     }
+
+    internal class AirshipEventStream(private val eventType: EventType, binaryMessenger: BinaryMessenger) {
+
+        private var eventSink: EventChannel.EventSink? = null
+
+        init {
+            val name = when(eventType) {
+                EventType.BACKGROUND_NOTIFICATION_RESPONSE_RECEIVED -> "com.airship.flutter/event/notification_response"
+                EventType.FOREGROUND_NOTIFICATION_RESPONSE_RECEIVED -> "com.airship.flutter/event/notification_response"
+                EventType.CHANNEL_CREATED -> "com.airship.flutter/event/channel_created"
+                EventType.DEEP_LINK_RECEIVED -> "com.airship.flutter/event/deep_link_received"
+                EventType.DISPLAY_MESSAGE_CENTER -> "com.airship.flutter/event/message_center_updated"
+                EventType.DISPLAY_PREFERENCE_CENTER -> "com.airship.flutter/event/display_preference_center"
+                EventType.MESSAGE_CENTER_UPDATED -> "com.airship.flutter/event/message_center_updated"
+                EventType.PUSH_TOKEN_RECEIVED -> "com.airship.flutter/event/push_token_received"
+                EventType.PUSH_RECEIVED -> "com.airship.flutter/event/push_received"
+                EventType.NOTIFICATION_OPT_IN_CHANGED -> "com.airship.flutter/event/notification_opt_in_status"
+            }
+
+            val eventChannel = EventChannel(binaryMessenger, name)
+            eventChannel.setStreamHandler(object:EventChannel.StreamHandler {
+                override fun onListen(arguments: Any?, eventSink: EventChannel.EventSink?) {
+                    this@AirshipEventStream.eventSink = eventSink
+                }
+
+                override fun onCancel(p0: Any?) {
+                    this@AirshipEventStream.eventSink = null
+                }
+            })
+        }
+
+        fun processPendingEvents() {
+            val sink = eventSink ?: return
+
+            EventEmitter.shared().processPending(listOf(eventType)) { event ->
+                sink.success(event.body)
+                true
+            }
+        }
+    }
 }
+
