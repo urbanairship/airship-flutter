@@ -28,7 +28,7 @@ class AirshipPush {
   Future<bool> isAutoBadgeEnabled() async {
     var isAutoBadgeEnabled = false;
     if (Platform.isIOS) {
-      isAutoBadgeEnabled = await _module.channel.invokeMethod('isAutoBadgeEnabled');
+      isAutoBadgeEnabled = await _module.channel.invokeMethod('push#isAutoBadgeEnabled');
     }
     return isAutoBadgeEnabled;
   }
@@ -36,7 +36,7 @@ class AirshipPush {
   /// Enables or disables auto-badging on iOS. Badging is not supported for Android.
   Future<void> setAutoBadgeEnabled(bool enabled) async {
     if (Platform.isIOS) {
-      return await _module.channel.invokeMethod('setAutoBadgeEnabled', enabled);
+      return await _module.channel.invokeMethod('push#setAutoBadgeEnabled', enabled);
     } else {
       return Future.value();
     }
@@ -45,7 +45,7 @@ class AirshipPush {
   /// Sets the [badge] number on iOS. Badging is not supported for Android.
   Future<void> setBadge(int badge) async {
     if (Platform.isIOS) {
-      return await _module.channel.invokeMethod('setBadge', badge);
+      return await _module.channel.invokeMethod('push#setBadge', badge);
     } else {
       return Future.value();
     }
@@ -54,7 +54,7 @@ class AirshipPush {
   /// Clears the badge on iOS. Badging is not supported for Android.
   Future<void> resetBadge() async {
     if (Platform.isIOS) {
-      return await _module.channel.invokeMethod('resetBadge');
+      return await _module.channel.invokeMethod('push#resetBadge');
     } else {
       return Future.value();
     }
@@ -65,7 +65,7 @@ class AirshipPush {
   /// Supported on Android Marshmallow (23)+ and iOS 10+.
   Future<List<Notification>> get activeNotifications async {
     List notifications =
-    await (_module.channel.invokeMethod('getActiveNotifications'));
+    await (_module.channel.invokeMethod('push#getActiveNotifications'));
     return notifications.map((dynamic payload) {
       return Notification.fromJson(Map<String, dynamic>.from(payload));
     }).toList();
@@ -98,7 +98,7 @@ class AirshipPush {
   /// The [notification] parameter is the notification ID.
   /// Supported on Android and iOS 10+.
   Future<void> clearNotification(String notification) async {
-    return await _module.channel.invokeMethod('clearNotification', notification);
+    return await _module.channel.invokeMethod('push#clearNotification', notification);
   }
 
   /// Clears all notifications for the application.
@@ -106,7 +106,7 @@ class AirshipPush {
   /// Supported on Android and iOS 10+. For older iOS devices, you can set
   /// the badge number to 0 to clear notifications.
   Future<void> clearNotifications() async {
-    return await _module.channel.invokeMethod('clearNotifications');
+    return await _module.channel.invokeMethod('push#clearNotifications');
   }
 
   /// Gets push received event stream.

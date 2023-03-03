@@ -33,39 +33,39 @@ class AirshipChannel {
   Future<SubscriptionList> getSubscriptionLists(
       List<String> subscriptionListTypes) async {
     var lists = await (_module.channel.invokeMethod(
-        "getSubscriptionLists", subscriptionListTypes));
+        "channel#getSubscriptionLists", subscriptionListTypes));
     return SubscriptionList._fromJson(Map<String, dynamic>.from(lists));
   }
 
   /// Adds channel tags.
   Future<void> addTags(List<String> tags) async {
-    return await _module.channel.invokeMethod('addTags', tags);
+    return await _module.channel.invokeMethod('channel#addTags', tags);
   }
 
   /// Removes channel tags.
   Future<void> removeTags(List<String> tags) async {
-    return await _module.channel.invokeMethod('removeTags', tags);
+    return await _module.channel.invokeMethod('channel#removeTags', tags);
   }
 
   /// Gets the channel tags.
   Future<List<String>> get tags async {
-    List tags = await (_module.channel.invokeMethod("getTags"));
+    List tags = await (_module.channel.invokeMethod("channel#getTags"));
     return tags.cast<String>();
   }
 
   /// Enables channel creation.
   Future<void> enableChannelCreation() async {
-    return await _module.channel.invokeMethod('enableChannelCreation');
+    return await _module.channel.invokeMethod('channel#enableChannelCreation');
   }
 
   /// Creates an [AttributeEditor] to modify the channel attributes.
   AttributeEditor editChannelAttributes() {
-    return AttributeEditor('editChannelAttributes', _module.channel);
+    return AttributeEditor('channel#editChannelAttributes', _module.channel);
   }
 
   /// Creates a [TagGroupEditor] to modify the channel tag groups.
   TagGroupEditor editChannelTagGroups() {
-    return TagGroupEditor('editChannelTagGroups', _module.channel);
+    return TagGroupEditor('channel#editChannelTagGroups', _module.channel);
   }
 
   /// Creates an [AttributeEditor] to modify the channel attributes.
@@ -73,7 +73,7 @@ class AirshipChannel {
   /// Deprecated. Use [editChannelAttributes()] instead.
   @deprecated
   AttributeEditor editAttributes() {
-    return AttributeEditor('editAttributes', _module.channel);
+    return AttributeEditor('channel#editAttributes', _module.channel);
   }
 }
 
