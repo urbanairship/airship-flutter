@@ -19,7 +19,7 @@ class Notification {
   const Notification._internal(
       this.notificationId, this.alert, this.title, this.subtitle, this.extras);
 
-  static Notification _fromJson(Map<String, dynamic> json) {
+  static Notification fromJson(Map<String, dynamic> json) {
     var notificationId = json["notificationId"];
     var alert = json["alert"];
     var title = json["title"];

@@ -1,3 +1,4 @@
+import 'notification.dart';
 
 /// Event fired when the user initiates a notification response.
 class NotificationResponseEvent {
@@ -19,10 +20,10 @@ class NotificationResponseEvent {
   const NotificationResponseEvent._internal(
       this.actionId, this.isForeground, this.notification, this.payload);
 
-  static NotificationResponseEvent _fromJson(Map<String, dynamic> json) {
+  static NotificationResponseEvent fromJson(Map<String, dynamic> json) {
     var actionId = json["action_id"];
     var isForeground = json["is_foreground"];
-    var notification = Notification._fromJson(json["notification"]);
+    var notification = Notification.fromJson(json["notification"]);
     var payload = json["payload"];
     return NotificationResponseEvent._internal(
         actionId, isForeground, notification, payload);
@@ -44,7 +45,7 @@ class PushReceivedEvent {
 
   const PushReceivedEvent._internal(this.payload, this.notification);
 
-  static PushReceivedEvent _fromJson(Map<String, dynamic> json) {
+  static PushReceivedEvent fromJson(Map<String, dynamic> json) {
     var payload = json["payload"];
 
     var notification;
@@ -62,7 +63,7 @@ class PushReceivedEvent {
 }
 
 @pragma('vm:entry-point')
-void _backgroundMessageIsolateCallback() {
+void backgroundMessageIsolateCallback() {
   WidgetsFlutterBinding.ensureInitialized();
 
   Airship._backgroundChannel.setMethodCallHandler((call) async {
