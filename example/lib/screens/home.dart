@@ -11,20 +11,20 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   @override
   void initState() {
-    initAirshipListeners();
-    Airship.trackScreen('Home');
+    // initAirshipListeners();
+    // Airship.trackScreen('Home');
 
     super.initState();
   }
 
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initAirshipListeners() async {
-    Airship.onChannelRegistration.listen((event) {
-      if (mounted) {
-        setState(() {});
-      }
-    });
-  }
+  // // Platform messages are asynchronous, so we initialize in an async method.
+  // Future<void> initAirshipListeners() async {
+  //   Airship.onChannelRegistration.listen((event) {
+  //     if (mounted) {
+  //       setState(() {});
+  //     }
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -39,14 +39,14 @@ class _HomeState extends State<Home> {
               ),
               Center(
                 child: FutureBuilder<bool?>(
-                  future: Airship.userNotificationsEnabled,
+                  future: Airship.push.userNotificationsEnabled,
                   builder: (context, AsyncSnapshot<bool?> snapshot) {
                     Center enableNotificationsButton;
                     bool pushEnabled = snapshot.data ?? false;
                     enableNotificationsButton =
                         Center(child: NotificationsEnabledButton(
                       onPressed: () {
-                        Airship.setUserNotificationsEnabled(true);
+                        Airship.push.setUserNotificationsEnabled(true);
                         setState(() {});
                       },
                     ));
@@ -58,7 +58,7 @@ class _HomeState extends State<Home> {
               ),
               Center(
                 child: FutureBuilder(
-                  future: Airship.channelId,
+                  future: Airship.channel.identifier,
                   builder: (context, snapshot) {
                     return Text(
                       '${snapshot.hasData ? snapshot.data : "Channel not set"}',

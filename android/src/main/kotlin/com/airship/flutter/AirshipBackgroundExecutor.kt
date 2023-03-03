@@ -150,9 +150,6 @@ class AirshipBackgroundExecutor(
             if (instance?.isReady == true || callback == 0L) return
 
             startIsolate(context, callback, shellArgs)
-
-
-
         }
 
         private fun startIsolate(
@@ -179,7 +176,6 @@ class AirshipBackgroundExecutor(
         internal fun handleBackgroundMessage(
             context: Context,
             pushPayload: Map<String, Any>,
-            notificationInfo: NotificationInfo? = null
         ) {
             if (!hasMessageCallback(context)) return
 

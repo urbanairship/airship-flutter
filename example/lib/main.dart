@@ -15,11 +15,11 @@ import 'package:airship_flutter/airship_flutter.dart';
 const String home_deep_link = "home";
 const String message_center_deep_link = "message_center";
 const String settings_deep_link = "settings";
-
-Future<void> backgroundMessageHandler(
-    Map<String, dynamic> payload, Notification? notification) async {
-  print("Background Push Received $payload, $notification");
-}
+//
+// Future<void> backgroundMessageHandler(
+//     Map<String, dynamic> payload, Notification? notification) async {
+//   print("Background Push Received $payload, $notification");
+// }
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,7 +28,13 @@ void main() {
     DeviceOrientation.portraitDown,
   ]);
 
-  Airship.setBackgroundMessageHandler(backgroundMessageHandler);
+  Airship.takeOff(config);
+  // Airship.setBackgroundMessageHandler(backgroundMessageHandler);
+
+  Airship.channel.editSubscriptionLists()
+  ..subscribe("foo")
+  ..unsubscribe("bar")
+  ..apply();
 
   runApp(MyApp());
 }
@@ -56,59 +62,59 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   }
 
   static void addFlutterTag() {
-    Airship.addTags(["flutter"]);
+    // Airship.addTags(["flutter"]);
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-    Airship.onPushReceived.listen((event) {
-      debugPrint('Push Received $event');
-    });
-
-    Airship.onNotificationResponse
-        .listen((event) => debugPrint('Notification Response $event'));
-
-    Airship.onDeepLink.listen((event) {
-      const home_tab = 0;
-      const message_tab = 1;
-      const settings_tab = 2;
-
-      switch (event) {
-        case home_deep_link:
-          {
-            controller.animateTo(home_tab);
-            break;
-          }
-        case message_center_deep_link:
-          {
-            controller.animateTo(message_tab);
-            break;
-          }
-        case settings_deep_link:
-          {
-            controller.animateTo(settings_tab);
-            break;
-          }
-      }
-    });
-
-    Airship.onInboxUpdated?.listen((event) => debugPrint('Inbox updated link'));
-
-    Airship.onShowInbox?.listen((event) => debugPrint('Show inbox'));
-
-    Airship.onShowInboxMessage.listen((messageId) {
-      key.currentState
-          ?.push(MaterialPageRoute<Null>(builder: (BuildContext context) {
-        return messageId != null
-            ? MessageView(
-                messageId: messageId,
-              )
-            : SizedBox();
-      }));
-    });
-
-    Airship.onChannelRegistration.listen((event) {
-      debugPrint('Channel registration $event');
+    // Airship.onPushReceived.listen((event) {
+    //   debugPrint('Push Received $event');
+    // });
+    //
+    // Airship.onNotificationResponse
+    //     .listen((event) => debugPrint('Notification Response $event'));
+    //
+    // Airship.onDeepLink.listen((event) {
+    //   const home_tab = 0;
+    //   const message_tab = 1;
+    //   const settings_tab = 2;
+    //
+    //   switch (event) {
+    //     case home_deep_link:
+    //       {
+    //         controller.animateTo(home_tab);
+    //         break;
+    //       }
+    //     case message_center_deep_link:
+    //       {
+    //         controller.animateTo(message_tab);
+    //         break;
+    //       }
+    //     case settings_deep_link:
+    //       {
+    //         controller.animateTo(settings_tab);
+    //         break;
+    //       }
+    //   }
+    // });
+    //
+    // Airship.onInboxUpdated?.listen((event) => debugPrint('Inbox updated link'));
+    //
+    // Airship.onShowInbox?.listen((event) => debugPrint('Show inbox'));
+    //
+    // Airship.onShowInboxMessage.listen((messageId) {
+    //   key.currentState
+    //       ?.push(MaterialPageRoute<Null>(builder: (BuildContext context) {
+    //     return messageId != null
+    //         ? MessageView(
+    //             messageId: messageId,
+    //           )
+    //         : SizedBox();
+    //   }));
+    // });
+    //
+    Airship.channel.onChannelCreated.listen((event) {
+      debugPrint('Channel created $event');
     });
   }
 
@@ -132,9 +138,9 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
           body: TabBarView(
             children: <Widget>[
               Home(),
-              MessageCenter(),
-              PreferenceCenter(),
-              Settings()
+              Home(),
+              Home(),
+              Home()
             ],
             controller: controller,
           ),

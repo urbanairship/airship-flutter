@@ -2,6 +2,7 @@ package com.airship.flutter
 
 import android.app.Activity
 import android.content.Context
+import com.urbanairship.UAirship
 import com.urbanairship.actions.ActionResult
 import com.urbanairship.android.framework.proxy.EventType
 import com.urbanairship.android.framework.proxy.events.EventEmitter
@@ -93,7 +94,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             "channel#removeTags" ->
                 result.resolveResult(call) {
                     call.stringList().forEach {
-                        proxy.channel.addTag(it)
+                        proxy.channel.removeTag(it)
                     }
                 }
             "channel#getTags" -> result.resolveResult(call) { proxy.channel.getTags() }
@@ -247,6 +248,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             eventChannel.setStreamHandler(object:EventChannel.StreamHandler {
                 override fun onListen(arguments: Any?, eventSink: EventChannel.EventSink?) {
                     this@AirshipEventStream.eventSink = eventSink
+                    processPendingEvents()
                 }
 
                 override fun onCancel(p0: Any?) {
