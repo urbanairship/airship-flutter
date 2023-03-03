@@ -29,11 +29,10 @@ class AirshipChannel {
   }
 
 
-  /// The [subscriptionListTypes] can contain types `channel` or `contact`.
-  Future<SubscriptionList> getSubscriptionLists(
-      List<String> subscriptionListTypes) async {
+  /// Gets channel subscription lists.
+  Future<SubscriptionList> getSubscriptionLists() async {
     var lists = await (_module.channel.invokeMethod(
-        "channel#getSubscriptionLists", subscriptionListTypes));
+        "channel#getSubscriptionLists"));
     return SubscriptionList._fromJson(Map<String, dynamic>.from(lists));
   }
 

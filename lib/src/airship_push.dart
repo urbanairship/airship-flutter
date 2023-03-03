@@ -9,10 +9,11 @@ import 'package:flutter/foundation.dart';
 class AirshipPush {
 
   final AirshipModule _module;
+  final IOSPush iOS;
   static bool _isBackgroundHandlerSet = false;
 
-  AirshipPush(AirshipModule module)
-      : this._module = module;
+  AirshipPush(AirshipModule module) :
+        this._module = module, this.iOS = IOSPush(module);
 
   /// Tells if user notifications are enabled or not.
   Future<bool?> get userNotificationsEnabled async {
@@ -22,42 +23,6 @@ class AirshipPush {
   /// Enables or disables the user notifications.
   Future<bool?> setUserNotificationsEnabled(bool enabled) async {
     return await _module.channel.invokeMethod('push#setUserNotificationsEnabled', enabled);
-  }
-
-  /// Checks if auto-badging is enabled on iOS. Badging is not supported for Android.
-  Future<bool> isAutoBadgeEnabled() async {
-    var isAutoBadgeEnabled = false;
-    if (Platform.isIOS) {
-      isAutoBadgeEnabled = await _module.channel.invokeMethod('push#isAutoBadgeEnabled');
-    }
-    return isAutoBadgeEnabled;
-  }
-
-  /// Enables or disables auto-badging on iOS. Badging is not supported for Android.
-  Future<void> setAutoBadgeEnabled(bool enabled) async {
-    if (Platform.isIOS) {
-      return await _module.channel.invokeMethod('push#setAutoBadgeEnabled', enabled);
-    } else {
-      return Future.value();
-    }
-  }
-
-  /// Sets the [badge] number on iOS. Badging is not supported for Android.
-  Future<void> setBadge(int badge) async {
-    if (Platform.isIOS) {
-      return await _module.channel.invokeMethod('push#setBadge', badge);
-    } else {
-      return Future.value();
-    }
-  }
-
-  /// Clears the badge on iOS. Badging is not supported for Android.
-  Future<void> resetBadge() async {
-    if (Platform.isIOS) {
-      return await _module.channel.invokeMethod('push#resetBadge');
-    } else {
-      return Future.value();
-    }
   }
 
   /// Gets all the active notifications for the application.
@@ -121,4 +86,47 @@ class AirshipPush {
         NotificationResponseEvent.fromJson(jsonDecode(value)));
   }
 
+}
+
+class IOSPush {
+  final AirshipModule _module;
+
+  IOSPush(AirshipModule module)
+    : this._module = module;
+
+  /// Checks if auto-badging is enabled on iOS. Badging is not supported for Android.
+  Future<bool> isAutoBadgeEnabled() async {
+    var isAutoBadgeEnabled = false;
+    if (Platform.isIOS) {
+      isAutoBadgeEnabled = await _module.channel.invokeMethod('push#isAutoBadgeEnabled');
+    }
+    return isAutoBadgeEnabled;
+  }
+
+  /// Enables or disables auto-badging on iOS. Badging is not supported for Android.
+  Future<void> setAutoBadgeEnabled(bool enabled) async {
+    if (Platform.isIOS) {
+      return await _module.channel.invokeMethod('push#setAutoBadgeEnabled', enabled);
+    } else {
+      return Future.value();
+    }
+  }
+
+  /// Sets the [badge] number on iOS. Badging is not supported for Android.
+  Future<void> setBadge(int badge) async {
+    if (Platform.isIOS) {
+      return await _module.channel.invokeMethod('push#setBadge', badge);
+    } else {
+      return Future.value();
+    }
+  }
+
+  /// Clears the badge on iOS. Badging is not supported for Android.
+  Future<void> resetBadge() async {
+    if (Platform.isIOS) {
+      return await _module.channel.invokeMethod('push#resetBadge');
+    } else {
+      return Future.value();
+    }
+  }
 }
