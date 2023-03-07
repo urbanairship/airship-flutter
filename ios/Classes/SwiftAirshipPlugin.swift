@@ -690,7 +690,9 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDe
                 }
             }
         }
-        
+
+        editor.apply()
+
         result(nil)
     }
     
