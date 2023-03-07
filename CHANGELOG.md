@@ -1,6 +1,6 @@
 # Flutter Plugin Changelog
 
-## Version 6.2.3 - Mars 7, 2023
+## Version 6.2.3 - March 7, 2023
 Patch release that fixes a bug with contact subscription list on iOS.
 
 ### Changes
