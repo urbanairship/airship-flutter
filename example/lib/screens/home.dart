@@ -39,7 +39,7 @@ class _HomeState extends State<Home> {
               ),
               Center(
                 child: FutureBuilder<bool?>(
-                  future: Airship.push.userNotificationsEnabled,
+                  future: Airship.push.isUserNotificationsEnabled,
                   builder: (context, AsyncSnapshot<bool?> snapshot) {
                     Center enableNotificationsButton;
                     bool pushEnabled = snapshot.data ?? false;

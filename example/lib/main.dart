@@ -8,7 +8,7 @@ import 'package:airship_example/screens/settings.dart';
 import 'package:airship_example/screens/message_center.dart';
 import 'package:airship_example/screens/message_view.dart';
 import 'package:airship_example/screens/preference_center.dart';
-
+import 'dart:developer';
 import 'package:airship_flutter/airship_flutter.dart';
 
 // Supported deep links
@@ -28,13 +28,34 @@ void main() {
     DeviceOrientation.portraitDown,
   ]);
 
+  var configEnvironment = ConfigEnvironment("YOUR_APP_KEY", "YOUR_APP_SECRET");
+  var config = AirshipConfig(configEnvironment);
   Airship.takeOff(config);
   // Airship.setBackgroundMessageHandler(backgroundMessageHandler);
+
+  Airship.contact.identify("FlutterUser");
 
   Airship.channel.editSubscriptionLists()
   ..subscribe("foo")
   ..unsubscribe("bar")
   ..apply();
+
+  Airship.analytics.trackScreen("bigScreen");
+
+  var list = <String>[];
+  list.add("contact");
+
+  Airship.contact.editSubscriptionLists()
+  ..subscribe("cat_facts", ChannelScope.app.getStringValue())
+  ..apply();
+  
+  var customEvent = new CustomEvent("test_event", 77);
+  Airship.analytics.addEvent(customEvent);
+
+  Airship.push.getRegistrationToken().then((value) => log("SampleTest token : " + value!));
+
+  Airship.contact.getSubscriptionLists(list).then((value) => log("SampleTest lists : " + value.toString()));
+
 
   runApp(MyApp());
 }
