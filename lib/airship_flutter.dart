@@ -3,7 +3,10 @@ library airship_flutter;
 export 'src/airship_flutter.dart';
 export 'src/airship_channel.dart';
 export 'src/airship_push.dart';
+export 'src/airship_actions.dart';
+export 'src/airship_analytics.dart';
 export 'src/airship_config.dart';
+export 'src/airship_contact.dart';
 
 export 'src/custom_event.dart';
 export 'src/inbox_message_view.dart';

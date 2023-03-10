@@ -2,7 +2,7 @@ class AirshipConfig {
 
   final ConfigEnvironment? defaultEnvironment;
 
-  AirshipConfig({this.defaultEnvironment});
+  AirshipConfig(this.defaultEnvironment);
 
   Map<String, dynamic> toJson() {
     return {

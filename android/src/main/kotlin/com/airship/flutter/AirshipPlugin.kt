@@ -120,6 +120,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             "push#getActiveNotifications" -> result.resolveResult(call) { proxy.push.getActiveNotifications() }
             "push#clearNotification" -> result.resolveResult(call) { proxy.push.clearNotification(call.stringArg()) }
             "push#clearNotifications" -> result.resolveResult(call) { proxy.push.clearNotifications() }
+            "push#getRegistrationToken" -> result.resolveResult(call) { proxy.push.getRegistrationToken() }
             "push#android#isNotificationChannelEnabled" -> result.resolveResult(call) { proxy.push.isNotificationChannelEnabled(call.stringArg()) }
             "push#android#setNotificationConfig" -> result.resolveResult(call) { proxy.push.setNotificationConfig(call.jsonArgs()) }
 
@@ -131,7 +132,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
             // Analytics
             "analytics#trackScreen" -> result.resolveResult(call) { proxy.analytics.trackScreen(call.optStringArg()) }
-            "analytics#addEvent" -> TODO()
+            "analytics#addEvent" -> result.resolveResult(call) { proxy.analytics.addEvent(call.jsonArgs())}
             "analytics#associateIdentifier" -> {
                 val args = call.stringList()
                 proxy.analytics.associateIdentifier(

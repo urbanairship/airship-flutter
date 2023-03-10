@@ -4,10 +4,10 @@ import 'package:flutter/services.dart';
 /// Scoped subscription list editor.
 class ScopedSubscriptionListEditor {
   static const SUBSCRIPTIONLIST_OPERATION_ID = "listId";
-  static const SUBSCRIPTIONLIST_OPERATION_TYPE = "type";
+  static const SUBSCRIPTIONLIST_OPERATION_ACTION = "action";
   static const SUBSCRIPTIONLIST_OPERATION_SUBSCRIBE = "subscribe";
   static const SUBSCRIPTIONLIST_OPERATION_UNSUBSCRIBE = "unsubscribe";
-  static const SUBSCRIPTIONLIST_OPERATION_SCOPE = "scopes";
+  static const SUBSCRIPTIONLIST_OPERATION_SCOPE = "scope";
 
   final MethodChannel channel;
 
@@ -22,21 +22,21 @@ class ScopedSubscriptionListEditor {
         this.operations = [],
         this.channel = channel;
 
-  /// Subscribes to a list in the given [scopes].
-  void subscribe(String listId, List<String> scopes) {
+  /// Subscribes to a list in the given [scope].
+  void subscribe(String listId, String scope) {
     operations.add({
-      SUBSCRIPTIONLIST_OPERATION_TYPE: SUBSCRIPTIONLIST_OPERATION_SUBSCRIBE,
+      SUBSCRIPTIONLIST_OPERATION_ACTION: SUBSCRIPTIONLIST_OPERATION_SUBSCRIBE,
       SUBSCRIPTIONLIST_OPERATION_ID: listId,
-      SUBSCRIPTIONLIST_OPERATION_SCOPE: scopes
+      SUBSCRIPTIONLIST_OPERATION_SCOPE: scope
     });
   }
 
-  /// Unsubscribe from a list in the given [scopes].
-  void unsubscribe(String listId, List<String> scopes) {
+  /// Unsubscribe from a list in the given [scope].
+  void unsubscribe(String listId, String scope) {
     operations.add({
-      SUBSCRIPTIONLIST_OPERATION_TYPE: SUBSCRIPTIONLIST_OPERATION_UNSUBSCRIBE,
+      SUBSCRIPTIONLIST_OPERATION_ACTION: SUBSCRIPTIONLIST_OPERATION_UNSUBSCRIBE,
       SUBSCRIPTIONLIST_OPERATION_ID: listId,
-      SUBSCRIPTIONLIST_OPERATION_SCOPE: scopes
+      SUBSCRIPTIONLIST_OPERATION_SCOPE: scope
     });
   }
 

@@ -16,13 +16,28 @@ class AirshipPush {
         this._module = module, this.iOS = IOSPush(module);
 
   /// Tells if user notifications are enabled or not.
-  Future<bool?> get userNotificationsEnabled async {
-    return await _module.channel.invokeMethod('push#getUserNotificationsEnabled');
+  Future<bool?> get isUserNotificationsEnabled async {
+    return await _module.channel.invokeMethod('push#isUserNotifictionsEnabled');
   }
 
   /// Enables or disables the user notifications.
   Future<bool?> setUserNotificationsEnabled(bool enabled) async {
     return await _module.channel.invokeMethod('push#setUserNotificationsEnabled', enabled);
+  }
+
+  /// Enables user notifications.
+  Future<bool?> enableUserNotifications() async {
+    return await _module.channel.invokeMethod('push#enableUserNotifications');
+  }
+
+  /// Gets the notification status.
+  Future<bool?> getNotificationStatus() async {
+    return await _module.channel.invokeMethod('push#getNotificationStatus');
+  }
+
+  /// Gets the registration token if generated.
+  Future<String?> getRegistrationToken() async {
+    return await _module.channel.invokeMethod('push#getRegistrationToken');
   }
 
   /// Gets all the active notifications for the application.

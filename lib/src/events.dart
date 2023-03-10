@@ -1,4 +1,12 @@
 import 'notification.dart';
+import 'airship_flutter.dart';
+import 'dart:convert';
+import 'dart:io';
+import 'dart:ui';
+import 'events.dart';
+import 'notification.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart' hide Notification;
 
 /// Event fired when the user initiates a notification response.
 class NotificationResponseEvent {
@@ -50,7 +58,7 @@ class PushReceivedEvent {
 
     var notification;
     if (json["notification"] != null) {
-      notification = Notification._fromJson(json["notification"]);
+      notification = Notification.fromJson(json["notification"]);
     }
 
     return PushReceivedEvent._internal(payload, notification);
@@ -66,31 +74,31 @@ class PushReceivedEvent {
 void backgroundMessageIsolateCallback() {
   WidgetsFlutterBinding.ensureInitialized();
 
-  Airship._backgroundChannel.setMethodCallHandler((call) async {
-    if (call.method == "onBackgroundMessage") {
-      final args = call.arguments;
-      final handle = CallbackHandle.fromRawHandle(args["messageCallback"]);
-      final callback = PluginUtilities.getCallbackFromHandle(handle)
-      as BackgroundMessageHandler;
-      try {
-        final payload = Map<String, dynamic>.from(jsonDecode(args["payload"]));
-        var notification;
-        if (args["notification"] != null) {
-          notification =
-              Notification._fromJson(jsonDecode(args["notification"]));
-        }
-        await callback(payload, notification);
-      } catch (e) {
-        print("Airship: Failed to handle background message!");
-        print(e);
-      }
-    } else {
-      throw UnimplementedError("${call.method} is not implemented!");
-    }
-  });
+  // Airship._backgroundChannel.setMethodCallHandler((call) async {
+  //   if (call.method == "onBackgroundMessage") {
+  //     final args = call.arguments;
+  //     final handle = CallbackHandle.fromRawHandle(args["messageCallback"]);
+  //     final callback = PluginUtilities.getCallbackFromHandle(handle)
+  //     as BackgroundMessageHandler;
+  //     try {
+  //       final payload = Map<String, dynamic>.from(jsonDecode(args["payload"]));
+  //       var notification;
+  //       if (args["notification"] != null) {
+  //         notification =
+  //             Notification.fromJson(jsonDecode(args["notification"]));
+  //       }
+  //       await callback(payload, notification);
+  //     } catch (e) {
+  //       print("Airship: Failed to handle background message!");
+  //       print(e);
+  //     }
+  //   } else {
+  //     throw UnimplementedError("${call.method} is not implemented!");
+  //   }
+  // });
 
   // Tell the native side to start the background isolate.
-  Airship._backgroundChannel.invokeMethod<void>("backgroundIsolateStarted");
+  // Airship._backgroundChannel.invokeMethod<void>("backgroundIsolateStarted");
 }
 
 typedef BackgroundMessageHandler = Future<void> Function(

@@ -1,6 +1,6 @@
 /// Custom event object.
 class CustomEvent {
-  static const EVENT_NAME = "event_name";
+  static const EVENT_NAME = "eventName";
   static const EVENT_VALUE = "event_value";
   static const PROPERTIES = "properties";
   static const TRANSACTION_ID = "transaction_id";

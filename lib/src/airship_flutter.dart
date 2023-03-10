@@ -16,15 +16,14 @@ class Airship {
   static final _module = AirshipModule();
   static final channel = AirshipChannel(_module);
   static final push = AirshipPush(_module);
-
-  // static const contact = AirshipContact(module);
+  static final contact = AirshipContact(_module);
   // static const inApp = AirshipInApp(module);
   // static const messageCenter = AirshipMessageCenter(module);
   // static const privacyManager = AirshipPrivacyManager(module);
   // static const preferenceCenter = AirshipPreferenceCenter(module);
   // static const locale = AirshipLocale(module);
-  // static const analytics = AirshipAnalytics(module);
-  // static const actions = AirshipActions(module);
+  static final analytics = AirshipAnalytics(_module);
+  static final actions = AirshipActions(_module);
   //
   /// Initializes Airship with an [appKey] and [appSecret].
   ///
