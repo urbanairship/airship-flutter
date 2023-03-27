@@ -7,7 +7,7 @@
 #
 # Options:
 #   -g to generate documentation.
-#   -u to upload documentation to google cloud.
+#   -p to create a tar.gz docs package.
 #
 #####################################################
 
@@ -16,12 +16,13 @@ set -e
 
 # get platforms
 GENERATE=false
-UPLOAD=false
+PACKAGE=false
 
 while true; do
   case "$1" in
     -g  ) GENERATE=true;;
-    -u  ) UPLOAD=true;;
+    -p  ) PACKAGE=true;;
+    -gp ) GENERATE=true;PACKAGE=true;;
     *   ) break ;;
   esac
   shift
@@ -34,9 +35,8 @@ if $GENERATE; then
   flutter pub global run dartdoc --exclude 'dart:async,dart:collection,dart:convert,dart:core,dart:developer,dart:ffi,dart:html,dart:io,dart:isolate,dart:js,dart:js_util,dart:math,dart:typed_data,dart:ui'
 fi
 
-# Upload doc
-if $UPLOAD; then
-
+# Package doc
+if $PACKAGE; then
     if [ -z "$1" ]; then
         echo "No version supplied"
         exit 1
@@ -47,13 +47,9 @@ if $UPLOAD; then
         exit 1
     fi
 
-    ROOT_PATH=$(dirname "${0}")/..
-    TAR_NAME="$1.tar.gz"
+    TAR_NAME="../$1.tar.gz"
 
     cd "$2"
     tar -czf $TAR_NAME *
     cd -
-
-    gsutil cp "$ROOT_PATH/$2/$TAR_NAME" gs://ua-web-ci-prod-docs-transfer/libraries/flutter/$TAR_NAME
-
 fi
