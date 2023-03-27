@@ -8,6 +8,7 @@
 # Options:
 #   -g to generate documentation.
 #   -p to create a tar.gz docs package.
+#   -gp to generate and package documentation.
 #
 #####################################################
 
