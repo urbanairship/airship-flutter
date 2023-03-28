@@ -1,5 +1,5 @@
 
-AIRSHIP_FLUTTER_VERSION="6.2.3"
+AIRSHIP_FLUTTER_VERSION="6.3.0"
 
 #
 # To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html
@@ -21,11 +21,11 @@ Airship flutter plugin.
   s.dependency 'Flutter'
 
   s.ios.deployment_target   = "11.0"
-  s.dependency              'Airship/Core', '~> 16.10.7'
-  s.dependency              'Airship/MessageCenter', '~> 16.10.7'
-  s.dependency              'Airship/Automation', '~> 16.10.7'
-  s.dependency              'Airship/PreferenceCenter', '~> 16.10.7'
-  s.dependency              'Airship/ExtendedActions', '~> 16.10.7'
+  s.dependency              'Airship/Core', '~> 16.11.3'
+  s.dependency              'Airship/MessageCenter', '~> 16.11.3'
+  s.dependency              'Airship/Automation', '~> 16.11.3'
+  s.dependency              'Airship/PreferenceCenter', '~> 16.11.3'
+  s.dependency              'Airship/ExtendedActions', '~> 16.11.3'
 
 end
 
