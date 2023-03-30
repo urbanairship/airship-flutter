@@ -223,13 +223,14 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin, PreferenceCenterOpenDe
             return
         }
 
-        guard let value = event[eventValueKey] as? Int else {
-            result(nil)
-            return
-        }
-
+        let customEvent: CustomEvent
+        
         // Decode event string
-        let customEvent = CustomEvent(name:name, value:NSNumber(value: value))
+        if let value = event[eventValueKey] as? Int {
+            customEvent = CustomEvent(name:name, value: NSNumber(value: value))
+        } else {
+            customEvent = CustomEvent(name:name, value: nil)
+        }
 
         if let properties = event[propertiesKey] as? Dictionary<String, Any> {
             customEvent.properties = properties
