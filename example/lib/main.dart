@@ -4,10 +4,6 @@ import 'package:airship_example/styles.dart';
 import 'package:flutter/services.dart' show DeviceOrientation, SystemChrome;
 
 import 'package:airship_example/screens/home.dart';
-import 'package:airship_example/screens/settings.dart';
-import 'package:airship_example/screens/message_center.dart';
-import 'package:airship_example/screens/message_view.dart';
-import 'package:airship_example/screens/preference_center.dart';
 import 'dart:developer';
 import 'package:airship_flutter/airship_flutter.dart';
 

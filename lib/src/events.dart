@@ -1,6 +1,4 @@
 import 'notification.dart';
-import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Notification;
 
 /// Event fired when the user initiates a notification response.

@@ -91,13 +91,13 @@ class AirshipPush {
 
   /// Gets push received event stream.
   Stream<PushReceivedEvent> get onPushReceived {
-    return _module.getEventStream("PUSH_RECEIVED")!
+    return _module.getEventStream("PUSH_RECEIVED")
         .map((dynamic value) => PushReceivedEvent.fromJson(jsonDecode(value)));
   }
 
   /// Gets notification response event stream.
   Stream<NotificationResponseEvent> get onNotificationResponse {
-    return _module.getEventStream("NOTIFICATION_RESPONSE")!.map((dynamic value) =>
+    return _module.getEventStream("NOTIFICATION_RESPONSE").map((dynamic value) =>
         NotificationResponseEvent.fromJson(jsonDecode(value)));
   }
 
