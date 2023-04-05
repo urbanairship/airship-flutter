@@ -3,6 +3,7 @@ import 'attribute_editor.dart';
 import 'scoped_subscription_list_editor.dart';
 import 'tag_group_editor.dart';
 import 'subscription_list.dart';
+import 'channel_scope.dart';
 
 class AirshipContact {
 
@@ -12,9 +13,9 @@ class AirshipContact {
 
   /// The [subscriptionListTypes] can contain types `channel` or `contact`.
   Future<SubscriptionList> getSubscriptionLists(
-      List<String> subscriptionListTypes) async {
+      Map<String, ChannelScope> subscriptionListTypes) async {
     var lists = await (_module.channel.invokeMethod(
-        "contact#getSubscriptionLists", subscriptionListTypes));
+        "contact#getSubscriptionLists"));
     return SubscriptionList.fromJson(Map<String, dynamic>.from(lists));
   }
 

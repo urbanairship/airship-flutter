@@ -45,6 +45,11 @@ void main() {
   var list = <String>[];
   list.add("contact");
 
+  var map = Map<String, ChannelScope>();
+  map.addAll({
+    "contact" : ChannelScope.app
+  });
+
   Airship.contact.editSubscriptionLists()
   ..subscribe("cat_facts", ChannelScope.app.getStringValue())
   ..apply();
@@ -54,7 +59,7 @@ void main() {
 
   Airship.push.getRegistrationToken().then((value) => log("SampleTest token : " + value!));
 
-  Airship.contact.getSubscriptionLists(list).then((value) => log("SampleTest lists : " + value.toString()));
+  Airship.contact.getSubscriptionLists(map).then((value) => log("SampleTest lists : " + value.toString()));
 
 
   runApp(MyApp());

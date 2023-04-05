@@ -1,10 +1,5 @@
 import 'notification.dart';
-import 'airship_flutter.dart';
 import 'dart:convert';
-import 'dart:io';
-import 'dart:ui';
-import 'events.dart';
-import 'notification.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Notification;
 
