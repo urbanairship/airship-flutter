@@ -76,7 +76,8 @@ internal fun MethodCall.booleanArg(): Boolean {
 }
 
 internal fun MethodCall.longArg(): Long {
-    return arguments as Long
+    val args: Int = arguments as Int
+    return args.toLong()
 }
 
 @Suppress("UNCHECKED_CAST")

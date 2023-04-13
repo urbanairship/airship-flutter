@@ -10,11 +10,11 @@ class Airship {
   static final channel = AirshipChannel(_module);
   static final push = AirshipPush(_module);
   static final contact = AirshipContact(_module);
-  // static const inApp = AirshipInApp(module);
+  static final inApp = AirshipInApp(_module);
   // static const messageCenter = AirshipMessageCenter(module);
   // static const privacyManager = AirshipPrivacyManager(module);
   // static const preferenceCenter = AirshipPreferenceCenter(module);
-  // static const locale = AirshipLocale(module);
+  static final locale = AirshipLocale(_module);
   static final analytics = AirshipAnalytics(_module);
   static final actions = AirshipActions(_module);
   //
