@@ -1,5 +1,4 @@
 import 'airship_module.dart';
-import 'dart:ffi';
 
 class AirshipInApp {
 
