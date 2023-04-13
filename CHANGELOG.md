@@ -1,5 +1,11 @@
 # Flutter Plugin Changelog
 
+## Version 7.0.0 - April xx, 2023
+WIP
+
+## Version 6.3.0 - March 28, 2023
+Minor release that updates the Airship iOS SDK to 16.11.3 and Android SDK to 16.9.1.
+
 ## Version 6.2.2 - February 7, 2023
 Patch release with several bug fixes.
 
