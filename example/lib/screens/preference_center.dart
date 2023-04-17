@@ -20,7 +20,7 @@ class _PreferenceCenterState extends State<PreferenceCenter>
     updatePreferenceCenterConfig();
     initAirshipListeners();
     fillInSubscriptionList();
-    Airship.trackScreen('Prefrence Center');
+    Airship.trackScreen('Preference Center');
     super.initState();
   }
 
@@ -91,11 +91,10 @@ class _PreferenceCenterState extends State<PreferenceCenter>
     List<String> newScopes = [];
     if (subscribe) {
       newScopes = new List.from(currentScopes)..addAll(scopes);
+      activeContactSubscriptions[subscriptionId] = newScopes;
     } else {
-      currentScopes.removeWhere((item) => scopes.contains(item));
-      newScopes = currentScopes;
+      activeContactSubscriptions.remove(subscriptionId);
     }
-    activeContactSubscriptions[subscriptionId] = newScopes;
   }
 
   void onPreferenceContactSubscriptionItemToggled(
@@ -132,8 +131,9 @@ class _PreferenceCenterState extends State<PreferenceCenter>
       subtitle: Text('${item.display.subtitle}'),
       value: isSubscribedContactSubscription(item.subscriptionId, []),
       onChanged: (bool value) {
+        //TODO keep looking in the scopes list
         onPreferenceContactSubscriptionItemToggled(
-            item.subscriptionId, [], value);
+            item.subscriptionId, ["app"], value);
       },
     );
   }
