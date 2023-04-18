@@ -129,9 +129,8 @@ class _PreferenceCenterState extends State<PreferenceCenter>
       title: Text('${item.display.title}',
           style: TextStyle(fontWeight: FontWeight.bold)),
       subtitle: Text('${item.display.subtitle}'),
-      value: isSubscribedContactSubscription(item.subscriptionId, []),
+      value: isSubscribedContactSubscription(item.subscriptionId, ["app"]),
       onChanged: (bool value) {
-        //TODO keep looking in the scopes list
         onPreferenceContactSubscriptionItemToggled(
             item.subscriptionId, ["app"], value);
       },
