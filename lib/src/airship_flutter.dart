@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:airship_flutter/airship_flutter.dart';
 
 import 'airship_module.dart';
@@ -11,9 +12,9 @@ class Airship {
   static final push = AirshipPush(_module);
   static final contact = AirshipContact(_module);
   static final inApp = AirshipInApp(_module);
-  // static const messageCenter = AirshipMessageCenter(module);
-  // static const privacyManager = AirshipPrivacyManager(module);
-  // static const preferenceCenter = AirshipPreferenceCenter(module);
+  static final messageCenter = AirshipMessageCenter(_module);
+  static final privacyManager = AirshipPrivacyManager(_module);
+  static final preferenceCenter = AirshipPreferenceCenter(_module);
   static final locale = AirshipLocale(_module);
   static final analytics = AirshipAnalytics(_module);
   static final actions = AirshipActions(_module);
@@ -25,10 +26,9 @@ class Airship {
     return await _module.channel.invokeMethod('takeOff', config.toJson());
   }
 
-  //
-  // /// Gets deep link event stream.
-  // static Stream<String?> get onDeepLink {
-  //   return _getEventStream("DEEP_LINK")!
-  //       .map((dynamic value) => jsonDecode(value) as String?);
-  // }
+  /// Gets deep link event stream.
+  static Stream<String?> get onDeepLink {
+    return _module.getEventStream("DEEP_LINK")!
+        .map((dynamic value) => jsonDecode(value) as String?);
+  }
 }

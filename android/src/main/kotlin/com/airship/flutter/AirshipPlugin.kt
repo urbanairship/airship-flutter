@@ -97,7 +97,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                         proxy.channel.removeTag(it)
                     }
                 }
-            "channel#getTags" -> result.resolveResult(call) { proxy.channel.getTags() }
+            "channel#getTags" -> result.resolveResult(call) { proxy.channel.getTags().toList() }
             "channel#editTagGroups" -> result.resolveResult(call) { proxy.channel.editTagGroups(call.jsonArgs()) }
             "channel#editSubscriptionLists" -> result.resolveResult(call) { proxy.channel.editSubscriptionLists(call.jsonArgs()) }
             "channel#editAttributes" -> result.resolveResult(call) { proxy.channel.editAttributes(call.jsonArgs()) }
@@ -241,7 +241,8 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 EventType.DISPLAY_PREFERENCE_CENTER -> "com.airship.flutter/event/display_preference_center"
                 EventType.MESSAGE_CENTER_UPDATED -> "com.airship.flutter/event/message_center_updated"
                 EventType.PUSH_TOKEN_RECEIVED -> "com.airship.flutter/event/push_token_received"
-                EventType.PUSH_RECEIVED -> "com.airship.flutter/event/push_received"
+                EventType.FOREGROUND_PUSH_RECEIVED -> "com.airship.flutter/event/foreground_push_received"
+                EventType.BACKGROUND_PUSH_RECEIVED -> "com.airship.flutter/event/background_push_received"
                 EventType.NOTIFICATION_OPT_IN_CHANGED -> "com.airship.flutter/event/notification_opt_in_status"
             }
 

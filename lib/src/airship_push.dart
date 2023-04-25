@@ -113,15 +113,33 @@ class IOSPush {
   Future<bool> isAutoBadgeEnabled() async {
     var isAutoBadgeEnabled = false;
     if (Platform.isIOS) {
-      isAutoBadgeEnabled = await _module.channel.invokeMethod('push#isAutoBadgeEnabled');
+      isAutoBadgeEnabled = await _module.channel.invokeMethod('push#ios#isAutoBadgeEnabled');
     }
     return isAutoBadgeEnabled;
+  }
+
+  /// Sets the notification options.
+  Future<void> setNotificationOptions(List<String> options) async {
+    if (Platform.isIOS) {
+      return await _module.channel.invokeMethod('push#ios#setNotificationOptions', options);
+    } else {
+      return Future.value();
+    }
+  }
+
+  /// Sets the notification options.
+  Future<void> setForegroundPresentationOptions(List<String> options) async {
+    if (Platform.isIOS) {
+      return await _module.channel.invokeMethod('push#ios#setForegroundPresentationOptions', options);
+    } else {
+      return Future.value();
+    }
   }
 
   /// Enables or disables auto-badging on iOS. Badging is not supported for Android.
   Future<void> setAutoBadgeEnabled(bool enabled) async {
     if (Platform.isIOS) {
-      return await _module.channel.invokeMethod('push#setAutoBadgeEnabled', enabled);
+      return await _module.channel.invokeMethod('push#ios#setAutoBadgeEnabled', enabled);
     } else {
       return Future.value();
     }
@@ -130,7 +148,16 @@ class IOSPush {
   /// Sets the [badge] number on iOS. Badging is not supported for Android.
   Future<void> setBadge(int badge) async {
     if (Platform.isIOS) {
-      return await _module.channel.invokeMethod('push#setBadge', badge);
+      return await _module.channel.invokeMethod('push#ios#setBadgeNumber', badge);
+    } else {
+      return Future.value();
+    }
+  }
+
+  /// Gets the [badge] number on iOS. Badging is not supported for Android.
+  Future<int> get badge async {
+    if (Platform.isIOS) {
+      return await _module.channel.invokeMethod('push#ios#getBadgeNumber');
     } else {
       return Future.value();
     }
@@ -139,7 +166,7 @@ class IOSPush {
   /// Clears the badge on iOS. Badging is not supported for Android.
   Future<void> resetBadge() async {
     if (Platform.isIOS) {
-      return await _module.channel.invokeMethod('push#resetBadge');
+      return await _module.channel.invokeMethod('push#ios#resetBadgNumbere');
     } else {
       return Future.value();
     }

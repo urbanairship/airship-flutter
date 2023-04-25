@@ -25,17 +25,17 @@ class InboxMessage {
   const InboxMessage._internal(this.title, this.messageId, this.sentDate,
       this.expirationDate, this.listIcon, this.isRead, this.extras);
 
-  // static InboxMessage _fromJson(Map<String, dynamic> json) {
-  //   var title = json["title"];
-  //   var messageId = json["message_id"];
-  //   var sentDate = json["sent_date"];
-  //   var expirationDate = json["expiration_date"];
-  //   var listIcon = json["list_icon"];
-  //   var isRead = json["is_read"];
-  //   var extras = json["extras"];
-  //   return InboxMessage._internal(
-  //       title, messageId, sentDate, expirationDate, listIcon, isRead, extras);
-  // }
+  static InboxMessage fromJson(Map<String, dynamic> json) {
+    var title = json["title"];
+    var messageId = json["message_id"];
+    var sentDate = json["sent_date"];
+    var expirationDate = json["expiration_date"];
+    var listIcon = json["list_icon"];
+    var isRead = json["is_read"];
+    var extras = json["extras"];
+    return InboxMessage._internal(
+        title, messageId, sentDate, expirationDate, listIcon, isRead, extras);
+  }
 
   @override
   String toString() {
