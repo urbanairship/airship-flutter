@@ -132,7 +132,7 @@ class _PreferenceCenterState extends State<PreferenceCenter>
       value: isSubscribedContactSubscription(item.subscriptionId, ["app"]),
       onChanged: (bool value) {
         onPreferenceContactSubscriptionItemToggled(
-            item.subscriptionId, ["app"], value);
+            item.subscriptionId, scopesFromComponents(item.scopes), value);
       },
     );
   }
