@@ -166,7 +166,7 @@ class IOSPush {
   /// Clears the badge on iOS. Badging is not supported for Android.
   Future<void> resetBadge() async {
     if (Platform.isIOS) {
-      return await _module.channel.invokeMethod('push#ios#resetBadgNumbere');
+      return await _module.channel.invokeMethod('push#ios#resetBadgeNumber');
     } else {
       return Future.value();
     }
