@@ -91,10 +91,11 @@ class _PreferenceCenterState extends State<PreferenceCenter>
     List<String> newScopes = [];
     if (subscribe) {
       newScopes = new List.from(currentScopes)..addAll(scopes);
-      activeContactSubscriptions[subscriptionId] = newScopes;
     } else {
-      activeContactSubscriptions.remove(subscriptionId);
+      currentScopes.removeWhere((scope) => scopes.contains(scope));
+      newScopes = currentScopes;
     }
+    activeContactSubscriptions[subscriptionId] = newScopes;
   }
 
   void onPreferenceContactSubscriptionItemToggled(
@@ -125,14 +126,15 @@ class _PreferenceCenterState extends State<PreferenceCenter>
 
   Widget bindContactSubscriptionItem(
       PreferenceCenterContactSubscriptionItem item) {
+    List<String> scopes = scopesFromComponents(item.scopes);
     return SwitchListTile(
       title: Text('${item.display.title}',
           style: TextStyle(fontWeight: FontWeight.bold)),
       subtitle: Text('${item.display.subtitle}'),
-      value: isSubscribedContactSubscription(item.subscriptionId, ["app"]),
+      value: isSubscribedContactSubscription(item.subscriptionId, scopes),
       onChanged: (bool value) {
         onPreferenceContactSubscriptionItemToggled(
-            item.subscriptionId, scopesFromComponents(item.scopes), value);
+            item.subscriptionId, scopes, value);
       },
     );
   }
