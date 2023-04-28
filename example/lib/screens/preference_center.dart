@@ -20,7 +20,7 @@ class _PreferenceCenterState extends State<PreferenceCenter>
     updatePreferenceCenterConfig();
     initAirshipListeners();
     fillInSubscriptionList();
-    Airship.trackScreen('Prefrence Center');
+    Airship.trackScreen('Preference Center');
     super.initState();
   }
 
@@ -92,7 +92,7 @@ class _PreferenceCenterState extends State<PreferenceCenter>
     if (subscribe) {
       newScopes = new List.from(currentScopes)..addAll(scopes);
     } else {
-      currentScopes.removeWhere((item) => scopes.contains(item));
+      currentScopes.removeWhere((scope) => scopes.contains(scope));
       newScopes = currentScopes;
     }
     activeContactSubscriptions[subscriptionId] = newScopes;
@@ -126,14 +126,15 @@ class _PreferenceCenterState extends State<PreferenceCenter>
 
   Widget bindContactSubscriptionItem(
       PreferenceCenterContactSubscriptionItem item) {
+    List<String> scopes = scopesFromComponents(item.scopes);
     return SwitchListTile(
       title: Text('${item.display.title}',
           style: TextStyle(fontWeight: FontWeight.bold)),
       subtitle: Text('${item.display.subtitle}'),
-      value: isSubscribedContactSubscription(item.subscriptionId, []),
+      value: isSubscribedContactSubscription(item.subscriptionId, scopes),
       onChanged: (bool value) {
         onPreferenceContactSubscriptionItemToggled(
-            item.subscriptionId, [], value);
+            item.subscriptionId, scopes, value);
       },
     );
   }
