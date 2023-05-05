@@ -10,9 +10,9 @@ class AirshipMessageCenter {
 
   /// Gets the current inbox messages.
   Future<List<InboxMessage>> get inboxMessages async {
-    List inboxMessages = await _module.channel.invokeMethod("messageCenter#getMessages");
+    List inboxMessages = await (_module.channel.invokeMethod("messageCenter#getMessages"));
     return inboxMessages.map((dynamic payload) {
-      return InboxMessage.fromJson(jsonDecode(payload));
+      return InboxMessage.fromJson(Map<String, dynamic>.from(payload));
     }).toList();
   }
 

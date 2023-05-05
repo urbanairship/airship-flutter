@@ -113,7 +113,7 @@ class IOSPush {
   Future<bool> isAutoBadgeEnabled() async {
     var isAutoBadgeEnabled = false;
     if (Platform.isIOS) {
-      isAutoBadgeEnabled = await _module.channel.invokeMethod('push#ios#isAutoBadgeEnabled');
+      isAutoBadgeEnabled = await _module.channel.invokeMethod('push#ios#isAutobadgeEnabled');
     }
     return isAutoBadgeEnabled;
   }
@@ -139,7 +139,7 @@ class IOSPush {
   /// Enables or disables auto-badging on iOS. Badging is not supported for Android.
   Future<void> setAutoBadgeEnabled(bool enabled) async {
     if (Platform.isIOS) {
-      return await _module.channel.invokeMethod('push#ios#setAutoBadgeEnabled', enabled);
+      return await _module.channel.invokeMethod('push#ios#setAutobadgeEnabled', enabled);
     } else {
       return Future.value();
     }

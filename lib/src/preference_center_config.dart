@@ -4,8 +4,12 @@ Map<String, dynamic> _toMap(dynamic json) {
   return Map<String, dynamic>.from(json);
 }
 
-List<Map<String, dynamic>> _toList(dynamic json) {
-  return List<Map<String, dynamic>>.from(json);
+List<Map<String, dynamic>> _toList(List<dynamic> json) {
+  List<Map<String, dynamic>> list = [];
+  json.forEach((element) => {
+    list.add(_toMap(element))
+  });
+  return list;
 }
 
 /// Preference center config object.
@@ -30,10 +34,9 @@ class PreferenceCenterConfig {
     try {
       var identifier = json["id"];
       var display = json["display"] != null
-          ? PreferenceCenterCommonDisplay._fromJson(json["display"])
+          ? PreferenceCenterCommonDisplay._fromJson(_toMap(json["display"]))
           : null;
-      var sections =
-          PreferenceCenterSection._fromJsonList(_toList(json["sections"]));
+      var sections = PreferenceCenterSection._fromJsonList(_toList(json["sections"]));
       return PreferenceCenterConfig._internal(identifier, display, sections);
     } catch (e) {
       print("Invalid config: $e");
@@ -66,7 +69,7 @@ class PreferenceCenterCondition {
     var type = json["type"];
     switch (type) {
       case "notification_opt_in":
-        return PreferenceCenterNotificationOptInCondition._fromJson(json);
+        return PreferenceCenterNotificationOptInCondition._fromJson(_toMap(json));
     }
     throw Exception("Invalid condition: " + type);
   }
@@ -185,9 +188,9 @@ abstract class PreferenceCenterSection {
     var type = json["type"];
     switch (type) {
       case "section":
-        return PreferenceCenterCommonSection._fromJson(json);
+        return PreferenceCenterCommonSection._fromJson(_toMap(json));
       case "labeled_section_break":
-        return PreferenceCenterLabeledSectionBreak._fromJson(json);
+        return PreferenceCenterLabeledSectionBreak._fromJson(_toMap(json));
     }
 
     throw new Exception("Invalid section: " + type);
@@ -217,7 +220,7 @@ class PreferenceCenterCommonSection implements PreferenceCenterSection {
 
   static PreferenceCenterCommonSection _fromJson(Map<String, dynamic> json) {
     var display = json["display"] != null
-        ? PreferenceCenterCommonDisplay._fromJson(json["display"])
+        ? PreferenceCenterCommonDisplay._fromJson(_toMap(json["display"]))
         : null;
     var items = PreferenceCenterItem._fromJsonList(_toList(json["items"]));
     var conditions = json["conditions"] != null
@@ -256,7 +259,7 @@ class PreferenceCenterLabeledSectionBreak implements PreferenceCenterSection {
   static PreferenceCenterLabeledSectionBreak _fromJson(
       Map<String, dynamic> json) {
     var display = json["display"] != null
-        ? PreferenceCenterCommonDisplay._fromJson(json["display"])
+        ? PreferenceCenterCommonDisplay._fromJson(_toMap(json["display"]))
         : null;
     var conditions = json["conditions"] != null
         ? PreferenceCenterCondition._fromJsonList(_toList(json["conditions"]))
@@ -298,13 +301,13 @@ abstract class PreferenceCenterItem {
     var type = json["type"];
     switch (type) {
       case "channel_subscription":
-        return PreferenceCenterChannelSubscriptionItem._fromJson(json);
+        return PreferenceCenterChannelSubscriptionItem._fromJson(_toMap(json));
       case "contact_subscription":
-        return PreferenceCenterContactSubscriptionItem._fromJson(json);
+        return PreferenceCenterContactSubscriptionItem._fromJson(_toMap(json));
       case "contact_subscription_group":
-        return PreferenceCenterContactSubscriptionGroupItem._fromJson(json);
+        return PreferenceCenterContactSubscriptionGroupItem._fromJson(_toMap(json));
       case "alert":
-        return PreferenceCenterAlertItem._fromJson(json);
+        return PreferenceCenterAlertItem._fromJson(_toMap(json));
     }
     throw new Exception("Invalid item: " + type);
   }
@@ -360,7 +363,7 @@ class PreferenceCenterAlertItem implements PreferenceCenterItem {
       this.display, this.button, this.conditions);
 
   static PreferenceCenterAlertItem _fromJson(Map<String, dynamic> json) {
-    var display = PreferenceCenterIconDisplay._fromJson(json["display"]);
+    var display = PreferenceCenterIconDisplay._fromJson(_toMap(json["display"]));
     var button = json["button"] != null
         ? PreferenceCenterAlertItemButton._fromJson(_toMap(json["button"]))
         : null;
@@ -399,7 +402,7 @@ class PreferenceCenterChannelSubscriptionItem implements PreferenceCenterItem {
 
   static PreferenceCenterChannelSubscriptionItem _fromJson(
       Map<String, dynamic> json) {
-    var display = PreferenceCenterIconDisplay._fromJson(json["display"]);
+    var display = PreferenceCenterIconDisplay._fromJson(_toMap(json["display"]));
     var subscriptionId = json["subscription_id"];
     var conditions = json["conditions"] != null
         ? PreferenceCenterCondition._fromJsonList(_toList(json["conditions"]))
@@ -437,7 +440,7 @@ class PreferenceCenterContactSubscriptionItem implements PreferenceCenterItem {
 
   static PreferenceCenterContactSubscriptionItem _fromJson(
       Map<String, dynamic> json) {
-    var display = PreferenceCenterIconDisplay._fromJson(json["display"]);
+    var display = PreferenceCenterIconDisplay._fromJson(_toMap(json["display"]));
     var subscriptionId = json["subscription_id"];
     var conditions = json["conditions"] != null
         ? PreferenceCenterCondition._fromJsonList(_toList(json["conditions"]))
@@ -473,7 +476,7 @@ class PreferenceCenterContactSubscriptionGroupItemComponent {
     var scopes = List<String>.from(json["scopes"])
         .map((scopeString) => _parseScope(scopeString))
         .toList();
-    var display = PreferenceCenterCommonDisplay._fromJson(json["display"]);
+    var display = PreferenceCenterCommonDisplay._fromJson(_toMap(json["display"]));
 
     return PreferenceCenterContactSubscriptionGroupItemComponent._internal(
         scopes, display);
@@ -526,7 +529,7 @@ class PreferenceCenterContactSubscriptionGroupItem
 
   static PreferenceCenterContactSubscriptionGroupItem _fromJson(
       Map<String, dynamic> json) {
-    var display = PreferenceCenterIconDisplay._fromJson(json["display"]);
+    var display = PreferenceCenterIconDisplay._fromJson(_toMap(json["display"]));
     var subscriptionId = json["subscription_id"];
     var conditions = json["conditions"] != null
         ? PreferenceCenterCondition._fromJsonList(_toList(json["conditions"]))

@@ -1,12 +1,15 @@
 package com.airship.flutter
 
+import java.util.ArrayList;
 import android.app.Activity
 import android.content.Context
 import com.urbanairship.UAirship
 import com.urbanairship.actions.ActionResult
 import com.urbanairship.android.framework.proxy.EventType
+import com.urbanairship.android.framework.proxy.MessageCenterMessage
 import com.urbanairship.android.framework.proxy.events.EventEmitter
 import com.urbanairship.android.framework.proxy.proxies.AirshipProxy
+import com.urbanairship.json.JsonValue
 import io.flutter.embedding.engine.FlutterShellArgs
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -142,7 +145,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             }
 
             // Message Center
-            "messageCenter#getMessages" -> result.resolveResult(call) { proxy.messageCenter.getMessages() }
+            "messageCenter#getMessages" -> result.resolveResult(call) { JsonValue.wrapOpt(proxy.messageCenter.getMessages()) }
             "messageCenter#display" -> result.resolveResult(call) { proxy.messageCenter.display(call.optStringArg()) }
             "messageCenter#markMessageRead" -> result.resolveResult(call) { proxy.messageCenter.markMessageRead(call.stringArg()) }
             "messageCenter#deleteMessage" -> result.resolveResult(call) { proxy.messageCenter.deleteMessage(call.stringArg()) }

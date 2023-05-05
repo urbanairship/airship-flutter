@@ -27,12 +27,12 @@ class InboxMessage {
 
   static InboxMessage fromJson(Map<String, dynamic> json) {
     var title = json["title"];
-    var messageId = json["message_id"];
-    var sentDate = json["sent_date"];
-    var expirationDate = json["expiration_date"];
-    var listIcon = json["list_icon"];
-    var isRead = json["is_read"];
-    var extras = json["extras"];
+    var messageId = json["id"];
+    var sentDate = json["sentDate"];
+    var expirationDate = json["expirationDate"];
+    var listIcon = json["listIconUrl"];
+    var isRead = json["isRead"];
+    var extras = Map<String, dynamic>.from(json["extras"]);
     return InboxMessage._internal(
         title, messageId, sentDate, expirationDate, listIcon, isRead, extras);
   }

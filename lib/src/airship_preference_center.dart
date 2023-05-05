@@ -12,7 +12,7 @@ class AirshipPreferenceCenter {
   Future<PreferenceCenterConfig?> getConfig(String preferenceCenterID) async {
     var config = await _module.channel.invokeMethod(
         'preferenceCenter#getConfig', preferenceCenterID);
-    return PreferenceCenterConfig.fromJson(jsonDecode(config));
+    return PreferenceCenterConfig.fromJson(Map<String, dynamic>.from(config));
   }
 
   /// Enables or disables auto launching the Preference Center with the given [preferenceCenterID].

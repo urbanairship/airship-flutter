@@ -177,6 +177,9 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
         
     
         // Push
+        case "push#getRegistrationToken":
+            return try await AirshipProxy.shared.push.getRegistrationToken()
+        
         case "push#setUserNotificationsEnabled":
             try AirshipProxy.shared.push.setUserNotificationsEnabled(
                 try call.requireBooleanArg()
@@ -262,7 +265,9 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             return nil
             
         case "analytics#addEvent":
-            // TODO
+            try AirshipProxy.shared.analytics.addEvent(
+                call.requireAnyArg()
+            )
             return nil
             
         case "analytics#associateIdentifier":
