@@ -159,7 +159,7 @@ class IOSPush {
     if (Platform.isIOS) {
       return await _module.channel.invokeMethod('push#ios#getBadgeNumber');
     } else {
-      return Future.value();
+      return Future.value(0);
     }
   }
 
