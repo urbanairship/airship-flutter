@@ -66,7 +66,7 @@ class AirshipMessageCenter {
 
   /// Gets show inbox message event stream.
   Stream<String?> get onShowInboxMessage {
-    return _module.getEventStream("SHOW_INBOX_MESSAGE")!
+    return _module.getEventStream("SHOW_INBOX_MESSAGE")
         .map((dynamic value) => jsonDecode(value) as String?);
   }
 }

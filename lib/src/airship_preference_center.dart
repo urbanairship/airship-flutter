@@ -30,7 +30,7 @@ class AirshipPreferenceCenter {
 
   /// Gets show preference center event stream.
   Stream<String?> get onShowPreferenceCenter {
-    return _module.getEventStream("SHOW_PREFERENCE_CENTER")!
+    return _module.getEventStream("SHOW_PREFERENCE_CENTER")
         .map((dynamic value) => jsonDecode(value) as String?);
   }
 

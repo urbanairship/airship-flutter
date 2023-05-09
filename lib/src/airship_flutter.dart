@@ -28,7 +28,7 @@ class Airship {
 
   /// Gets deep link event stream.
   static Stream<String?> get onDeepLink {
-    return _module.getEventStream("DEEP_LINK")!
+    return _module.getEventStream("DEEP_LINK")
         .map((dynamic value) => jsonDecode(value) as String?);
   }
 }
