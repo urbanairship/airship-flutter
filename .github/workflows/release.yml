@@ -128,10 +128,10 @@ jobs:
           bash ./scripts/docs.sh -gp $VERSION doc/api
 
       - name: Upload docs
-        uses: google-github-actions/upload-cloud-storage@v1
-        with:
-          path: doc/${{ steps.get_version.outputs.VERSION }}.tar.gz
-          destination: ua-web-ci-prod-docs-transfer/libraries/flutter/${{ steps.get_version.outputs.VERSION }}.tar.gz
+        env:
+            VERSION: ${{ steps.get_version.outputs.VERSION }}
+        run: |
+          gsutil cp doc/$VERSION.tar.gz gs://ua-web-ci-prod-docs-transfer/libraries/flutter/$VERSION.tar.gz
 
       - name: Slack Notification
         uses: homoluctus/slatify@master
