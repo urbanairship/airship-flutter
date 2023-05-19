@@ -1,5 +1,8 @@
 # Flutter Plugin Changelog
 
+## Version 6.3.2 - May 19, 2023
+Patch release that updates the intl package dependence minimum version to 0.18.0.
+
 ## Version 6.3.1 - April 28, 2023 
 Patch release that updates the Android SDK to 16.9.2 and fixes an issue with contact subscriptions 
 in the example Preference Center.
