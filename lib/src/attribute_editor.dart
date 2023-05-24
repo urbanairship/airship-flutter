@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 
 /// Editor for attributes.
 class AttributeEditor {
@@ -9,6 +8,7 @@ class AttributeEditor {
   static const ATTRIBUTE_OPERATION_REMOVE = "remove";
   static const ATTRIBUTE_OPERATION_SET = "set";
   static const ATTRIBUTE_OPERATION_VALUE = "value";
+  static const ATTRIBUTE_OPERATION_VALUE_TYPE = "type";
 
   final MethodChannel channel;
 
@@ -36,7 +36,8 @@ class AttributeEditor {
     operations.add({
       ATTRIBUTE_OPERATION_TYPE: ATTRIBUTE_OPERATION_SET,
       ATTRIBUTE_OPERATION_KEY: name,
-      ATTRIBUTE_OPERATION_VALUE: value
+      ATTRIBUTE_OPERATION_VALUE: value,
+      ATTRIBUTE_OPERATION_VALUE_TYPE: "string"
     });
   }
 
@@ -45,19 +46,18 @@ class AttributeEditor {
     operations.add({
       ATTRIBUTE_OPERATION_TYPE: ATTRIBUTE_OPERATION_SET,
       ATTRIBUTE_OPERATION_KEY: name,
-      ATTRIBUTE_OPERATION_VALUE: value
+      ATTRIBUTE_OPERATION_VALUE: value,
+      ATTRIBUTE_OPERATION_VALUE_TYPE: "number"
     });
   }
 
   /// Adds a date attribute.
   void setDateAttribute(String name, DateTime value) {
-    var dateFormatter = new DateFormat('yyyy-MM-ddTHH:mm:ss');
-    String dateString = dateFormatter.format(value);
-
     operations.add({
       ATTRIBUTE_OPERATION_TYPE: ATTRIBUTE_OPERATION_SET,
       ATTRIBUTE_OPERATION_KEY: name,
-      ATTRIBUTE_OPERATION_VALUE: dateString
+      ATTRIBUTE_OPERATION_VALUE: value.millisecondsSinceEpoch,
+      ATTRIBUTE_OPERATION_VALUE_TYPE: "date"
     });
   }
 

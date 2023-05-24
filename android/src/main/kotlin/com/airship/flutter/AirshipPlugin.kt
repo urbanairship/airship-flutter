@@ -105,6 +105,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             "channel#editSubscriptionLists" -> result.resolveResult(call) { proxy.channel.editSubscriptionLists(call.jsonArgs()) }
             "channel#editAttributes" -> result.resolveResult(call) { proxy.channel.editAttributes(call.jsonArgs()) }
             "channel#getSubscriptionLists" -> result.resolvePending(call) { proxy.channel.getSubscriptionLists() }
+            "channel#enableChannelCreation" -> result.resolveResult(call) { proxy.channel.enableChannelCreation() }
 
             // Contact
             "contact#reset" -> result.resolveResult(call) { proxy.contact.reset() }

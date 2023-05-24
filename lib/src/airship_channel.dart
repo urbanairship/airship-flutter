@@ -60,12 +60,12 @@ class AirshipChannel {
 
   /// Creates an [AttributeEditor] to modify the channel attributes.
   AttributeEditor editChannelAttributes() {
-    return AttributeEditor('channel#editChannelAttributes', _module.channel);
+    return AttributeEditor('channel#editAttributes', _module.channel);
   }
 
   /// Creates a [TagGroupEditor] to modify the channel tag groups.
   TagGroupEditor editChannelTagGroups() {
-    return TagGroupEditor('channel#editChannelTagGroups', _module.channel);
+    return TagGroupEditor('channel#editTagGroups', _module.channel);
   }
 
   /// Creates an [AttributeEditor] to modify the channel attributes.
