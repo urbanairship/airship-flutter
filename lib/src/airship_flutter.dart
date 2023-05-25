@@ -11,6 +11,7 @@ import 'subscription_list_editor.dart';
 import 'scoped_subscription_list_editor.dart';
 import 'preference_center_config.dart';
 import 'attribute_editor.dart';
+import 'constants.dart';
 
 /// Inbox message object.
 class InboxMessage {
@@ -239,7 +240,7 @@ void _backgroundMessageIsolateCallback() {
   });
 
   // Tell the native side to start the background isolate.
-  Airship._backgroundChannel.invokeMethod<void>("backgroundIsolateStarted");
+  Airship._backgroundChannel.invokeMethod<void>(MethodNameConstants.backgroundIsolateStarted);
 }
 
 typedef BackgroundMessageHandler = Future<void> Function(
@@ -301,7 +302,7 @@ class Airship {
   /// Returns true if Airship has been initialized, otherwise returns false.
   static Future<bool> takeOff(String appKey, String appSecret) async {
     Map<String, String> args = {"app_key": appKey, "app_secret": appSecret};
-    return await _channel.invokeMethod('takeOff', args);
+    return await _channel.invokeMethod(MethodNameConstants.takeOff, args);
   }
 
   /// Sets a background message handler.
@@ -327,12 +328,12 @@ class Airship {
 
   /// Gets the channel ID.
   static Future<String?> get channelId async {
-    return await _channel.invokeMethod('getChannelId');
+    return await _channel.invokeMethod(MethodNameConstants.getChannelId);
   }
 
   /// Enables or disables the user notifications.
   static Future<bool?> setUserNotificationsEnabled(bool enabled) async {
-    return await _channel.invokeMethod('setUserNotificationsEnabled', enabled);
+    return await _channel.invokeMethod(MethodNameConstants.setUserNotificationsEnabled, enabled);
   }
 
   /// Clears a specific [notification].
@@ -340,7 +341,7 @@ class Airship {
   /// The [notification] parameter is the notification ID.
   /// Supported on Android and iOS 10+.
   static Future<void> clearNotification(String notification) async {
-    return await _channel.invokeMethod('clearNotification', notification);
+    return await _channel.invokeMethod(MethodNameConstants.clearNotification, notification);
   }
 
   /// Clears all notifications for the application.
@@ -348,18 +349,18 @@ class Airship {
   /// Supported on Android and iOS 10+. For older iOS devices, you can set
   /// the badge number to 0 to clear notifications.
   static Future<void> clearNotifications() async {
-    return await _channel.invokeMethod('clearNotifications');
+    return await _channel.invokeMethod(MethodNameConstants.clearNotifications);
   }
 
   /// Gets the channel tags.
   static Future<List<String>> get tags async {
-    List tags = await (_channel.invokeMethod("getTags"));
+    List tags = await (_channel.invokeMethod(MethodNameConstants.getTags));
     return tags.cast<String>();
   }
 
   /// Gets the current inbox messages.
   static Future<List<InboxMessage>> get inboxMessages async {
-    List inboxMessages = await (_channel.invokeMethod("getInboxMessages"));
+    List inboxMessages = await (_channel.invokeMethod(MethodNameConstants.getInboxMessages));
     return inboxMessages.map((dynamic payload) {
       return InboxMessage._fromJson(jsonDecode(payload));
     }).toList();
@@ -367,17 +368,17 @@ class Airship {
 
   /// Adds a custom [event].
   static Future<void> addEvent(CustomEvent event) async {
-    return await _channel.invokeMethod('addEvent', event.toMap());
+    return await _channel.invokeMethod(MethodNameConstants.addEvent, event.toMap());
   }
 
   /// Adds channel tags.
   static Future<void> addTags(List<String> tags) async {
-    return await _channel.invokeMethod('addTags', tags);
+    return await _channel.invokeMethod(MethodNameConstants.addTags, tags);
   }
 
   /// Removes channel tags.
   static Future<void> removeTags(List<String> tags) async {
-    return await _channel.invokeMethod('removeTags', tags);
+    return await _channel.invokeMethod(MethodNameConstants.removeTags, tags);
   }
 
   /// Creates an [AttributeEditor] to modify the channel attributes.
@@ -423,18 +424,18 @@ class Airship {
   ///
   /// Set [namedUser] at null to clear the named user.
   static Future<void> setNamedUser(String? namedUser) async {
-    return await _channel.invokeMethod('setNamedUser', namedUser);
+    return await _channel.invokeMethod(MethodNameConstants.setNamedUser, namedUser);
   }
 
   /// Marks an inbox [message] as read.
   static Future<void> markInboxMessageRead(InboxMessage message) async {
     return await _channel.invokeMethod(
-        'markInboxMessageRead', message.messageId);
+        MethodNameConstants.markInboxMessageRead, message.messageId);
   }
 
   /// Deletes an inbox [message].
   static Future<void> deleteInboxMessage(InboxMessage message) async {
-    return await _channel.invokeMethod('deleteInboxMessage', message.messageId);
+    return await _channel.invokeMethod(MethodNameConstants.deleteInboxMessage, message.messageId);
   }
 
   /// Forces the inbox to refresh.
@@ -442,17 +443,17 @@ class Airship {
   /// This is normally not needed as the inbox will automatically refresh on
   /// foreground or when a push arrives that's associated with a message.
   static Future<bool?> refreshInbox() async {
-    return _channel.invokeMethod("refreshInbox");
+    return _channel.invokeMethod(MethodNameConstants.refreshInbox);
   }
 
   /// Gets the named user.
   static Future<String?> get namedUser async {
-    return await _channel.invokeMethod('getNamedUser');
+    return await _channel.invokeMethod(MethodNameConstants.getNamedUser);
   }
 
   /// Tells if user notifications are enabled or not.
   static Future<bool?> get userNotificationsEnabled async {
-    return await _channel.invokeMethod('getUserNotificationsEnabled');
+    return await _channel.invokeMethod(MethodNameConstants.getUserNotificationsEnabled);
   }
 
   /// Gets all the active notifications for the application.
@@ -460,7 +461,7 @@ class Airship {
   /// Supported on Android Marshmallow (23)+ and iOS 10+.
   static Future<List<Notification>> get activeNotifications async {
     List notifications =
-        await (_channel.invokeMethod('getActiveNotifications'));
+        await (_channel.invokeMethod(MethodNameConstants.getActiveNotifications));
     return notifications.map((dynamic payload) {
       return Notification._fromJson(Map<String, dynamic>.from(payload));
     }).toList();
@@ -468,7 +469,7 @@ class Airship {
 
   /// Enables channel creation.
   static Future<void> enableChannelCreation() async {
-    return await _channel.invokeMethod('enableChannelCreation');
+    return await _channel.invokeMethod(MethodNameConstants.enableChannelCreation);
   }
 
   /// Gets inbox updated event stream.
@@ -519,24 +520,24 @@ class Airship {
 
   /// Pauses or unpauses in-app automation.
   static Future<void> setInAppAutomationPaused(bool paused) async {
-    return await _channel.invokeMethod('setInAppAutomationPaused', paused);
+    return await _channel.invokeMethod(MethodNameConstants.setInAppAutomationPaused, paused);
   }
 
   /// Checks if in-app automation is paused or not.
   static Future<void> get getInAppAutomationPaused async {
-    return await _channel.invokeMethod('getInAppAutomationPaused');
+    return await _channel.invokeMethod(MethodNameConstants.getInAppAutomationPaused);
   }
 
   /// Initiates [screen] tracking for a specific app screen. Must be called once per tracked screen.
   static Future<void> trackScreen(String screen) async {
-    return await _channel.invokeMethod('trackScreen', screen);
+    return await _channel.invokeMethod(MethodNameConstants.trackScreen, screen);
   }
 
   /// Checks if auto-badging is enabled on iOS. Badging is not supported for Android.
   static Future<bool> isAutoBadgeEnabled() async {
     var isAutoBadgeEnabled = false;
     if (Platform.isIOS) {
-      isAutoBadgeEnabled = await _channel.invokeMethod('isAutoBadgeEnabled');
+      isAutoBadgeEnabled = await _channel.invokeMethod(MethodNameConstants.isAutoBadgeEnabled);
     }
     return isAutoBadgeEnabled;
   }
@@ -544,7 +545,7 @@ class Airship {
   /// Enables or disables auto-badging on iOS. Badging is not supported for Android.
   static Future<void> setAutoBadgeEnabled(bool enabled) async {
     if (Platform.isIOS) {
-      return await _channel.invokeMethod('setAutoBadgeEnabled', enabled);
+      return await _channel.invokeMethod(MethodNameConstants.setAutoBadgeEnabled, enabled);
     } else {
       return Future.value();
     }
@@ -553,7 +554,7 @@ class Airship {
   /// Sets the [badge] number on iOS. Badging is not supported for Android.
   static Future<void> setBadge(int badge) async {
     if (Platform.isIOS) {
-      return await _channel.invokeMethod('setBadge', badge);
+      return await _channel.invokeMethod(MethodNameConstants.setBadge, badge);
     } else {
       return Future.value();
     }
@@ -562,7 +563,7 @@ class Airship {
   /// Clears the badge on iOS. Badging is not supported for Android.
   static Future<void> resetBadge() async {
     if (Platform.isIOS) {
-      return await _channel.invokeMethod('resetBadge');
+      return await _channel.invokeMethod(MethodNameConstants.resetBadge);
     } else {
       return Future.value();
     }
@@ -570,12 +571,12 @@ class Airship {
 
   /// Enables one or many [features].
   static Future<void> enableFeatures(List<String> features) async {
-    return await _channel.invokeMethod('enableFeatures', features);
+    return await _channel.invokeMethod(MethodNameConstants.enableFeatures, features);
   }
 
   /// Disables one or many [features].
   static Future<void> disableFeatures(List<String> features) async {
-    return await _channel.invokeMethod('disableFeatures', features);
+    return await _channel.invokeMethod(MethodNameConstants.disableFeatures, features);
   }
 
   /// Sets the SDK [features] that will be enabled. The rest of the features will be disabled.
@@ -583,23 +584,23 @@ class Airship {
   /// If all features are disabled the SDK will not make any network requests or collect data.
   /// Note that all features are enabled by default.
   static Future<void> setEnabledFeatures(List<String> features) async {
-    return await _channel.invokeMethod('setEnabledFeatures', features);
+    return await _channel.invokeMethod(MethodNameConstants.setEnabledFeatures, features);
   }
 
   /// Returns a [List] with the enabled features.
   static Future<List<String>> getEnabledFeatures() async {
-    return await _channel.invokeMethod('getEnabledFeatures');
+    return await _channel.invokeMethod(MethodNameConstants.getEnabledFeatures);
   }
 
   /// Checks if a given [feature] is enabled or not.
   static Future<bool> isFeatureEnabled(String feature) async {
-    return await _channel.invokeMethod('isFeatureEnabled', feature);
+    return await _channel.invokeMethod(MethodNameConstants.isFeatureEnabled, feature);
   }
 
   /// Opens the Preference Center with the given [preferenceCenterID].
   static Future<void> openPreferenceCenter(String preferenceCenterID) async {
     return await _channel.invokeMethod(
-        'openPreferenceCenter', preferenceCenterID);
+        MethodNameConstants.openPreferenceCenter, preferenceCenterID);
   }
 
   /// Gets the subscription lists.
@@ -608,7 +609,7 @@ class Airship {
   static Future<SubscriptionList> getSubscriptionLists(
       List<String> subscriptionListTypes) async {
     var lists = await (_channel.invokeMethod(
-        "getSubscriptionLists", subscriptionListTypes));
+        MethodNameConstants.getSubscriptionLists, subscriptionListTypes));
     return SubscriptionList._fromJson(Map<String, dynamic>.from(lists));
   }
 
@@ -616,12 +617,12 @@ class Airship {
   static Future<PreferenceCenterConfig?> getPreferenceCenterConfig(
       String preferenceCenterID) async {
     var config = await _channel.invokeMethod(
-        'getPreferenceCenterConfig', preferenceCenterID);
+        MethodNameConstants.getPreferenceCenterConfig, preferenceCenterID);
     return PreferenceCenterConfig.fromJson(jsonDecode(config));
   }
 
   /// Enables or disables auto launch Preference Center
   static Future<void> setAutoLaunchDefaultPreferenceCenter(bool enabled) async {
-    return await _channel.invokeMethod('setAutoLaunchDefaultPreferenceCenter');
+    return await _channel.invokeMethod(MethodNameConstants.setAutoLaunchDefaultPreferenceCenter);
   }
 }
