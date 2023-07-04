@@ -136,7 +136,7 @@ class IOSPush {
       var parsedOptions = List<ForegroundPresentationOption>.from(options)
           .map((option) => option.toString())
           .toList();
-      return await _module.channel.invokeMethod('push#ios#setForegroundPresentationOptions', options);
+      return await _module.channel.invokeMethod('push#ios#setForegroundPresentationOptions', parsedOptions);
     } else {
       return Future.value();
     }
