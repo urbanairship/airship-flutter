@@ -119,17 +119,23 @@ class IOSPush {
   }
 
   /// Sets the notification options.
-  Future<void> setNotificationOptions(List<String> options) async {
+  Future<void> setNotificationOptions(List<NotificationOption> options) async {
     if (Platform.isIOS) {
-      return await _module.channel.invokeMethod('push#ios#setNotificationOptions', options);
+      var parsedOptions = List<NotificationOption>.from(options)
+          .map((option) => option.toString())
+          .toList();
+      return await _module.channel.invokeMethod('push#ios#setNotificationOptions', parsedOptions);
     } else {
       return Future.value();
     }
   }
 
   /// Sets the notification options.
-  Future<void> setForegroundPresentationOptions(List<String> options) async {
+  Future<void> setForegroundPresentationOptions(List<ForegroundPresentationOption> options) async {
     if (Platform.isIOS) {
+      var parsedOptions = List<ForegroundPresentationOption>.from(options)
+          .map((option) => option.toString())
+          .toList();
       return await _module.channel.invokeMethod('push#ios#setForegroundPresentationOptions', options);
     } else {
       return Future.value();
@@ -172,3 +178,7 @@ class IOSPush {
     }
   }
 }
+
+enum NotificationOption { alert, sound, badge, car_play, critical_alert, provides_app_notification_settings, provisional }
+
+enum ForegroundPresentationOption { sound, badge, list, banner }
