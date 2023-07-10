@@ -178,7 +178,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
     
         // Push
         case "push#getRegistrationToken":
-            return try await AirshipProxy.shared.push.getRegistrationToken()
+            return try AirshipProxy.shared.push.getRegistrationToken()
         
         case "push#setUserNotificationsEnabled":
             try AirshipProxy.shared.push.setUserNotificationsEnabled(
@@ -189,7 +189,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
         case "push#enableUserNotifications":
             return try await AirshipProxy.shared.push.enableUserPushNotifications()
             
-        case "push#isUserNotifictionsEnabled":
+        case "push#isUserNotificationsEnabled":
             return try AirshipProxy.shared.push.isUserNotificationsEnabled()
         
         case "push#getNotificationStatus":

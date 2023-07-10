@@ -119,7 +119,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             // Push
             "push#setUserNotificationsEnabled" -> result.resolveResult(call) { proxy.push.setUserNotificationsEnabled(call.booleanArg()) }
             "push#enableUserNotifications" -> result.resolvePending(call) { proxy.push.enableUserPushNotifications() }
-            "push#isUserNotifictionsEnabled" -> result.resolveResult(call) { proxy.push.isUserNotificationsEnabled() }
+            "push#isUserNotificationsEnabled" -> result.resolveResult(call) { proxy.push.isUserNotificationsEnabled() }
             "push#getNotificationStatus" -> result.resolveResult(call) { proxy.push.getNotificationStatus() }
             "push#getActiveNotifications" -> result.resolveResult(call) { proxy.push.getActiveNotifications() }
             "push#clearNotification" -> result.resolveResult(call) { proxy.push.clearNotification(call.stringArg()) }
@@ -247,7 +247,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 EventType.PUSH_TOKEN_RECEIVED -> "com.airship.flutter/event/push_token_received"
                 EventType.FOREGROUND_PUSH_RECEIVED -> "com.airship.flutter/event/foreground_push_received"
                 EventType.BACKGROUND_PUSH_RECEIVED -> "com.airship.flutter/event/background_push_received"
-                EventType.NOTIFICATION_OPT_IN_CHANGED -> "com.airship.flutter/event/notification_opt_in_status"
+                EventType.NOTIFICATION_STATUS_CHANGED -> "com.airship.flutter/event/notification_status_changed"
             }
 
             val eventChannel = EventChannel(binaryMessenger, name)

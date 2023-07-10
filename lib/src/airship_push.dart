@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:ui';
 import 'events.dart';
 import 'notification.dart';
+import 'push_notification_status.dart';
 import 'package:flutter/foundation.dart';
 
 class AirshipPush {
@@ -17,11 +18,11 @@ class AirshipPush {
 
   /// Tells if user notifications are enabled or not.
   Future<bool?> get isUserNotificationsEnabled async {
-    return await _module.channel.invokeMethod('push#isUserNotifictionsEnabled');
+    return await _module.channel.invokeMethod('push#isUserNotificationsEnabled');
   }
 
   /// Enables or disables the user notifications.
-  Future<bool?> setUserNotificationsEnabled(bool enabled) async {
+  Future<void> setUserNotificationsEnabled(bool enabled) async {
     return await _module.channel.invokeMethod('push#setUserNotificationsEnabled', enabled);
   }
 
@@ -31,8 +32,9 @@ class AirshipPush {
   }
 
   /// Gets the notification status.
-  Future<bool?> getNotificationStatus() async {
-    return await _module.channel.invokeMethod('push#getNotificationStatus');
+  Future<PushNotificationStatus?> getNotificationStatus() async {
+    var payload = await _module.channel.invokeMethod('push#getNotificationStatus');
+    return PushNotificationStatus.fromJson(Map<String, dynamic>.from(payload));
   }
 
   /// Gets the registration token if generated.
