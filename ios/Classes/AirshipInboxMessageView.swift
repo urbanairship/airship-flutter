@@ -27,7 +27,6 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView, NativeBridgeDeleg
 
     init(frame: CGRect, viewId: Int64, registrar: FlutterPluginRegistrar) {
         self.webView = WKWebView(frame: frame)
-        self.webView.allowsLinkPreview = false
         self.webView.configuration.dataDetectorTypes = [.all]
 
         let channelName = "com.airship.flutter/InboxMessageView_\(viewId)"
@@ -42,7 +41,9 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView, NativeBridgeDeleg
         weak var weakSelf = self
         channel.setMethodCallHandler { (call, result) in
             if let strongSelf = weakSelf {
-                strongSelf.handle(call, result: result)
+                Task {
+                    await strongSelf.handle(call, result: result)
+                }
             } else {
                 result(FlutterError(code:"UNAVAILABLE",
                                     message:"Instance no longer available",
@@ -79,24 +80,26 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView, NativeBridgeDeleg
             return
         }
         
-        if let message = await MessageCenter.shared.inbox.message(forID: messageId) {
+        let inbox = MessageCenter.shared.inbox
+        if let message = await inbox.message(forID: messageId) {
             var request = URLRequest(url: message.bodyURL)
             let user = await MessageCenter.shared.inbox.user
             
-            user.getData({ (userData) in
-                guard let auth = AirshipUtils.authHeader(username: userData.username, password: userData.password) else {
+            if let user = user {
+                guard let auth = AirshipUtils.authHeader(username: user.username, password: user.password) else {
                     result(FlutterError(code:"InvalidState",
                                         message:"User not created.",
                                         details:nil))
                     return
                 }
                 request.addValue(auth, forHTTPHeaderField: "Authorization")
-                DispatchQueue.main.async {
-                    self.webView.load(request)
-                    message.markRead(completionHandler: nil)
-                }
+            
+                await self.webView.load(request)
+                await inbox.markRead(messages: [message])
                 
-            })
+            }
+                
+           
         } else {
             
             result(FlutterError(code:"InvalidMessage",

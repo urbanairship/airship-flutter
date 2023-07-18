@@ -394,9 +394,11 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
                 throw AirshipErrors.error("Call requires [String, Any?]")
             }
 
+            let arg = try? AirshipJSON.wrap(args[1])
             return try await AirshipProxy.shared.action.runAction(
                 actionName,
-                value: args.count == 2 ? args[1] as! AirshipJSON : nil
+                value: args.count == 2 ? arg : nil
+
             )
 
         default:
