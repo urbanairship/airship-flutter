@@ -34,8 +34,8 @@ extension AirshipAutopilot: AirshipProxyDelegate {
         defaults.removeObject(forKey: "appSecret")
     }
     
-    public func loadDefaultConfig() -> Config {
-        return Config.default()
+    public func loadDefaultConfig() -> AirshipConfig {
+        return AirshipConfig.default()
     }
     
     public func onAirshipReady() {

@@ -17,7 +17,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
         .displayPreferenceCenter: "com.airship.flutter/event/display_preference_center",
         .notificationResponseReceived: "com.airship.flutter/event/notification_response",
         .pushReceived: "com.airship.flutter/event/push_received",
-        .notificationOptInStatusChanged: "com.airship.flutter/event/notification_opt_in_status"
+        .notificationStatusChanged: "com.airship.flutter/event/notification_status_changed"
     ]
 
     private static let streams: [AirshipProxyEventType: AirshipEventStream] = {
@@ -173,7 +173,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             return nil
         
         case "contact#getNamedUserId":
-            return try AirshipProxy.shared.contact.getNamedUser()
+            return try await AirshipProxy.shared.contact.getNamedUser()
         
     
         // Push
@@ -193,7 +193,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             return try AirshipProxy.shared.push.isUserNotificationsEnabled()
         
         case "push#getNotificationStatus":
-            return try AirshipProxy.shared.push.getNotificationStatus()
+            return try await AirshipProxy.shared.push.getNotificationStatus()
             
         case "push#getActiveNotifications":
             return await AirshipProxy.shared.push.getActiveNotifications()
@@ -281,7 +281,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
         
         // Message Center
         case "messageCenter#getMessages":
-            return try AirshipProxy.shared.messageCenter.getMessagesJSON()
+            return try await AirshipProxy.shared.messageCenter.getMessagesJSON()
             
         case "messageCenter#display":
             try AirshipProxy.shared.messageCenter.display(
@@ -396,7 +396,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
 
             return try await AirshipProxy.shared.action.runAction(
                 actionName,
-                actionValue: args.count == 2 ? args[1] : nil
+                value: args.count == 2 ? args[1] as! AirshipJSON : nil
             )
 
         default:
@@ -488,7 +488,7 @@ internal class AirshipEventStream : NSObject, FlutterStreamHandler {
 
     private var eventSink : FlutterEventSink?
     private let eventType: AirshipProxyEventType
-    private let lock = Lock()
+    private let lock = AirshipLock()
     private let name: String
     
     init(_ eventType: AirshipProxyEventType, name: String) {

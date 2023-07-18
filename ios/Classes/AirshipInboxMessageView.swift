@@ -1,5 +1,6 @@
 import Foundation
 import AirshipKit
+import WebKit
 
 class AirshipInboxMessageViewFactory : NSObject, FlutterPlatformViewFactory {
 
@@ -26,7 +27,7 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView, NativeBridgeDeleg
 
     init(frame: CGRect, viewId: Int64, registrar: FlutterPluginRegistrar) {
         self.webView = WKWebView(frame: frame)
-        self.webView.allowsLinkPreview = !MessageCenter.shared.defaultUI.disableMessageLinkPreviewAndCallouts
+        self.webView.allowsLinkPreview = false
         self.webView.configuration.dataDetectorTypes = [.all]
 
         let channelName = "com.airship.flutter/InboxMessageView_\(viewId)"
@@ -50,10 +51,10 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView, NativeBridgeDeleg
         }
     }
 
-    public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+    public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) async {
         switch call.method {
         case "loadMessage":
-            loadMessage(call, result: result)
+            await loadMessage(call, result: result)
         default:
             result(FlutterError(code:"UNAVAILABLE",
                                 message:"Unknown method: \(call.method)",
@@ -61,7 +62,7 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView, NativeBridgeDeleg
         }
     }
 
-    private func loadMessage(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+    private func loadMessage(_ call: FlutterMethodCall, result: @escaping FlutterResult) async {
         webviewResult = result
         channel.invokeMethod("onLoadStarted", arguments: nil)
         guard let messageId = call.arguments as? String else {
@@ -78,12 +79,12 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView, NativeBridgeDeleg
             return
         }
         
-        if let message = MessageCenter.shared.messageList.message(forID: messageId) {
-            var request = URLRequest(url: message.messageBodyURL)
-            let user = MessageCenter.shared.user
+        if let message = await MessageCenter.shared.inbox.message(forID: messageId) {
+            var request = URLRequest(url: message.bodyURL)
+            let user = await MessageCenter.shared.inbox.user
             
             user.getData({ (userData) in
-                guard let auth = Utils.authHeader(username: userData.username, password: userData.password) else {
+                guard let auth = AirshipUtils.authHeader(username: userData.username, password: userData.password) else {
                     result(FlutterError(code:"InvalidState",
                                         message:"User not created.",
                                         details:nil))
