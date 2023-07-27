@@ -9,7 +9,7 @@ class AirshipMessageCenter {
   AirshipMessageCenter(AirshipModule module) : this._module = module;
 
   /// Gets the current inbox messages.
-  Future<List<InboxMessage>> get inboxMessages async {
+  Future<List<InboxMessage>> get messages async {
     List inboxMessages = await (_module.channel.invokeMethod("messageCenter#getMessages"));
     return inboxMessages.map((dynamic payload) {
       return InboxMessage.fromJson(Map<String, dynamic>.from(payload));
@@ -17,7 +17,7 @@ class AirshipMessageCenter {
   }
 
   /// Marks an inbox [message] as read.
-  Future<void> markInboxMessageRead(InboxMessage message) async {
+  Future<void> markRead(InboxMessage message) async {
     return await _module.channel.invokeMethod(
         'messageCenter#markMessageRead', message.messageId);
   }
@@ -29,13 +29,13 @@ class AirshipMessageCenter {
   }
 
   /// Deletes an inbox [message].
-  Future<void> deleteInboxMessage(InboxMessage message) async {
+  Future<void> deleteMessage(InboxMessage message) async {
     return await _module.channel.invokeMethod(
         'messageCenter#deleteMessage', message.messageId);
   }
 
   /// Gets the unread count.
-  Future<int> getUnreadMessageCount() async {
+  Future<int> get unreadMessageCount async {
     return await _module.channel.invokeMethod(
         'messageCenter#getUnreadMessageCount');
   }

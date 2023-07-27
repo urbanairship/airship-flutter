@@ -7,12 +7,12 @@ class AirshipInApp {
   AirshipInApp(AirshipModule module) : this._module = module;
 
   /// Pauses or unpauses in-app automation.
-  Future<void> setInAppAutomationPaused(bool paused) async {
+  Future<void> setPaused(bool paused) async {
     return await _module.channel.invokeMethod('inApp#setPaused', paused);
   }
 
   /// Checks if in-app automation is paused or not.
-  Future<bool> get getInAppAutomationPaused async {
+  Future<bool> get isPaused async {
     return await _module.channel.invokeMethod('inApp#isPaused');
   }
 
@@ -22,7 +22,7 @@ class AirshipInApp {
   }
 
   /// Gets the display interval for messages.
-  Future<int> get getDisplayInterval async {
+  Future<int> get displayInterval async {
     return await _module.channel.invokeMethod('inApp#getDisplayInterval');
   }
 

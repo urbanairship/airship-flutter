@@ -17,7 +17,7 @@ class AirshipPush {
         this._module = module, this.iOS = IOSPush(module);
 
   /// Tells if user notifications are enabled or not.
-  Future<bool?> get isUserNotificationsEnabled async {
+  Future<bool> get isUserNotificationsEnabled async {
     return await _module.channel.invokeMethod('push#isUserNotificationsEnabled');
   }
 
@@ -32,13 +32,13 @@ class AirshipPush {
   }
 
   /// Gets the notification status.
-  Future<PushNotificationStatus?> getNotificationStatus() async {
+  Future<PushNotificationStatus?> get notificationStatus async {
     var payload = await _module.channel.invokeMethod('push#getNotificationStatus');
     return PushNotificationStatus.fromJson(Map<String, dynamic>.from(payload));
   }
 
   /// Gets the registration token if generated.
-  Future<String?> getRegistrationToken() async {
+  Future<String?> get registrationToken async {
     return await _module.channel.invokeMethod('push#getRegistrationToken');
   }
 
@@ -181,6 +181,6 @@ class IOSPush {
   }
 }
 
-enum NotificationOption { alert, sound, badge, car_play, critical_alert, provides_app_notification_settings, provisional }
+enum NotificationOption { alert, sound, badge, carPlay, criticalAlert, providesAppNotificationSettings, provisional }
 
 enum ForegroundPresentationOption { sound, badge, list, banner }

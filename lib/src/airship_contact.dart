@@ -12,11 +12,20 @@ class AirshipContact {
   AirshipContact(AirshipModule module) : this._module = module;
 
   /// The [subscriptionListTypes] can contain types `channel` or `contact`.
-  Future<SubscriptionList> getSubscriptionLists(
+  Future<Map<String, List<ChannelScope>>> getSubscriptionLists(
       Map<String, ChannelScope> subscriptionListTypes) async {
-    var lists = await (_module.channel.invokeMethod(
+    var payload = await (_module.channel.invokeMethod(
         "contact#getSubscriptionLists"));
-    return SubscriptionList.fromJson(Map<String, dynamic>.from(lists));
+
+    payload.forEach((key, value) {
+      List<String> parsedValue = List<String>.from(value);
+      List<ChannelScope> scopeList = <ChannelScope>[];
+      parsedValue.forEach((scopeString) {
+        scopeList.add(scopeString.channelScope);
+      });
+      payload[key] = scopeList;
+    });
+    return Map<String, List<ChannelScope>>.from(payload);
   }
 
 
