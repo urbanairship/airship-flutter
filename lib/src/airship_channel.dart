@@ -32,7 +32,8 @@ class AirshipChannel {
 
   /// Gets channel subscription lists.
   Future<List<String>> get subscriptionLists async {
-    return await _module.channel.invokeMethod("channel#getSubscriptionLists");
+    List lists = await _module.channel.invokeMethod("channel#getSubscriptionLists");
+    return lists.cast<String>();
   }
 
   /// Adds channel tags.

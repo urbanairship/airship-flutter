@@ -44,6 +44,9 @@ internal fun <T> MethodChannel.Result.resolveDeferred(call: MethodCall, function
                         is JsonSerializable -> {
                             this.success(result.toJsonValue().unwrap())
                         }
+                        is java.util.LinkedHashSet<*> -> {
+                            this.success(result.toList())
+                        }
                         else -> {
                             this.success(result)
                         }
@@ -120,4 +123,23 @@ internal fun Context.isAppInForeground(): Boolean {
 
     val pkgName = packageName
     return processes.any { it.importance == IMPORTANCE_FOREGROUND && it.processName == pkgName }
+}
+
+fun NotificationInfo.canonicalNotificationId() : String {
+    var id = notificationId.toString()
+    if (!UAStringUtil.isEmpty(notificationTag)) {
+        id += ":$notificationTag"
+    }
+
+    return id
+}
+
+fun NotificationInfo.eventData() : JsonMap {
+    return JsonMap.newBuilder()
+        .putOpt("alert", message.alert)
+        .putOpt("title", message.title)
+        .putOpt("subtitle", message.summary)
+        .putOpt("extras", message.toJsonValue())
+        .putOpt("notificationId", canonicalNotificationId())
+        .build()
 }
