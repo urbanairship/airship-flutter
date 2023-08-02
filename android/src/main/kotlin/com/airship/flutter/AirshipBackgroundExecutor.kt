@@ -1,5 +1,6 @@
 package com.airship.flutter
 
+import android.util.Log
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Handler
