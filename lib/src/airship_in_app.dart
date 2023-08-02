@@ -18,7 +18,7 @@ class AirshipInApp {
 
   /// Sets the display interval for messages.
   Future<void> setDisplayInterval(int milliseconds) async {
-    return await _module.channel.invokeMethod('inApp#setDisplayInterval', milliseconds);
+    return _module.channel.invokeMethod('inApp#setDisplayInterval', milliseconds);
   }
 
   /// Gets the display interval for messages.

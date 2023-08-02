@@ -17,10 +17,8 @@ class PushNotificationStatus {
   /// If Airship is able to send and display a push notification.
   final bool? isOptedIn;
 
-  /**
-  * Checks for isUserNotificationsEnabled, areNotificationsAllowed, and isPushPrivacyFeatureEnabled. If this flag
-  * is true but `isOptedIn` is false, that means push token was not able to be registered.
-  **/
+  /// Checks for isUserNotificationsEnabled, areNotificationsAllowed, and isPushPrivacyFeatureEnabled. If this flag
+  /// is true but `isOptedIn` is false, that means push token was not able to be registered.
   final bool? isUserOptedIn;
 
   const PushNotificationStatus._internal(

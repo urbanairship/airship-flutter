@@ -2,21 +2,55 @@ import 'feature.dart';
 
 class AirshipConfig {
 
+  /// Default environment.
   ConfigEnvironment? defaultEnvironment;
+
+  /// Development environment.
   ConfigEnvironment? developmentEnvironment;
+
+  /// Production environment.
   ConfigEnvironment? productionEnvironment;
+
+  /// Cloud site.
   Site? site;
+
+  /// Switches the environment from development or production.
   bool? inProduction;
+
+  /// URL allow list.
   List<String>? urlAllowList;
+
+  /// URL allow list for open URL scope.
   List<String>? urlAllowListScopeOpenUrl;
+
+  /// URL allow list for JS bridge injection.
   List<String>? urlAllowListScopeJavaScriptInterface;
+
+  /// Enables delayed channel creation.
   bool? isChannelCreationDelayEnabled;
+
+  /// Initial config URL for custom Airship domains. The URL
+  /// should also be added to the urlAllowList.
   String? initialConfigUrl;
+
+  /// Enabled features. Defaults to all.
   List<Feature>? enabledFeatures;
+
+  /// Enables channel capture feature. Enabled by default.
   bool? isChannelCaptureEnabled;
+
+  /// Whether to suppress console error messages
+  /// about missing allow list entries during takeOff.
+  /// Disabled by default.
   bool? suppressAllowListError;
+
+  /// Pauses In-App Automation on launch.
   bool? autoPauseInAppAutomationOnLaunch;
+
+  /// iOS config.
   IOSConfig? iosConfig;
+
+  /// Android config.
   AndroidConfig? androidConfig;
 
   AirshipConfig([this.defaultEnvironment,
@@ -76,6 +110,7 @@ class ConfigEnvironment {
 enum Site { us, eu }
 
 class IOSConfig {
+  /// iTunes ID for rate app and App Store deep links.
   String? iTunesId;
 
   IOSConfig(this.iTunesId);
@@ -88,8 +123,13 @@ class IOSConfig {
 }
 
 class AndroidConfig {
+  /// The app store URI.
   String? appStoreUri;
+
+  /// The FCM app name if using multiple FCM projects.
   String? fcmFirebaseAppName;
+
+  /// Notification config.
   NotificationConfig? notificationConfig;
 
   AndroidConfig(this.appStoreUri, this.fcmFirebaseAppName, this.notificationConfig);
@@ -104,9 +144,16 @@ class AndroidConfig {
 }
 
 class NotificationConfig {
+  /// The icon resource name.
   String? icon;
+
+  /// The large icon resource name.
   String? largeIcon;
+
+  /// The default Android notification channel ID.
   String? defaultChannelId;
+
+  /// The accent color. Must be a hex value #AARRGGBB.
   String? accentColor;
 
   NotificationConfig(this.icon, this.largeIcon, this.defaultChannelId, this.accentColor);
