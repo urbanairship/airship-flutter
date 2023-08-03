@@ -75,7 +75,7 @@ void _backgroundMessageIsolateCallback() {
       final callback = PluginUtilities.getCallbackFromHandle(handle)
       as BackgroundMessageHandler;
       try {
-        final payload = Map<String, dynamic>.from(jsonDecode(args["payload"]));
+        final payload = Map<String, dynamic>.from((args["event"]));
         var notification;
         if (args["notification"] != null) {
           notification =

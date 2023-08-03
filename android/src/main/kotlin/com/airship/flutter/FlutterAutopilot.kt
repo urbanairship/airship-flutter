@@ -64,7 +64,10 @@ class FlutterAutopilot : BaseAutopilot() {
         airship.pushManager.notificationListener = object : NotificationListener {
             override fun onNotificationPosted(@NonNull notificationInfo: NotificationInfo) {
                 if (!appContext.isAppInForeground()) {
-                    handleBackgroundMessage(appContext, notificationInfo.message.toJsonValue().optMap().map)
+                    val payload = notificationInfo.message.toJsonValue().optMap().map.mapValues {
+                        it.value.toString()
+                    }
+                    handleBackgroundMessage(appContext, payload)
                 }
                 post(PushReceivedEvent(notificationInfo.message, notificationInfo))
             }

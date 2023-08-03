@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'channel_scope.dart';
 import 'package:flutter/services.dart';
 
 /// Scoped subscription list editor.
@@ -23,20 +24,20 @@ class ScopedSubscriptionListEditor {
         this.channel = channel;
 
   /// Subscribes to a list in the given [scope].
-  void subscribe(String listId, String scope) {
+  void subscribe(String listId, ChannelScope scope) {
     operations.add({
       SUBSCRIPTIONLIST_OPERATION_ACTION: SUBSCRIPTIONLIST_OPERATION_SUBSCRIBE,
       SUBSCRIPTIONLIST_OPERATION_ID: listId,
-      SUBSCRIPTIONLIST_OPERATION_SCOPE: scope
+      SUBSCRIPTIONLIST_OPERATION_SCOPE: scope.toString()
     });
   }
 
   /// Unsubscribe from a list in the given [scope].
-  void unsubscribe(String listId, String scope) {
+  void unsubscribe(String listId, ChannelScope scope) {
     operations.add({
       SUBSCRIPTIONLIST_OPERATION_ACTION: SUBSCRIPTIONLIST_OPERATION_UNSUBSCRIBE,
       SUBSCRIPTIONLIST_OPERATION_ID: listId,
-      SUBSCRIPTIONLIST_OPERATION_SCOPE: scope
+      SUBSCRIPTIONLIST_OPERATION_SCOPE: scope.toString()
     });
   }
 
