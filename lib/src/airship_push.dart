@@ -13,17 +13,21 @@ class AirshipPush {
   final IOSPush iOS;
   static bool _isBackgroundHandlerSet = false;
 
-  AirshipPush(AirshipModule module) :
-        this._module = module, this.iOS = IOSPush(module);
+  AirshipPush(AirshipModule module)
+      :
+        this._module = module,
+        this.iOS = IOSPush(module);
 
   /// Tells if user notifications are enabled or not.
   Future<bool> get isUserNotificationsEnabled async {
-    return await _module.channel.invokeMethod('push#isUserNotificationsEnabled');
+    return await _module.channel.invokeMethod(
+        'push#isUserNotificationsEnabled');
   }
 
   /// Enables or disables the user notifications.
   Future<void> setUserNotificationsEnabled(bool enabled) async {
-    return await _module.channel.invokeMethod('push#setUserNotificationsEnabled', enabled);
+    return await _module.channel.invokeMethod(
+        'push#setUserNotificationsEnabled', enabled);
   }
 
   /// Enables user notifications.
@@ -33,7 +37,8 @@ class AirshipPush {
 
   /// Gets the notification status.
   Future<PushNotificationStatus?> get notificationStatus async {
-    var payload = await _module.channel.invokeMethod('push#getNotificationStatus');
+    var payload = await _module.channel.invokeMethod(
+        'push#getNotificationStatus');
     return PushNotificationStatus.fromJson(Map<String, dynamic>.from(payload));
   }
 
@@ -80,7 +85,8 @@ class AirshipPush {
   /// The [notification] parameter is the notification ID.
   /// Supported on Android and iOS 10+.
   Future<void> clearNotification(String notification) async {
-    return await _module.channel.invokeMethod('push#clearNotification', notification);
+    return await _module.channel.invokeMethod(
+        'push#clearNotification', notification);
   }
 
   /// Clears all notifications for the application.
@@ -93,29 +99,41 @@ class AirshipPush {
 
   /// Gets push received event stream.
   Stream<PushReceivedEvent> get onPushReceived {
-    return _module.getEventStream("PUSH_RECEIVED")
-        .map((dynamic value) => PushReceivedEvent.fromJson(jsonDecode(value)));
+    return _module
+        .getEventStream("com.airship.flutter/event/foreground_push_received")
+        .map((dynamic value) => Map<String, dynamic>.from(value))
+        .map((Map<String, dynamic> value) => PushReceivedEvent.fromJson(value));
   }
 
   /// Gets notification response event stream.
   Stream<NotificationResponseEvent> get onNotificationResponse {
-    return _module.getEventStream("NOTIFICATION_RESPONSE").map((dynamic value) =>
-        NotificationResponseEvent.fromJson(jsonDecode(value)));
+    return _module
+        .getEventStream("com.airship.flutter/event/notification_response")
+        .map((dynamic value) => Map<String, dynamic>.from(value))
+        .map((Map<String, dynamic> value) => NotificationResponseEvent.fromJson(value));
   }
 
+  /// Gets the push notification status changed event stream.
+  Stream<PushNotificationStatusChangedEvent> get onNotificationStatusChanged {
+    return _module
+        .getEventStream("com.airship.flutter/event/notification_status_changed")
+        .map((dynamic value) => Map<String, dynamic>.from(value))
+        .map((Map<String, dynamic> value) => PushNotificationStatusChangedEvent.fromJson(value));
+  }
 }
 
 class IOSPush {
   final AirshipModule _module;
 
   IOSPush(AirshipModule module)
-    : this._module = module;
+      : this._module = module;
 
   /// Checks if auto-badging is enabled on iOS. Badging is not supported for Android.
   Future<bool> isAutoBadgeEnabled() async {
     var isAutoBadgeEnabled = false;
     if (Platform.isIOS) {
-      isAutoBadgeEnabled = await _module.channel.invokeMethod('push#ios#isAutobadgeEnabled');
+      isAutoBadgeEnabled =
+      await _module.channel.invokeMethod('push#ios#isAutobadgeEnabled');
     }
     return isAutoBadgeEnabled;
   }
@@ -126,19 +144,22 @@ class IOSPush {
       var parsedOptions = List<NotificationOption>.from(options)
           .map((option) => option.toString())
           .toList();
-      return await _module.channel.invokeMethod('push#ios#setNotificationOptions', parsedOptions);
+      return await _module.channel.invokeMethod(
+          'push#ios#setNotificationOptions', parsedOptions);
     } else {
       return Future.value();
     }
   }
 
   /// Sets the notification options.
-  Future<void> setForegroundPresentationOptions(List<ForegroundPresentationOption> options) async {
+  Future<void> setForegroundPresentationOptions(
+      List<ForegroundPresentationOption> options) async {
     if (Platform.isIOS) {
       var parsedOptions = List<ForegroundPresentationOption>.from(options)
           .map((option) => option.toString())
           .toList();
-      return await _module.channel.invokeMethod('push#ios#setForegroundPresentationOptions', parsedOptions);
+      return await _module.channel.invokeMethod(
+          'push#ios#setForegroundPresentationOptions', parsedOptions);
     } else {
       return Future.value();
     }
@@ -147,7 +168,8 @@ class IOSPush {
   /// Enables or disables auto-badging on iOS. Badging is not supported for Android.
   Future<void> setAutoBadgeEnabled(bool enabled) async {
     if (Platform.isIOS) {
-      return await _module.channel.invokeMethod('push#ios#setAutobadgeEnabled', enabled);
+      return await _module.channel.invokeMethod(
+          'push#ios#setAutobadgeEnabled', enabled);
     } else {
       return Future.value();
     }
@@ -156,7 +178,8 @@ class IOSPush {
   /// Sets the [badge] number on iOS. Badging is not supported for Android.
   Future<void> setBadge(int badge) async {
     if (Platform.isIOS) {
-      return await _module.channel.invokeMethod('push#ios#setBadgeNumber', badge);
+      return await _module.channel.invokeMethod(
+          'push#ios#setBadgeNumber', badge);
     } else {
       return Future.value();
     }
@@ -181,6 +204,14 @@ class IOSPush {
   }
 }
 
-enum NotificationOption { alert, sound, badge, carPlay, criticalAlert, providesAppNotificationSettings, provisional }
+enum NotificationOption {
+  alert,
+  sound,
+  badge,
+  carPlay,
+  criticalAlert,
+  providesAppNotificationSettings,
+  provisional
+}
 
 enum ForegroundPresentationOption { sound, badge, list, banner }

@@ -9,6 +9,7 @@ import 'package:airship_flutter/airship_flutter.dart';
 import 'dart:developer';
 
 import 'airship_module.dart';
+import 'events.dart';
 
 /// The Main Airship API.
 class Airship {
@@ -57,9 +58,11 @@ class Airship {
   }
 
   /// Gets deep link event stream.
-  static Stream<String?> get onDeepLink {
-    return _module.getEventStream("DEEP_LINK")
-        .map((dynamic value) => jsonDecode(value) as String?);
+  static Stream<DeepLinkEvent> get onDeepLink {
+    return _module
+        .getEventStream("com.airship.flutter/event/deep_link_received")
+        .map((dynamic value) => Map<String, dynamic>.from(value))
+        .map((Map<String, dynamic> value) => DeepLinkEvent.fromJson(value));
   }
 }
 
@@ -92,7 +95,8 @@ void _backgroundMessageIsolateCallback() {
   });
 
   // Tell the native side to start the background isolate.
-  Airship._module.backgroundChannel.invokeMethod<void>("backgroundIsolateStarted");
+  Airship._module.backgroundChannel.invokeMethod<void>(
+      "backgroundIsolateStarted");
 }
 
 

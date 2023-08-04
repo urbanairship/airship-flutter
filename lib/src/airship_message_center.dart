@@ -1,6 +1,7 @@
 import 'airship_module.dart';
 import 'dart:convert';
 import 'inbox_message.dart';
+import 'events.dart';
 
 class AirshipMessageCenter {
 
@@ -10,7 +11,8 @@ class AirshipMessageCenter {
 
   /// Gets the current inbox messages.
   Future<List<InboxMessage>> get messages async {
-    List inboxMessages = await (_module.channel.invokeMethod("messageCenter#getMessages"));
+    List inboxMessages = await (_module.channel.invokeMethod(
+        "messageCenter#getMessages"));
     return inboxMessages.map((dynamic payload) {
       return InboxMessage.fromJson(Map<String, dynamic>.from(payload));
     }).toList();
@@ -55,18 +57,16 @@ class AirshipMessageCenter {
   }
 
   /// Gets inbox updated event stream.
-  Stream<void>? get onInboxUpdated {
-    return _module.getEventStream("INBOX_UPDATED");
+  Stream<void> get onInboxUpdated {
+    return _module.getEventStream("com.airship.flutter/event/message_center_updated");
   }
 
   /// Gets show inbox event stream.
-  Stream<void>? get onShowInbox {
-    return _module.getEventStream("SHOW_INBOX");
-  }
-
-  /// Gets show inbox message event stream.
-  Stream<String?> get onShowInboxMessage {
-    return _module.getEventStream("SHOW_INBOX_MESSAGE")
-        .map((dynamic value) => jsonDecode(value) as String?);
+  Stream<DisplayMessageCenterEvent> get onDisplay {
+    return _module
+        .getEventStream("com.airship.flutter/event/display_message_center")
+        .map((dynamic value) => Map<String, dynamic>.from(value))
+        .map((Map<String, dynamic> value) => DisplayMessageCenterEvent.fromJson(value));
   }
 }
+

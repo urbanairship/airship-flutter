@@ -72,9 +72,9 @@ class AirshipConfig {
 
   Map<String, dynamic> toJson() {
     return {
-      "defaultEnvironment": defaultEnvironment?._toJson(),
-      "developmentEnvironment": developmentEnvironment?._toJson(),
-      "productionEnvironment": productionEnvironment?._toJson(),
+      "default": defaultEnvironment?._toJson(),
+      "development": developmentEnvironment?._toJson(),
+      "production": productionEnvironment?._toJson(),
       "site": site?.toString(),
       "inProduction": inProduction,
       "urlAllowList": urlAllowList,
@@ -84,10 +84,9 @@ class AirshipConfig {
       "initialConfigUrl": initialConfigUrl,
       "enabledFeatures": enabledFeatures,
       "isChannelCaptureEnabled": isChannelCaptureEnabled,
-      "suppressAllowListError": suppressAllowListError,
       "autoPauseInAppAutomationOnLaunch": autoPauseInAppAutomationOnLaunch,
-      "iosConfig": iosConfig?._toJson(),
-      "androidConfig": androidConfig?._toJson(),
+      "ios": iosConfig?._toJson(),
+      "android": androidConfig?._toJson(),
     };
   }
 }

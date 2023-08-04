@@ -78,7 +78,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
       const message_tab = 1;
       const settings_tab = 2;
 
-      switch (event) {
+      switch (event.deepLink) {
         case home_deep_link:
           {
             controller.animateTo(home_tab);
@@ -99,14 +99,14 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
 
     Airship.messageCenter.onInboxUpdated?.listen((event) => debugPrint('Inbox updated link'));
 
-    Airship.messageCenter.onShowInbox?.listen((event) => debugPrint('Show inbox'));
+    Airship.messageCenter.onDisplay.listen((event) => debugPrint('Show inbox $event'));
 
-    Airship.messageCenter.onShowInboxMessage.listen((messageId) {
+    Airship.messageCenter.onDisplay.listen((event) {
       key.currentState
           ?.push(MaterialPageRoute<Null>(builder: (BuildContext context) {
-        return messageId != null
+        return event.messageId != null
             ? MessageView(
-                messageId: messageId,
+                messageId: event.messageId ?? "",
               )
             : SizedBox();
       }));
@@ -114,6 +114,10 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
 
     Airship.channel.onChannelCreated.listen((event) {
       debugPrint('Channel created $event');
+    });
+
+    Airship.push.onNotificationStatusChanged.listen((event) {
+      debugPrint('Notification status changed $event');
     });
   }
 

@@ -1,6 +1,7 @@
 import 'airship_module.dart';
 import 'dart:convert';
 import 'preference_center_config.dart';
+import 'events.dart';
 
 class AirshipPreferenceCenter {
 
@@ -29,9 +30,9 @@ class AirshipPreferenceCenter {
   }
 
   /// Gets show preference center event stream.
-  Stream<String?> get onShowPreferenceCenter {
-    return _module.getEventStream("SHOW_PREFERENCE_CENTER")
-        .map((dynamic value) => jsonDecode(value) as String?);
+  Stream<DisplayPreferenceCenterEvent> get onDisplayPreferenceCenter {
+    return _module.getEventStream("com.airship.flutter/event/display_preference_center")
+        .map((dynamic value) => Map<String, dynamic>.from(value))
+        .map((Map<String, dynamic> value) => DisplayPreferenceCenterEvent.fromJson(value));
   }
-
 }

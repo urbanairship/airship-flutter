@@ -1,12 +1,9 @@
 package com.airship.flutter
 
-import java.util.ArrayList;
 import android.app.Activity
 import android.content.Context
-import com.urbanairship.UAirship
 import com.urbanairship.actions.ActionResult
 import com.urbanairship.android.framework.proxy.EventType
-import com.urbanairship.android.framework.proxy.MessageCenterMessage
 import com.urbanairship.android.framework.proxy.events.EventEmitter
 import com.urbanairship.android.framework.proxy.proxies.AirshipProxy
 import com.urbanairship.json.JsonValue
@@ -29,10 +26,6 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private lateinit var channel: MethodChannel
 
     private lateinit var context: Context
-
-    private val sharedPreferences by lazy {
-        context.getAirshipSharedPrefs()
-    }
 
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Main) + SupervisorJob()
 
@@ -71,7 +64,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
         scope.launch {
             EventEmitter.shared().pendingEventListener.collect {
-                streams[it]?.processPendingEvents()
+                streams[it.type]?.processPendingEvents()
             }
         }
     }
@@ -241,7 +234,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 EventType.FOREGROUND_NOTIFICATION_RESPONSE_RECEIVED -> "com.airship.flutter/event/notification_response"
                 EventType.CHANNEL_CREATED -> "com.airship.flutter/event/channel_created"
                 EventType.DEEP_LINK_RECEIVED -> "com.airship.flutter/event/deep_link_received"
-                EventType.DISPLAY_MESSAGE_CENTER -> "com.airship.flutter/event/message_center_updated"
+                EventType.DISPLAY_MESSAGE_CENTER -> "com.airship.flutter/event/display_message_center"
                 EventType.DISPLAY_PREFERENCE_CENTER -> "com.airship.flutter/event/display_preference_center"
                 EventType.MESSAGE_CENTER_UPDATED -> "com.airship.flutter/event/message_center_updated"
                 EventType.PUSH_TOKEN_RECEIVED -> "com.airship.flutter/event/push_token_received"
@@ -267,7 +260,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             val sink = eventSink ?: return
 
             EventEmitter.shared().processPending(listOf(eventType)) { event ->
-                sink.success(event.body)
+                sink.success(event.body.unwrap())
                 true
             }
         }

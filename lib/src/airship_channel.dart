@@ -3,6 +3,7 @@ import 'attribute_editor.dart';
 import 'subscription_list_editor.dart';
 import 'tag_group_editor.dart';
 import 'subscription_list.dart';
+import 'events.dart';
 
 class AirshipChannel {
   final AirshipModule _module;
@@ -26,13 +27,15 @@ class AirshipChannel {
   Stream<ChannelCreatedEvent> get onChannelCreated {
     return _module
         .getEventStream("com.airship.flutter/event/channel_created")
-        .map((dynamic value) => ChannelCreatedEvent._fromJson(value));
+        .map((dynamic value) => Map<String, dynamic>.from(value))
+        .map((Map<String, dynamic> value) => ChannelCreatedEvent.fromJson(value));
   }
 
 
   /// Gets channel subscription lists.
   Future<List<String>> get subscriptionLists async {
-    List lists = await _module.channel.invokeMethod("channel#getSubscriptionLists");
+    List lists = await _module.channel.invokeMethod(
+        "channel#getSubscriptionLists");
     return lists.cast<String>();
   }
 
@@ -76,20 +79,3 @@ class AirshipChannel {
   }
 }
 
-/// Event fired when a channel is created.
-class ChannelCreatedEvent {
-  /// The channel ID.
-  final String channelId;
-
-  const ChannelCreatedEvent._internal(this.channelId);
-
-  static ChannelCreatedEvent _fromJson(Map<Object?, Object?> json) {
-    var channelId = json["channelId"] as String;
-    return ChannelCreatedEvent._internal(channelId);
-  }
-
-  @override
-  String toString() {
-    return "ChannelCreatedEvent(channelId=$channelId)";
-  }
-}

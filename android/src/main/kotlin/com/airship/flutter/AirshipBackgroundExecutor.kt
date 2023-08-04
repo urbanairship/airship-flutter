@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Handler
 import androidx.core.content.edit
+import com.urbanairship.json.JsonSerializable
 import com.urbanairship.json.JsonValue
 import com.urbanairship.push.NotificationInfo
 import com.urbanairship.push.PushMessage
@@ -93,7 +94,7 @@ class AirshipBackgroundExecutor(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun executeDartCallbackInBackgroundIsolate(
-        pushPayload: Map<String, Any>
+        pushPayload: JsonSerializable
     ) = callbackFlow<Unit> {
         if (flutterEngine == null) {
             trySend(Unit)
@@ -120,7 +121,7 @@ class AirshipBackgroundExecutor(
 
         val args = mapOf(
             "messageCallback" to messageCallback,
-            "event" to pushPayload
+            "event" to pushPayload.unwrap()
         )
 
         mainHandler.post {
@@ -140,7 +141,7 @@ class AirshipBackgroundExecutor(
         private const val MESSAGE_CALLBACK = "message_callback"
 
         private val eventQueue =
-            Collections.synchronizedList(mutableListOf<Map<String, Any>>())
+            Collections.synchronizedList(mutableListOf<JsonSerializable>())
 
         @Volatile
         internal var instance: AirshipBackgroundExecutor? = null
@@ -176,7 +177,7 @@ class AirshipBackgroundExecutor(
 
         internal fun handleBackgroundMessage(
             context: Context,
-            pushPayload: Map<String, Any>,
+            pushPayload: JsonSerializable
         ) {
             if (!hasMessageCallback(context)) return
 

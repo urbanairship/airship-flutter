@@ -1,5 +1,96 @@
 import 'notification.dart';
+import 'push_notification_status.dart';
 import 'package:flutter/material.dart' hide Notification;
+
+/// Event fired when the message center should be displayed.
+class DisplayMessageCenterEvent {
+  // The optional message Id
+  final String? messageId;
+
+  const DisplayMessageCenterEvent._internal(this.messageId);
+
+  static DisplayMessageCenterEvent fromJson(Map<String, dynamic> json) {
+    var messageId = json["messageId"];
+    return DisplayMessageCenterEvent._internal(messageId);
+  }
+
+  @override
+  String toString() {
+    return "DisplayMessageCenterEvent(messageId=$messageId)";
+  }
+}
+
+/// Event fired when a channel is created.
+class ChannelCreatedEvent {
+  /// The channel ID.
+  final String channelId;
+
+  const ChannelCreatedEvent._internal(this.channelId);
+
+  static ChannelCreatedEvent fromJson(Map<String, dynamic> json) {
+    var channelId = json["channelId"] as String;
+    return ChannelCreatedEvent._internal(channelId);
+  }
+
+  @override
+  String toString() {
+    return "ChannelCreatedEvent(channelId=$channelId)";
+  }
+}
+
+/// Event fired when a deep link is received is created.
+class DisplayPreferenceCenterEvent {
+  /// The preference center Id.
+  final String preferenceCenterId;
+
+  const DisplayPreferenceCenterEvent._internal(this.preferenceCenterId);
+
+  static DisplayPreferenceCenterEvent fromJson(Map<Object?, Object?> json) {
+    var preferenceCenterId = json["preferenceCenterId"] as String;
+    return DisplayPreferenceCenterEvent._internal(preferenceCenterId);
+  }
+
+  @override
+  String toString() {
+    return "DisplayPreferenceCenterEvent(preferenceCenterId=$preferenceCenterId)";
+  }
+}
+
+/// Event fired when a deep link is received is created.
+class DeepLinkEvent {
+  /// The deep link.
+  final String deepLink;
+
+  const DeepLinkEvent._internal(this.deepLink);
+
+  static DeepLinkEvent fromJson(Map<Object?, Object?> json) {
+    var deepLink = json["deepLink"] as String;
+    return DeepLinkEvent._internal(deepLink);
+  }
+
+  @override
+  String toString() {
+    return "DeepLinkEvent(deepLink=$deepLink)";
+  }
+}
+
+/// Event fired when the notification status changes.
+class PushNotificationStatusChangedEvent {
+  // The push notification status
+  final PushNotificationStatus status;
+
+  const PushNotificationStatusChangedEvent._internal(this.status);
+
+  static PushNotificationStatusChangedEvent fromJson(Map<String, dynamic> json) {
+    var status = PushNotificationStatus.fromJson(json["status"]);
+    return PushNotificationStatusChangedEvent._internal(status);
+  }
+
+  @override
+  String toString() {
+    return "PushNotificationStatusChangedEvent(status=$status)";
+  }
+}
 
 /// Event fired when the user initiates a notification response.
 class NotificationResponseEvent {
