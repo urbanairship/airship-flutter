@@ -11,7 +11,7 @@ class AirshipContact {
 
   AirshipContact(AirshipModule module) : this._module = module;
 
-  /// The [subscriptionListTypes] can contain types `channel` or `contact`.
+  /// Gets the contacts subscription lists.
   Future<Map<String, List<ChannelScope>>> getSubscriptionLists(
       Map<String, ChannelScope> subscriptionListTypes) async {
     var payload = await (_module.channel.invokeMethod(
@@ -27,8 +27,7 @@ class AirshipContact {
     });
     return Map<String, List<ChannelScope>>.from(payload);
   }
-
-
+  
   /// Gets the named user.
   Future<String?> get namedUserId async {
     return await _module.channel.invokeMethod('contact#getNamedUserId');
@@ -44,12 +43,10 @@ class AirshipContact {
     return await _module.channel.invokeMethod('contact#reset');
   }
 
-
   /// Creates an [AttributeEditor] to modify the named user attributes.
   AttributeEditor editAttributes() {
     return AttributeEditor('contact#editAttributes', _module.channel);
   }
-
 
   /// Creates a [ScopedSubscriptionListEditor] to modify the subscription lists associated with the current contact.
   ScopedSubscriptionListEditor editSubscriptionLists() {

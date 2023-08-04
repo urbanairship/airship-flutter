@@ -60,21 +60,13 @@ class AirshipChannel {
   }
 
   /// Creates an [AttributeEditor] to modify the channel attributes.
-  AttributeEditor editChannelAttributes() {
+  AttributeEditor editAttributes() {
     return AttributeEditor('channel#editAttributes', _module.channel);
   }
 
   /// Creates a [TagGroupEditor] to modify the channel tag groups.
-  TagGroupEditor editChannelTagGroups() {
+  TagGroupEditor editTagGroups() {
     return TagGroupEditor('channel#editTagGroups', _module.channel);
-  }
-
-  /// Creates an [AttributeEditor] to modify the channel attributes.
-  ///
-  /// Deprecated. Use [editChannelAttributes()] instead.
-  @deprecated
-  AttributeEditor editAttributes() {
-    return AttributeEditor('channel#editAttributes', _module.channel);
   }
 }
 

@@ -25,7 +25,4 @@ class AirshipInApp {
   Future<int> get displayInterval async {
     return await _module.channel.invokeMethod('inApp#getDisplayInterval');
   }
-
-
-
 }
