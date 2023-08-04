@@ -18,7 +18,7 @@ class _MessageCenterState extends State<MessageCenter> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initAirshipListeners() async {
-    Airship.messageCenter.onInboxUpdated?.listen((event) {
+    Airship.messageCenter.onInboxUpdated.listen((event) {
       if (mounted) {
         setState(() {});
       }

@@ -3,9 +3,6 @@ import UIKit
 import AirshipKit
 import AirshipFrameworkProxy
 
-// TODO: proxy updates
-// - Add subtitle to push payload
-// - Add proper addCustomEvent method
 
 public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
     private static let eventNames: [AirshipProxyEventType: String] = [
@@ -35,9 +32,9 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
         )
         
         Task {
-            let stream = await AirshipProxyEventEmitter.shared.pendingEventTypeAdded
-            for await eventType in stream {
-                await self.streams[eventType]?.processPendingEvents()
+            let stream = await AirshipProxyEventEmitter.shared.pendingEventAdded
+            for await event in stream {
+                await self.streams[event.type]?.processPendingEvents()
             }
         }
         
