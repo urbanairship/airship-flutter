@@ -2,7 +2,7 @@
 /// Push notification object.
 class Notification {
   /// The notification ID.
-  final String? notificationId;
+  final String notificationId;
 
   /// The notification alert.
   final String? alert;
@@ -19,7 +19,7 @@ class Notification {
   const Notification._internal(
       this.notificationId, this.alert, this.title, this.subtitle, this.extras);
 
-  static Notification fromJson(Map<String, dynamic> json) {
+  static Notification fromJson(dynamic json) {
     var notificationId = json["notificationId"];
     var alert = json["alert"];
     var title = json["title"];

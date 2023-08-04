@@ -27,8 +27,7 @@ class AirshipChannel {
   Stream<ChannelCreatedEvent> get onChannelCreated {
     return _module
         .getEventStream("com.airship.flutter/event/channel_created")
-        .map((dynamic value) => Map<String, dynamic>.from(value))
-        .map((Map<String, dynamic> value) => ChannelCreatedEvent.fromJson(value));
+        .map((dynamic value) => ChannelCreatedEvent.fromJson(value));
   }
 
 

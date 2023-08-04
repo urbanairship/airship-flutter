@@ -25,7 +25,7 @@ class PushNotificationStatus {
       this.isUserNotificationsEnabled, this.areNotificationsAllowed, this.isPushPrivacyFeatureEnabled,
       this.isPushTokenRegistered, this.isOptedIn, this.isUserOptedIn);
 
-  static PushNotificationStatus fromJson(Map<String, dynamic> json) {
+  static PushNotificationStatus fromJson(dynamic json) {
     var isUserNotificationsEnabled = json["isUserNotificationsEnabled"] ?? false;
     var areNotificationsAllowed = json["areNotificationsAllowed"] ?? false;
     var isPushPrivacyFeatureEnabled = json["isPushPrivacyFeatureEnabled"] ?? false;

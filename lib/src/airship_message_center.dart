@@ -14,7 +14,7 @@ class AirshipMessageCenter {
     List inboxMessages = await (_module.channel.invokeMethod(
         "messageCenter#getMessages"));
     return inboxMessages.map((dynamic payload) {
-      return InboxMessage.fromJson(Map<String, dynamic>.from(payload));
+      return InboxMessage.fromJson(payload);
     }).toList();
   }
 
@@ -65,8 +65,7 @@ class AirshipMessageCenter {
   Stream<DisplayMessageCenterEvent> get onDisplay {
     return _module
         .getEventStream("com.airship.flutter/event/display_message_center")
-        .map((dynamic value) => Map<String, dynamic>.from(value))
-        .map((Map<String, dynamic> value) => DisplayMessageCenterEvent.fromJson(value));
+        .map((dynamic value) => DisplayMessageCenterEvent.fromJson(value));
   }
 }
 

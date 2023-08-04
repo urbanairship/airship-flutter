@@ -61,8 +61,7 @@ class Airship {
   static Stream<DeepLinkEvent> get onDeepLink {
     return _module
         .getEventStream("com.airship.flutter/event/deep_link_received")
-        .map((dynamic value) => Map<String, dynamic>.from(value))
-        .map((Map<String, dynamic> value) => DeepLinkEvent.fromJson(value));
+        .map((dynamic value) => DeepLinkEvent.fromJson(value));
   }
 }
 

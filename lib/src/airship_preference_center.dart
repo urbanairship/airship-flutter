@@ -32,7 +32,6 @@ class AirshipPreferenceCenter {
   /// Gets show preference center event stream.
   Stream<DisplayPreferenceCenterEvent> get onDisplayPreferenceCenter {
     return _module.getEventStream("com.airship.flutter/event/display_preference_center")
-        .map((dynamic value) => Map<String, dynamic>.from(value))
-        .map((Map<String, dynamic> value) => DisplayPreferenceCenterEvent.fromJson(value));
+        .map((dynamic value) => DisplayPreferenceCenterEvent.fromJson(value));
   }
 }

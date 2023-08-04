@@ -45,7 +45,7 @@ class DisplayPreferenceCenterEvent {
 
   const DisplayPreferenceCenterEvent._internal(this.preferenceCenterId);
 
-  static DisplayPreferenceCenterEvent fromJson(Map<Object?, Object?> json) {
+  static DisplayPreferenceCenterEvent fromJson(dynamic json) {
     var preferenceCenterId = json["preferenceCenterId"] as String;
     return DisplayPreferenceCenterEvent._internal(preferenceCenterId);
   }
@@ -63,7 +63,7 @@ class DeepLinkEvent {
 
   const DeepLinkEvent._internal(this.deepLink);
 
-  static DeepLinkEvent fromJson(Map<Object?, Object?> json) {
+  static DeepLinkEvent fromJson(dynamic json) {
     var deepLink = json["deepLink"] as String;
     return DeepLinkEvent._internal(deepLink);
   }
@@ -81,7 +81,7 @@ class PushNotificationStatusChangedEvent {
 
   const PushNotificationStatusChangedEvent._internal(this.status);
 
-  static PushNotificationStatusChangedEvent fromJson(Map<String, dynamic> json) {
+  static PushNotificationStatusChangedEvent fromJson(dynamic json) {
     var status = PushNotificationStatus.fromJson(json["status"]);
     return PushNotificationStatusChangedEvent._internal(status);
   }
@@ -112,7 +112,7 @@ class NotificationResponseEvent {
   const NotificationResponseEvent._internal(
       this.actionId, this.isForeground, this.notification, this.payload);
 
-  static NotificationResponseEvent fromJson(Map<String, dynamic> json) {
+  static NotificationResponseEvent fromJson(dynamic json) {
     var actionId = json["action_id"];
     var isForeground = json["is_foreground"];
     var notification = Notification.fromJson(json["notification"]);
@@ -137,7 +137,7 @@ class PushReceivedEvent {
 
   const PushReceivedEvent._internal(this.payload, this.notification);
 
-  static PushReceivedEvent fromJson(Map<String, dynamic> json) {
+  static PushReceivedEvent fromJson(dynamic json) {
     var payload = json["payload"];
 
     var notification;

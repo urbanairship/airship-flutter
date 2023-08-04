@@ -101,24 +101,21 @@ class AirshipPush {
   Stream<PushReceivedEvent> get onPushReceived {
     return _module
         .getEventStream("com.airship.flutter/event/foreground_push_received")
-        .map((dynamic value) => Map<String, dynamic>.from(value))
-        .map((Map<String, dynamic> value) => PushReceivedEvent.fromJson(value));
+        .map((dynamic value) => PushReceivedEvent.fromJson(value));
   }
 
   /// Gets notification response event stream.
   Stream<NotificationResponseEvent> get onNotificationResponse {
     return _module
         .getEventStream("com.airship.flutter/event/notification_response")
-        .map((dynamic value) => Map<String, dynamic>.from(value))
-        .map((Map<String, dynamic> value) => NotificationResponseEvent.fromJson(value));
+        .map((dynamic value) => NotificationResponseEvent.fromJson(value));
   }
 
   /// Gets the push notification status changed event stream.
   Stream<PushNotificationStatusChangedEvent> get onNotificationStatusChanged {
     return _module
         .getEventStream("com.airship.flutter/event/notification_status_changed")
-        .map((dynamic value) => Map<String, dynamic>.from(value))
-        .map((Map<String, dynamic> value) => PushNotificationStatusChangedEvent.fromJson(value));
+        .map((dynamic value) => PushNotificationStatusChangedEvent.fromJson(value));
   }
 }
 
