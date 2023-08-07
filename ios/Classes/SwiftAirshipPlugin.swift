@@ -400,11 +400,11 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             }
 
             let arg = try? AirshipJSON.wrap(args[1])
-            return try await AirshipProxy.shared.action.runAction(
+            let result = try await AirshipProxy.shared.action.runAction(
                 actionName,
                 value: args.count == 2 ? arg : nil
-
-            )
+            ) as? AirshipJSON
+            return result?.unWrap()
 
         default:
             return FlutterError(
