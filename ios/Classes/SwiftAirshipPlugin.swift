@@ -64,8 +64,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         Task {
             do {
-                let pluginResult = try await handle(call);
-                print("result: \(String(describing: pluginResult))")
+                let pluginResult = try await handle(call)
                 result(pluginResult)
             } catch {
                 result(
