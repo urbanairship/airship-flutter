@@ -41,6 +41,20 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         }
 
         internal const val AIRSHIP_SHARED_PREFS = "com.urbanairship.flutter"
+
+        internal val EVENT_NAME_MAP = mapOf(
+                EventType.BACKGROUND_NOTIFICATION_RESPONSE_RECEIVED to "com.airship.flutter/event/notification_response",
+                EventType.FOREGROUND_NOTIFICATION_RESPONSE_RECEIVED to "com.airship.flutter/event/notification_response",
+                EventType.CHANNEL_CREATED to "com.airship.flutter/event/channel_created",
+                EventType.DEEP_LINK_RECEIVED to "com.airship.flutter/event/deep_link_received",
+                EventType.DISPLAY_MESSAGE_CENTER to "com.airship.flutter/event/display_message_center",
+                EventType.DISPLAY_PREFERENCE_CENTER to "com.airship.flutter/event/display_preference_center",
+                EventType.MESSAGE_CENTER_UPDATED to "com.airship.flutter/event/message_center_updated",
+                EventType.PUSH_TOKEN_RECEIVED to "com.airship.flutter/event/push_token_received",
+                EventType.FOREGROUND_PUSH_RECEIVED to "com.airship.flutter/event/foreground_push_received",
+                EventType.BACKGROUND_PUSH_RECEIVED to "com.airship.flutter/event/background_push_received",
+                EventType.NOTIFICATION_STATUS_CHANGED to "com.airship.flutter/event/notification_status_changed"
+        )
     }
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
@@ -55,10 +69,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         this.context = context
         this.channel = MethodChannel(binaryMessenger, "com.airship.flutter/airship")
         this.channel.setMethodCallHandler(this)
-
-        this.streams = EventType.values().associateWith {
-            AirshipEventStream(it, binaryMessenger)
-        }
+        this.streams = generateEventStreams(binaryMessenger)
 
         platformViewRegistry.registerViewFactory("com.airship.flutter/InboxMessageView", InboxMessageViewFactory(binaryMessenger))
 
@@ -67,6 +78,23 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 streams[it.type]?.processPendingEvents()
             }
         }
+    }
+
+    private fun generateEventStreams(binaryMessenger: BinaryMessenger): Map<EventType, AirshipEventStream> {
+        // A single stream might map to multiple event types, create a map of the reverse index
+        val streamGroups = mutableMapOf<String, MutableList<EventType>>()
+        EVENT_NAME_MAP.forEach {
+            streamGroups.getOrPut(it.value) { mutableListOf() }.add(it.key)
+        }
+
+        val streamMap = mutableMapOf<EventType, AirshipEventStream>()
+        streamGroups.forEach { entry ->
+            val stream = AirshipEventStream(entry.value, entry.key, binaryMessenger)
+            entry.value.forEach {type ->
+                streamMap[type] = stream
+            }
+        }
+        return streamMap
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {
@@ -224,26 +252,16 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         mainActivity = null
     }
 
-    internal class AirshipEventStream(private val eventType: EventType, binaryMessenger: BinaryMessenger) {
+    internal class AirshipEventStream(
+            private val eventTypes: List<EventType>,
+            channelName: String,
+            binaryMessenger: BinaryMessenger
+    ) {
 
         private var eventSink: EventChannel.EventSink? = null
 
         init {
-            val name = when(eventType) {
-                EventType.BACKGROUND_NOTIFICATION_RESPONSE_RECEIVED -> "com.airship.flutter/event/notification_response"
-                EventType.FOREGROUND_NOTIFICATION_RESPONSE_RECEIVED -> "com.airship.flutter/event/notification_response"
-                EventType.CHANNEL_CREATED -> "com.airship.flutter/event/channel_created"
-                EventType.DEEP_LINK_RECEIVED -> "com.airship.flutter/event/deep_link_received"
-                EventType.DISPLAY_MESSAGE_CENTER -> "com.airship.flutter/event/display_message_center"
-                EventType.DISPLAY_PREFERENCE_CENTER -> "com.airship.flutter/event/display_preference_center"
-                EventType.MESSAGE_CENTER_UPDATED -> "com.airship.flutter/event/message_center_updated"
-                EventType.PUSH_TOKEN_RECEIVED -> "com.airship.flutter/event/push_token_received"
-                EventType.FOREGROUND_PUSH_RECEIVED -> "com.airship.flutter/event/foreground_push_received"
-                EventType.BACKGROUND_PUSH_RECEIVED -> "com.airship.flutter/event/background_push_received"
-                EventType.NOTIFICATION_STATUS_CHANGED -> "com.airship.flutter/event/notification_status_changed"
-            }
-
-            val eventChannel = EventChannel(binaryMessenger, name)
+            val eventChannel = EventChannel(binaryMessenger, channelName)
             eventChannel.setStreamHandler(object:EventChannel.StreamHandler {
                 override fun onListen(arguments: Any?, eventSink: EventChannel.EventSink?) {
                     this@AirshipEventStream.eventSink = eventSink
@@ -259,11 +277,14 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         fun processPendingEvents() {
             val sink = eventSink ?: return
 
-            EventEmitter.shared().processPending(listOf(eventType)) { event ->
+            EventEmitter.shared().processPending(eventTypes) { event ->
                 sink.success(event.body.unwrap())
                 true
             }
         }
     }
+
 }
+
+
 

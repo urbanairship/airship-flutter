@@ -12,6 +12,9 @@ export 'src/airship_message_center.dart';
 export 'src/airship_preference_center.dart';
 export 'src/airship_privacy_manager.dart';
 export 'src/airship_push.dart';
+export 'src/airship_events.dart';
+export 'src/push_notification_status.dart';
+export 'src/push_payload.dart';
 
 export 'src/attribute_editor.dart';
 export 'src/channel_scope.dart';
@@ -19,7 +22,6 @@ export 'src/custom_event.dart';
 export 'src/feature.dart';
 export 'src/inbox_message.dart';
 export 'src/inbox_message_view.dart';
-export 'src/notification.dart';
 export 'src/preference_center_config.dart';
 export 'src/scoped_subscription_list_editor.dart';
 export 'src/subscription_list_editor.dart';

@@ -16,9 +16,8 @@ const String home_deep_link = "home";
 const String message_center_deep_link = "message_center";
 const String settings_deep_link = "settings";
 
-Future<void> backgroundMessageHandler(
-    Map<String, dynamic> payload, Notification? notification) async {
-  log("Background Push Received $payload, $notification");
+Future<void> backgroundMessageHandler(PushReceivedEvent event) async {
+  debugPrint("Background Push Received $event");
 }
 
 void main() {
@@ -28,10 +27,10 @@ void main() {
     DeviceOrientation.portraitDown,
   ]);
 
-  var configEnvironment = ConfigEnvironment("YOUR_APP_KEY", "YOUR_APP_SECRET");
+  var configEnvironment = ConfigEnvironment("Hx7SIqHqQDmFj6aruaAFcQ", "3-5cLPw3TS-t9M6lb22kUA");
   var config = AirshipConfig(configEnvironment);
   Airship.takeOff(config);
-  Airship.setBackgroundMessageHandler(backgroundMessageHandler);
+  Airship.push.android.setBackgroundPushReceivedHandler(backgroundMessageHandler);
 
   Airship.contact.identify("FlutterUser");
 
@@ -97,7 +96,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
       }
     });
 
-    Airship.messageCenter.onInboxUpdated?.listen((event) => debugPrint('Inbox updated link'));
+    Airship.messageCenter.onInboxUpdated.listen((event) => debugPrint('Inbox updated link'));
 
     Airship.messageCenter.onDisplay.listen((event) => debugPrint('Show inbox $event'));
 

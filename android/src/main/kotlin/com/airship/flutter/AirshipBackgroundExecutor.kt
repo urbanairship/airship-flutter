@@ -177,7 +177,7 @@ class AirshipBackgroundExecutor(
 
         internal fun handleBackgroundMessage(
             context: Context,
-            pushPayload: JsonSerializable
+            pushReceivedEvent: JsonSerializable
         ) {
             if (!hasMessageCallback(context)) return
 
@@ -185,11 +185,11 @@ class AirshipBackgroundExecutor(
             if (executor?.isReady == true) {
                 // Send the message to the registered handler callback via the background isolate.
                 GlobalScope.launch {
-                    executor.executeDartCallbackInBackgroundIsolate(pushPayload).first()
+                    executor.executeDartCallbackInBackgroundIsolate(pushReceivedEvent).first()
                 }
             } else {
                 // Isolate not ready. Queue the message for later.
-                eventQueue.add(pushPayload)
+                eventQueue.add(pushReceivedEvent)
             }
         }
 

@@ -3,7 +3,7 @@ import 'attribute_editor.dart';
 import 'subscription_list_editor.dart';
 import 'tag_group_editor.dart';
 import 'subscription_list.dart';
-import 'events.dart';
+import 'airship_events.dart';
 
 class AirshipChannel {
   final AirshipModule _module;

@@ -2,10 +2,10 @@ import 'package:flutter/services.dart';
 
 class AirshipModule {
 
-  static final AirshipModule _singleton = AirshipModule._internal();
+  static final AirshipModule singleton = AirshipModule._internal();
 
   factory AirshipModule() {
-    return _singleton;
+    return singleton;
   }
 
   AirshipModule._internal();

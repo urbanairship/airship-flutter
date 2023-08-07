@@ -25,17 +25,16 @@ class FlutterAutopilot : BaseAutopilot() {
 
         // If running in the background, start the background Isolate
         // so that we can communicate with the Flutter app.
-        if (!appContext.isAppInForeground()) {
-            AirshipBackgroundExecutor.startIsolate(appContext)
-        }
+        AirshipBackgroundExecutor.startIsolate(appContext)
 
         MainScope().launch {
             EventEmitter.shared().pendingEventListener.filter {
                 it.type == EventType.BACKGROUND_PUSH_RECEIVED
-            }.collect {
-                handleBackgroundMessage(appContext, it.body)
+            }.collect {event ->
+                EventEmitter.shared().takePending(listOf(event.type)).forEach {
+                    handleBackgroundMessage(appContext, it.body)
+                }
             }
-
         }
 
         airship.analytics.registerSDKExtension(Analytics.EXTENSION_FLUTTER, AirshipPluginVersion.AIRSHIP_PLUGIN_VERSION);

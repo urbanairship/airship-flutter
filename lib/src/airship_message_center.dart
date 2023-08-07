@@ -1,7 +1,7 @@
 import 'airship_module.dart';
 import 'dart:convert';
 import 'inbox_message.dart';
-import 'events.dart';
+import 'airship_events.dart';
 
 class AirshipMessageCenter {
 
