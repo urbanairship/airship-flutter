@@ -1,4 +1,5 @@
 import "feature.dart";
+import "ios_push_options.dart";
 
 class AirshipUtils {
   static List<Feature> parseFeatures(List<String> strings) {
@@ -11,7 +12,7 @@ class AirshipUtils {
         case "tags_and_attributes": features.add(Feature.tagsAndAttributes); break;
         case "message_center": features.add(Feature.messageCenter); break;
         case "contacts": features.add(Feature.contacts); break;
-        default: print("Invalid feature");
+        default: print("Invalid feature $element");
       }
     });
     return features;
@@ -30,5 +31,69 @@ class AirshipUtils {
       }
     });
     return strings;
+  }
+
+  static List<IOSAuthorizedNotificationSetting> parseIOSAuthorizedSettings(List<String> strings) {
+    var settings = <IOSAuthorizedNotificationSetting>[];
+    strings.forEach((element) {
+      switch (element) {
+        case "alert":
+          settings.add(IOSAuthorizedNotificationSetting.alert);
+          break;
+        case "sound":
+          settings.add(IOSAuthorizedNotificationSetting.sound);
+          break;
+        case "badge":
+          settings.add(IOSAuthorizedNotificationSetting.badge);
+          break;
+        case "lock_screen":
+          settings.add(IOSAuthorizedNotificationSetting.lockScreen);
+          break;
+        case "car_play":
+          settings.add(IOSAuthorizedNotificationSetting.carPlay);
+          break;
+        case "notification_center":
+          settings.add(IOSAuthorizedNotificationSetting.notificationCenter);
+          break;
+        case "notification_center":
+          settings.add(IOSAuthorizedNotificationSetting.notificationCenter);
+          break;
+        case "critical_alert":
+          settings.add(IOSAuthorizedNotificationSetting.criticalAlert);
+          break;
+        case "announcement":
+          settings.add(IOSAuthorizedNotificationSetting.announcement);
+          break;
+        case "scheduled_delivery":
+          settings.add(IOSAuthorizedNotificationSetting.scheduledDelivery);
+          break;
+        case "time_sensitive":
+          settings.add(IOSAuthorizedNotificationSetting.timeSensitive);
+          break;
+        default:
+          print("Invalid setting: $element");
+          break;
+      }
+    });
+
+    return settings;
+  }
+
+  static IOSAuthorizedNotificationStatus parseIOSAuthorizedStatus(String status) {
+    switch (status) {
+      case "not_determined":
+        return IOSAuthorizedNotificationStatus.notDetermined;
+      case "denied":
+        return IOSAuthorizedNotificationStatus.denied;
+      case "authorized":
+        return IOSAuthorizedNotificationStatus.authorized;
+      case "provisional":
+        return IOSAuthorizedNotificationStatus.provisional;
+      case "ephemeral":
+        return IOSAuthorizedNotificationStatus.ephemeral;
+      default:
+        print("Invalid status: $status");
+        return IOSAuthorizedNotificationStatus.notDetermined;
+    }
   }
 }

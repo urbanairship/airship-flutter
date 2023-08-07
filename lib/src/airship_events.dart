@@ -1,6 +1,29 @@
 import 'push_payload.dart';
 import 'push_notification_status.dart';
 import 'package:flutter/material.dart' hide Notification;
+import 'ios_push_options.dart';
+import 'airship_utils.dart';
+
+/// Event fired when the iOS authorized settings change.
+class IOSAuthorizedNotificationSettingsChangedEvent {
+  // The authorized settings
+  final List<IOSAuthorizedNotificationSetting> authorizedSettings;
+
+  const IOSAuthorizedNotificationSettingsChangedEvent._internal(this.authorizedSettings);
+
+  static IOSAuthorizedNotificationSettingsChangedEvent fromJson(dynamic json) {
+    var authorizedSettings = List<String>.from(json["authorizedSettings"]);
+
+    return IOSAuthorizedNotificationSettingsChangedEvent._internal(
+        AirshipUtils.parseIOSAuthorizedSettings(authorizedSettings)
+    );
+  }
+
+  @override
+  String toString() {
+    return "IOSAuthorizedNotificationSettingsChangedEvent(authorizedSettings=$authorizedSettings)";
+  }
+}
 
 /// Event fired when the message center should be displayed.
 class DisplayMessageCenterEvent {
@@ -20,6 +43,33 @@ class DisplayMessageCenterEvent {
   }
 }
 
+
+/// Event fired when the message center updates.
+class MessageCenterUpdatedEvent {
+  /**
+   * The unread message count.
+   */
+  final int messageUnreadCount;
+
+  /**
+   * The total message count.
+   */
+  final int messageCount;
+
+  const MessageCenterUpdatedEvent._internal(this.messageUnreadCount, this.messageCount);
+
+  static MessageCenterUpdatedEvent fromJson(dynamic json) {
+    var messageUnreadCount = json["messageUnreadCount"];
+    var messageCount = json["messageCount"];
+    return MessageCenterUpdatedEvent._internal(messageUnreadCount, messageCount);
+  }
+
+  @override
+  String toString() {
+    return "MessageCenterUpdatedEvent(messageUnreadCount=$messageUnreadCount, messageCount=$messageCount)";
+  }
+}
+
 /// Event fired when a channel is created.
 class ChannelCreatedEvent {
   /// The channel ID.
@@ -35,6 +85,24 @@ class ChannelCreatedEvent {
   @override
   String toString() {
     return "ChannelCreatedEvent(channelId=$channelId)";
+  }
+}
+
+/// Event fired when a push token is received by Airship.
+class PushTokenReceivedEvent {
+  /// The push token.
+  final String pushToken;
+
+  const PushTokenReceivedEvent._internal(this.pushToken);
+
+  static PushTokenReceivedEvent fromJson(dynamic json) {
+    var pushToken = json["pushToken"] as String;
+    return PushTokenReceivedEvent._internal(pushToken);
+  }
+
+  @override
+  String toString() {
+    return "PushTokenReceivedEvent(pushToken=$pushToken)";
   }
 }
 

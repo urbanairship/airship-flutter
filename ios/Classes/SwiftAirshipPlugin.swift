@@ -6,9 +6,10 @@ import AirshipFrameworkProxy
 
 public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
     private static let eventNames: [AirshipProxyEventType: String] = [
+        .authorizedNotificationSettingsChanged: "com.airship.flutter/event/ios_authroized_notification_settings_changed",
+        .pushTokenReceived: "com.airship.flutter/event/push_token_received",
         .deepLinkReceived: "com.airship.flutter/event/deep_link_received",
         .channelCreated: "com.airship.flutter/event/channel_created",
-        .pushTokenReceived: "com.airship.flutter/event/push_token_received",
         .messageCenterUpdated: "com.airship.flutter/event/message_center_updated",
         .displayMessageCenter: "com.airship.flutter/event/display_message_center",
         .displayPreferenceCenter: "com.airship.flutter/event/display_preference_center",
@@ -234,6 +235,13 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
                 names: try call.requireStringArrayArg()
             )
             return nil
+
+        case "push#ios#getAuthorizedNotificationStatus":
+            return try AirshipProxy.shared.push.getAuthroizedNotificationStatus()
+
+        case "push#ios#getAuthorizedNotificationSettings":
+            return try AirshipProxy.shared.push.getAuthorizedNotificationSettings()
+
 
         // In-App
         case "inApp#setPaused":

@@ -32,6 +32,7 @@ void main() {
   Airship.takeOff(config);
   Airship.push.android.setBackgroundPushReceivedHandler(backgroundMessageHandler);
 
+  Airship.push.iOS.setForegroundPresentationOptions([IOSForegroundPresentationOption.banner, IOSForegroundPresentationOption.list]);
   Airship.contact.identify("FlutterUser");
 
   runApp(MyApp());
@@ -69,8 +70,24 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
       debugPrint('Push Received $event');
     });
 
-    Airship.push.onNotificationResponse
-        .listen((event) => debugPrint('Notification Response $event'));
+    Airship.push.onNotificationResponse.listen((event) {
+      debugPrint('Notification Response $event');
+    });
+
+    Airship.push.onPushTokenReceived.listen((event) {
+      debugPrint('Push token received $event');
+    });
+
+    Airship.push.onNotificationStatusChanged.listen((event) {
+      debugPrint('Notification status changed $event');
+    });
+
+    Airship.push.iOS.onAuthorizedSettingsChanged.listen((event) {
+      debugPrint('Authorized settings changed $event');
+    });
+
+    Airship.push.iOS.authorizedNotificationSettings.then((value) => debugPrint("authorizedNotificationSettings $value"));
+    Airship.push.iOS.authorizedNotificationStatus.then((value) => debugPrint("authorizedNotificationStatus $value"));
 
     Airship.onDeepLink.listen((event) {
       const home_tab = 0;
@@ -96,7 +113,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
       }
     });
 
-    Airship.messageCenter.onInboxUpdated.listen((event) => debugPrint('Inbox updated link'));
+    Airship.messageCenter.onInboxUpdated.listen((event) => debugPrint('Inbox updated $event'));
 
     Airship.messageCenter.onDisplay.listen((event) => debugPrint('Show inbox $event'));
 
@@ -115,9 +132,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
       debugPrint('Channel created $event');
     });
 
-    Airship.push.onNotificationStatusChanged.listen((event) {
-      debugPrint('Notification status changed $event');
-    });
+
   }
 
   @override

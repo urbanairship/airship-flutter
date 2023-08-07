@@ -77,7 +77,7 @@ class AirshipConfig {
       "default": defaultEnvironment?._toJson(),
       "development": developmentEnvironment?._toJson(),
       "production": productionEnvironment?._toJson(),
-      "site": site?.toString(),
+      "site": site?.name,
       "inProduction": inProduction,
       "urlAllowList": urlAllowList,
       "urlAllowListScopeOpenUrl": urlAllowListScopeOpenUrl,
