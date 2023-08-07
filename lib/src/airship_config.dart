@@ -1,4 +1,5 @@
 import 'feature.dart';
+import 'airship_utils.dart';
 
 class AirshipConfig {
 
@@ -71,6 +72,7 @@ class AirshipConfig {
       this.androidConfig]);
 
   Map<String, dynamic> toJson() {
+
     return {
       "default": defaultEnvironment?._toJson(),
       "development": developmentEnvironment?._toJson(),
@@ -82,7 +84,7 @@ class AirshipConfig {
       "urlAllowListScopeJavaScriptInterface": urlAllowListScopeJavaScriptInterface,
       "isChannelCreationDelayEnabled": isChannelCreationDelayEnabled,
       "initialConfigUrl": initialConfigUrl,
-      "enabledFeatures": enabledFeatures,
+      "enabledFeatures": enabledFeatures == null ? null : AirshipUtils.toFeatureStringList(enabledFeatures!),
       "isChannelCaptureEnabled": isChannelCaptureEnabled,
       "autoPauseInAppAutomationOnLaunch": autoPauseInAppAutomationOnLaunch,
       "ios": iosConfig?._toJson(),
