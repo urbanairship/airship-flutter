@@ -1,17 +1,17 @@
 /// Custom event object.
 class CustomEvent {
   static const EVENT_NAME = "eventName";
-  static const EVENT_VALUE = "event_value";
+  static const EVENT_VALUE = "eventValue";
   static const PROPERTIES = "properties";
-  static const TRANSACTION_ID = "transaction_id";
-  static const INTERACTION_ID = "interaction_id";
-  static const INTERACTION_TYPE = "interaction_type";
+  static const TRANSACTION_ID = "transactionId";
+  static const INTERACTION_ID = "interactionId";
+  static const INTERACTION_TYPE = "interactionType";
 
   /// The event name.
   final String name;
 
   /// The event value.
-  final int? value;
+  final double? value;
 
   /// The event transaction ID.
   String? transactionId;
@@ -25,7 +25,7 @@ class CustomEvent {
   /// The event properties.
   var _properties = new Map<String, dynamic>();
 
-  CustomEvent(String name, int? value)
+  CustomEvent(String name, double? value)
       : this.name = name,
         this.value = value;
 
