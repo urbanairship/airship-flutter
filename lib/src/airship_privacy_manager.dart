@@ -11,7 +11,7 @@ class AirshipPrivacyManager {
   Future<void> enableFeatures(List<Feature> features) async {
     List<String> featuresString = <String>[];
     features.forEach((element) {
-      featuresString.add(element.stringValue);
+      featuresString.add(element.name);
     });
     return await _module.channel.invokeMethod('privacyManager#enableFeatures', featuresString);
   }
@@ -20,7 +20,7 @@ class AirshipPrivacyManager {
   Future<void> disableFeatures(List<Feature> features) async {
     List<String> featuresString = <String>[];
     features.forEach((element) {
-      featuresString.add(element.stringValue);
+      featuresString.add(element.name);
     });
     return await _module.channel.invokeMethod('privacyManager#disableFeatures', featuresString);
   }
@@ -32,7 +32,7 @@ class AirshipPrivacyManager {
   Future<void> setEnabledFeatures(List<Feature> features) async {
     List<String> featuresString = <String>[];
     features.forEach((element) {
-        featuresString.add(element.stringValue);
+        featuresString.add(element.name);
     });
     return await _module.channel.invokeMethod('privacyManager#setEnabledFeatures', featuresString);
   }
@@ -42,7 +42,7 @@ class AirshipPrivacyManager {
     var payload = await _module.channel.invokeMethod('privacyManager#getEnabledFeatures');
     List<Feature> parsedFeatures = <Feature>[];
     List<String>.from(payload).forEach((String feature) =>
-        parsedFeatures.add(feature.feature));
+        parsedFeatures.add(Feature.fromString(feature)));
     return parsedFeatures;
   }
 
@@ -50,7 +50,7 @@ class AirshipPrivacyManager {
   Future<bool> isFeaturesEnabled(List<Feature> features) async {
     List<String> featuresString = <String>[];
     features.forEach((element) {
-      featuresString.add(element.stringValue);
+      featuresString.add(element.name);
     });
     return await _module.channel.invokeMethod('privacyManager#isFeaturesEnabled', featuresString);
   }
