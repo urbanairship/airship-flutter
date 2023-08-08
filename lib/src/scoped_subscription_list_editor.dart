@@ -28,7 +28,7 @@ class ScopedSubscriptionListEditor {
     operations.add({
       SUBSCRIPTIONLIST_OPERATION_ACTION: SUBSCRIPTIONLIST_OPERATION_SUBSCRIBE,
       SUBSCRIPTIONLIST_OPERATION_ID: listId,
-      SUBSCRIPTIONLIST_OPERATION_SCOPE: scope.toString()
+      SUBSCRIPTIONLIST_OPERATION_SCOPE: scope.getStringValue()
     });
   }
 
@@ -37,7 +37,7 @@ class ScopedSubscriptionListEditor {
     operations.add({
       SUBSCRIPTIONLIST_OPERATION_ACTION: SUBSCRIPTIONLIST_OPERATION_UNSUBSCRIBE,
       SUBSCRIPTIONLIST_OPERATION_ID: listId,
-      SUBSCRIPTIONLIST_OPERATION_SCOPE: scope.toString()
+      SUBSCRIPTIONLIST_OPERATION_SCOPE: scope.getStringValue()
     });
   }
 

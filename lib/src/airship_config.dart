@@ -110,6 +110,12 @@ class ConfigEnvironment {
 
 enum Site { us, eu }
 
+extension SiteToString on Site {
+  String getStringValue() {
+    return this.toString().split('.').last;
+  }
+}
+
 class IOSConfig {
   /// iTunes ID for rate app and App Store deep links.
   String? iTunesId;
