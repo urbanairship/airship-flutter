@@ -2,7 +2,7 @@
 /// Inbox message object.
 class InboxMessage {
   /// The message title.
-  final String? title;
+  final String title;
 
   /// The message ID. Needed to display, mark as read, or delete the message.
   final String messageId;
@@ -17,7 +17,7 @@ class InboxMessage {
   final String? listIcon;
 
   /// The unread / read status of the message.
-  final bool? isRead;
+  final bool isRead;
 
   /// String to String map of any message extras.
   final Map<String, dynamic>? extras;
@@ -25,14 +25,14 @@ class InboxMessage {
   const InboxMessage._internal(this.title, this.messageId, this.sentDate,
       this.expirationDate, this.listIcon, this.isRead, this.extras);
 
-  static InboxMessage _fromJson(Map<String, dynamic> json) {
+  static InboxMessage fromJson(dynamic json) {
     var title = json["title"];
-    var messageId = json["message_id"];
-    var sentDate = json["sent_date"];
-    var expirationDate = json["expiration_date"];
-    var listIcon = json["list_icon"];
-    var isRead = json["is_read"];
-    var extras = json["extras"];
+    var messageId = json["id"];
+    var sentDate = json["sentDate"];
+    var expirationDate = json["expirationDate"];
+    var listIcon = json["listIconUrl"];
+    var isRead = json["isRead"];
+    var extras = Map<String, dynamic>.from(json["extras"]);
     return InboxMessage._internal(
         title, messageId, sentDate, expirationDate, listIcon, isRead, extras);
   }

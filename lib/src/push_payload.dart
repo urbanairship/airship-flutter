@@ -1,6 +1,6 @@
 
-/// Push notification object.
-class Notification {
+/// Push object.
+class PushPayload {
   /// The notification ID.
   final String? notificationId;
 
@@ -14,12 +14,12 @@ class Notification {
   final String? subtitle;
 
   /// The notification extras.
-  final Map<String, dynamic>? extras;
+  final Map<String, dynamic> extras;
 
-  const Notification._internal(
+  const PushPayload._internal(
       this.notificationId, this.alert, this.title, this.subtitle, this.extras);
 
-  static Notification fromJson(Map<String, dynamic> json) {
+  static PushPayload fromJson(dynamic json) {
     var notificationId = json["notificationId"];
     var alert = json["alert"];
     var title = json["title"];
@@ -28,12 +28,12 @@ class Notification {
     if (json["extras"] != null) {
       extras = Map<String, dynamic>.from(json["extras"]);
     }
-    return Notification._internal(
+    return PushPayload._internal(
         notificationId, alert, title, subtitle, extras);
   }
 
   @override
   String toString() {
-    return "Notification(notificationId=$notificationId, alert=$alert, title=$title, subtitle=$subtitle, extras=$extras)";
+    return "PushPayload(notificationId=$notificationId, alert=$alert, title=$title, subtitle=$subtitle, extras=$extras)";
   }
 }

@@ -4,7 +4,7 @@ version '1.0-SNAPSHOT'
 buildscript {  
     ext.kotlin_version = '1.5.31'
     ext.coroutine_version = '1.5.2'
-    ext.airship_version = '16.8.0'
+    ext.airship_version = '17.1.0'
 
     repositories {
         google()
@@ -29,7 +29,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 33
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
@@ -55,6 +55,6 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutine_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutine_version"
     implementation "com.urbanairship.android:urbanairship-fcm:$airship_version"
-    api "com.urbanairship.android:airship-framework-proxy:1.1.0"
+    api "com.urbanairship.android:airship-framework-proxy:4.0.1"
     implementation "androidx.datastore:datastore-preferences:1.0.0"
 }

@@ -11,20 +11,20 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   @override
   void initState() {
-    // initAirshipListeners();
-    // Airship.trackScreen('Home');
+    initAirshipListeners();
+    Airship.analytics.trackScreen('Home');
 
     super.initState();
   }
 
-  // // Platform messages are asynchronous, so we initialize in an async method.
-  // Future<void> initAirshipListeners() async {
-  //   Airship.onChannelRegistration.listen((event) {
-  //     if (mounted) {
-  //       setState(() {});
-  //     }
-  //   });
-  // }
+  // Platform messages are asynchronous, so we initialize in an async method.
+  Future<void> initAirshipListeners() async {
+    Airship.channel.onChannelCreated.listen((event) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +39,7 @@ class _HomeState extends State<Home> {
               ),
               Center(
                 child: FutureBuilder<bool?>(
-                  future: Airship.push.userNotificationsEnabled,
+                  future: Airship.push.isUserNotificationsEnabled,
                   builder: (context, AsyncSnapshot<bool?> snapshot) {
                     Center enableNotificationsButton;
                     bool pushEnabled = snapshot.data ?? false;

@@ -3,21 +3,19 @@ import UIKit
 import AirshipKit
 import AirshipFrameworkProxy
 
-// TODO: proxy updates
-// - Add subtitle to push payload
-// - Add proper addCustomEvent method
 
 public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
     private static let eventNames: [AirshipProxyEventType: String] = [
+        .authorizedNotificationSettingsChanged: "com.airship.flutter/event/ios_authorized_notification_settings_changed",
+        .pushTokenReceived: "com.airship.flutter/event/push_token_received",
         .deepLinkReceived: "com.airship.flutter/event/deep_link_received",
         .channelCreated: "com.airship.flutter/event/channel_created",
-        .pushTokenReceived: "com.airship.flutter/event/push_token_received",
         .messageCenterUpdated: "com.airship.flutter/event/message_center_updated",
         .displayMessageCenter: "com.airship.flutter/event/display_message_center",
         .displayPreferenceCenter: "com.airship.flutter/event/display_preference_center",
         .notificationResponseReceived: "com.airship.flutter/event/notification_response",
         .pushReceived: "com.airship.flutter/event/push_received",
-        .notificationOptInStatusChanged: "com.airship.flutter/event/notification_opt_in_status"
+        .notificationStatusChanged: "com.airship.flutter/event/notification_status_changed"
     ]
 
     private static let streams: [AirshipProxyEventType: AirshipEventStream] = {
@@ -35,9 +33,9 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
         )
         
         Task {
-            let stream = await AirshipProxyEventEmitter.shared.pendingEventTypeAdded
-            for await eventType in stream {
-                await self.streams[eventType]?.processPendingEvents()
+            let stream = await AirshipProxyEventEmitter.shared.pendingEventAdded
+            for await event in stream {
+                await self.streams[event.type]?.processPendingEvents()
             }
         }
         
@@ -66,8 +64,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         Task {
             do {
-                let pluginResult = try await handle(call);
-                print("result: \(String(describing: pluginResult))")
+                let pluginResult = try await handle(call)
                 result(pluginResult)
             } catch {
                 result(
@@ -173,10 +170,13 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             return nil
         
         case "contact#getNamedUserId":
-            return try AirshipProxy.shared.contact.getNamedUser()
+            return try await AirshipProxy.shared.contact.getNamedUser()
         
     
         // Push
+        case "push#getRegistrationToken":
+            return try AirshipProxy.shared.push.getRegistrationToken()
+        
         case "push#setUserNotificationsEnabled":
             try AirshipProxy.shared.push.setUserNotificationsEnabled(
                 try call.requireBooleanArg()
@@ -186,11 +186,11 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
         case "push#enableUserNotifications":
             return try await AirshipProxy.shared.push.enableUserPushNotifications()
             
-        case "push#isUserNotifictionsEnabled":
+        case "push#isUserNotificationsEnabled":
             return try AirshipProxy.shared.push.isUserNotificationsEnabled()
         
         case "push#getNotificationStatus":
-            return try AirshipProxy.shared.push.getNotificationStatus()
+            return try await AirshipProxy.shared.push.getNotificationStatus()
             
         case "push#getActiveNotifications":
             return await AirshipProxy.shared.push.getActiveNotifications()
@@ -235,6 +235,13 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             )
             return nil
 
+        case "push#ios#getAuthorizedNotificationStatus":
+            return try AirshipProxy.shared.push.getAuthroizedNotificationStatus()
+
+        case "push#ios#getAuthorizedNotificationSettings":
+            return try AirshipProxy.shared.push.getAuthorizedNotificationSettings()
+
+
         // In-App
         case "inApp#setPaused":
             try AirshipProxy.shared.inApp.setPaused(
@@ -262,7 +269,9 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             return nil
             
         case "analytics#addEvent":
-            // TODO
+            try AirshipProxy.shared.analytics.addEvent(
+                call.requireAnyArg()
+            )
             return nil
             
         case "analytics#associateIdentifier":
@@ -276,7 +285,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
         
         // Message Center
         case "messageCenter#getMessages":
-            return try AirshipProxy.shared.messageCenter.getMessagesJSON()
+            return try await AirshipProxy.shared.messageCenter.getMessagesJSON()
             
         case "messageCenter#display":
             try AirshipProxy.shared.messageCenter.display(
@@ -389,10 +398,12 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
                 throw AirshipErrors.error("Call requires [String, Any?]")
             }
 
-            return try await AirshipProxy.shared.action.runAction(
+            let arg = try? AirshipJSON.wrap(args[1])
+            let result = try await AirshipProxy.shared.action.runAction(
                 actionName,
-                actionValue: args.count == 2 ? args[1] : nil
-            )
+                value: args.count == 2 ? arg : nil
+            ) as? AirshipJSON
+            return result?.unWrap()
 
         default:
             return FlutterError(
@@ -483,7 +494,7 @@ internal class AirshipEventStream : NSObject, FlutterStreamHandler {
 
     private var eventSink : FlutterEventSink?
     private let eventType: AirshipProxyEventType
-    private let lock = Lock()
+    private let lock = AirshipLock()
     private let name: String
     
     init(_ eventType: AirshipProxyEventType, name: String) {

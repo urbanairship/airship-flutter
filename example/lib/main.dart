@@ -1,25 +1,23 @@
+import 'package:airship_example/screens/message_center.dart';
+import 'package:airship_example/screens/message_view.dart';
+import 'package:airship_example/screens/preference_center.dart';
+import 'package:airship_example/screens/settings.dart';
 import 'package:flutter/material.dart' hide Notification;
 import 'package:airship_example/styles.dart';
 
 import 'package:flutter/services.dart' show DeviceOrientation, SystemChrome;
 
 import 'package:airship_example/screens/home.dart';
-import 'package:airship_example/screens/settings.dart';
-import 'package:airship_example/screens/message_center.dart';
-import 'package:airship_example/screens/message_view.dart';
-import 'package:airship_example/screens/preference_center.dart';
-
 import 'package:airship_flutter/airship_flutter.dart';
 
 // Supported deep links
 const String home_deep_link = "home";
 const String message_center_deep_link = "message_center";
 const String settings_deep_link = "settings";
-//
-// Future<void> backgroundMessageHandler(
-//     Map<String, dynamic> payload, Notification? notification) async {
-//   print("Background Push Received $payload, $notification");
-// }
+
+Future<void> backgroundMessageHandler(PushReceivedEvent event) async {
+  debugPrint("Background Push Received $event");
+}
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,13 +26,20 @@ void main() {
     DeviceOrientation.portraitDown,
   ]);
 
-  Airship.takeOff(config);
-  // Airship.setBackgroundMessageHandler(backgroundMessageHandler);
+  var config = AirshipConfig(
+      defaultEnvironment: ConfigEnvironment(
+          appKey: "APP_KEY",
+          appSecret: "APP_SECRET"));
 
-  Airship.channel.editSubscriptionLists()
-  ..subscribe("foo")
-  ..unsubscribe("bar")
-  ..apply();
+  Airship.takeOff(config);
+  Airship.push.android
+      .setBackgroundPushReceivedHandler(backgroundMessageHandler);
+
+  Airship.push.iOS.setForegroundPresentationOptions([
+    IOSForegroundPresentationOption.banner,
+    IOSForegroundPresentationOption.list
+  ]);
+  Airship.contact.identify("FlutterUser");
 
   runApp(MyApp());
 }
@@ -62,57 +67,77 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   }
 
   static void addFlutterTag() {
-    // Airship.addTags(["flutter"]);
+    Airship.channel.addTags(["flutter"]);
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-    // Airship.onPushReceived.listen((event) {
-    //   debugPrint('Push Received $event');
-    // });
-    //
-    // Airship.onNotificationResponse
-    //     .listen((event) => debugPrint('Notification Response $event'));
-    //
-    // Airship.onDeepLink.listen((event) {
-    //   const home_tab = 0;
-    //   const message_tab = 1;
-    //   const settings_tab = 2;
-    //
-    //   switch (event) {
-    //     case home_deep_link:
-    //       {
-    //         controller.animateTo(home_tab);
-    //         break;
-    //       }
-    //     case message_center_deep_link:
-    //       {
-    //         controller.animateTo(message_tab);
-    //         break;
-    //       }
-    //     case settings_deep_link:
-    //       {
-    //         controller.animateTo(settings_tab);
-    //         break;
-    //       }
-    //   }
-    // });
-    //
-    // Airship.onInboxUpdated?.listen((event) => debugPrint('Inbox updated link'));
-    //
-    // Airship.onShowInbox?.listen((event) => debugPrint('Show inbox'));
-    //
-    // Airship.onShowInboxMessage.listen((messageId) {
-    //   key.currentState
-    //       ?.push(MaterialPageRoute<Null>(builder: (BuildContext context) {
-    //     return messageId != null
-    //         ? MessageView(
-    //             messageId: messageId,
-    //           )
-    //         : SizedBox();
-    //   }));
-    // });
-    //
+    Airship.push.onPushReceived.listen((event) {
+      debugPrint('Push Received $event');
+    });
+
+    Airship.push.onNotificationResponse.listen((event) {
+      debugPrint('Notification Response $event');
+    });
+
+    Airship.push.onPushTokenReceived.listen((event) {
+      debugPrint('Push token received $event');
+    });
+
+    Airship.push.onNotificationStatusChanged.listen((event) {
+      debugPrint('Notification status changed $event');
+    });
+
+    Airship.push.iOS.onAuthorizedSettingsChanged.listen((event) {
+      debugPrint('Authorized settings changed $event');
+    });
+
+    Airship.push.iOS.authorizedNotificationSettings
+        .then((value) => debugPrint("authorizedNotificationSettings $value"));
+    Airship.push.iOS.authorizedNotificationStatus
+        .then((value) => debugPrint("authorizedNotificationStatus $value"));
+
+    Airship.onDeepLink.listen((event) {
+      const home_tab = 0;
+      const message_tab = 1;
+      const settings_tab = 2;
+
+      switch (event.deepLink) {
+        case home_deep_link:
+          {
+            controller.animateTo(home_tab);
+            break;
+          }
+        case message_center_deep_link:
+          {
+            controller.animateTo(message_tab);
+            break;
+          }
+        case settings_deep_link:
+          {
+            controller.animateTo(settings_tab);
+            break;
+          }
+      }
+    });
+
+    Airship.messageCenter.onInboxUpdated
+        .listen((event) => debugPrint('Inbox updated $event'));
+
+    Airship.messageCenter.onDisplay
+        .listen((event) => debugPrint('Show inbox $event'));
+
+    Airship.messageCenter.onDisplay.listen((event) {
+      key.currentState
+          ?.push(MaterialPageRoute<Null>(builder: (BuildContext context) {
+        return event.messageId != null
+            ? MessageView(
+                messageId: event.messageId ?? "",
+              )
+            : SizedBox();
+      }));
+    });
+
     Airship.channel.onChannelCreated.listen((event) {
       debugPrint('Channel created $event');
     });
@@ -138,9 +163,9 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
           body: TabBarView(
             children: <Widget>[
               Home(),
-              Home(),
-              Home(),
-              Home()
+              MessageCenter(),
+              PreferenceCenter(),
+              Settings()
             ],
             controller: controller,
           ),

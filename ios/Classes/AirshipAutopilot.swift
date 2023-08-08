@@ -9,7 +9,7 @@ public class AirshipAutopilot: NSObject {
     @objc
     public static let shared: AirshipAutopilot = AirshipAutopilot()
 
-    @objc
+    @MainActor @objc
     public func onLoad(launchOptions: [UIApplication.LaunchOptionsKey : Any]?) {
         self.launchOptions = launchOptions
         try? AirshipProxy.shared.attemptTakeOff(launchOptions: launchOptions)
@@ -22,8 +22,8 @@ extension AirshipAutopilot: AirshipProxyDelegate {
     public func migrateData(store: AirshipFrameworkProxy.ProxyStore) {
         guard
             let defaults = UserDefaults(suiteName: "com.urbanairship.flutter"),
-            let appKey = defaults.string(forKey: "appKey"),
-            let appSecret = defaults.string(forKey: "appSecret")
+            defaults.string(forKey: "appKey") != nil,
+            defaults.string(forKey: "appSecret") != nil
         else {
             return
         }
@@ -34,13 +34,13 @@ extension AirshipAutopilot: AirshipProxyDelegate {
         defaults.removeObject(forKey: "appSecret")
     }
     
-    public func loadDefaultConfig() -> Config {
-        return Config.default()
+    public func loadDefaultConfig() -> AirshipConfig {
+        return AirshipConfig.default()
     }
     
     public func onAirshipReady() {
         Airship.analytics.registerSDKExtension(
-            SDKExtension.flutter,
+            AirshipSDKExtension.flutter,
             version: AirshipPluginVersion.pluginVersion
         )
     }

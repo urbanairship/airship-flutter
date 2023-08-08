@@ -1,42 +1,47 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
-import 'dart:ui';
 import 'package:airship_flutter/airship_flutter.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
-
-
 import 'airship_module.dart';
 
 /// The Main Airship API.
 class Airship {
 
   static final _module = AirshipModule();
-  static final channel = AirshipChannel(_module);
-  static final push = AirshipPush(_module);
 
-  // static const contact = AirshipContact(module);
-  // static const inApp = AirshipInApp(module);
-  // static const messageCenter = AirshipMessageCenter(module);
-  // static const privacyManager = AirshipPrivacyManager(module);
-  // static const preferenceCenter = AirshipPreferenceCenter(module);
-  // static const locale = AirshipLocale(module);
-  // static const analytics = AirshipAnalytics(module);
-  // static const actions = AirshipActions(module);
+  /// The [AirshipChannel] instance.
+  static final channel = AirshipChannel(_module);
+  /// The [AirshipPush] instance.
+  static final push = AirshipPush(_module);
+  /// The [AirshipContact] instance.
+  static final contact = AirshipContact(_module);
+  /// The [AirshipInApp] instance.
+  static final inApp = AirshipInApp(_module);
+  /// The [AirshipMessageCenter] instance.
+  static final messageCenter = AirshipMessageCenter(_module);
+  /// The [AirshipPrivacyManager] instance.
+  static final privacyManager = AirshipPrivacyManager(_module);
+  /// The [AirshipPreferenceCenter] instance.
+  static final preferenceCenter = AirshipPreferenceCenter(_module);
+  /// The [AirshipLocale] instance.
+  static final locale = AirshipLocale(_module);
+  /// The [AirshipAnalytics] instance.
+  static final analytics = AirshipAnalytics(_module);
+  /// The [AirshipActions] instance.
+  static final actions = AirshipActions(_module);
+
   //
-  /// Initializes Airship with an [appKey] and [appSecret].
+  /// Initializes Airship with the given config. Airship will store the config
+  /// and automatically use it during the next app init. Any chances to config 
+  /// could take an extra app init to apply.
   ///
   /// Returns true if Airship has been initialized, otherwise returns false.
   static Future<bool> takeOff(AirshipConfig config) async {
     return await _module.channel.invokeMethod('takeOff', config.toJson());
   }
 
-  //
-  // /// Gets deep link event stream.
-  // static Stream<String?> get onDeepLink {
-  //   return _getEventStream("DEEP_LINK")!
-  //       .map((dynamic value) => jsonDecode(value) as String?);
-  // }
+  /// Gets deep link event stream.
+  static Stream<DeepLinkEvent> get onDeepLink {
+    return _module
+        .getEventStream("com.airship.flutter/event/deep_link_received")
+        .map((dynamic value) => DeepLinkEvent.fromJson(value));
+  }
 }
