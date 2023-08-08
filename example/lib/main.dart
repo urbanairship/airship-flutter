@@ -27,8 +27,9 @@ void main() {
     DeviceOrientation.portraitDown,
   ]);
 
-  var configEnvironment = ConfigEnvironment("Hx7SIqHqQDmFj6aruaAFcQ", "3-5cLPw3TS-t9M6lb22kUA");
-  var config = AirshipConfig(configEnvironment);
+  var config = AirshipConfig()
+    ..defaultEnvironment = ConfigEnvironment("APP_KEY", "APP_SECRET");
+
   Airship.takeOff(config);
   Airship.push.android.setBackgroundPushReceivedHandler(backgroundMessageHandler);
 
