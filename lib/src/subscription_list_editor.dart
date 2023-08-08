@@ -1,13 +1,24 @@
 import 'dart:async';
+import 'package:flutter/services.dart';
 
 /// Subscription list editor.
 class SubscriptionListEditor {
 
-  final List<Map<String, dynamic>> _operations = [];
-  final Future<void> Function(dynamic operations) _onApply;
+  /// The channel
+  final MethodChannel _channel;
 
-  SubscriptionListEditor(this._onApply);
+  /// The subscription list update type.
+  final String _methodName;
 
+  /// The subscription list updates.
+  final List<Map<String, dynamic>> _operations;
+
+  SubscriptionListEditor(String methodName, MethodChannel channel)
+      : this._methodName = methodName,
+        this._operations = [],
+        this._channel = channel;
+
+  
   /// Subscribes to a list
   void subscribe(String listId) {
     _addOperation(listId, "subscribe");
@@ -24,7 +35,7 @@ class SubscriptionListEditor {
 
   /// Applies subscription list changes.
   Future<void> apply() async {
-    var result = await this._onApply(_operations);
+    var result = await _channel.invokeMethod(_methodName, _operations);
     _operations.clear();
     return result;
   }

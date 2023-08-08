@@ -11,23 +11,23 @@ class ScopedSubscriptionListEditor {
   static const SUBSCRIPTIONLIST_OPERATION_UNSUBSCRIBE = "unsubscribe";
   static const SUBSCRIPTIONLIST_OPERATION_SCOPE = "scope";
 
-  final MethodChannel channel;
+  final MethodChannel _channel;
 
   /// The subscription list update type.
-  final String type;
+  final String _methodName;
 
   /// The subscription list updates.
-  final List<Map<String, dynamic>> operations;
+  final List<Map<String, dynamic>> _operations;
 
-  ScopedSubscriptionListEditor(String type, MethodChannel channel)
-      : this.type = type,
-        this.operations = [],
-        this.channel = channel;
+  ScopedSubscriptionListEditor(String methodName, MethodChannel channel)
+      : this._methodName = methodName,
+        this._operations = [],
+        this._channel = channel;
 
   /// Subscribes to a list in the given [scope].
   void subscribe(String listId, ChannelScope scope) {
     var scopeString = AirshipUtils.toChannelScopeString(scope);
-    operations.add({
+    _operations.add({
       SUBSCRIPTIONLIST_OPERATION_ACTION: SUBSCRIPTIONLIST_OPERATION_SUBSCRIBE,
       SUBSCRIPTIONLIST_OPERATION_ID: listId,
       SUBSCRIPTIONLIST_OPERATION_SCOPE: scopeString
@@ -37,7 +37,7 @@ class ScopedSubscriptionListEditor {
   /// Unsubscribe from a list in the given [scope].
   void unsubscribe(String listId, ChannelScope scope) {
     var scopeString = AirshipUtils.toChannelScopeString(scope);
-    operations.add({
+    _operations.add({
       SUBSCRIPTIONLIST_OPERATION_ACTION: SUBSCRIPTIONLIST_OPERATION_UNSUBSCRIBE,
       SUBSCRIPTIONLIST_OPERATION_ID: listId,
       SUBSCRIPTIONLIST_OPERATION_SCOPE: scopeString
@@ -46,6 +46,8 @@ class ScopedSubscriptionListEditor {
 
   /// Applies subscription list changes.
   Future<void> apply() async {
-    return await channel.invokeMethod(type, operations);
+    var result = await _channel.invokeMethod(_methodName, _operations);
+    _operations.clear();
+    return result;
   }
 }

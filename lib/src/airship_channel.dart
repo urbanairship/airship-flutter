@@ -2,7 +2,6 @@ import 'airship_module.dart';
 import 'attribute_editor.dart';
 import 'subscription_list_editor.dart';
 import 'tag_group_editor.dart';
-import 'subscription_list.dart';
 import 'airship_events.dart';
 
 class AirshipChannel {
@@ -17,10 +16,7 @@ class AirshipChannel {
 
   /// Creates a [SubscriptionListEditor] to modify the subscription lists associated with the channel.
   SubscriptionListEditor editSubscriptionLists() {
-    return SubscriptionListEditor((operations) =>
-        _module.channel.invokeMethod(
-            "channel#editSubscriptionLists", operations)
-    );
+    return SubscriptionListEditor("channel#editSubscriptionLists", _module.channel);
   }
 
   /// Gets channel created event stream.
@@ -29,7 +25,6 @@ class AirshipChannel {
         .getEventStream("com.airship.flutter/event/channel_created")
         .map((dynamic value) => ChannelCreatedEvent.fromJson(value));
   }
-
 
   /// Gets channel subscription lists.
   Future<List<String>> get subscriptionLists async {

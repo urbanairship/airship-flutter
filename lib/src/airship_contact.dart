@@ -2,7 +2,6 @@ import 'airship_module.dart';
 import 'attribute_editor.dart';
 import 'scoped_subscription_list_editor.dart';
 import 'tag_group_editor.dart';
-import 'subscription_list.dart';
 import 'channel_scope.dart';
 import 'airship_utils.dart';
 
