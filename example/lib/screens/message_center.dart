@@ -53,12 +53,12 @@ class _MessageCenterState extends State<MessageCenter> {
               },
               // Add stream to check isRead
               child: ListTile(
-                title: message.isRead ?? false
+                title: message.isRead
                     ? Text('${message.title}')
                     : Text('${message.title}',
                         style: TextStyle(fontWeight: FontWeight.bold)),
                 subtitle: Text('${message.sentDate}'),
-                leading: Icon(message.isRead ?? false
+                leading: Icon(message.isRead
                     ? Icons.check_circle
                     : Icons.markunread),
                 onTap: () {

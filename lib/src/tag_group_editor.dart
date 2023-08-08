@@ -11,22 +11,22 @@ class TagGroupEditor {
   static const TAG_OPERATION_TAGS = "tags";
   static const TAG_OPERATION_TYPE = "operationType";
 
-  final MethodChannel channel;
+  final MethodChannel _channel;
 
-  /// The tag group type.
-  final String type;
+  /// The method name.
+  final String _methodName;
 
   /// The tag group operation list.
-  final List<Map<String, dynamic>> operations;
+  final List<Map<String, dynamic>> _operations;
 
-  TagGroupEditor(String type, MethodChannel channel)
-      : this.type = type,
-        this.operations = [],
-        this.channel = channel;
+  TagGroupEditor(String methodName, MethodChannel channel)
+      : this._methodName = methodName,
+        this._operations = [],
+        this._channel = channel;
 
   /// Adds [tags] to a [group].
   void addTags(String group, List<String> tags) {
-    operations.add({
+    _operations.add({
       TAG_OPERATION_TYPE: TAG_OPERATION_ADD,
       TAG_OPERATION_GROUP_NAME: group,
       TAG_OPERATION_TAGS: tags
@@ -35,7 +35,7 @@ class TagGroupEditor {
 
   /// Removes [tags] from a [group].
   void removeTags(String group, List<String> tags) {
-    operations.add({
+    _operations.add({
       TAG_OPERATION_TYPE: TAG_OPERATION_REMOVE,
       TAG_OPERATION_GROUP_NAME: group,
       TAG_OPERATION_TAGS: tags
@@ -44,7 +44,7 @@ class TagGroupEditor {
 
   /// Overwrite the current set of tags on the [group].
   void setTags(String group, List<String> tags) {
-    operations.add({
+    _operations.add({
       TAG_OPERATION_TYPE: TAG_OPERATION_SET,
       TAG_OPERATION_GROUP_NAME: group,
       TAG_OPERATION_TAGS: tags
@@ -53,6 +53,8 @@ class TagGroupEditor {
 
   /// Applies the tag operations.
   Future<void> apply() async {
-    return await channel.invokeMethod(type, operations);
+    var result = await _channel.invokeMethod(_methodName, _operations);
+    _operations.clear();
+    return result;
   }
 }

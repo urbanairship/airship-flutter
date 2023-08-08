@@ -8,7 +8,6 @@ import 'package:airship_example/styles.dart';
 import 'package:flutter/services.dart' show DeviceOrientation, SystemChrome;
 
 import 'package:airship_example/screens/home.dart';
-import 'dart:developer';
 import 'package:airship_flutter/airship_flutter.dart';
 
 // Supported deep links

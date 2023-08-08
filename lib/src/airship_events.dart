@@ -1,6 +1,5 @@
 import 'push_payload.dart';
 import 'push_notification_status.dart';
-import 'package:flutter/material.dart' hide Notification;
 import 'ios_push_options.dart';
 import 'airship_utils.dart';
 
@@ -46,14 +45,11 @@ class DisplayMessageCenterEvent {
 
 /// Event fired when the message center updates.
 class MessageCenterUpdatedEvent {
-  /**
-   * The unread message count.
-   */
+  
+  /// Unread count
   final int messageUnreadCount;
 
-  /**
-   * The total message count.
-   */
+  /// Message count
   final int messageCount;
 
   const MessageCenterUpdatedEvent._internal(this.messageUnreadCount, this.messageCount);

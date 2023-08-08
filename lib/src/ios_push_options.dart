@@ -1,6 +1,4 @@
-/**
- * Enum of notification options. iOS only.
- */
+/// Enum of notification options. iOS only.
 enum IOSNotificationOption {
   alert,
   sound,
@@ -11,9 +9,7 @@ enum IOSNotificationOption {
   provisional
 }
 
-/**
- * Enum of foreground notification options.
- */
+/// Enum of foreground notification options. 
 enum IOSForegroundPresentationOption {
   sound,
   badge,
@@ -21,9 +17,7 @@ enum IOSForegroundPresentationOption {
   banner
 }
 
-/**
- * Enum of authorized notification options.
- */
+/// Enum of authorized notification options.
 enum IOSAuthorizedNotificationSetting {
   alert,
   sound,
@@ -37,9 +31,7 @@ enum IOSAuthorizedNotificationSetting {
   timeSensitive
 }
 
-/**
- * Enum of authorized status.
- */
+/// Enum of authorized status.
 enum IOSAuthorizedNotificationStatus {
   notDetermined,
   denied,

@@ -1,5 +1,4 @@
 import 'airship_module.dart';
-import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 import 'airship_events.dart';
@@ -15,7 +14,6 @@ class AirshipPush {
   final AirshipModule _module;
   final IOSPush iOS;
   final AndroidPush android;
-  static bool _isBackgroundHandlerSet = false;
 
   AirshipPush(AirshipModule module)
       :
@@ -308,7 +306,7 @@ class IOSPush {
     return AirshipUtils.parseIOSAuthorizedStatus(status);
   }
 
-  /// Gets the authroized settings changed event stream.
+  /// Gets the authorized settings changed event stream.
   Stream<
       IOSAuthorizedNotificationSettingsChangedEvent> get onAuthorizedSettingsChanged {
 
@@ -318,7 +316,7 @@ class IOSPush {
 
     return _module
         .getEventStream(
-        "com.airship.flutter/event/ios_authroized_notification_settings_changed")
+        "com.airship.flutter/event/ios_authorized_notification_settings_changed")
         .map((dynamic value) =>
         IOSAuthorizedNotificationSettingsChangedEvent.fromJson(value));
   }

@@ -1,5 +1,4 @@
 import 'airship_module.dart';
-import 'dart:convert';
 import 'preference_center_config.dart';
 import 'airship_events.dart';
 

@@ -6,7 +6,7 @@ import AirshipFrameworkProxy
 
 public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
     private static let eventNames: [AirshipProxyEventType: String] = [
-        .authorizedNotificationSettingsChanged: "com.airship.flutter/event/ios_authroized_notification_settings_changed",
+        .authorizedNotificationSettingsChanged: "com.airship.flutter/event/ios_authorized_notification_settings_changed",
         .pushTokenReceived: "com.airship.flutter/event/push_token_received",
         .deepLinkReceived: "com.airship.flutter/event/deep_link_received",
         .channelCreated: "com.airship.flutter/event/channel_created",

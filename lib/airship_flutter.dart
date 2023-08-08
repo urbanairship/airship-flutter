@@ -1,3 +1,4 @@
+/// Airship Flutter plugin
 library airship_flutter;
 
 export 'src/airship_flutter.dart';
