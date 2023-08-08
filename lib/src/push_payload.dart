@@ -2,7 +2,7 @@
 /// Push object.
 class PushPayload {
   /// The notification ID.
-  final String notificationId;
+  final String? notificationId;
 
   /// The notification alert.
   final String? alert;

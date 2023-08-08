@@ -54,22 +54,7 @@ class AirshipConfig {
   /// Android config.
   AndroidConfig? androidConfig;
 
-  AirshipConfig([this.defaultEnvironment,
-      this.developmentEnvironment,
-      this.productionEnvironment,
-      this.site,
-      this.inProduction,
-      this.urlAllowList,
-      this.urlAllowListScopeOpenUrl,
-      this.urlAllowListScopeJavaScriptInterface,
-      this.isChannelCreationDelayEnabled,
-      this.initialConfigUrl,
-      this.enabledFeatures,
-      this.isChannelCaptureEnabled,
-      this.suppressAllowListError,
-      this.autoPauseInAppAutomationOnLaunch,
-      this.iosConfig,
-      this.androidConfig]);
+  AirshipConfig();
 
   Map<String, dynamic> toJson() {
 
@@ -77,7 +62,7 @@ class AirshipConfig {
       "default": defaultEnvironment?._toJson(),
       "development": developmentEnvironment?._toJson(),
       "production": productionEnvironment?._toJson(),
-      "site": site?.toString(),
+      "site": site?.name,
       "inProduction": inProduction,
       "urlAllowList": urlAllowList,
       "urlAllowListScopeOpenUrl": urlAllowListScopeOpenUrl,

@@ -6,9 +6,10 @@ import AirshipFrameworkProxy
 
 public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
     private static let eventNames: [AirshipProxyEventType: String] = [
+        .authorizedNotificationSettingsChanged: "com.airship.flutter/event/ios_authroized_notification_settings_changed",
+        .pushTokenReceived: "com.airship.flutter/event/push_token_received",
         .deepLinkReceived: "com.airship.flutter/event/deep_link_received",
         .channelCreated: "com.airship.flutter/event/channel_created",
-        .pushTokenReceived: "com.airship.flutter/event/push_token_received",
         .messageCenterUpdated: "com.airship.flutter/event/message_center_updated",
         .displayMessageCenter: "com.airship.flutter/event/display_message_center",
         .displayPreferenceCenter: "com.airship.flutter/event/display_preference_center",
@@ -63,8 +64,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         Task {
             do {
-                let pluginResult = try await handle(call);
-                print("result: \(String(describing: pluginResult))")
+                let pluginResult = try await handle(call)
                 result(pluginResult)
             } catch {
                 result(
@@ -235,6 +235,13 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             )
             return nil
 
+        case "push#ios#getAuthorizedNotificationStatus":
+            return try AirshipProxy.shared.push.getAuthroizedNotificationStatus()
+
+        case "push#ios#getAuthorizedNotificationSettings":
+            return try AirshipProxy.shared.push.getAuthorizedNotificationSettings()
+
+
         // In-App
         case "inApp#setPaused":
             try AirshipProxy.shared.inApp.setPaused(
@@ -392,11 +399,11 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             }
 
             let arg = try? AirshipJSON.wrap(args[1])
-            return try await AirshipProxy.shared.action.runAction(
+            let result = try await AirshipProxy.shared.action.runAction(
                 actionName,
                 value: args.count == 2 ? arg : nil
-
-            )
+            ) as? AirshipJSON
+            return result?.unWrap()
 
         default:
             return FlutterError(

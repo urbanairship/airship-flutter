@@ -57,8 +57,11 @@ class AirshipMessageCenter {
   }
 
   /// Gets inbox updated event stream.
-  Stream<void> get onInboxUpdated {
-    return _module.getEventStream("com.airship.flutter/event/message_center_updated");
+  Stream<MessageCenterUpdatedEvent> get onInboxUpdated {
+    return _module
+        .getEventStream("com.airship.flutter/event/message_center_updated")
+        .map((dynamic value) => MessageCenterUpdatedEvent.fromJson(value));
+
   }
 
   /// Gets show inbox event stream.

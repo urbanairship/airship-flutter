@@ -4,9 +4,11 @@ import 'dart:io';
 import 'dart:ui';
 import 'airship_events.dart';
 import 'push_payload.dart';
+import 'ios_push_options.dart';
 import 'push_notification_status.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart' hide Notification;
+import 'airship_utils.dart';
 
 class AirshipPush {
 
@@ -77,8 +79,15 @@ class AirshipPush {
   /// Gets push received event stream.
   Stream<PushReceivedEvent> get onPushReceived {
     return _module
-        .getEventStream("com.airship.flutter/event/foreground_push_received")
+        .getEventStream("com.airship.flutter/event/push_received")
         .map((dynamic value) => PushReceivedEvent.fromJson(value));
+  }
+
+  /// Gets push token received event stream.
+  Stream<PushTokenReceivedEvent> get onPushTokenReceived {
+    return _module
+        .getEventStream("com.airship.flutter/event/push_token_received")
+        .map((dynamic value) => PushTokenReceivedEvent.fromJson(value));
   }
 
   /// Gets notification response event stream.
@@ -92,7 +101,8 @@ class AirshipPush {
   Stream<PushNotificationStatusChangedEvent> get onNotificationStatusChanged {
     return _module
         .getEventStream("com.airship.flutter/event/notification_status_changed")
-        .map((dynamic value) => PushNotificationStatusChangedEvent.fromJson(value));
+        .map((dynamic value) =>
+        PushNotificationStatusChangedEvent.fromJson(value));
   }
 }
 
@@ -116,7 +126,8 @@ class AndroidPush {
     _isBackgroundHandlerSet = true;
 
     final isolateCallback =
-    PluginUtilities.getCallbackHandle(_androidBackgroundMessageIsolateCallback)!;
+    PluginUtilities.getCallbackHandle(
+        _androidBackgroundMessageIsolateCallback)!;
     final messageCallback = PluginUtilities.getCallbackHandle(handler)!;
     await _module.channel.invokeMapMethod("startBackgroundIsolate", {
       "isolateCallback": isolateCallback.toRawHandle(),
@@ -149,7 +160,8 @@ void _androidBackgroundMessageIsolateCallback() {
   });
 
   // Tell the native side to start the background isolate.
-  AirshipModule.singleton.backgroundChannel.invokeMethod<void>("backgroundIsolateStarted");
+  AirshipModule.singleton.backgroundChannel.invokeMethod<void>(
+      "backgroundIsolateStarted");
 }
 
 class IOSPush {
@@ -169,82 +181,148 @@ class IOSPush {
   }
 
   /// Sets the notification options.
-  Future<void> setNotificationOptions(List<IOSNotificationOption> options) async {
-    if (Platform.isIOS) {
-      var parsedOptions = List<IOSNotificationOption>.from(options)
-          .map((option) => option.toString())
-          .toList();
-      return await _module.channel.invokeMethod(
-          'push#ios#setNotificationOptions', parsedOptions);
-    } else {
+  Future<void> setNotificationOptions(
+      List<IOSNotificationOption> options) async {
+    if (!Platform.isIOS) {
       return Future.value();
     }
+
+    var strings = <String>[];
+    options.forEach((element) {
+      switch (element) {
+        case IOSNotificationOption.alert:
+          strings.add("alert");
+          break;
+        case IOSNotificationOption.sound:
+          strings.add("sound");
+          break;
+        case IOSNotificationOption.badge:
+          strings.add("badge");
+          break;
+        case IOSNotificationOption.carPlay:
+          strings.add("car_play");
+          break;
+        case IOSNotificationOption.criticalAlert:
+          strings.add("critical_alert");
+          break;
+        case IOSNotificationOption.providesAppNotificationSettings:
+          strings.add("provides_app_notification_settings");
+          break;
+        case IOSNotificationOption.provisional:
+          strings.add("provisional");
+          break;
+      }
+    });
+
+    return await _module.channel.invokeMethod(
+        'push#ios#setNotificationOptions', strings);
   }
 
   /// Sets the notification options.
   Future<void> setForegroundPresentationOptions(
       List<IOSForegroundPresentationOption> options) async {
-    if (Platform.isIOS) {
-      var parsedOptions = List<IOSForegroundPresentationOption>.from(options)
-          .map((option) => option.toString())
-          .toList();
-      return await _module.channel.invokeMethod(
-          'push#ios#setForegroundPresentationOptions', parsedOptions);
-    } else {
+    if (!Platform.isIOS) {
       return Future.value();
     }
+
+    var strings = <String>[];
+    options.forEach((element) {
+      switch (element) {
+        case IOSForegroundPresentationOption.sound:
+          strings.add("sound");
+          break;
+        case IOSForegroundPresentationOption.badge:
+          strings.add("badge");
+          break;
+        case IOSForegroundPresentationOption.list:
+          strings.add("list");
+          break;
+        case IOSForegroundPresentationOption.banner:
+          strings.add("banner");
+          break;
+      }
+    });
+
+    return await _module.channel.invokeMethod(
+        'push#ios#setForegroundPresentationOptions', strings);
   }
 
   /// Enables or disables auto-badging on iOS. Badging is not supported for Android.
   Future<void> setAutoBadgeEnabled(bool enabled) async {
-    if (Platform.isIOS) {
-      return await _module.channel.invokeMethod(
-          'push#ios#setAutobadgeEnabled', enabled);
-    } else {
+    if (!Platform.isIOS) {
       return Future.value();
     }
+
+    return await _module.channel.invokeMethod(
+        'push#ios#setAutobadgeEnabled', enabled);
   }
 
   /// Sets the [badge] number on iOS. Badging is not supported for Android.
   Future<void> setBadge(int badge) async {
-    if (Platform.isIOS) {
-      return await _module.channel.invokeMethod(
-          'push#ios#setBadgeNumber', badge);
-    } else {
+    if (!Platform.isIOS) {
       return Future.value();
     }
+    return await _module.channel.invokeMethod(
+        'push#ios#setBadgeNumber', badge);
   }
 
   /// Gets the [badge] number on iOS. Badging is not supported for Android.
   Future<int> get badge async {
-    if (Platform.isIOS) {
-      return await _module.channel.invokeMethod('push#ios#getBadgeNumber');
-    } else {
+    if (!Platform.isIOS) {
       return Future.value(0);
     }
+    return await _module.channel.invokeMethod('push#ios#getBadgeNumber');
   }
 
   /// Clears the badge on iOS. Badging is not supported for Android.
   Future<void> resetBadge() async {
-    if (Platform.isIOS) {
-      return await _module.channel.invokeMethod('push#ios#resetBadgeNumber');
-    } else {
+    if (!Platform.isIOS) {
       return Future.value();
     }
+    return await _module.channel.invokeMethod('push#ios#resetBadgeNumber');
+  }
+
+  /// Gets the authorized notification settings.
+  Future<List<
+      IOSAuthorizedNotificationSetting>> get authorizedNotificationSettings async {
+    if (!Platform.isIOS) {
+      return Future.value(List.empty());
+    }
+    var strings = List<String>.from(
+        await _module.channel.invokeMethod(
+            'push#ios#getAuthorizedNotificationSettings')
+    );
+
+    return AirshipUtils.parseIOSAuthorizedSettings(strings);
+  }
+
+  /// Gets the authorized notification status.
+  Future<
+      IOSAuthorizedNotificationStatus> get authorizedNotificationStatus async {
+    if (!Platform.isIOS) {
+      return Future.value(IOSAuthorizedNotificationStatus.notDetermined);
+    }
+    var status = await _module.channel.invokeMethod(
+        'push#ios#getAuthorizedNotificationStatus');
+
+    return AirshipUtils.parseIOSAuthorizedStatus(status);
+  }
+
+  /// Gets the authroized settings changed event stream.
+  Stream<
+      IOSAuthorizedNotificationSettingsChangedEvent> get onAuthorizedSettingsChanged {
+
+    if (!Platform.isIOS) {
+      return Stream.empty();
+    }
+
+    return _module
+        .getEventStream(
+        "com.airship.flutter/event/ios_authroized_notification_settings_changed")
+        .map((dynamic value) =>
+        IOSAuthorizedNotificationSettingsChangedEvent.fromJson(value));
   }
 }
 
-enum IOSNotificationOption {
-  alert,
-  sound,
-  badge,
-  carPlay,
-  criticalAlert,
-  providesAppNotificationSettings,
-  provisional
-}
-
-enum IOSForegroundPresentationOption { sound, badge, list, banner }
-
-typedef AndroidBackgroundPushReceivedHandler = Future<void> Function(PushReceivedEvent pushReceivedEvent);
-  
+typedef AndroidBackgroundPushReceivedHandler = Future<
+    void> Function(PushReceivedEvent pushReceivedEvent);
