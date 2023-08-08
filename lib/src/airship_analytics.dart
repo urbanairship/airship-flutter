@@ -20,7 +20,7 @@ class AirshipAnalytics {
 
   /// Adds a custom [event].
   Future<void> addEvent(CustomEvent event) async {
-    return await _module.channel.invokeMethod('analytics#addEvent', event.toMap());
+    return await _module.channel.invokeMethod('analytics#addEvent', event.toJSON());
   }
 
 }

@@ -54,10 +54,24 @@ class AirshipConfig {
   /// Android config.
   AndroidConfig? androidConfig;
 
-  AirshipConfig();
+  AirshipConfig({this.defaultEnvironment,
+    this.developmentEnvironment,
+    this.productionEnvironment,
+    this.site,
+    this.inProduction,
+    this.urlAllowList,
+    this.urlAllowListScopeOpenUrl,
+    this.urlAllowListScopeJavaScriptInterface,
+    this.isChannelCreationDelayEnabled,
+    this.initialConfigUrl,
+    this.enabledFeatures,
+    this.isChannelCaptureEnabled,
+    this.suppressAllowListError,
+    this.autoPauseInAppAutomationOnLaunch,
+    this.iosConfig,
+    this.androidConfig});
 
   Map<String, dynamic> toJson() {
-
     return {
       "default": defaultEnvironment?._toJson(),
       "development": developmentEnvironment?._toJson(),
@@ -69,7 +83,8 @@ class AirshipConfig {
       "urlAllowListScopeJavaScriptInterface": urlAllowListScopeJavaScriptInterface,
       "isChannelCreationDelayEnabled": isChannelCreationDelayEnabled,
       "initialConfigUrl": initialConfigUrl,
-      "enabledFeatures": enabledFeatures == null ? null : AirshipUtils.toFeatureStringList(enabledFeatures!),
+      "enabledFeatures": enabledFeatures == null ? null : AirshipUtils
+          .toFeatureStringList(enabledFeatures!),
       "isChannelCaptureEnabled": isChannelCaptureEnabled,
       "autoPauseInAppAutomationOnLaunch": autoPauseInAppAutomationOnLaunch,
       "ios": iosConfig?._toJson(),
@@ -82,18 +97,33 @@ class ConfigEnvironment {
 
   final String appKey;
   final String appSecret;
+  final LogLevel? logLevel;
 
-  ConfigEnvironment(this.appKey, this.appSecret);
+  ConfigEnvironment({required this.appKey, required this.appSecret, this.logLevel});
 
   Map<String, dynamic> _toJson() {
     return {
       "appKey": appKey,
-      "appSecret": appSecret
+      "appSecret": appSecret,
+      "logLevel": logLevel?.name
     };
   }
 }
 
-enum Site { us, eu }
+
+enum LogLevel {
+  verbose,
+  debug,
+  info,
+  warning,
+  error,
+  none
+}
+
+enum Site {
+  us,
+  eu
+}
 
 class IOSConfig {
   /// iTunes ID for rate app and App Store deep links.
@@ -118,7 +148,8 @@ class AndroidConfig {
   /// Notification config.
   NotificationConfig? notificationConfig;
 
-  AndroidConfig(this.appStoreUri, this.fcmFirebaseAppName, this.notificationConfig);
+  AndroidConfig(this.appStoreUri, this.fcmFirebaseAppName,
+      this.notificationConfig);
 
   Map<String, dynamic> _toJson() {
     return {
@@ -142,7 +173,8 @@ class NotificationConfig {
   /// The accent color. Must be a hex value #AARRGGBB.
   String? accentColor;
 
-  NotificationConfig(this.icon, this.largeIcon, this.defaultChannelId, this.accentColor);
+  NotificationConfig(this.icon, this.largeIcon, this.defaultChannelId,
+      this.accentColor);
 
   Map<String, dynamic> _toJson() {
     return {

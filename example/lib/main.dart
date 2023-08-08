@@ -27,13 +27,19 @@ void main() {
     DeviceOrientation.portraitDown,
   ]);
 
-  var config = AirshipConfig()
-    ..defaultEnvironment = ConfigEnvironment("APP_KEY", "APP_SECRET");
+  var config = AirshipConfig(
+      defaultEnvironment: ConfigEnvironment(
+          appKey: "APP_KEY",
+          appSecret: "APP_SECRET"));
 
   Airship.takeOff(config);
-  Airship.push.android.setBackgroundPushReceivedHandler(backgroundMessageHandler);
+  Airship.push.android
+      .setBackgroundPushReceivedHandler(backgroundMessageHandler);
 
-  Airship.push.iOS.setForegroundPresentationOptions([IOSForegroundPresentationOption.banner, IOSForegroundPresentationOption.list]);
+  Airship.push.iOS.setForegroundPresentationOptions([
+    IOSForegroundPresentationOption.banner,
+    IOSForegroundPresentationOption.list
+  ]);
   Airship.contact.identify("FlutterUser");
 
   runApp(MyApp());
@@ -87,8 +93,10 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
       debugPrint('Authorized settings changed $event');
     });
 
-    Airship.push.iOS.authorizedNotificationSettings.then((value) => debugPrint("authorizedNotificationSettings $value"));
-    Airship.push.iOS.authorizedNotificationStatus.then((value) => debugPrint("authorizedNotificationStatus $value"));
+    Airship.push.iOS.authorizedNotificationSettings
+        .then((value) => debugPrint("authorizedNotificationSettings $value"));
+    Airship.push.iOS.authorizedNotificationStatus
+        .then((value) => debugPrint("authorizedNotificationStatus $value"));
 
     Airship.onDeepLink.listen((event) {
       const home_tab = 0;
@@ -114,9 +122,11 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
       }
     });
 
-    Airship.messageCenter.onInboxUpdated.listen((event) => debugPrint('Inbox updated $event'));
+    Airship.messageCenter.onInboxUpdated
+        .listen((event) => debugPrint('Inbox updated $event'));
 
-    Airship.messageCenter.onDisplay.listen((event) => debugPrint('Show inbox $event'));
+    Airship.messageCenter.onDisplay
+        .listen((event) => debugPrint('Show inbox $event'));
 
     Airship.messageCenter.onDisplay.listen((event) {
       key.currentState
@@ -132,8 +142,6 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
     Airship.channel.onChannelCreated.listen((event) {
       debugPrint('Channel created $event');
     });
-
-
   }
 
   @override

@@ -23,26 +23,12 @@ class CustomEvent {
   String? interactionType;
 
   /// The event properties.
-  var _properties = new Map<String, dynamic>();
+  Map<String, dynamic>? properties;
 
-  CustomEvent(String name, double? value)
-      : this.name = name,
-        this.value = value;
+  CustomEvent({required this.name, this.value, this.transactionId, this.interactionId, this.interactionType, this.properties});
 
-  /// Adds a property to the custom event.
-  void addProperty(String key, dynamic value) {
-    if (value == null) {
-      throw ArgumentError.notNull('value');
-    }
-    _properties[key] = value;
-  }
 
-  /// Sets the custom event properties.
-  void setProperties(Map<String, dynamic> properties) {
-    properties.forEach((key, value) => _properties[key] = value);
-  }
-
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toJSON() {
     return {
       EVENT_NAME: name,
       EVENT_VALUE: value,
