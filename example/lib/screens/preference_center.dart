@@ -10,16 +10,19 @@ class PreferenceCenter extends StatefulWidget {
 class _PreferenceCenterState extends State<PreferenceCenter>
     with SectionAdapterMixin {
   String preferenceCenterId = "neat";
-  PreferenceCenterConfig? preferenceCenterConfig;
-  List<String> activeChannelSubscriptions = [];
+  PreferenceCenterConfig? fullPreferenceCenterConfig;
+  var activeChannelSubscriptions = List<String>.empty(growable: true);
   Map<String, List<ChannelScope>> activeContactSubscriptions =
       <String, List<ChannelScope>>{};
+  var isOptedInToNotifications = false;
 
   @override
   void initState() {
+    updateNotificationOptIn();
     updatePreferenceCenterConfig();
     initAirshipListeners();
     fillInSubscriptionList();
+
     Airship.analytics.trackScreen('Preference Center');
     super.initState();
   }
@@ -27,30 +30,54 @@ class _PreferenceCenterState extends State<PreferenceCenter>
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initAirshipListeners() async {
     Airship.preferenceCenter.onDisplayPreferenceCenter.listen((event) {});
+
+    Airship.push.onNotificationStatusChanged.listen((event) {
+      setState(() { isOptedInToNotifications = event.status.isOptedIn; });
+    });
   }
 
-  Future updatePreferenceCenterConfig() async {
-    preferenceCenterConfig =
+  Future<void> updatePreferenceCenterConfig() async {
+    fullPreferenceCenterConfig =
         await Airship.preferenceCenter.getConfig(preferenceCenterId);
     setState(() {});
   }
 
-  void fillInSubscriptionList() async {
-    var map = Map<String, ChannelScope>();
-    map.addAll({
-      "contact" : ChannelScope.app
+  Future updateNotificationOptIn() async {
+    var status = await Airship.push.notificationStatus;
+    if (status == null) return;
+
+    setState(() {
+      isOptedInToNotifications = status.isOptedIn;
     });
+  }
+
+  void fillInSubscriptionList() async {
     Map<String, List<ChannelScope>> contactSubscriptionLists =
-        await Airship.contact.getSubscriptionLists(map);
+        await Airship.contact.subscriptionLists;
     List<String> channelSubscriptionLists =
-    await Airship.channel.subscriptionLists;
-    activeChannelSubscriptions =
-        channelSubscriptionLists ?? [];
+        await Airship.channel.subscriptionLists;
+    activeChannelSubscriptions = List.from(channelSubscriptionLists);
 
     contactSubscriptionLists.forEach((key, value) {
       activeContactSubscriptions[key] = value;
     });
     setState(() {});
+  }
+
+  /// Filtered version of the preference center config based on the conditions
+  /// defined by sections and items.
+  PreferenceCenterConfig? get preferenceCenterConfig {
+    var state = new PreferenceCenterConditionState(isOptedInToNotifications);
+
+    if (fullPreferenceCenterConfig == null) return null;
+
+    var sections = fullPreferenceCenterConfig!.sections.where((s) =>
+        s.evaluateConditions(state)
+    ).map((s) => s.copy(
+        s.items?.where((i) => i.evaluateConditions(state)).toList() ?? []
+    )).toList();
+
+    return fullPreferenceCenterConfig!.copy(sections);
   }
 
   bool isSubscribedChannelSubscription(String subscriptionId) {
@@ -90,30 +117,34 @@ class _PreferenceCenterState extends State<PreferenceCenter>
   }
 
   void applyContactSubscription(
-      String subscriptionId, ChannelScope scope, bool subscribe) {
+      String subscriptionId, List<ChannelScope> scopes, bool subscribe) {
     List<ChannelScope> currentScopes =
-        activeContactSubscriptions[subscriptionId] ?? [];
-    List<ChannelScope> newScopes = [];
+        activeContactSubscriptions[subscriptionId] ?? List.empty(growable: true);
+    List<ChannelScope> newScopes = List.empty(growable: true);
     if (subscribe) {
-      newScopes = new List.from(currentScopes)..add(scope);
+      newScopes = new List.from(currentScopes)..addAll(scopes);
     } else {
-      currentScopes.removeWhere((item) => scope == item);
+      currentScopes.removeWhere((item) => scopes.contains(item));
       newScopes = currentScopes;
     }
     activeContactSubscriptions[subscriptionId] = newScopes;
   }
 
   void onPreferenceContactSubscriptionItemToggled(
-      String subscriptionId, ChannelScope scope, bool subscribe) {
+      String subscriptionId, List<ChannelScope> scopes, bool subscribe) {
     ScopedSubscriptionListEditor editor =
         Airship.contact.editSubscriptionLists();
     if (subscribe) {
-      editor.subscribe(subscriptionId, scope);
+      for (ChannelScope scope in scopes) {
+        editor.subscribe(subscriptionId, scope);
+      }
     } else {
-      editor.unsubscribe(subscriptionId, scope);
+      for (ChannelScope scope in scopes) {
+        editor.unsubscribe(subscriptionId, scope);
+      }
     }
     editor.apply();
-    applyContactSubscription(subscriptionId, scope, subscribe);
+    applyContactSubscription(subscriptionId, scopes, subscribe);
     setState(() {});
   }
 
@@ -138,17 +169,9 @@ class _PreferenceCenterState extends State<PreferenceCenter>
       value: isSubscribedContactSubscription(item.subscriptionId, []),
       onChanged: (bool value) {
         onPreferenceContactSubscriptionItemToggled(
-            item.subscriptionId, ChannelScope.app, value);
+            item.subscriptionId, [], value);
       },
     );
-  }
-
-  List<ChannelScope> scopesFromComponents(List<ChannelScope> scopes) {
-    List<ChannelScope> finalList = [];
-    for (ChannelScope scope in scopes) {
-      finalList.add(scope);
-    }
-    return finalList;
   }
 
   List<Widget> contactScopes(
@@ -168,7 +191,7 @@ class _PreferenceCenterState extends State<PreferenceCenter>
         selected: isSubscribedContactSubscription(item.subscriptionId, scopes),
         onSelected: (bool value) {
           onPreferenceContactSubscriptionItemToggled(
-              item.subscriptionId, ChannelScope.app, value);
+              item.subscriptionId, scopes, value);
         },
       );
       widgets.add(widget);

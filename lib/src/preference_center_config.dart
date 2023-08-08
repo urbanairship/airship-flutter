@@ -1,4 +1,5 @@
 import 'channel_scope.dart';
+import 'airship_utils.dart';
 
 Map<String, dynamic> _toMap(dynamic json) {
   return Map<String, dynamic>.from(json);
@@ -38,10 +39,15 @@ class PreferenceCenterConfig {
           : null;
       var sections = PreferenceCenterSection._fromJsonList(_toList(json["sections"]));
       return PreferenceCenterConfig._internal(identifier, display, sections);
-    } catch (e) {
+    } catch (e, s) {
       print("Invalid config: $e");
+      print("Stack trace:\n$s");
     }
     return null;
+  }
+
+  PreferenceCenterConfig copy(List<PreferenceCenterSection> sections) {
+    return PreferenceCenterConfig._internal(this.identifier, this.display, sections);
   }
 
   @override
@@ -50,11 +56,19 @@ class PreferenceCenterConfig {
   }
 }
 
+/// Preference center condition state.
+class PreferenceCenterConditionState {
+  /// Notification opt-in status.
+  final bool notificationOptIn;
+
+  PreferenceCenterConditionState(this.notificationOptIn);
+}
+
 /// Preference center condition type.
 enum PreferenceCenterConditionType { notificationOptIn }
 
 /// Preference center condition.
-class PreferenceCenterCondition {
+abstract class PreferenceCenterCondition {
   /// The condition type.
   final PreferenceCenterConditionType? type = null;
 
@@ -73,6 +87,8 @@ class PreferenceCenterCondition {
     }
     throw Exception("Invalid condition: " + type);
   }
+
+  bool evaluate(PreferenceCenterConditionState state);
 }
 
 /// Preference center condition opt-in.
@@ -105,6 +121,12 @@ class PreferenceCenterNotificationOptInCondition
     }
 
     return PreferenceCenterNotificationOptInCondition._internal(whenStatus);
+  }
+
+  @override
+  bool evaluate(PreferenceCenterConditionState state) {
+    return state.notificationOptIn ==
+        (whenStatus == PreferenceCenterConditionOptIn.optIn);
   }
 
   @override
@@ -179,6 +201,10 @@ abstract class PreferenceCenterSection {
   /// A list of preference center conditions.
   List<PreferenceCenterCondition>? get conditions;
 
+  PreferenceCenterSection copy(List<PreferenceCenterItem> items);
+
+  bool evaluateConditions(PreferenceCenterConditionState state);
+
   static List<PreferenceCenterSection> _fromJsonList(
       List<Map<String, dynamic>> jsonList) {
     return jsonList.map((e) => _fromJson(e)).toList();
@@ -192,7 +218,6 @@ abstract class PreferenceCenterSection {
       case "labeled_section_break":
         return PreferenceCenterLabeledSectionBreak._fromJson(_toMap(json));
     }
-
     throw new Exception("Invalid section: " + type);
   }
 }
@@ -215,8 +240,27 @@ class PreferenceCenterCommonSection implements PreferenceCenterSection {
   @override
   final List<PreferenceCenterCondition>? conditions;
 
+  @override
+  bool evaluateConditions(PreferenceCenterConditionState state) {
+    if (conditions == null || conditions!.isEmpty) {
+      return true;
+    }
+    for (var condition in conditions!) {
+      if (!condition.evaluate(state)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   const PreferenceCenterCommonSection._internal(
       this.display, this.items, this.conditions);
+
+  @override
+  PreferenceCenterCommonSection copy(List<PreferenceCenterItem>? items) {
+    return PreferenceCenterCommonSection._internal(
+        this.display, items, this.conditions);
+  }
 
   static PreferenceCenterCommonSection _fromJson(Map<String, dynamic> json) {
     var display = json["display"] != null
@@ -256,6 +300,25 @@ class PreferenceCenterLabeledSectionBreak implements PreferenceCenterSection {
   const PreferenceCenterLabeledSectionBreak._internal(
       this.display, this.conditions);
 
+  @override
+  PreferenceCenterLabeledSectionBreak copy(List<PreferenceCenterItem>? items) {
+    return PreferenceCenterLabeledSectionBreak._internal(
+        this.display, this.conditions);
+  }
+
+  @override
+  bool evaluateConditions(PreferenceCenterConditionState state) {
+    if (conditions == null || conditions!.isEmpty) {
+      return true;
+    }
+    for (var condition in conditions!) {
+      if (!condition.evaluate(state)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   static PreferenceCenterLabeledSectionBreak _fromJson(
       Map<String, dynamic> json) {
     var display = json["display"] != null
@@ -291,6 +354,18 @@ abstract class PreferenceCenterItem {
 
   /// A list of preference center conditions.
   List<PreferenceCenterCondition>? get conditions;
+
+  bool evaluateConditions(PreferenceCenterConditionState state) {
+    if (conditions == null || conditions!.isEmpty) {
+      return true;
+    }
+    for (var condition in conditions!) {
+      if (!condition.evaluate(state)) {
+        return false;
+      }
+    }
+    return true;
+  }
 
   static List<PreferenceCenterItem> _fromJsonList(
       List<Map<String, dynamic>> jsonList) {
@@ -330,7 +405,7 @@ class PreferenceCenterAlertItemButton {
   static PreferenceCenterAlertItemButton _fromJson(Map<String, dynamic> json) {
     var text = json["text"];
     var contentDescription = json["content_description"];
-    var actions = json["actions"];
+    var actions = _toMap(json["actions"]);
 
     return PreferenceCenterAlertItemButton._internal(
         text, contentDescription, actions);
@@ -361,6 +436,19 @@ class PreferenceCenterAlertItem implements PreferenceCenterItem {
 
   const PreferenceCenterAlertItem._internal(
       this.display, this.button, this.conditions);
+
+  @override
+  bool evaluateConditions(PreferenceCenterConditionState state) {
+    if (conditions == null || conditions!.isEmpty) {
+      return true;
+    }
+    for (var condition in conditions!) {
+      if (!condition.evaluate(state)) {
+        return false;
+      }
+    }
+    return true;
+  }
 
   static PreferenceCenterAlertItem _fromJson(Map<String, dynamic> json) {
     var display = PreferenceCenterIconDisplay._fromJson(_toMap(json["display"]));
@@ -400,6 +488,19 @@ class PreferenceCenterChannelSubscriptionItem implements PreferenceCenterItem {
   const PreferenceCenterChannelSubscriptionItem._internal(
       this.display, this.subscriptionId, this.conditions);
 
+  @override
+  bool evaluateConditions(PreferenceCenterConditionState state) {
+    if (conditions == null || conditions!.isEmpty) {
+      return true;
+    }
+    for (var condition in conditions!) {
+      if (!condition.evaluate(state)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   static PreferenceCenterChannelSubscriptionItem _fromJson(
       Map<String, dynamic> json) {
     var display = PreferenceCenterIconDisplay._fromJson(_toMap(json["display"]));
@@ -438,6 +539,19 @@ class PreferenceCenterContactSubscriptionItem implements PreferenceCenterItem {
   const PreferenceCenterContactSubscriptionItem._internal(
       this.display, this.subscriptionId, this.conditions);
 
+  @override
+  bool evaluateConditions(PreferenceCenterConditionState state) {
+    if (conditions == null || conditions!.isEmpty) {
+      return true;
+    }
+    for (var condition in conditions!) {
+      if (!condition.evaluate(state)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   static PreferenceCenterContactSubscriptionItem _fromJson(
       Map<String, dynamic> json) {
     var display = PreferenceCenterIconDisplay._fromJson(_toMap(json["display"]));
@@ -474,26 +588,12 @@ class PreferenceCenterContactSubscriptionGroupItemComponent {
   static PreferenceCenterContactSubscriptionGroupItemComponent _fromJson(
       Map<String, dynamic> json) {
     var scopes = List<String>.from(json["scopes"])
-        .map((scopeString) => _parseScope(scopeString))
+        .map((scopeString) => AirshipUtils.parseChannelScope(scopeString))
         .toList();
     var display = PreferenceCenterCommonDisplay._fromJson(_toMap(json["display"]));
 
     return PreferenceCenterContactSubscriptionGroupItemComponent._internal(
         scopes, display);
-  }
-
-  static ChannelScope _parseScope(String scopeString) {
-    switch (scopeString.toLowerCase()) {
-      case "app":
-        return ChannelScope.app;
-      case "web":
-        return ChannelScope.web;
-      case "email":
-        return ChannelScope.email;
-      case "sms":
-        return ChannelScope.sms;
-    }
-    throw Exception("Invalid scope: $scopeString");
   }
 
   @override
@@ -526,6 +626,19 @@ class PreferenceCenterContactSubscriptionGroupItem
 
   const PreferenceCenterContactSubscriptionGroupItem._internal(
       this.display, this.subscriptionId, this.conditions, this.components);
+
+  @override
+  bool evaluateConditions(PreferenceCenterConditionState state) {
+    if (conditions == null || conditions!.isEmpty) {
+      return true;
+    }
+    for (var condition in conditions!) {
+      if (!condition.evaluate(state)) {
+        return false;
+      }
+    }
+    return true;
+  }
 
   static PreferenceCenterContactSubscriptionGroupItem _fromJson(
       Map<String, dynamic> json) {

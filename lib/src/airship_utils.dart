@@ -1,4 +1,5 @@
 import "feature.dart";
+import "channel_scope.dart";
 
 class AirshipUtils {
   static List<Feature> parseFeatures(List<String> strings) {
@@ -11,7 +12,7 @@ class AirshipUtils {
         case "tags_and_attributes": features.add(Feature.tagsAndAttributes); break;
         case "message_center": features.add(Feature.messageCenter); break;
         case "contacts": features.add(Feature.contacts); break;
-        default: print("Invalid feature");
+        default: print("Invalid feature: $element");
       }
     });
     return features;
@@ -30,5 +31,25 @@ class AirshipUtils {
       }
     });
     return strings;
+  }
+
+  static ChannelScope parseChannelScope(String scope) {
+    switch (scope) {
+      case "app": return ChannelScope.app;
+      case "web": return ChannelScope.web;
+      case "email": return ChannelScope.email;
+      case "sms": return ChannelScope.sms;
+      default: throw new ArgumentError("Invalid scope: $scope");
+    }
+  }
+
+  static String toChannelScopeString(ChannelScope scope) {
+    switch (scope) {
+      case ChannelScope.app: return "app";
+      case ChannelScope.web: return "web";
+      case ChannelScope.email: return "email";
+      case ChannelScope.sms: return "sms";
+      default: throw new ArgumentError("Invalid scope: ${scope.name}");
+    }
   }
 }

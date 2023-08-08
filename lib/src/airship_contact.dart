@@ -4,6 +4,7 @@ import 'scoped_subscription_list_editor.dart';
 import 'tag_group_editor.dart';
 import 'subscription_list.dart';
 import 'channel_scope.dart';
+import 'airship_utils.dart';
 
 class AirshipContact {
 
@@ -12,8 +13,7 @@ class AirshipContact {
   AirshipContact(AirshipModule module) : this._module = module;
 
   /// Gets the contacts subscription lists.
-  Future<Map<String, List<ChannelScope>>> getSubscriptionLists(
-      Map<String, ChannelScope> subscriptionListTypes) async {
+  Future<Map<String, List<ChannelScope>>> get subscriptionLists async {
     var payload = await (_module.channel.invokeMethod(
         "contact#getSubscriptionLists"));
 
@@ -21,7 +21,7 @@ class AirshipContact {
       List<String> parsedValue = List<String>.from(value);
       List<ChannelScope> scopeList = <ChannelScope>[];
       parsedValue.forEach((scopeString) {
-        scopeList.add(scopeString.channelScope);
+        scopeList.add(AirshipUtils.parseChannelScope(scopeString));
       });
       payload[key] = scopeList;
     });
