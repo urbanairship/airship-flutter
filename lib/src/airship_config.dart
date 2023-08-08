@@ -4,55 +4,55 @@ import 'airship_utils.dart';
 class AirshipConfig {
 
   /// Default environment.
-  ConfigEnvironment? defaultEnvironment;
+  final ConfigEnvironment? defaultEnvironment;
 
   /// Development environment.
-  ConfigEnvironment? developmentEnvironment;
+  final ConfigEnvironment? developmentEnvironment;
 
   /// Production environment.
-  ConfigEnvironment? productionEnvironment;
+  final ConfigEnvironment? productionEnvironment;
 
   /// Cloud site.
-  Site? site;
+  final Site? site;
 
   /// Switches the environment from development or production.
-  bool? inProduction;
+  final bool? inProduction;
 
   /// URL allow list.
-  List<String>? urlAllowList;
+  final List<String>? urlAllowList;
 
   /// URL allow list for open URL scope.
-  List<String>? urlAllowListScopeOpenUrl;
+  final List<String>? urlAllowListScopeOpenUrl;
 
   /// URL allow list for JS bridge injection.
-  List<String>? urlAllowListScopeJavaScriptInterface;
+  final List<String>? urlAllowListScopeJavaScriptInterface;
 
   /// Enables delayed channel creation.
-  bool? isChannelCreationDelayEnabled;
+  final bool? isChannelCreationDelayEnabled;
 
   /// Initial config URL for custom Airship domains. The URL
   /// should also be added to the urlAllowList.
-  String? initialConfigUrl;
+  final String? initialConfigUrl;
 
   /// Enabled features. Defaults to all.
-  List<Feature>? enabledFeatures;
+  final List<Feature>? enabledFeatures;
 
   /// Enables channel capture feature. Enabled by default.
-  bool? isChannelCaptureEnabled;
+  final bool? isChannelCaptureEnabled;
 
   /// Whether to suppress console error messages
   /// about missing allow list entries during takeOff.
   /// Disabled by default.
-  bool? suppressAllowListError;
+  final bool? suppressAllowListError;
 
   /// Pauses In-App Automation on launch.
-  bool? autoPauseInAppAutomationOnLaunch;
+  final bool? autoPauseInAppAutomationOnLaunch;
 
   /// iOS config.
-  IOSConfig? iosConfig;
+  final IOSConfig? iosConfig;
 
   /// Android config.
-  AndroidConfig? androidConfig;
+  final AndroidConfig? androidConfig;
 
   AirshipConfig({this.defaultEnvironment,
     this.developmentEnvironment,
@@ -127,9 +127,9 @@ enum Site {
 
 class IOSConfig {
   /// iTunes ID for rate app and App Store deep links.
-  String? iTunesId;
+  final String? iTunesId;
 
-  IOSConfig(this.iTunesId);
+  IOSConfig({this.iTunesId});
 
   Map<String, dynamic> _toJson() {
     return {
@@ -140,16 +140,16 @@ class IOSConfig {
 
 class AndroidConfig {
   /// The app store URI.
-  String? appStoreUri;
+  final String? appStoreUri;
 
   /// The FCM app name if using multiple FCM projects.
-  String? fcmFirebaseAppName;
+  final String? fcmFirebaseAppName;
 
   /// Notification config.
-  NotificationConfig? notificationConfig;
+  final NotificationConfig? notificationConfig;
 
-  AndroidConfig(this.appStoreUri, this.fcmFirebaseAppName,
-      this.notificationConfig);
+  AndroidConfig({this.appStoreUri, this.fcmFirebaseAppName,
+      this.notificationConfig});
 
   Map<String, dynamic> _toJson() {
     return {
@@ -162,19 +162,19 @@ class AndroidConfig {
 
 class NotificationConfig {
   /// The icon resource name.
-  String? icon;
+  final String? icon;
 
   /// The large icon resource name.
-  String? largeIcon;
+  final String? largeIcon;
 
   /// The default Android notification channel ID.
-  String? defaultChannelId;
+  final String? defaultChannelId;
 
   /// The accent color. Must be a hex value #AARRGGBB.
-  String? accentColor;
+  final String? accentColor;
 
-  NotificationConfig(this.icon, this.largeIcon, this.defaultChannelId,
-      this.accentColor);
+  NotificationConfig({this.icon, this.largeIcon, this.defaultChannelId,
+      this.accentColor});
 
   Map<String, dynamic> _toJson() {
     return {
