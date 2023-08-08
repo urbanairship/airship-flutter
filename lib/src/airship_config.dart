@@ -54,22 +54,7 @@ class AirshipConfig {
   /// Android config.
   AndroidConfig? androidConfig;
 
-  AirshipConfig([this.defaultEnvironment,
-      this.developmentEnvironment,
-      this.productionEnvironment,
-      this.site,
-      this.inProduction,
-      this.urlAllowList,
-      this.urlAllowListScopeOpenUrl,
-      this.urlAllowListScopeJavaScriptInterface,
-      this.isChannelCreationDelayEnabled,
-      this.initialConfigUrl,
-      this.enabledFeatures,
-      this.isChannelCaptureEnabled,
-      this.suppressAllowListError,
-      this.autoPauseInAppAutomationOnLaunch,
-      this.iosConfig,
-      this.androidConfig]);
+  AirshipConfig();
 
   Map<String, dynamic> toJson() {
 
@@ -109,12 +94,6 @@ class ConfigEnvironment {
 }
 
 enum Site { us, eu }
-
-extension SiteToString on Site {
-  String getStringValue() {
-    return this.toString().split('.').last;
-  }
-}
 
 class IOSConfig {
   /// iTunes ID for rate app and App Store deep links.
