@@ -25,6 +25,7 @@ export 'src/feature.dart';
 export 'src/inbox_message.dart';
 export 'src/inbox_message_view.dart';
 export 'src/preference_center_config.dart';
+export 'src/push_notification_status.dart';
 export 'src/scoped_subscription_list_editor.dart';
 export 'src/subscription_list_editor.dart';
 export 'src/tag_group_editor.dart';
