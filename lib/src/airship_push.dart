@@ -104,6 +104,7 @@ class AirshipPush {
   }
 }
 
+/// Specific Android Push configuration
 class AndroidPush {
   final AirshipModule _module;
   static bool _isBackgroundHandlerSet = false;
@@ -162,6 +163,7 @@ void _androidBackgroundMessageIsolateCallback() {
       "backgroundIsolateStarted");
 }
 
+/// Specific iOS Push configuration
 class IOSPush {
   final AirshipModule _module;
 
