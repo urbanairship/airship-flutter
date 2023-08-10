@@ -1,10 +1,14 @@
 
+/// Airship feature flag object.
 class FeatureFlag {
 
+  /// Indicates whether the device is eligible or not for the flag.
   final bool isEligible;
 
+  /// Indicates whether the flag exists in the current flag listing or not.
   final bool exists;
 
+  /// Optional variables associated with the flag.
   final Map<String, dynamic>? variables;
 
   const FeatureFlag._internal(this.isEligible, this.exists, this.variables);
