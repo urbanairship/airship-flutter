@@ -55,6 +55,6 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutine_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutine_version"
     implementation "com.urbanairship.android:urbanairship-fcm:$airship_version"
-    api "com.urbanairship.android:airship-framework-proxy:4.0.1"
+    api "com.urbanairship.android:airship-framework-proxy:4.0.2"
     implementation "androidx.datastore:datastore-preferences:1.0.0"
 }
