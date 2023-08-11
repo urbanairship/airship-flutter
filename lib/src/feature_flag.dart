@@ -13,16 +13,21 @@ class FeatureFlag {
 
   const FeatureFlag._internal(this.isEligible, this.exists, this.variables);
 
-  static FeatureFlag fromJson(Map<String, dynamic> json) {
+  static FeatureFlag? fromJson(Map<String, dynamic>? json) {
+    if (json == null) {
+      return null;
+    }
+
     try {
       var isEligible = json["isEligible"];
       var exists = json["exists"];
       var variables = Map<String, dynamic>.from(json["variables"]);
-      return FeatureFlag(isEligible, exists, variables);
+      return FeatureFlag._internal(isEligible, exists, variables);
     } catch (e, s) {
       print("Invalid config: $e");
       print("Stack trace:\n$s");
     }
+    return null;
   }
 
   @override
