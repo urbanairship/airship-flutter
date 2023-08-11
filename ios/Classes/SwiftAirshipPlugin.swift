@@ -405,6 +405,12 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             ) as? AirshipJSON
             return result?.unWrap()
 
+        // Feature Flag
+        case "featureFlag#flag":
+            return try await AirshipProxy.shared.featureFlagManager.flag(
+                name: try call.requireStringArg()
+            )
+
         default:
             return FlutterError(
                 code:"UNAVAILABLE",

@@ -220,6 +220,13 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                         }
             }
 
+            // Feature Flag
+            "featureFlag#flag" -> result.resolveResult(call) {
+                scope.launch {
+                    proxy.featureFlagManager.flag(call.stringArg())
+                }
+            }
+
             else -> result.notImplemented()
         }
     }
