@@ -21,7 +21,7 @@ Airship flutter plugin.
   s.dependency 'Flutter'
 
   s.ios.deployment_target      = "14.0"
-  s.dependency "AirshipFrameworkProxy", "4.0.2"
+  s.dependency "AirshipFrameworkProxy", "4.0.3"
 
 end
 

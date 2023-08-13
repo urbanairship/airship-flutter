@@ -29,7 +29,7 @@ extension AirshipAutopilot: AirshipProxyDelegate {
         }
         
         store.config = ProxyConfig(
-            ProxyConfig.Environment(
+            defaultEnvironment: ProxyConfig.Environment(
                 logLevel: nil,
                 appKey: appKey,
                 appSecret: appSecret
