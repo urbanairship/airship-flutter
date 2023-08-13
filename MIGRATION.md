@@ -63,47 +63,15 @@ for replacements.
 | Airship.trackScreen(String screen) : Future<void> | Airship.analytics.trackScreen(String screen) : Future<void>                                                              |
 | Airship.addEvent(CustomEvent event) : Future<void> | Airship.analytics.addEvent(CustomEvent event) : Future<void>                                                             |
 
+## Message Center
 
-### New methods
+### Events
+`Airship.onShowInbox` and `Airship.onShowInboxMessage` have been merged into a single Stream `Airship.messageCenter.onDisplay`. The even will now contain a property with an optional messageId if the a particular message should be displayed.
 
-New methods have been added in 7.x :
+### Display Message Center
+In 7.0.0, the default Message Center will display unless disabled with `Airship.messageCenter.setAutoLaunchDefaultMessageCenter(false);`. Display events will not be emitted if the default message center UI is enabled.
 
-- `Airship.push.notificationStatus` returns a PushNotificationStatus object with details on push status :
+## Preference Center
 
-```
-class PushNotificationStatus {
+Disabling auto launching the default preference center UI from past versions will not carry forward to plugin 7.0.0. Instead, you will now have to disable the default preference center UI per preference center ID.
 
-  /// If user notifications are enabled.
-  final bool isUserNotificationsEnabled;
-
-  /// If notifications are allowed at the system level for the application.
-  final bool areNotificationsAllowed;
-
-  /// If the push feature is enabled on PrivacyManager.
-  final bool isPushPrivacyFeatureEnabled;
-
-  /// If push registration was able to generate a token.
-  final bool isPushTokenRegistered;
-
-  /// If Airship is able to send and display a push notification.
-  final bool isOptedIn;
-
-  /// Checks for isUserNotificationsEnabled, areNotificationsAllowed, and isPushPrivacyFeatureEnabled. If this flag
-  /// is true but `isOptedIn` is false, that means push token was not able to be registered.
-  final bool isUserOptedIn;
-}
- ```
-
-- You can manage the display interval for IAA with ```Airship.inApp.setDisplayInterval(int milliseconds)``` :
-
-```
-/// Sets the display interval for messages.
-  Future<void> setDisplayInterval(int milliseconds) async {
-    return _module.channel.invokeMethod('inApp#setDisplayInterval', milliseconds);
-  }
-
-  /// Gets the display interval for messages.
-  Future<int> get displayInterval async {
-    return await _module.channel.invokeMethod('inApp#getDisplayInterval');
-  }
-```

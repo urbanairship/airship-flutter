@@ -41,6 +41,7 @@ void main() {
   ]);
   Airship.contact.identify("FlutterUser");
 
+  Airship.messageCenter.setAutoLaunchDefaultMessageCenter(false);
   runApp(MyApp());
 }
 

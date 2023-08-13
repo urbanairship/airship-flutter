@@ -3,6 +3,10 @@
 ## Version 7.0.0 - August 15, 2023
 Major release that exposes significantly more of the underlying SDK functionality to Flutter. This release has several breaking changes due to the new modular APIs. Apps should use the migration guide to update [Migration Guide](https://github.com/urbanairship/airship-flutter/blob/main/MIGRATION.md).
 
+### Behavior Changes
+- The default Message Center UI will now display unless disabled by `Airship.messageCenter.setAutoLaunchDefaultMessageCenter(false);`
+- Apps must now disable the default preference center UI per preference center ID.
+
 ### Changes
 - Updated to Android SDK 17.1.0 and iOS SDK 17.1.2
 - Added feature flag support
