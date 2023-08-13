@@ -536,8 +536,11 @@ class PreferenceCenterContactSubscriptionItem implements PreferenceCenterItem {
   /// The subscription list id.
   final String subscriptionId;
 
+  /// The channel scopes.
+  final List<ChannelScope> scopes;
+
   const PreferenceCenterContactSubscriptionItem._internal(
-      this.display, this.subscriptionId, this.conditions);
+      this.display, this.subscriptionId, this.conditions, this.scopes);
 
   @override
   bool evaluateConditions(PreferenceCenterConditionState state) {
@@ -559,13 +562,16 @@ class PreferenceCenterContactSubscriptionItem implements PreferenceCenterItem {
     var conditions = json["conditions"] != null
         ? PreferenceCenterCondition._fromJsonList(_toList(json["conditions"]))
         : null;
+    var scopes = List<String>.from(json["scopes"])
+        .map((scopeString) => AirshipUtils.parseChannelScope(scopeString))
+        .toList();
     return PreferenceCenterContactSubscriptionItem._internal(
-        display, subscriptionId, conditions);
+        display, subscriptionId, conditions, scopes);
   }
 
   @override
   String toString() {
-    return "PreferenceCenterContactSubscriptionItem(display=$display, subscriptionId=$subscriptionId, conditions=$conditions)";
+    return "PreferenceCenterContactSubscriptionItem(display=$display, subscriptionId=$subscriptionId, conditions=$conditions, scopes=$scopes)";
   }
 }
 

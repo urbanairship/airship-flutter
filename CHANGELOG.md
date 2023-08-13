@@ -1,10 +1,25 @@
 # Flutter Plugin Changelog
 
-## Version 7.0.0 - April xx, 2023
-WIP
+## Version 6.3.2 - May 19, 2023
+Patch release that updates the intl package dependency to support versions `>=0.15.7 <1.0.0`.
+Apps upgrading to Flutter 3.10.0 and higher should update.
+
+## Version 6.3.1 - April 28, 2023 
+Patch release that updates the Android SDK to 16.9.2 and fixes an issue with contact subscriptions 
+in the example Preference Center.
+
+### Changes
+- Updated Android SDK to 16.9.2
+- Fixed an issue with contact-level subscription lists in the example Preference Center.
 
 ## Version 6.3.0 - March 28, 2023
 Minor release that updates the Airship iOS SDK to 16.11.3 and Android SDK to 16.9.1.
+
+## Version 6.2.3 - March 7, 2023
+Patch release that fixes a bug with contact subscription list on iOS.
+
+### Changes
+- Fixed a bug with `editContactSubscriptionLists` method.
 
 ## Version 6.2.2 - February 7, 2023
 Patch release with several bug fixes.
