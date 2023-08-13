@@ -406,10 +406,11 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             return result?.unWrap()
 
         // Feature Flag
-        case "featureFlag#flag":
-            return try await AirshipProxy.shared.featureFlagManager.flag(
+        case "featureFlagManager#flag":
+            let flag = try await AirshipProxy.shared.featureFlagManager.flag(
                 name: try call.requireStringArg()
             )
+            return try AirshipJSON.wrap(flag).unWrap()
 
         default:
             return FlutterError(
