@@ -1,5 +1,6 @@
 import 'airship_module.dart';
 
+/// Feature flag manager
 class AirshipFeatureFlagsManager {
 
   final AirshipModule _module;
