@@ -1,5 +1,8 @@
 # Flutter Plugin Changelog
 
+## Version 7.0.0 - August 15, 2023
+TODO
+
 ## Version 6.3.2 - May 19, 2023
 Patch release that updates the intl package dependency to support versions `>=0.15.7 <1.0.0`.
 Apps upgrading to Flutter 3.10.0 and higher should update.

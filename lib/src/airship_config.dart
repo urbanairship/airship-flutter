@@ -146,7 +146,7 @@ class AndroidConfig {
   final String? fcmFirebaseAppName;
 
   /// Notification config.
-  final NotificationConfig? notificationConfig;
+  final AndroidNotificationConfig? notificationConfig;
 
   AndroidConfig({this.appStoreUri, this.fcmFirebaseAppName,
       this.notificationConfig});
@@ -160,7 +160,7 @@ class AndroidConfig {
   }
 }
 
-class NotificationConfig {
+class AndroidNotificationConfig {
   /// The icon resource name.
   final String? icon;
 
@@ -173,7 +173,7 @@ class NotificationConfig {
   /// The accent color. Must be a hex value #AARRGGBB.
   final String? accentColor;
 
-  NotificationConfig({this.icon, this.largeIcon, this.defaultChannelId,
+  AndroidNotificationConfig({this.icon, this.largeIcon, this.defaultChannelId,
       this.accentColor});
 
   Map<String, dynamic> _toJson() {
