@@ -27,8 +27,8 @@ class Airship {
   static final analytics = AirshipAnalytics(_module);
   /// The [AirshipActions] instance.
   static final actions = AirshipActions(_module);
-  /// The [AirshipFeatureFlagsManager] instance.
-  static final featureFlagManager = AirshipFeatureFlagsManager(_module);
+  /// The [AirshipFeatureFlagManager] instance.
+  static final featureFlagManager = AirshipFeatureFlagManager(_module);
 
   //
   /// Initializes Airship with the given config. Airship will store the config

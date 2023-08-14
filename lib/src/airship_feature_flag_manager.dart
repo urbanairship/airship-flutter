@@ -1,11 +1,11 @@
 import 'airship_module.dart';
 
 /// Feature flag manager
-class AirshipFeatureFlagsManager {
+class AirshipFeatureFlagManager {
 
   final AirshipModule _module;
 
-  AirshipFeatureFlagsManager(AirshipModule module) : this._module = module;
+  AirshipFeatureFlagManager(AirshipModule module) : this._module = module;
 
   /// Gets and evaluates a feature flag with the given [name].
   Future<FeatureFlag> flag(String name) async {
