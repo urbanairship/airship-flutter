@@ -1,6 +1,6 @@
 # Flutter Plugin Changelog
 
-## Version 7.0.0 - August 15, 2023
+## Version 7.0.0 - August 21, 2023
 Major release that exposes significantly more of the underlying SDK functionality to Flutter. This release has several breaking changes due to the new modular APIs. Apps should use the migration guide to update [Migration Guide](https://github.com/urbanairship/airship-flutter/blob/main/MIGRATION.md).
 
 ### Behavior Changes
