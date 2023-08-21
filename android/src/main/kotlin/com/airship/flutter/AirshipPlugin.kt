@@ -220,6 +220,18 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                         }
             }
 
+            // Feature Flag
+            "featureFlagManager#flag" -> result.resolveDeferred(call) { callback ->
+                scope.launch {
+                    try {
+                        val flag = proxy.featureFlagManager.flag(call.stringArg())
+                        callback(flag, null)
+                    } catch(e: Exception) {
+                        callback(null, e)
+                    }
+                }
+            }
+
             else -> result.notImplemented()
         }
     }
