@@ -17,10 +17,10 @@ class AirshipMessageCenter {
     }).toList();
   }
 
-  /// Marks an inbox [message] as read.
-  Future<void> markRead(InboxMessage message) async {
+  /// Marks an inbox message with the [messageId] as read.
+  Future<void> markRead(String messageId) async {
     return await _module.channel.invokeMethod(
-        'messageCenter#markMessageRead', message.messageId);
+        'messageCenter#markMessageRead', messageId);
   }
 
   /// Requests to display the Message Center.
@@ -29,10 +29,10 @@ class AirshipMessageCenter {
         'messageCenter#display', messageId);
   }
 
-  /// Deletes an inbox [message].
-  Future<void> deleteMessage(InboxMessage message) async {
+  /// Deletes an inbox message with the id [messageId].
+  Future<void> deleteMessage(String messageId) async {
     return await _module.channel.invokeMethod(
-        'messageCenter#deleteMessage', message.messageId);
+        'messageCenter#deleteMessage', messageId);
   }
 
   /// Gets the unread count.
@@ -41,8 +41,8 @@ class AirshipMessageCenter {
         'messageCenter#getUnreadMessageCount');
   }
 
-  /// Enables or disables showing the OOTB UI when requested to display
-  Future<void> setAutoLaunch(bool enabled) async {
+  /// Enables or disables showing the OOTB UI when requested to display.
+  Future<void> setAutoLaunchDefaultMessageCenter(bool enabled) async {
     return await _module.channel.invokeMethod(
         'messageCenter#setAutoLaunch', enabled);
   }
@@ -63,7 +63,8 @@ class AirshipMessageCenter {
 
   }
 
-  /// Gets show inbox event stream.
+  /// Gets show inbox event stream. Events will only be
+  /// emitted if [setAutoLaunchDefaultMessageCenter] is disabled.
   Stream<DisplayMessageCenterEvent> get onDisplay {
     return _module
         .getEventStream("com.airship.flutter/event/display_message_center")

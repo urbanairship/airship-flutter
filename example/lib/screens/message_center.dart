@@ -48,7 +48,7 @@ class _MessageCenterState extends State<MessageCenter> {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text("Message \"${message.messageId}\" removed")));
                 messages.remove(message);
-                Airship.messageCenter.deleteMessage(message);
+                Airship.messageCenter.deleteMessage(message.messageId);
                 setState(() {});
               },
               // Add stream to check isRead

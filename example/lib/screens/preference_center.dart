@@ -29,7 +29,7 @@ class _PreferenceCenterState extends State<PreferenceCenter>
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initAirshipListeners() async {
-    Airship.preferenceCenter.onDisplayPreferenceCenter.listen((event) {});
+    Airship.preferenceCenter.onDisplay.listen((event) {});
 
     Airship.push.onNotificationStatusChanged.listen((event) {
       setState(() { isOptedInToNotifications = event.status.isOptedIn; });

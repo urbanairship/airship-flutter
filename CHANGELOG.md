@@ -1,7 +1,24 @@
 # Flutter Plugin Changelog
 
-## Version 7.0.0 - August 15, 2023
-TODO
+## Version 7.0.0 - August 21, 2023
+Major release that exposes significantly more of the underlying SDK functionality to Flutter. This release has several breaking changes due to the new modular APIs. Apps should use the migration guide to update [Migration Guide](https://github.com/urbanairship/airship-flutter/blob/main/MIGRATION.md).
+
+### Behavior Changes
+- The default Message Center UI will now display unless disabled by `Airship.messageCenter.setAutoLaunchDefaultMessageCenter(false);`
+- Apps must now disable the default preference center UI per preference center ID.
+
+### Changes
+- Updated to Android SDK 17.1.0 and iOS SDK 17.1.2
+- Added feature flag support
+- Added new flutter takeOff method with full config support
+- Added new methods to control notification options on iOS
+- Added new listeners for notification status, push token, and iOS authorized settings
+- Added methods to override locale used by Airship messaging
+- Added actions component to manually run any actions from the action's framework
+- Added method to control the In-App display interval
+- Fixed subscription list scope parsing
+- Fixed dropping custom events with null values
+- Dropped `intl` dependency
 
 ## Version 6.3.2 - May 19, 2023
 Patch release that updates the intl package dependency to support versions `>=0.15.7 <1.0.0`.
