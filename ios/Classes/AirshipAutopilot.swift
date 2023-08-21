@@ -22,14 +22,20 @@ extension AirshipAutopilot: AirshipProxyDelegate {
     public func migrateData(store: AirshipFrameworkProxy.ProxyStore) {
         guard
             let defaults = UserDefaults(suiteName: "com.urbanairship.flutter"),
-            defaults.string(forKey: "appKey") != nil,
-            defaults.string(forKey: "appSecret") != nil
+            let appKey = defaults.string(forKey: "appKey"),
+            let appSecret = defaults.string(forKey: "appSecret")
         else {
             return
         }
         
-        // TODO
-        
+        store.config = ProxyConfig(
+            defaultEnvironment: ProxyConfig.Environment(
+                logLevel: nil,
+                appKey: appKey,
+                appSecret: appSecret
+            )
+        )
+
         defaults.removeObject(forKey: "appKey")
         defaults.removeObject(forKey: "appSecret")
     }
