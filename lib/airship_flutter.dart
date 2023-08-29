@@ -29,4 +29,5 @@ export 'src/preference_center_config.dart';
 export 'src/scoped_subscription_list_editor.dart';
 export 'src/subscription_list_editor.dart';
 export 'src/tag_group_editor.dart';
+export 'src/tag_editor.dart';
 

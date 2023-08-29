@@ -111,7 +111,13 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
                 try call.requireStringArrayArg()
             )
             return nil
-        
+
+        case "channel#editTags":
+            try AirshipProxy.shared.channel.editTags(
+                json: try call.requireAnyArg()
+            )
+            return nil
+
         case "channel#getTags":
             return try AirshipProxy.shared.channel.getTags()
             

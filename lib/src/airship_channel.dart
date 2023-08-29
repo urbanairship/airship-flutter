@@ -2,6 +2,7 @@ import 'airship_module.dart';
 import 'attribute_editor.dart';
 import 'subscription_list_editor.dart';
 import 'tag_group_editor.dart';
+import 'tag_editor.dart';
 import 'airship_events.dart';
 
 class AirshipChannel {
@@ -41,6 +42,11 @@ class AirshipChannel {
   /// Removes channel tags.
   Future<void> removeTags(List<String> tags) async {
     return await _module.channel.invokeMethod('channel#removeTags', tags);
+  }
+
+  /// Creates a [TagEditor] to modify the device tags.
+  TagEditor editTags() {
+    return TagEditor('channel#editTags', _module.channel);
   }
 
   /// Gets the channel tags.
