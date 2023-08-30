@@ -35,11 +35,13 @@ class AirshipChannel {
   }
 
   /// Adds channel tags.
+  /// Deprecated. Use editTags() instead.
   Future<void> addTags(List<String> tags) async {
     return await _module.channel.invokeMethod('channel#addTags', tags);
   }
 
   /// Removes channel tags.
+  /// Deprecated. Use editTags() instead.
   Future<void> removeTags(List<String> tags) async {
     return await _module.channel.invokeMethod('channel#removeTags', tags);
   }
