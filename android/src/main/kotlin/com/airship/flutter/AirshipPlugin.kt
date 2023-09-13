@@ -121,6 +121,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                         proxy.channel.removeTag(it)
                     }
                 }
+            "channel#editTags" -> result.resolveResult(call) { proxy.channel.editTags(call.jsonArgs()) }
             "channel#getTags" -> result.resolveResult(call) { proxy.channel.getTags().toList() }
             "channel#editTagGroups" -> result.resolveResult(call) { proxy.channel.editTagGroups(call.jsonArgs()) }
             "channel#editSubscriptionLists" -> result.resolveResult(call) { proxy.channel.editSubscriptionLists(call.jsonArgs()) }
