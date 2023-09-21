@@ -230,7 +230,8 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             return try AirshipProxy.shared.push.isAutobadgeEnabled()
         
         case "push#ios#resetBadgeNumber":
-            return try AirshipProxy.shared.push.setBadgeNumber(0)
+            try AirshipProxy.shared.push.setBadgeNumber(0)
+            return nil
             
         case "push#ios#setNotificationOptions":
             try AirshipProxy.shared.push.setNotificationOptions(
