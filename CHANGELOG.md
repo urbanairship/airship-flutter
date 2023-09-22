@@ -1,5 +1,11 @@
 # Flutter Plugin Changelog
 
+## Version 7.1.1 - September 22, 2023
+Patch release that fixes the iOS resetBadge method
+
+### Changes
+- Fixed an error with Airship.push.ios.resetBadge()
+
 ## Version 7.1.0 - September 13, 2023
 Minor release that fixes the iOS resetBadge method, updates to latest SDK versions, and adds a new `editTags` method to batch tag changes.
 
