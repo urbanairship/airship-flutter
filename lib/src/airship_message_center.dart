@@ -68,7 +68,7 @@ class AirshipMessageCenter {
   Stream<DisplayMessageCenterEvent> get onDisplay {
     return _module
         .getEventStream("com.airship.flutter/event/display_message_center")
-        .map((dynamic value) => DisplayMessageCenterEvent.fromJson(Map<String, dynamic>.from(value)));
+        .map((dynamic value) => DisplayMessageCenterEvent.fromJson(value));
   }
 }
 

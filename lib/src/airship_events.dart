@@ -31,7 +31,7 @@ class DisplayMessageCenterEvent {
 
   const DisplayMessageCenterEvent._internal(this.messageId);
 
-  static DisplayMessageCenterEvent fromJson(Map<String, dynamic> json) {
+  static DisplayMessageCenterEvent fromJson(dynamic json) {
     var messageId = json["messageId"];
     return DisplayMessageCenterEvent._internal(messageId);
   }
