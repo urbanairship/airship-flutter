@@ -1,5 +1,11 @@
 # Flutter Plugin Changelog
 
+## Version 7.1.2 - October 6, 2023
+Patch release that fixes an exception occuring while listening to the `Airship.messageCenter.onDisplay` event
+
+### Changes
+- Fixed an error with Airship.messageCenter.onDisplay
+
 ## Version 7.1.1 - September 22, 2023
 Patch release that fixes the iOS resetBadge method
 
