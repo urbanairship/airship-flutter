@@ -1,5 +1,11 @@
 # Flutter Plugin Changelog
 
+## Version 7.1.3 - November 6, 2023
+Patch release to fix a crash on iOS when using FlutterEngineGroups.
+
+### Changes
+- Fixed crash when using FlutterEngineGroups
+
 ## Version 7.1.2 - October 6, 2023
 Patch release that fixes an exception occuring while listening to the `Airship.messageCenter.onDisplay` event
 
