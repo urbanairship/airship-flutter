@@ -2,7 +2,7 @@ import Flutter
 import UIKit
 import AirshipKit
 import AirshipFrameworkProxy
-
+import Combine
 
 public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
     private static let eventNames: [AirshipProxyEventType: String] = [
@@ -18,37 +18,53 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
         .notificationStatusChanged: "com.airship.flutter/event/notification_status_changed"
     ]
 
-    private static let streams: [AirshipProxyEventType: AirshipEventStream] = {
+
+    private static let eventSubject = PassthroughSubject<AirshipProxyEventType, Never>()
+    private static let eventTask: Task<Void, Never> =  Task {
+        let pending = await AirshipProxyEventEmitter.shared.pendingEventAdded
+        for await event in pending {
+            eventSubject.send(event.type)
+        }
+    }
+
+    private let streams: [AirshipProxyEventType: AirshipEventStream] = {
         var streams: [AirshipProxyEventType: AirshipEventStream] = [:]
         SwiftAirshipPlugin.eventNames.forEach { (key: AirshipProxyEventType, value: String) in
             streams[key] = AirshipEventStream(key, name: value)
         }
         return streams
     }()
-    
+
+    private var subscriptions = Set<AnyCancellable>()
+
+
     public static func register(with registrar: FlutterPluginRegistrar) {
+        SwiftAirshipPlugin().setup(registrar: registrar)
+    }
+
+    private func setup(registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(
             name: "com.airship.flutter/airship",
             binaryMessenger: registrar.messenger()
         )
-        
-        Task {
-            let stream = await AirshipProxyEventEmitter.shared.pendingEventAdded
-            for await event in stream {
-                await self.streams[event.type]?.processPendingEvents()
-            }
-        }
-        
-        let instance = SwiftAirshipPlugin()
-        
-        registrar.addMethodCallDelegate(instance, channel: channel)
-        
+
+        registrar.addMethodCallDelegate(self, channel: channel)
+
         self.streams.values.forEach { stream in
             stream.register(registrar: registrar)
         }
-        
+
         registrar.register(AirshipInboxMessageViewFactory(registrar), withId: "com.airship.flutter/InboxMessageView")
-        registrar.addApplicationDelegate(instance)
+        registrar.addApplicationDelegate(self)
+
+        SwiftAirshipPlugin.eventSubject.sink { [streams] eventType in
+            guard let stream = streams[eventType] else {
+                return
+            }
+            Task {
+                await stream.processPendingEvents()
+            }
+        }.store(in: &self.subscriptions)
     }
 
     public func application(
