@@ -535,6 +535,7 @@ internal class AirshipEventStream : NSObject, FlutterStreamHandler {
         self.name = name
     }
 
+    @MainActor
     private func notify(_ event: AirshipProxyEvent) -> Bool {
         var result = false
         lock.sync {
@@ -555,6 +556,7 @@ internal class AirshipEventStream : NSObject, FlutterStreamHandler {
         eventChannel.setStreamHandler(self)
     }
     
+    @MainActor
     func processPendingEvents() async {
         await AirshipProxyEventEmitter.shared.processPendingEvents(
             type: eventType,
