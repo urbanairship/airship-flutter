@@ -311,8 +311,19 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
         
         // Message Center
         case "messageCenter#getMessages":
-            return try await AirshipProxy.shared.messageCenter.getMessagesJSON()
-            
+            guard
+                let messages = try? await AirshipProxy.shared.messageCenter.getMessages(),
+                let data = try? JSONEncoder().encode(messages),
+                let result = try? JSONSerialization.jsonObject(
+                    with: data,
+                    options: .fragmentsAllowed
+                ) as? [Any]
+            else {
+                throw AirshipErrors.error("Unable to convert messages to JSON")
+            }
+
+            return result
+
         case "messageCenter#display":
             try AirshipProxy.shared.messageCenter.display(
                 messageID: call.arguments as? String
