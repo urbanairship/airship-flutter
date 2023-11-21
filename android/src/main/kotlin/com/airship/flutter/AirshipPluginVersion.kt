@@ -2,6 +2,6 @@ package com.airship.flutter
 
 class AirshipPluginVersion {
     companion object {
-        const val AIRSHIP_PLUGIN_VERSION = "7.1.3"
+        const val AIRSHIP_PLUGIN_VERSION = "7.2.0"
     }
 }
