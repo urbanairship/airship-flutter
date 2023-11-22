@@ -1,9 +1,11 @@
 # Flutter Plugin Changelog
 
-## Version 7.1.3 - November 6, 2023
-Patch release to fix a crash on iOS when using FlutterEngineGroups.
+## Version 7.2.0 - November 27, 2023
+Minor release that improves Feature Flag support on iOS.
 
 ### Changes
+- Updated Airship iOS SDK to 17.6.1.
+- Added `Airship.featureFlagManager.trackInteraction(flag)` method to track interaction events
 - Fixed crash when using FlutterEngineGroups
 
 ## Version 7.1.2 - October 6, 2023
