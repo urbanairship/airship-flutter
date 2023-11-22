@@ -20,12 +20,6 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
 
 
     private static let eventSubject = PassthroughSubject<AirshipProxyEventType, Never>()
-    private static let eventTask: Task<Void, Never> =  Task {
-        let pending = await AirshipProxyEventEmitter.shared.pendingEventAdded
-        for await event in pending {
-            eventSubject.send(event.type)
-        }
-    }
 
     private let streams: [AirshipProxyEventType: AirshipEventStream] = {
         var streams: [AirshipProxyEventType: AirshipEventStream] = [:]
