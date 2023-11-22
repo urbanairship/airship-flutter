@@ -4,7 +4,8 @@
 Minor release that improves Feature Flag support on iOS.
 
 ### Changes
-- Updated Airship iOS SDK to 17.6.1.
+- Updated iOS SDK to 17.6.1.
+- Updated Android SDK to 17.5.0
 - Added `Airship.featureFlagManager.trackInteraction(flag)` method to track interaction events
 - Fixed crash when using FlutterEngineGroups
 
