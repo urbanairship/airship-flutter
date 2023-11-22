@@ -62,9 +62,20 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
     controller = TabController(length: 4, vsync: this);
     initPlatformState();
     addFlutterTag();
+    trackFeatureFlagInteraction();
 
     // Uncomment to enable Hybrid Composition on Android
     // InboxMessageView.hybridComposition = true;
+  }
+
+  static void trackFeatureFlagInteraction() {
+    Airship.featureFlagManager.flag("rad_flag")
+      .then((flag) {
+        Airship.featureFlagManager.trackInteraction(flag);
+      })
+      .catchError((e) {
+        debugPrint('Error: $e');
+      });
   }
 
   static void addFlutterTag() {
