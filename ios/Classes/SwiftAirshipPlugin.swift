@@ -18,9 +18,6 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
         .notificationStatusChanged: "com.airship.flutter/event/notification_status_changed"
     ]
 
-
-    private static let eventSubject = PassthroughSubject<AirshipProxyEventType, Never>()
-
     private let streams: [AirshipProxyEventType: AirshipEventStream] = {
         var streams: [AirshipProxyEventType: AirshipEventStream] = [:]
         SwiftAirshipPlugin.eventNames.forEach { (key: AirshipProxyEventType, value: String) in
@@ -30,7 +27,6 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
     }()
 
     private var subscriptions = Set<AnyCancellable>()
-
 
     public static func register(with registrar: FlutterPluginRegistrar) {
         SwiftAirshipPlugin().setup(registrar: registrar)
@@ -51,10 +47,11 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
         registrar.register(AirshipInboxMessageViewFactory(registrar), withId: "com.airship.flutter/InboxMessageView")
         registrar.addApplicationDelegate(self)
 
-        SwiftAirshipPlugin.eventSubject.sink { [streams] eventType in
-            guard let stream = streams[eventType] else {
+        AirshipProxyEventEmitter.shared.eventSubject.sink { [weak self] (event: any AirshipProxyEvent) in
+            guard let self = self, let stream = self.streams[event.type] else {
                 return
             }
+
             Task {
                 await stream.processPendingEvents()
             }
