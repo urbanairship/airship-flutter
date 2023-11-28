@@ -9,6 +9,7 @@ import com.urbanairship.json.JsonSerializable
 import com.urbanairship.json.JsonValue
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
+import org.json.JSONObject
 
 internal fun MethodChannel.Result.resolveResult(call: MethodCall, function: () -> Any?) {
     resolveDeferred(call) { callback -> callback(function(), null) }
@@ -97,6 +98,18 @@ internal fun JsonSerializable.unwrap(): Any? {
     } else {
         json.value
     }
+}
+
+fun String.toMap(): Map<String, Any?> {
+    val jsonObject = JSONObject(this)
+    val map = mutableMapOf<String, Any?>()
+
+    jsonObject.keys().forEach { key ->
+        val value = jsonObject.get(key)
+        map[key] = value
+    }
+
+    return map
 }
 
 internal fun Context.getAirshipSharedPrefs() =
