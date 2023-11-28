@@ -171,7 +171,9 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             }
 
             // Message Center
-            "messageCenter#getMessages" -> result.resolveResult(call) { JsonValue.wrapOpt(proxy.messageCenter.getMessages()) }
+            "messageCenter#getMessages" -> result.resolveResult(call) {
+                JsonValue.wrapOpt(proxy.messageCenter.getMessages())
+            }
             "messageCenter#display" -> result.resolveResult(call) { proxy.messageCenter.display(call.optStringArg()) }
             "messageCenter#markMessageRead" -> result.resolveResult(call) { proxy.messageCenter.markMessageRead(call.stringArg()) }
             "messageCenter#deleteMessage" -> result.resolveResult(call) { proxy.messageCenter.deleteMessage(call.stringArg()) }
