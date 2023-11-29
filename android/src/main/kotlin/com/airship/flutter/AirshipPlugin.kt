@@ -6,6 +6,7 @@ import com.urbanairship.actions.ActionResult
 import com.urbanairship.android.framework.proxy.EventType
 import com.urbanairship.android.framework.proxy.events.EventEmitter
 import com.urbanairship.android.framework.proxy.proxies.AirshipProxy
+import com.urbanairship.android.framework.proxy.proxies.FeatureFlagProxy
 import com.urbanairship.json.JsonValue
 import io.flutter.embedding.engine.FlutterShellArgs
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -115,12 +116,14 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                     proxy.channel.addTag(it)
                 }
             }
+
             "channel#removeTags" ->
                 result.resolveResult(call) {
                     call.stringList().forEach {
                         proxy.channel.removeTag(it)
                     }
                 }
+
             "channel#editTags" -> result.resolveResult(call) { proxy.channel.editTags(call.jsonArgs()) }
             "channel#getTags" -> result.resolveResult(call) { proxy.channel.getTags().toList() }
             "channel#editTagGroups" -> result.resolveResult(call) { proxy.channel.editTagGroups(call.jsonArgs()) }
@@ -158,7 +161,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
             // Analytics
             "analytics#trackScreen" -> result.resolveResult(call) { proxy.analytics.trackScreen(call.optStringArg()) }
-            "analytics#addEvent" -> result.resolveResult(call) { proxy.analytics.addEvent(call.jsonArgs())}
+            "analytics#addEvent" -> result.resolveResult(call) { proxy.analytics.addEvent(call.jsonArgs()) }
             "analytics#associateIdentifier" -> {
                 val args = call.stringList()
                 proxy.analytics.associateIdentifier(
@@ -168,7 +171,9 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             }
 
             // Message Center
-            "messageCenter#getMessages" -> result.resolveResult(call) { JsonValue.wrapOpt(proxy.messageCenter.getMessages()) }
+            "messageCenter#getMessages" -> result.resolveResult(call) {
+                JsonValue.wrapOpt(proxy.messageCenter.getMessages())
+            }
             "messageCenter#display" -> result.resolveResult(call) { proxy.messageCenter.display(call.optStringArg()) }
             "messageCenter#markMessageRead" -> result.resolveResult(call) { proxy.messageCenter.markMessageRead(call.stringArg()) }
             "messageCenter#deleteMessage" -> result.resolveResult(call) { proxy.messageCenter.deleteMessage(call.stringArg()) }
@@ -227,8 +232,25 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                     try {
                         val flag = proxy.featureFlagManager.flag(call.stringArg())
                         callback(flag, null)
-                    } catch(e: Exception) {
+                    } catch (e: Exception) {
                         callback(null, e)
+                    }
+                }
+            }
+
+            "featureFlagManager#trackInteraction" -> {
+                result.resolveDeferred(call) { callback ->
+                    scope.launch {
+                        try {
+                            val args = call.stringArg().toMap()
+
+                            val wrapped = JsonValue.wrap(args)
+                            val featureFlagProxy = FeatureFlagProxy(wrapped)
+                            proxy.featureFlagManager.trackInteraction(flag = featureFlagProxy)
+                            callback(null, null)
+                        } catch (e: Exception) {
+                            callback(null, e)
+                        }
                     }
                 }
             }

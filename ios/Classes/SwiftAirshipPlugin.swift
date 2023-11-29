@@ -2,7 +2,7 @@ import Flutter
 import UIKit
 import AirshipKit
 import AirshipFrameworkProxy
-
+import Combine
 
 public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
     private static let eventNames: [AirshipProxyEventType: String] = [
@@ -18,37 +18,44 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
         .notificationStatusChanged: "com.airship.flutter/event/notification_status_changed"
     ]
 
-    private static let streams: [AirshipProxyEventType: AirshipEventStream] = {
+    private let streams: [AirshipProxyEventType: AirshipEventStream] = {
         var streams: [AirshipProxyEventType: AirshipEventStream] = [:]
         SwiftAirshipPlugin.eventNames.forEach { (key: AirshipProxyEventType, value: String) in
             streams[key] = AirshipEventStream(key, name: value)
         }
         return streams
     }()
-    
+
+    private var subscriptions = Set<AnyCancellable>()
+
     public static func register(with registrar: FlutterPluginRegistrar) {
+        SwiftAirshipPlugin().setup(registrar: registrar)
+    }
+
+    private func setup(registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(
             name: "com.airship.flutter/airship",
             binaryMessenger: registrar.messenger()
         )
-        
-        Task {
-            let stream = await AirshipProxyEventEmitter.shared.pendingEventAdded
-            for await event in stream {
-                await self.streams[event.type]?.processPendingEvents()
-            }
-        }
-        
-        let instance = SwiftAirshipPlugin()
-        
-        registrar.addMethodCallDelegate(instance, channel: channel)
-        
+
+        registrar.addMethodCallDelegate(self, channel: channel)
+
         self.streams.values.forEach { stream in
             stream.register(registrar: registrar)
         }
-        
+
         registrar.register(AirshipInboxMessageViewFactory(registrar), withId: "com.airship.flutter/InboxMessageView")
-        registrar.addApplicationDelegate(instance)
+        registrar.addApplicationDelegate(self)
+
+        AirshipProxyEventEmitter.shared.pendingEventPublisher.sink { [weak self] (event: any AirshipProxyEvent) in
+            guard let self = self, let stream = self.streams[event.type] else {
+                return
+            }
+
+            Task {
+                await stream.processPendingEvents()
+            }
+        }.store(in: &self.subscriptions)
     }
 
     public func application(
@@ -295,8 +302,19 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
         
         // Message Center
         case "messageCenter#getMessages":
-            return try await AirshipProxy.shared.messageCenter.getMessagesJSON()
-            
+            guard
+                let messages = try? await AirshipProxy.shared.messageCenter.getMessages(),
+                let data = try? JSONEncoder().encode(messages),
+                let result = try? JSONSerialization.jsonObject(
+                    with: data,
+                    options: .fragmentsAllowed
+                ) as? [Any]
+            else {
+                throw AirshipErrors.error("Unable to convert messages to JSON")
+            }
+
+            return result
+
         case "messageCenter#display":
             try AirshipProxy.shared.messageCenter.display(
                 messageID: call.arguments as? String
@@ -422,6 +440,16 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             )
             return try AirshipJSON.wrap(flag).unWrap()
 
+        case "featureFlagManager#trackInteraction":
+            guard let arg = try? call.requireAnyArg() as? String,
+                  let jsonData = arg.data(using: .utf8),
+                  let featureFlagProxy = try? JSONDecoder().decode(FeatureFlagProxy.self, from: jsonData) else {
+                throw AirshipErrors.error("Call requires a json string that's decodable to FeatureFlagProxy")
+            }
+
+            try AirshipProxy.shared.featureFlagManager.trackInteraction(flag: featureFlagProxy)
+
+            return nil
         default:
             return FlutterError(
                 code:"UNAVAILABLE",
@@ -519,6 +547,7 @@ internal class AirshipEventStream : NSObject, FlutterStreamHandler {
         self.name = name
     }
 
+    @MainActor
     private func notify(_ event: AirshipProxyEvent) -> Bool {
         var result = false
         lock.sync {
@@ -539,6 +568,7 @@ internal class AirshipEventStream : NSObject, FlutterStreamHandler {
         eventChannel.setStreamHandler(self)
     }
     
+    @MainActor
     func processPendingEvents() async {
         await AirshipProxyEventEmitter.shared.processPendingEvents(
             type: eventType,
