@@ -182,6 +182,10 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             try AirshipProxy.shared.contact.reset()
             return nil
         
+        case "contact#notifyRemoteLogin":
+            try AirshipProxy.shared.contact.notifyRemoteLogin()
+            return nil
+
         case "contact#getNamedUserId":
             return try await AirshipProxy.shared.contact.getNamedUser()
         

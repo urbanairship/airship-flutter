@@ -1,5 +1,13 @@
 # Flutter Plugin Changelog
 
+## Version 7.3.0 - December 6, 2023
+Minor release that updates the iOS SDK to 17.7.0 and Android SDK to 17.6.0 and adds support for notifying the contact of a remote login.
+
+### Changes
+- Updated iOS SDK to 17.7.0
+- Updated Android SDK to 17.6.0
+- Added `Airship.contact.notifyRemoteLogin()` method to notify contact of remote login
+
 ## Version 7.2.0 - November 27, 2023
 Minor release that improves Feature Flag support on iOS.
 

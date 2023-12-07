@@ -1,5 +1,5 @@
 import Foundation
 
 class AirshipPluginVersion {
-    static let pluginVersion = "7.2.0"
+    static let pluginVersion = "7.3.0"
 }
