@@ -42,6 +42,11 @@ class AirshipContact {
     return await _module.channel.invokeMethod('contact#reset');
   }
 
+    /// Notifies the contact of a remote login.
+  Future<void> notifyRemoteLogin() async {
+    return await _module.channel.invokeMethod('contact#notifyRemoteLogin');
+  }
+
   /// Creates an [AttributeEditor] to modify the named user attributes.
   AttributeEditor editAttributes() {
     return AttributeEditor('contact#editAttributes', _module.channel);

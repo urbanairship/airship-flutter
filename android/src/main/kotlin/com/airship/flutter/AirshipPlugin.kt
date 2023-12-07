@@ -134,6 +134,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
             // Contact
             "contact#reset" -> result.resolveResult(call) { proxy.contact.reset() }
+            "contact#notifyRemoteLogin" -> result.resolveResult(call) { proxy.contact.notifyRemoteLogin() }
             "contact#identify" -> result.resolveResult(call) { proxy.contact.identify(call.stringArg()) }
             "contact#getNamedUserId" -> result.resolveResult(call) { proxy.contact.getNamedUserId() }
             "contact#editTagGroups" -> result.resolveResult(call) { proxy.contact.editTagGroups(call.jsonArgs()) }
