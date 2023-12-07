@@ -6,7 +6,7 @@ Minor release that updates the iOS SDK to 17.7.0 and Android SDK to 17.6.0 and a
 ### Changes
 - Updated iOS SDK to 17.7.0
 - Updated Android SDK to 17.6.0
-- Added `Airship.contactManager.notifyRemoteLogin()` method to notify contact of remote login
+- Added `Airship.contact.notifyRemoteLogin()` method to notify contact of remote login
 
 ## Version 7.2.0 - November 27, 2023
 Minor release that improves Feature Flag support on iOS.
