@@ -1,5 +1,11 @@
 # Flutter Plugin Changelog
 
+## Version 7.3.1 - February 16, 2024
+Patch release that fixes a build issue when using Android Gradle Plugin 8+.
+
+### Changes
+- Added a namespace to the Airship module.
+
 ## Version 7.3.0 - December 6, 2023
 Minor release that updates the iOS SDK to 17.7.0 and Android SDK to 17.6.0 and adds support for notifying the contact of a remote login.
 
