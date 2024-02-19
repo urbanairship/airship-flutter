@@ -1,6 +1,6 @@
 # Flutter Plugin Changelog
 
-## Version 7.3.1 - February 19, 2024
+## Version 7.3.1 - February 20, 2024
 Patch release that updates the Android and iOS SDK to 17.7.3 and fixes a build issue when using Android Gradle Plugin 8+.
 
 ### Changes
