@@ -117,9 +117,12 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
 
       - name: Setup GCP Auth
-        uses: google-github-actions/auth@v1
+        uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
 
       - name: Build & Package docs
         run: |
