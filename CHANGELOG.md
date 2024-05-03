@@ -1,6 +1,6 @@
 # Flutter Plugin Changelog
 
-## Version 7.3.2 - April 30, 2024
+## Version 7.3.2 - May 3, 2024
 Patch release that updates the iOS SDK to 18.1.2
 
 ### Changes
