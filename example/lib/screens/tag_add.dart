@@ -37,9 +37,8 @@ class _TagAddState extends State<TagAdd> {
             onDismissed: (direction) {
               ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text("tag \"$tag\" removed")));
-              tags.remove(tag);
-              Airship.channel.removeTags([tag]);
-              updateState();
+                  Airship.channel.removeTags([tag]);
+                  updateState();
             },
             child: Card(
                 elevation: 5.0,
