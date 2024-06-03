@@ -32,6 +32,7 @@ apply plugin: 'kotlin-android'
 
 android {
     compileSdk 34
+    compileSdkVersion 34
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
@@ -42,6 +43,10 @@ android {
     }
     lintOptions {
         disable 'InvalidPackage'
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     namespace = 'com.airship.airship'
