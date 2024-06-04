@@ -161,6 +161,16 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
       debugShowCheckedModeBanner: false,
       navigatorKey: key,
       title: "Airship Sample App",
+      theme: ThemeData(
+        primaryColor: Styles.borders,
+        colorScheme: ColorScheme.fromSwatch().copyWith(
+          secondary: Styles.airshipBlue, // Set the accent color to airshipBlue
+        ),
+        switchTheme: SwitchThemeData(
+          trackColor:
+              MaterialStateProperty.all(Styles.airshipBlue), // Set track color
+        ),
+      ),
       initialRoute: "/",
       routes: {
         '/': (context) => tabBarView(),
@@ -168,47 +178,57 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
     );
   }
 
-  Widget tabBarView() {
-    return WillPopScope(
-        onWillPop: null,
-        child: Scaffold(
-          body: TabBarView(
-            children: <Widget>[
-              Home(),
-              MessageCenter(),
-              PreferenceCenter(),
-              Settings()
-            ],
-            controller: controller,
+  Widget bottomNavigationBar() {
+    return Container(
+      color: Styles.borders, // Set the same color as the tab bar
+      child: SafeArea(
+        bottom: true,
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            color: Styles.borders,
+            child: TabBar(
+              indicatorColor: Styles.airshipRed,
+              unselectedLabelColor: Colors.grey, // Set unselected label color
+              labelColor:
+                  Styles.airshipBlue, // Set selected label color to airshipBlue
+              tabs: <Tab>[
+                Tab(
+                  icon: Icon(Icons.home),
+                ),
+                Tab(
+                  icon: Icon(Icons.inbox),
+                ),
+                Tab(
+                  icon: Icon(Icons.menu),
+                ),
+                Tab(
+                  icon: Icon(Icons.settings),
+                ),
+              ],
+              controller: controller,
+            ),
           ),
-          bottomNavigationBar: bottomNavigationBar(),
-        ));
+        ),
+      ),
+    );
   }
 
-  Widget bottomNavigationBar() {
-    return Material(
-      // set the color of the bottom navigation bar
-      color: Styles.borders,
-      // set the tab bar as the child of bottom navigation bar
-      child: TabBar(
-        indicatorColor: Styles.airshipRed,
-        tabs: <Tab>[
-          Tab(
-            // set icon to the tab
-            icon: Icon(Icons.home),
-          ),
-          Tab(
-            icon: Icon(Icons.inbox),
-          ),
-          Tab(
-            icon: Icon(Icons.menu),
-          ),
-          Tab(
-            icon: Icon(Icons.settings),
-          ),
-        ],
-        // setup the controller
-        controller: controller,
+  Widget tabBarView() {
+    return WillPopScope(
+      onWillPop: null,
+      child: Scaffold(
+        backgroundColor: Styles.borders,
+        body: TabBarView(
+          children: <Widget>[
+            Home(),
+            MessageCenter(),
+            PreferenceCenter(),
+            Settings()
+          ],
+          controller: controller,
+        ),
+        bottomNavigationBar: bottomNavigationBar(),
       ),
     );
   }
