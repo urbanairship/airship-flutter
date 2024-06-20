@@ -1,13 +1,5 @@
 # Flutter Plugin Changelog
 
-## Version 7.5.0 - June 20, 2024
-Patch release that updates iOS SDK to 18.4.0 and updates the airship mobile framework proxy to 6.3.0 which includes a fix for event management. 
-
-### Changes
-- Updated iOS SDK to 18.4.0
-- Updated airship-mobile-framework-proxy to 6.3.0
-- Fixed Event Emitter bug
-
 ## Version 7.4.0 - May 16, 2024
 Minor release that updates the Android SDK to 17.8.1 and iOS SDK to 18.2.2
 
