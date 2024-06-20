@@ -6,7 +6,7 @@ buildscript {
     ext.coroutine_version = '1.5.2'
     ext.datastore_preferences_version = '1.0.0'
     ext.airship_version = '17.8.1'
-    ext.airship_framework_proxy_version = '6.2.2'
+    ext.airship_framework_proxy_version = '6.3.0'
 
     repositories {
         google()
