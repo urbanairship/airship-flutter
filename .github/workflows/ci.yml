@@ -5,7 +5,7 @@ on: [pull_request]
 env:
   DEVELOPER_DIR: /Applications/Xcode_15.3.app/Contents/Developer
   FLUTTER_VERSION: 3.0.2
-  JAVA_VERSION: "12.x"
+  JAVA_VERSION: "17.x"
   JAVA_DISTRIBUTION: 'zulu'
   ANDROID_SDK_ROOT: ${{ github.workspace }}/android-sdk
 
