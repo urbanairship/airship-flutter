@@ -8,7 +8,7 @@ Minor release that updates iOS SDK to 18.4.0, updates Android compileSDKVersion 
 - Updated airship-mobile-framework-proxy to 6.3.0
 - Fixed Event Emitter bug
 - Updated Android compileSDKVersion from 33 to 34 and set source and target compatibility to Java 17
-- Updated Android example build configration to removed warnings
+- Updated Android example build configration
 - Improved example UI
 
 ## Version 7.4.0 - May 16, 2024
