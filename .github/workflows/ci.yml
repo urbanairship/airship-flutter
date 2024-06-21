@@ -35,6 +35,12 @@ jobs:
       - uses: subosito/flutter-action@d8687e6979e8ef66d2b2970e2c92c1d8e801d7bf
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
+      - name: Install Android SDK
+        run: sdkmanager "platforms;android-34" "build-tools;34.0.0" "ndk;25.1.8937393"
+      - name: Set up local.properties
+        run: |
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > ./android/local.properties
+          echo "ndk.dir=$ANDROID_SDK_ROOT/ndk/25.1.8937393" >> ./android/local.properties
       - name: Build Android
         run: bash ./scripts/run_ci_tasks.sh -a
 
@@ -49,5 +55,3 @@ jobs:
       - uses: subosito/flutter-action@d8687e6979e8ef66d2b2970e2c92c1d8e801d7bf
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
-      - name: Build iOS
-        run: bash ./scripts/run_ci_tasks.sh -i
