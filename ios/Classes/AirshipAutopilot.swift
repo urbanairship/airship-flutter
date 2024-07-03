@@ -32,7 +32,8 @@ extension AirshipAutopilot: AirshipProxyDelegate {
             defaultEnvironment: ProxyConfig.Environment(
                 logLevel: nil,
                 appKey: appKey,
-                appSecret: appSecret
+                appSecret: appSecret, 
+                ios: nil
             )
         )
 
