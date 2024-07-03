@@ -2,6 +2,7 @@ package com.airship.flutter
 
 import android.app.Activity
 import android.content.Context
+import android.os.Build
 import com.urbanairship.actions.ActionResult
 import com.urbanairship.android.framework.proxy.EventType
 import com.urbanairship.android.framework.proxy.events.EventEmitter
@@ -36,7 +37,12 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     companion object {
         @JvmStatic
-        fun registerWith(registrar: Registrar) {
+        fun registerWith(
+            // Registrar is deprecated, but still recommended in case consumers don't use v2 embedding
+            // See: https://docs.flutter.dev/release/breaking-changes/plugin-api-migration#upgrade-steps
+            @Suppress("DEPRECATION")
+            registrar: Registrar
+        ) {
             val plugin = AirshipPlugin()
             plugin.register(registrar.context().applicationContext, registrar.messenger(), registrar.platformViewRegistry())
         }
@@ -147,11 +153,23 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             "push#enableUserNotifications" -> result.resolvePending(call) { proxy.push.enableUserPushNotifications() }
             "push#isUserNotificationsEnabled" -> result.resolveResult(call) { proxy.push.isUserNotificationsEnabled() }
             "push#getNotificationStatus" -> result.resolveResult(call) { proxy.push.getNotificationStatus() }
-            "push#getActiveNotifications" -> result.resolveResult(call) { proxy.push.getActiveNotifications() }
+            "push#getActiveNotifications" -> result.resolveResult(call) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    proxy.push.getActiveNotifications()
+                } else {
+                    emptyList()
+                }
+            }
             "push#clearNotification" -> result.resolveResult(call) { proxy.push.clearNotification(call.stringArg()) }
             "push#clearNotifications" -> result.resolveResult(call) { proxy.push.clearNotifications() }
             "push#getRegistrationToken" -> result.resolveResult(call) { proxy.push.getRegistrationToken() }
-            "push#android#isNotificationChannelEnabled" -> result.resolveResult(call) { proxy.push.isNotificationChannelEnabled(call.stringArg()) }
+            "push#android#isNotificationChannelEnabled" -> result.resolveResult(call) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    proxy.push.isNotificationChannelEnabled(call.stringArg())
+                } else {
+                    false
+                }
+            }
             "push#android#setNotificationConfig" -> result.resolveResult(call) { proxy.push.setNotificationConfig(call.jsonArgs()) }
 
             // In-App
