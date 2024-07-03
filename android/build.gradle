@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 group 'com.airship.airship'
 version '1.0-SNAPSHOT'
 
@@ -15,7 +17,7 @@ buildscript {
 
     dependencies {
         classpath 'org.yaml:snakeyaml:1.17'
-        classpath 'com.android.tools.build:gradle:7.3.1'
+        classpath 'com.android.tools.build:gradle:7.4.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -32,7 +34,6 @@ apply plugin: 'kotlin-android'
 
 android {
     compileSdk 34
-    compileSdkVersion 34
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
