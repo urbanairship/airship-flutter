@@ -14,7 +14,7 @@ import io.flutter.plugin.platform.PlatformView
 
 class FlutterInboxMessageView(private var context: Context, channel: MethodChannel) : PlatformView, MethodChannel.MethodCallHandler {
 
-    lateinit private var webviewResult: MethodChannel.Result
+    private lateinit var webviewResult: MethodChannel.Result
 
     private val webView: MessageWebView by lazy {
         val view = MessageWebView(context)
@@ -34,6 +34,7 @@ class FlutterInboxMessageView(private var context: Context, channel: MethodChann
                 channel.invokeMethod("onClose", null)
             }
 
+            @Deprecated("Deprecated in Java")
             override fun onReceivedError(view: WebView?, errorCode: Int, description: String?, failingUrl: String?) {
                 super.onReceivedError(view, errorCode, description, failingUrl)
                 if (errorCode == 410) {

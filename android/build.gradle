@@ -2,11 +2,11 @@ group 'com.airship.airship'
 version '1.0-SNAPSHOT'
 
 buildscript {  
-    ext.kotlin_version = '1.7.10'
+    ext.kotlin_version = '1.9.0'
     ext.coroutine_version = '1.5.2'
-    ext.datastore_preferences_version = '1.0.0'
-    ext.airship_version = '17.8.1'
-    ext.airship_framework_proxy_version = '6.3.1'
+    ext.datastore_preferences_version = '1.1.1'
+    ext.airship_version = '18.1.1'
+    ext.airship_framework_proxy_version = '7.0.0'
 
     repositories {
         google()
@@ -15,7 +15,7 @@ buildscript {
 
     dependencies {
         classpath 'org.yaml:snakeyaml:1.17'
-        classpath 'com.android.tools.build:gradle:7.0.4'
+        classpath 'com.android.tools.build:gradle:7.3.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -60,7 +60,6 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutine_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutine_version"
     implementation "com.urbanairship.android:urbanairship-fcm:$airship_version"
