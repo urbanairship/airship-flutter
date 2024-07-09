@@ -13,8 +13,8 @@ allprojects {
 
 rootProject.getLayout().getBuildDirectory().set(file("../build"))
 subprojects {
-    def buildDir = rootProject.getLayout().getBuildDirectory()
-    project.getLayout().getBuildDirectory().set(file("$buildDir/${project.name}"))
+    def rootBuildDir = rootProject.getLayout().getBuildDirectory().get().asFile
+    project.getLayout().getBuildDirectory().set(file("$rootBuildDir/${project.name}"))
 }
 subprojects {
     project.evaluationDependsOn(':app')
