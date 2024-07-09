@@ -1,6 +1,6 @@
 # Flutter Plugin Changelog
 
-## Version 7.6.0 - July 3, 2024
+## Version 7.6.0 - July 9, 2024
 Minor release that updates the Android SDK to 18.1.1 and the iOS SDK to 18.5.0.
 
 ### Changes
