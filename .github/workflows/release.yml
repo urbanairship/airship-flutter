@@ -7,7 +7,7 @@ on:
 
 env:
   DEVELOPER_DIR: /Applications/Xcode_15.3.app/Contents/Developer
-  FLUTTER_VERSION: 3.0.2
+  FLUTTER_VERSION: 3.22.0
   JAVA_VERSION: "17.x"
   JAVA_DISTRIBUTION: 'zulu'
 
@@ -21,7 +21,7 @@ jobs:
         with:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
           java-version: ${{ env.JAVA_VERSION }}
-      - uses: subosito/flutter-action@d8687e6979e8ef66d2b2970e2c92c1d8e801d7bf
+      - uses: subosito/flutter-action@44ac965b96f18d999802d4b807e3256d5a3f9fa1
         with:
           flutter-version: ${{env.FLUTTER_VERSION}}
       - name: Run CI
@@ -55,7 +55,7 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
 
       - name: Flutter action
-        uses: subosito/flutter-action@d8687e6979e8ef66d2b2970e2c92c1d8e801d7bf
+        uses: subosito/flutter-action@44ac965b96f18d999802d4b807e3256d5a3f9fa1
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
       - run: flutter pub get
@@ -112,7 +112,7 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
 
       - name: Flutter action
-        uses: subosito/flutter-action@d8687e6979e8ef66d2b2970e2c92c1d8e801d7bf
+        uses: subosito/flutter-action@44ac965b96f18d999802d4b807e3256d5a3f9fa1
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
 
