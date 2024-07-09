@@ -86,9 +86,6 @@ class AirshipUtils {
         case "notification_center":
           settings.add(IOSAuthorizedNotificationSetting.notificationCenter);
           break;
-        case "notification_center":
-          settings.add(IOSAuthorizedNotificationSetting.notificationCenter);
-          break;
         case "critical_alert":
           settings.add(IOSAuthorizedNotificationSetting.criticalAlert);
           break;

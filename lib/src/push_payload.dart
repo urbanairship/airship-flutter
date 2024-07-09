@@ -1,4 +1,3 @@
-
 /// Push object.
 class PushPayload {
   /// The notification ID.
@@ -24,9 +23,11 @@ class PushPayload {
     var alert = json["alert"];
     var title = json["title"];
     var subtitle = json["subtitle"];
-    var extras;
+    Map<String, dynamic> extras;
     if (json["extras"] != null) {
       extras = Map<String, dynamic>.from(json["extras"]);
+    } else {
+      extras = {};
     }
     return PushPayload._internal(
         notificationId, alert, title, subtitle, extras);

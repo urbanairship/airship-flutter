@@ -169,7 +169,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
         ),
         switchTheme: SwitchThemeData(
           trackColor:
-              MaterialStateProperty.all(Styles.airshipBlue), // Set track color
+              WidgetStateProperty.all(Styles.airshipBlue), // Set track color
         ),
       ),
       initialRoute: "/",
@@ -216,8 +216,8 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   }
 
   Widget tabBarView() {
-    return WillPopScope(
-      onWillPop: null,
+    return PopScope(
+      onPopInvoked: null,
       child: Scaffold(
         backgroundColor: Styles.borders,
         body: TabBarView(

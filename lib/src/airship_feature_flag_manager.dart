@@ -46,7 +46,7 @@ class FeatureFlag {
     var isEligible = json[IS_ELIGIBLE];
     var exists = json[EXISTS];
 
-    var variables;
+    Map<String, dynamic>? variables;
     if (json[VARIABLES] != null) {
       variables = Map<String, dynamic>.from(json[VARIABLES]);
     }

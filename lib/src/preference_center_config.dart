@@ -7,9 +7,7 @@ Map<String, dynamic> _toMap(dynamic json) {
 
 List<Map<String, dynamic>> _toList(List<dynamic> json) {
   List<Map<String, dynamic>> list = [];
-  json.forEach((element) => {
-    list.add(_toMap(element))
-  });
+  json.forEach((element) => list.add(_toMap(element)));
   return list;
 }
 
