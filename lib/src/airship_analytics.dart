@@ -5,7 +5,7 @@ class AirshipAnalytics {
 
   final AirshipModule _module;
 
-  AirshipAnalytics(AirshipModule module) : this._module = module;
+  AirshipAnalytics(AirshipModule module) : _module = module;
 
   /// Initiates [screen] tracking for a specific app screen. Must be called once per tracked screen.
   Future<void> trackScreen(String screen) async {

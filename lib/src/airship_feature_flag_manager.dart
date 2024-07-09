@@ -6,7 +6,7 @@ class AirshipFeatureFlagManager {
 
   final AirshipModule _module;
 
-  AirshipFeatureFlagManager(AirshipModule module) : this._module = module;
+  AirshipFeatureFlagManager(AirshipModule module) : _module = module;
 
   /// Gets and evaluates a feature flag with the given [name].
   Future<FeatureFlag> flag(String name) async {

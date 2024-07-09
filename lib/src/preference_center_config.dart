@@ -7,7 +7,9 @@ Map<String, dynamic> _toMap(dynamic json) {
 
 List<Map<String, dynamic>> _toList(List<dynamic> json) {
   List<Map<String, dynamic>> list = [];
-  json.forEach((element) => list.add(_toMap(element)));
+  for (var element in json) {
+    list.add(_toMap(element));
+  }
   return list;
 }
 
@@ -45,7 +47,7 @@ class PreferenceCenterConfig {
   }
 
   PreferenceCenterConfig copy(List<PreferenceCenterSection> sections) {
-    return PreferenceCenterConfig._internal(this.identifier, this.display, sections);
+    return PreferenceCenterConfig._internal(identifier, display, sections);
   }
 
   @override
@@ -83,7 +85,7 @@ abstract class PreferenceCenterCondition {
       case "notification_opt_in":
         return PreferenceCenterNotificationOptInCondition._fromJson(_toMap(json));
     }
-    throw Exception("Invalid condition: " + type);
+    throw Exception("Invalid condition: $type");
   }
 
   bool evaluate(PreferenceCenterConditionState state);
@@ -96,6 +98,7 @@ enum PreferenceCenterConditionOptIn { optIn, optOut }
 class PreferenceCenterNotificationOptInCondition
     implements PreferenceCenterCondition {
   /// The condition type.
+  @override
   final PreferenceCenterConditionType type =
       PreferenceCenterConditionType.notificationOptIn;
 
@@ -115,7 +118,7 @@ class PreferenceCenterNotificationOptInCondition
         whenStatus = PreferenceCenterConditionOptIn.optOut;
         break;
       default:
-        throw new Exception("Invalid status: " + json["when_status"]);
+        throw Exception("Invalid status: ${json["when_status"]}");
     }
 
     return PreferenceCenterNotificationOptInCondition._internal(whenStatus);
@@ -158,9 +161,11 @@ class PreferenceCenterCommonDisplay {
 /// Preference center common display information with icon.
 class PreferenceCenterIconDisplay implements PreferenceCenterCommonDisplay {
   /// The display title.
+  @override
   final String? title;
 
   /// The display subtitle.
+  @override
   final String? subtitle;
 
   /// The display icon.
@@ -216,7 +221,7 @@ abstract class PreferenceCenterSection {
       case "labeled_section_break":
         return PreferenceCenterLabeledSectionBreak._fromJson(_toMap(json));
     }
-    throw new Exception("Invalid section: " + type);
+    throw Exception("Invalid section: $type");
   }
 }
 
@@ -256,8 +261,7 @@ class PreferenceCenterCommonSection implements PreferenceCenterSection {
 
   @override
   PreferenceCenterCommonSection copy(List<PreferenceCenterItem>? items) {
-    return PreferenceCenterCommonSection._internal(
-        this.display, items, this.conditions);
+    return PreferenceCenterCommonSection._internal(display, items, conditions);
   }
 
   static PreferenceCenterCommonSection _fromJson(Map<String, dynamic> json) {
@@ -300,8 +304,7 @@ class PreferenceCenterLabeledSectionBreak implements PreferenceCenterSection {
 
   @override
   PreferenceCenterLabeledSectionBreak copy(List<PreferenceCenterItem>? items) {
-    return PreferenceCenterLabeledSectionBreak._internal(
-        this.display, this.conditions);
+    return PreferenceCenterLabeledSectionBreak._internal(display, conditions);
   }
 
   @override
@@ -382,7 +385,7 @@ abstract class PreferenceCenterItem {
       case "alert":
         return PreferenceCenterAlertItem._fromJson(_toMap(json));
     }
-    throw new Exception("Invalid item: " + type);
+    throw Exception("Invalid item: $type");
   }
 }
 

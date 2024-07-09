@@ -6,7 +6,7 @@ class AirshipMessageCenter {
 
   final AirshipModule _module;
 
-  AirshipMessageCenter(AirshipModule module) : this._module = module;
+  AirshipMessageCenter(AirshipModule module) : _module = module;
 
   /// Gets the current inbox messages.
   Future<List<InboxMessage>> get messages async {

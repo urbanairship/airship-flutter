@@ -5,7 +5,7 @@ class AirshipLocale {
 
   final AirshipModule _module;
 
-  AirshipLocale(AirshipModule module) : this._module = module;
+  AirshipLocale(AirshipModule module) : _module = module;
 
   /// Sets the locale override
   Future<void> setLocaleOverride(String localeIdentifier) async {

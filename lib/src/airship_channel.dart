@@ -8,7 +8,7 @@ import 'airship_events.dart';
 class AirshipChannel {
   final AirshipModule _module;
 
-  AirshipChannel(AirshipModule module) : this._module = module;
+  AirshipChannel(AirshipModule module) : _module = module;
 
   /// Gets the channel ID.
   Future<String?> get identifier async {

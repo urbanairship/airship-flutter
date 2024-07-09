@@ -4,7 +4,7 @@ class AirshipInApp {
 
   final AirshipModule _module;
 
-  AirshipInApp(AirshipModule module) : this._module = module;
+  AirshipInApp(AirshipModule module) : _module = module;
 
   /// Pauses or unpauses in-app automation.
   Future<void> setPaused(bool paused) async {

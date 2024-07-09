@@ -16,10 +16,9 @@ class AirshipPush {
   final AndroidPush android;
 
   AirshipPush(AirshipModule module)
-      :
-        this._module = module,
-        this.iOS = IOSPush(module),
-        this.android = AndroidPush(module);
+      : _module = module,
+        iOS = IOSPush(module),
+        android = AndroidPush(module);
 
   /// Tells if user notifications are enabled or not.
   Future<bool> get isUserNotificationsEnabled async {
@@ -110,7 +109,7 @@ class AndroidPush {
   static bool _isBackgroundHandlerSet = false;
 
   AndroidPush(AirshipModule module)
-      : this._module = module;
+      : _module = module;
 
   /// Sets a background message handler.
   Future<void> setBackgroundPushReceivedHandler(
@@ -168,7 +167,7 @@ class IOSPush {
   final AirshipModule _module;
 
   IOSPush(AirshipModule module)
-      : this._module = module;
+      : _module = module;
 
   /// Checks if auto-badging is enabled on iOS. Badging is not supported for Android.
   Future<bool> isAutoBadgeEnabled() async {
@@ -188,7 +187,7 @@ class IOSPush {
     }
 
     var strings = <String>[];
-    options.forEach((element) {
+    for (var element in options) {
       switch (element) {
         case IOSNotificationOption.alert:
           strings.add("alert");
@@ -212,7 +211,7 @@ class IOSPush {
           strings.add("provisional");
           break;
       }
-    });
+    }
 
     return await _module.channel.invokeMethod(
         'push#ios#setNotificationOptions', strings);
@@ -226,7 +225,7 @@ class IOSPush {
     }
 
     var strings = <String>[];
-    options.forEach((element) {
+    for (var element in options) {
       switch (element) {
         case IOSForegroundPresentationOption.sound:
           strings.add("sound");
@@ -241,7 +240,7 @@ class IOSPush {
           strings.add("banner");
           break;
       }
-    });
+    }
 
     return await _module.channel.invokeMethod(
         'push#ios#setForegroundPresentationOptions', strings);

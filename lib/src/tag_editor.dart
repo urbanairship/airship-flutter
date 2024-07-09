@@ -18,9 +18,9 @@ class TagEditor {
   final List<Map<String, dynamic>> _operations;
 
   TagEditor(String methodName, MethodChannel channel)
-      : this._methodName = methodName,
-        this._operations = [],
-        this._channel = channel;
+      : _methodName = methodName,
+        _operations = [],
+        _channel = channel;
 
   /// Adds [tags] to the channel.
   void addTags(List<String> tags) {
