@@ -6,7 +6,7 @@ class AirshipPrivacyManager {
 
   final AirshipModule _module;
 
-  AirshipPrivacyManager(AirshipModule module) : this._module = module;
+  AirshipPrivacyManager(AirshipModule module) : _module = module;
 
   /// Enables one or many [features].
   Future<void> enableFeatures(List<Feature> features) async {

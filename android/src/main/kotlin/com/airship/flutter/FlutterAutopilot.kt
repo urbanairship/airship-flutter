@@ -11,6 +11,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.airship.flutter.AirshipBackgroundExecutor.Companion.handleBackgroundMessage
 import com.urbanairship.UAirship
 import com.urbanairship.analytics.Analytics
+import com.urbanairship.analytics.Extension
 import com.urbanairship.android.framework.proxy.BaseAutopilot
 import com.urbanairship.android.framework.proxy.EventType
 import com.urbanairship.android.framework.proxy.ProxyConfig
@@ -47,7 +48,7 @@ class FlutterAutopilot : BaseAutopilot() {
             }
         }
 
-        airship.analytics.registerSDKExtension(Analytics.EXTENSION_FLUTTER, AirshipPluginVersion.AIRSHIP_PLUGIN_VERSION);
+        airship.analytics.registerSDKExtension(Extension.FLUTTER, AirshipPluginVersion.AIRSHIP_PLUGIN_VERSION);
     }
 
     override fun onMigrateData(context: Context, proxyStore: ProxyStore) {

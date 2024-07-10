@@ -14,9 +14,9 @@ class SubscriptionListEditor {
   final List<Map<String, dynamic>> _operations;
 
   SubscriptionListEditor(String methodName, MethodChannel channel)
-      : this._methodName = methodName,
-        this._operations = [],
-        this._channel = channel;
+      : _methodName = methodName,
+        _operations = [],
+        _channel = channel;
 
   
   /// Subscribes to a list

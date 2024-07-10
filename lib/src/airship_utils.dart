@@ -5,7 +5,7 @@ import "ios_push_options.dart";
 class AirshipUtils {
   static List<Feature> parseFeatures(List<String> strings) {
     var features = <Feature>[];
-    strings.forEach((element) {
+    for (var element in strings) {
       switch (element) {
         case "push": features.add(Feature.push); break;
         case "analytics": features.add(Feature.analytics); break;
@@ -15,13 +15,13 @@ class AirshipUtils {
         case "contacts": features.add(Feature.contacts); break;
         default: print("Invalid feature: $element");
       }
-    });
+    }
     return features;
   }
 
   static List<String> toFeatureStringList(List<Feature> features) {
     var strings = <String>[];
-    features.forEach((element) {
+    for (var element in features) {
       switch (element) {
         case Feature.push: strings.add("push"); break;
         case Feature.analytics: strings.add("analytics"); break;
@@ -30,7 +30,7 @@ class AirshipUtils {
         case Feature.messageCenter: strings.add("message_center"); break;
         case Feature.contacts: strings.add("contacts"); break;
       }
-    });
+    }
     return strings;
   }
 
@@ -45,7 +45,7 @@ class AirshipUtils {
       case "sms":
         return ChannelScope.sms;
       default:
-        throw new ArgumentError("Invalid scope: $scope");
+        throw ArgumentError("Invalid scope: $scope");
     }
   }
 
@@ -60,13 +60,13 @@ class AirshipUtils {
       case ChannelScope.sms:
         return "sms";
       default:
-        throw new ArgumentError("Invalid scope: ${scope.name}");
+        throw ArgumentError("Invalid scope: ${scope.name}");
     }
   }
 
   static List<IOSAuthorizedNotificationSetting> parseIOSAuthorizedSettings(List<String> strings) {
     var settings = <IOSAuthorizedNotificationSetting>[];
-    strings.forEach((element) {
+    for (var element in strings) {
       switch (element) {
         case "alert":
           settings.add(IOSAuthorizedNotificationSetting.alert);
@@ -82,9 +82,6 @@ class AirshipUtils {
           break;
         case "car_play":
           settings.add(IOSAuthorizedNotificationSetting.carPlay);
-          break;
-        case "notification_center":
-          settings.add(IOSAuthorizedNotificationSetting.notificationCenter);
           break;
         case "notification_center":
           settings.add(IOSAuthorizedNotificationSetting.notificationCenter);
@@ -105,8 +102,7 @@ class AirshipUtils {
           print("Invalid setting: $element");
           break;
       }
-    });
-
+    }
     return settings;
   }
 

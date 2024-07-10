@@ -15,6 +15,7 @@ const String home_deep_link = "home";
 const String message_center_deep_link = "message_center";
 const String settings_deep_link = "settings";
 
+@pragma('vm:entry-point')
 Future<void> backgroundMessageHandler(PushReceivedEvent event) async {
   debugPrint("Background Push Received $event");
 }
@@ -27,9 +28,12 @@ void main() {
   ]);
 
   var config = AirshipConfig(
-      defaultEnvironment: ConfigEnvironment(
-          appKey: "APP_KEY",
-          appSecret: "APP_SECRET"));
+    defaultEnvironment: ConfigEnvironment(
+        appKey: "APP_KEY",
+        appSecret: "APP_SECRET",
+        logLevel: LogLevel.verbose,
+        ios: IOSEnvironment(logPrivacyLevel: AirshipLogPrivacyLevel.public)),
+  );
 
   Airship.takeOff(config);
   Airship.push.android
@@ -69,13 +73,11 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   }
 
   static void trackFeatureFlagInteraction() {
-    Airship.featureFlagManager.flag("rad_flag")
-      .then((flag) {
-        Airship.featureFlagManager.trackInteraction(flag);
-      })
-      .catchError((e) {
-        debugPrint('Error: $e');
-      });
+    Airship.featureFlagManager.flag("rad_flag").then((flag) {
+      Airship.featureFlagManager.trackInteraction(flag);
+    }).catchError((e) {
+      debugPrint('Error: $e');
+    });
   }
 
   static void addFlutterTag() {
@@ -168,7 +170,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
         ),
         switchTheme: SwitchThemeData(
           trackColor:
-              MaterialStateProperty.all(Styles.airshipBlue), // Set track color
+              WidgetStateProperty.all(Styles.airshipBlue), // Set track color
         ),
       ),
       initialRoute: "/",
@@ -215,8 +217,8 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   }
 
   Widget tabBarView() {
-    return WillPopScope(
-      onWillPop: null,
+    return PopScope(
+      onPopInvoked: null,
       child: Scaffold(
         backgroundColor: Styles.borders,
         body: TabBarView(

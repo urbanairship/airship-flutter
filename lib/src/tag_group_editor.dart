@@ -20,9 +20,9 @@ class TagGroupEditor {
   final List<Map<String, dynamic>> _operations;
 
   TagGroupEditor(String methodName, MethodChannel channel)
-      : this._methodName = methodName,
-        this._operations = [],
-        this._channel = channel;
+      : _methodName = methodName,
+        _operations = [],
+        _channel = channel;
 
   /// Adds [tags] to a [group].
   void addTags(String group, List<String> tags) {

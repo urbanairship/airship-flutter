@@ -98,18 +98,36 @@ class ConfigEnvironment {
   final String appKey;
   final String appSecret;
   final LogLevel? logLevel;
+  final IOSEnvironment? ios;
 
-  ConfigEnvironment({required this.appKey, required this.appSecret, this.logLevel});
+  ConfigEnvironment({required this.appKey, required this.appSecret, this.logLevel, this.ios});
 
   Map<String, dynamic> _toJson() {
     return {
       "appKey": appKey,
       "appSecret": appSecret,
-      "logLevel": logLevel?.name
+      "logLevel": logLevel?.name,
+      "ios": ios?._toJson()
     };
   }
 }
 
+class IOSEnvironment {
+  final AirshipLogPrivacyLevel? logPrivacyLevel;
+
+  IOSEnvironment({this.logPrivacyLevel});
+
+  Map<String, dynamic> _toJson() {
+    return {
+      "logPrivacyLevel": logPrivacyLevel?.name
+    };
+  }
+}
+
+enum AirshipLogPrivacyLevel {
+  private,
+  public
+}
 
 enum LogLevel {
   verbose,

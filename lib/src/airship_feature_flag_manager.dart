@@ -6,7 +6,7 @@ class AirshipFeatureFlagManager {
 
   final AirshipModule _module;
 
-  AirshipFeatureFlagManager(AirshipModule module) : this._module = module;
+  AirshipFeatureFlagManager(AirshipModule module) : _module = module;
 
   /// Gets and evaluates a feature flag with the given [name].
   Future<FeatureFlag> flag(String name) async {
@@ -46,7 +46,7 @@ class FeatureFlag {
     var isEligible = json[IS_ELIGIBLE];
     var exists = json[EXISTS];
 
-    var variables;
+    Map<String, dynamic>? variables;
     if (json[VARIABLES] != null) {
       variables = Map<String, dynamic>.from(json[VARIABLES]);
     }

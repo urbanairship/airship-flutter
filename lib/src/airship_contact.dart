@@ -9,7 +9,7 @@ class AirshipContact {
 
   final AirshipModule _module;
 
-  AirshipContact(AirshipModule module) : this._module = module;
+  AirshipContact(AirshipModule module) : _module = module;
 
   /// Gets the contacts subscription lists.
   Future<Map<String, List<ChannelScope>>> get subscriptionLists async {
@@ -19,9 +19,9 @@ class AirshipContact {
     payload.forEach((key, value) {
       List<String> parsedValue = List<String>.from(value);
       List<ChannelScope> scopeList = <ChannelScope>[];
-      parsedValue.forEach((scopeString) {
+      for (var scopeString in parsedValue) {
         scopeList.add(AirshipUtils.parseChannelScope(scopeString));
-      });
+      }
       payload[key] = scopeList;
     });
     return Map<String, List<ChannelScope>>.from(payload);

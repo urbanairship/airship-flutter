@@ -6,7 +6,7 @@ class AirshipPreferenceCenter {
 
   final AirshipModule _module;
 
-  AirshipPreferenceCenter(AirshipModule module) : this._module = module;
+  AirshipPreferenceCenter(AirshipModule module) : _module = module;
   
   /// Returns the configuration of the Preference Center with the given [preferenceCenterID].
   Future<PreferenceCenterConfig?> getConfig(String preferenceCenterID) async {

@@ -1,7 +1,6 @@
 import 'package:flutter/services.dart';
 
 class AirshipModule {
-
   static final AirshipModule singleton = AirshipModule._internal();
 
   factory AirshipModule() {
@@ -10,11 +9,13 @@ class AirshipModule {
 
   AirshipModule._internal();
 
-  final Map<String, EventChannel> _eventChannels = new Map();
-  final Map<String, Stream<dynamic>> _eventStreams = new Map();
+  final Map<String, EventChannel> _eventChannels = {};
+  final Map<String, Stream<dynamic>> _eventStreams = {};
 
-  final MethodChannel channel = const MethodChannel('com.airship.flutter/airship');
-  final MethodChannel backgroundChannel = const MethodChannel('com.airship.flutter/airship_background');
+  final MethodChannel channel =
+      const MethodChannel('com.airship.flutter/airship');
+  final MethodChannel backgroundChannel =
+      const MethodChannel('com.airship.flutter/airship_background');
 
   Stream<dynamic> getEventStream(String name) {
     if (_eventChannels[name] == null) {

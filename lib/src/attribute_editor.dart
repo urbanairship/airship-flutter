@@ -18,10 +18,8 @@ class AttributeEditor {
   /// The attribute operation list.
   final List<Map<String, dynamic>> operations;
 
-  AttributeEditor(String type, MethodChannel channel)
-      : this.type = type,
-        this.operations = [],
-        this.channel = channel;
+  AttributeEditor(this.type, this.channel)
+      : operations = [];
 
   /// Removes an attribute.
   void removeAttribute(String name) {

@@ -34,10 +34,9 @@ class InboxMessageView extends StatelessWidget {
       this.onClose});
 
   Future<void> onPlatformViewCreated(id) async {
-    MethodChannel _channel =
-        new MethodChannel('com.airship.flutter/InboxMessageView_$id');
-    _channel.setMethodCallHandler(methodCallHandler);
-    _channel.invokeMethod('loadMessage', messageId).catchError((error) {
+    var channel = MethodChannel('com.airship.flutter/InboxMessageView_$id');
+    channel.setMethodCallHandler(methodCallHandler);
+    channel.invokeMethod('loadMessage', messageId).catchError((error) {
       if (onLoadError != null) {
         onLoadError!(error);
       }
@@ -78,8 +77,7 @@ class InboxMessageView extends StatelessWidget {
       );
     }
 
-    return new Text(
-        '$defaultTargetPlatform is not yet supported by this plugin');
+    return Text('$defaultTargetPlatform is not yet supported by this plugin');
   }
 
   Widget getAndroidView() {
