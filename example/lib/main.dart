@@ -28,9 +28,11 @@ void main() {
   ]);
 
   var config = AirshipConfig(
-      defaultEnvironment: ConfigEnvironment(
-          appKey: "APP_KEY",
-          appSecret: "APP_SECRET"));
+    defaultEnvironment: ConfigEnvironment(
+        appKey: "APP_KEY",
+        appSecret: "APP_SECRET",
+        ios: IOSEnvironment(logPrivacyLevel: LogPrivacyLevel.public)),
+  );
 
   Airship.takeOff(config);
   Airship.push.android
@@ -70,13 +72,11 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   }
 
   static void trackFeatureFlagInteraction() {
-    Airship.featureFlagManager.flag("rad_flag")
-      .then((flag) {
-        Airship.featureFlagManager.trackInteraction(flag);
-      })
-      .catchError((e) {
-        debugPrint('Error: $e');
-      });
+    Airship.featureFlagManager.flag("rad_flag").then((flag) {
+      Airship.featureFlagManager.trackInteraction(flag);
+    }).catchError((e) {
+      debugPrint('Error: $e');
+    });
   }
 
   static void addFlutterTag() {
