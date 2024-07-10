@@ -1,6 +1,6 @@
 # Flutter Plugin Changelog
 
-## Version 7.6.0 - July 9, 2024
+## Version 7.6.0 - July 10, 2024
 Minor release that updates the Android SDK to 18.1.1 and the iOS SDK to 18.5.0.
 
 ### Changes
@@ -8,6 +8,7 @@ Minor release that updates the Android SDK to 18.1.1 and the iOS SDK to 18.5.0.
 - Updated iOS SDK to 18.5.0
 - Updated airship-mobile-framework-proxy to 7.0.0
 - Updated Kotlin version to 1.9.0
+- Added support for configuring log privacy level on iOS
 
 ## Version 7.5.0 - June 20, 2024
 Minor release that updates iOS SDK to 18.4.1, updates Android compileSDKVersion from 33 to 34, sets Android source and target compatibility to Java 17, updates android example build configuration, improves example UI, and updates the airship mobile framework proxy to 6.3.1 which includes a fix for event management.

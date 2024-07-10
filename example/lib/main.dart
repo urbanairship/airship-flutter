@@ -31,6 +31,7 @@ void main() {
     defaultEnvironment: ConfigEnvironment(
         appKey: "APP_KEY",
         appSecret: "APP_SECRET",
+        logLevel: LogLevel.verbose,
         ios: IOSEnvironment(logPrivacyLevel: LogPrivacyLevel.public)),
   );
 
