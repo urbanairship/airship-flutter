@@ -32,7 +32,7 @@ void main() {
         appKey: "APP_KEY",
         appSecret: "APP_SECRET",
         logLevel: LogLevel.verbose,
-        ios: IOSEnvironment(logPrivacyLevel: LogPrivacyLevel.public)),
+        ios: IOSEnvironment(logPrivacyLevel: AirshipLogPrivacyLevel.public)),
   );
 
   Airship.takeOff(config);

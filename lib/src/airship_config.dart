@@ -113,7 +113,7 @@ class ConfigEnvironment {
 }
 
 class IOSEnvironment {
-  final LogPrivacyLevel? logPrivacyLevel;
+  final AirshipLogPrivacyLevel? logPrivacyLevel;
 
   IOSEnvironment({this.logPrivacyLevel});
 
@@ -124,7 +124,7 @@ class IOSEnvironment {
   }
 }
 
-enum LogPrivacyLevel {
+enum AirshipLogPrivacyLevel {
   private,
   public
 }
