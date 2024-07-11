@@ -62,8 +62,8 @@ jobs:
 
       - name: Setup pub credentials
         run: |
-          mkdir -p ~/$PUB_CACHE
-          cat <<EOF > ~/$PUB_CACHE/credentials.json
+          mkdir -p $PUB_CACHE
+          cat <<EOF > $PUB_CACHE/credentials.json
           {
           "accessToken":"${{ secrets.OAUTH_ACCESS_TOKEN }}",
           "refreshToken":"${{ secrets.OAUTH_REFRESH_TOKEN }}",
