@@ -74,6 +74,7 @@ jobs:
           EOF
           mkdir -p ~/Library/Application\ Support/dart/
           cp ~/.pub-cache/credentials.json ~/Library/Application\ Support/dart/pub-credentials.json
+          cp ~/.pub-cache/credentials.json $PUB_CACHE/credentials.json || true
 
       - name: Publish Dart/Flutter package
         run: flutter pub publish -f
