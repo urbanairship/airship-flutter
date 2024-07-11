@@ -62,8 +62,8 @@ jobs:
 
       - name: Setup pub credentials
         run: |
-          mkdir -p $PUB_CACHE
-          cat <<EOF > $PUB_CACHE/credentials.json
+          mkdir -p ~/.pub-cache
+          cat <<EOF > ~/.pub-cache/credentials.json
           {
           "accessToken":"${{ secrets.OAUTH_ACCESS_TOKEN }}",
           "refreshToken":"${{ secrets.OAUTH_REFRESH_TOKEN }}",
@@ -72,6 +72,7 @@ jobs:
           "expiration": ${{secrets.OAUTH_EXPIRATION }}
           }
           EOF
+          cp ~/.pub-cache/credentials.json $PUB_CACHE/credentials.json || true
 
       - name: Publish Dart/Flutter package
         run: flutter pub publish -f
