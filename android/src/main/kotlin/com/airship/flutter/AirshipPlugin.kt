@@ -79,6 +79,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         this.streams = generateEventStreams(binaryMessenger)
 
         platformViewRegistry.registerViewFactory("com.airship.flutter/InboxMessageView", InboxMessageViewFactory(binaryMessenger))
+        platformViewRegistry.registerViewFactory("com.airship.flutter/EmbeddedView", EmbeddedViewFactory(binaryMessenger))
 
         scope.launch {
             EventEmitter.shared().pendingEventListener.collect {

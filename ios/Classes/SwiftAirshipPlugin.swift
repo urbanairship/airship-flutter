@@ -45,6 +45,8 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
         }
 
         registrar.register(AirshipInboxMessageViewFactory(registrar), withId: "com.airship.flutter/InboxMessageView")
+        registrar.register(AirshipEmbeddedViewFactory(registrar), withId: "com.airship.flutter/EmbeddedView")
+
         registrar.addApplicationDelegate(self)
 
         AirshipProxyEventEmitter.shared.pendingEventPublisher.sink { [weak self] (event: any AirshipProxyEvent) in
