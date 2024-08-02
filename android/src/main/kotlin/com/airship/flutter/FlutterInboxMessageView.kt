@@ -11,6 +11,10 @@ import com.urbanairship.messagecenter.webkit.MessageWebViewClient
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.platform.PlatformView
+import io.flutter.plugin.common.BinaryMessenger
+import io.flutter.plugin.common.StandardMessageCodec
+import io.flutter.plugin.platform.PlatformView
+import io.flutter.plugin.platform.PlatformViewFactory
 
 class FlutterInboxMessageView(private var context: Context, channel: MethodChannel) : PlatformView, MethodChannel.MethodCallHandler {
 
@@ -74,5 +78,14 @@ class FlutterInboxMessageView(private var context: Context, channel: MethodChann
         } else {
             result.error("InvalidMessage", "Unable to load message: ${call.arguments}", null)
         }
+    }
+}
+
+class InboxMessageViewFactory(private val binaryMessenger: BinaryMessenger) : PlatformViewFactory(StandardMessageCodec.INSTANCE) {
+    override fun create(context: Context?, viewId: Int, args: Any?): PlatformView {
+        val channel = MethodChannel(binaryMessenger, "com.airship.flutter/InboxMessageView_$viewId")
+        val view = FlutterInboxMessageView(checkNotNull(context), channel)
+        channel.setMethodCallHandler(view)
+        return view
     }
 }
