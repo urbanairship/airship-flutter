@@ -17,10 +17,10 @@ class EmbeddedView extends StatefulWidget {
   EmbeddedView({required this.embeddedId});
 
   @override
-  _EmbeddedViewState createState() => _EmbeddedViewState();
+  EmbeddedViewState createState() => EmbeddedViewState();
 }
 
-class _EmbeddedViewState extends State<EmbeddedView> {
+class EmbeddedViewState extends State<EmbeddedView> {
   late MethodChannel _channel;
 
   @override
