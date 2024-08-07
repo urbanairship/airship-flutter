@@ -86,7 +86,6 @@ struct FlutterAirshipEmbeddedView: View {
         } else {
             Text("Please set embeddedId")
         }
-        Text("Size: \(viewModel.width)x\(viewModel.height) pts")
     }
 
     @MainActor

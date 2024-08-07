@@ -83,7 +83,7 @@ class FlutterInboxMessageView(
     }
 }
 
-class InboxMessageViewFactor(
+class InboxMessageViewFactory(
     private val binaryMessenger: BinaryMessenger
 ) : PlatformViewFactory(StandardMessageCodec.INSTANCE) {
     override fun create(context: Context?, viewId: Int, args: Any?): PlatformView {
