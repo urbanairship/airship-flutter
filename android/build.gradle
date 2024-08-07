@@ -7,7 +7,6 @@ buildscript {
     ext.kotlin_version = '1.9.0'
     ext.coroutine_version = '1.5.2'
     ext.datastore_preferences_version = '1.1.1'
-    ext.airship_version = '18.1.5'
     ext.airship_framework_proxy_version = '7.1.1'
 
     repositories {
@@ -63,7 +62,6 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
 dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutine_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutine_version"
-    implementation "com.urbanairship.android:urbanairship-fcm:$airship_version"
     api "com.urbanairship.android:airship-framework-proxy:$airship_framework_proxy_version"
     implementation "androidx.datastore:datastore-preferences:$datastore_preferences_version"
 }
