@@ -15,9 +15,11 @@ export 'src/airship_privacy_manager.dart';
 export 'src/airship_push.dart';
 export 'src/airship_events.dart';
 export 'src/airship_feature_flag_manager.dart';
+export 'src/airship_embedded_view.dart';
 export 'src/push_notification_status.dart';
 export 'src/push_payload.dart';
 export 'src/ios_push_options.dart';
+
 
 export 'src/attribute_editor.dart';
 export 'src/channel_scope.dart';
