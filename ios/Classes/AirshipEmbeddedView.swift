@@ -2,8 +2,8 @@ import Foundation
 import AirshipKit
 import SwiftUI
 
-class AirshipEmbeddedViewFactory : NSObject, FlutterPlatformViewFactory {
-    let registrar : FlutterPluginRegistrar
+class AirshipEmbeddedViewFactory: NSObject, FlutterPlatformViewFactory {
+    let registrar: FlutterPluginRegistrar
 
     init(_ registrar: FlutterPluginRegistrar) {
         self.registrar = registrar
@@ -18,8 +18,7 @@ class AirshipEmbeddedViewFactory : NSObject, FlutterPlatformViewFactory {
     }
 }
 
-/// The Flutter wrapper for the Airship embedded view
-class AirshipEmbeddedViewWrapper : NSObject, FlutterPlatformView {
+class AirshipEmbeddedViewWrapper: NSObject, FlutterPlatformView {
     private static let embeddedIdKey: String = "embeddedId"
 
     @ObservedObject
@@ -27,7 +26,7 @@ class AirshipEmbeddedViewWrapper : NSObject, FlutterPlatformView {
 
     public var viewController: UIViewController?
 
-    let channel : FlutterMethodChannel
+    let channel: FlutterMethodChannel
     private var _view: UIView
 
     init(frame: CGRect, viewId: Int64, registrar: FlutterPluginRegistrar, args: Any?) {
@@ -53,14 +52,22 @@ class AirshipEmbeddedViewWrapper : NSObject, FlutterPlatformView {
 
             rootView.viewModel.size = frame.size
         }
+
+        channel.setMethodCallHandler { [weak self] (call: FlutterMethodCall, result: @escaping FlutterResult) in
+            self?.handle(call, result: result)
+        }
     }
 
-    public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) async {
+    public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
+        case "getSize":
+            let width = _view.bounds.width
+            let height = _view.bounds.height
+            result(["width": width, "height": height])
         default:
-            result(FlutterError(code:"UNAVAILABLE",
-                                message:"Unknown method: \(call.method)",
-                                details:nil))
+            result(FlutterError(code: "UNAVAILABLE",
+                                message: "Unknown method: \(call.method)",
+                                details: nil))
         }
     }
 
@@ -71,7 +78,7 @@ class AirshipEmbeddedViewWrapper : NSObject, FlutterPlatformView {
 
 struct FlutterAirshipEmbeddedView: View {
     @ObservedObject
-    var viewModel:ViewModel
+    var viewModel: ViewModel
 
     var body: some View {
         if let embeddedID = viewModel.embeddedID {
@@ -95,14 +102,14 @@ struct FlutterAirshipEmbeddedView: View {
 
         var height: CGFloat {
             guard let height = self.size?.height, height > 0 else {
-                return try! AirshipUtils.mainWindow()?.screen.bounds.height ?? 420
+                return (try? AirshipUtils.mainWindow()?.screen.bounds.height) ?? 420
             }
             return height
         }
 
         var width: CGFloat {
             guard let width = self.size?.width, width > 0 else {
-                return try! AirshipUtils.mainWindow()?.screen.bounds.width ?? 420
+                return (try? AirshipUtils.mainWindow()?.screen.bounds.width) ?? 420
             }
             return width
         }

@@ -23,11 +23,24 @@ class EmbeddedView extends StatefulWidget {
 class EmbeddedViewState extends State<EmbeddedView> {
   late MethodChannel _channel;
 
+  double _nativeViewWidth = 0;
+  double _nativeViewHeight = 0;
+
   @override
   void initState() {
     super.initState();
-    _channel = MethodChannel('com.airship.flutter/EmbeddedView_${widget.embeddedId}');
-    _channel.setMethodCallHandler(_methodCallHandler);
+  }
+
+  Future<void> _getNativeViewSize() async {
+    try {
+      final size = await _channel.invokeMethod<Map>('getSize');
+      setState(() {
+        _nativeViewWidth = size?['width'];
+        _nativeViewHeight = size?['height'];
+      });
+    } on PlatformException catch (e) {
+      print("Failed to get native view size: '${e.message}'.");
+    }
   }
 
   Future<void> _methodCallHandler(MethodCall call) async {
@@ -40,6 +53,7 @@ class EmbeddedViewState extends State<EmbeddedView> {
   Future<void> _onPlatformViewCreated(int id) async {
     _channel = MethodChannel('com.airship.flutter/EmbeddedView_$id');
     _channel.setMethodCallHandler(_methodCallHandler);
+    _getNativeViewSize();
   }
 
   /// Fall back to screen-sized constraints when constraints can be inferred
