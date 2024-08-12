@@ -1,6 +1,6 @@
 # Flutter Plugin Changelog
 
-## Version 7.7.0 - August 07, 2024
+## Version 7.7.0 - August 13, 2024
 Minor release that fixes test devices audience check, holdout group experiments displays and in-app experience displays when resuming from a paused state. Apps that use in-app experiences are encouraged to update.
 
 ### Changes
