@@ -79,8 +79,24 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView, NativeBridgeDeleg
                                 details: nil))
             return
         }
-        
+
         let inbox = MessageCenter.shared.inbox
+
+        let message = await inbox.message(forID: messageId)
+
+        if message == nil {
+            /// Attempt a refresh is the message isn't available - as can happen when launched from a push
+            let success = try? await inbox.refreshMessages(timeout: 5)
+
+            /// If message is nil and we fail to refresh, throw error
+            if success == false {
+                result(FlutterError(code:"InvalidMessage",
+                                    message:"Unable to load message: \(messageId), message unavailable and message refresh failed.",
+                                    details:nil))
+                return
+            }
+        }
+
         if let message = await inbox.message(forID: messageId) {
             var request = URLRequest(url: message.bodyURL)
             let user = await MessageCenter.shared.inbox.user
@@ -101,12 +117,12 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView, NativeBridgeDeleg
                 
            
         } else {
-            
+            /// If refresh attempt succeeds and we still don't have a message
             result(FlutterError(code:"InvalidMessage",
-                                message:"Unable to load message: \(messageId))",
+                                message:"Unable to load message after successful inbox refresh: \(messageId))",
                                 details:nil))
+            return
         }
-        
       }
 
     func view() -> UIView {
