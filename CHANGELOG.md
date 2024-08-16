@@ -1,5 +1,11 @@
 # Flutter Plugin Changelog
 
+## Version 7.7.1 - August 16, 2024
+Patch release that adds a message center message list refresh operation on iOS. This allows message center messages to properly display when launched from a push while the iOS app is backgrounded. iOS apps that open message center messages directly from push notifications are encouraged to update.
+
+### Changes
+- Refresh message center messages when message is initially unavailable on iOS.
+
 ## Version 7.7.0 - August 13, 2024
 Minor release that fixes test devices audience check, holdout group experiments displays and in-app experience displays when resuming from a paused state. Apps that use in-app experiences are encouraged to update.
 
