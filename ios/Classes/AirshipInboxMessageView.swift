@@ -86,7 +86,7 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView, NativeBridgeDeleg
 
         if message == nil {
             /// Attempt a refresh is the message isn't available - as can happen when launched from a push
-            let success = try? await inbox.refreshMessages(timeout: 5)
+            let success = try? await inbox.refreshMessages(timeout: 100)
 
             /// If message is nil and we fail to refresh, throw error
             if success == false {
