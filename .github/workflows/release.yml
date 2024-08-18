@@ -61,20 +61,11 @@ jobs:
       - run: flutter pub get
 
       - name: Setup pub credentials
-        run: |
-          mkdir -p ~/.pub-cache
-          cat <<EOF > ~/.pub-cache/credentials.json
-          {
-          "accessToken":"${{ secrets.OAUTH_ACCESS_TOKEN }}",
-          "refreshToken":"${{ secrets.OAUTH_REFRESH_TOKEN }}",
-          "tokenEndpoint":"https://accounts.google.com/o/oauth2/token",
-          "scopes": [ "openid", "https://www.googleapis.com/auth/userinfo.email" ],
-          "expiration": ${{secrets.OAUTH_EXPIRATION }}
-          }
-          EOF
-          mkdir -p ~/Library/Application\ Support/dart/
-          cp ~/.pub-cache/credentials.json ~/Library/Application\ Support/dart/pub-credentials.json
-          cp ~/.pub-cache/credentials.json $PUB_CACHE/credentials.json || true
+        uses: setup-pubdev-credentials@v0.1.0
+        with:
+          oauth_access_token: ${{ secrets.OAUTH_ACCESS_TOKEN }}
+          oauth_refresh_token: ${{ secrets.OAUTH_REFRESH_TOKEN }}
+          oauth_expiration: ${{ secrets.OAUTH_EXPIRATION }}
 
       - name: Publish Dart/Flutter package
         run: flutter pub publish -f
