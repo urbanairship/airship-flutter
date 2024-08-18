@@ -56,12 +56,13 @@ class EmbeddedViewState extends State<EmbeddedView> {
     _getNativeViewSize();
   }
 
+
   /// Fall back to screen-sized constraints when constraints can be inferred
   Widget wrapWithLayoutBuilder(Widget view) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        double width = constraints.maxWidth;
-        double height = constraints.maxHeight;
+        double width = _nativeViewWidth;
+        double height = _nativeViewHeight;
 
         if (width == 0 || width == double.infinity) {
           width = MediaQuery.of(context).size.width;
@@ -71,17 +72,15 @@ class EmbeddedViewState extends State<EmbeddedView> {
           height = MediaQuery.of(context).size.height;
         }
 
-        return FittedBox(
-          fit: BoxFit.contain,
-          alignment: Alignment.center,
-          child: ConstrainedBox(
+        return ConstrainedBox(
             constraints: BoxConstraints(
-              maxWidth: width,
-              maxHeight: height,
+              minWidth: 10,
+              minHeight: 10,
+              maxWidth: MediaQuery.of(context).size.width,
+              maxHeight: MediaQuery.of(context).size.height
             ),
             child: view,
-          ),
-        );
+          );
       },
     );
   }

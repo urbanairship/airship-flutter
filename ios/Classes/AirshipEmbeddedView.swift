@@ -18,52 +18,61 @@ class AirshipEmbeddedViewFactory: NSObject, FlutterPlatformViewFactory {
     }
 }
 
-class AirshipEmbeddedViewWrapper: NSObject, FlutterPlatformView {
+class AirshipEmbeddedViewWrapper: UIView, FlutterPlatformView {
     private static let embeddedIdKey: String = "embeddedId"
 
-    @ObservedObject
     var viewModel = FlutterAirshipEmbeddedView.ViewModel()
 
-    public var viewController: UIViewController?
+    public var viewController: UIViewController
+    
+    public var isAdded: Bool = false
 
     let channel: FlutterMethodChannel
-    private var _view: UIView
 
-    init(frame: CGRect, viewId: Int64, registrar: FlutterPluginRegistrar, args: Any?) {
+    required init(frame: CGRect, viewId: Int64, registrar: FlutterPluginRegistrar, args: Any?) {
         let channelName = "com.airship.flutter/EmbeddedView_\(viewId)"
         self.channel = FlutterMethodChannel(name: channelName, binaryMessenger: registrar.messenger())
-        _view = UIView(frame: frame)
 
-        super.init()
+        self.viewController = UIHostingController(
+            rootView: FlutterAirshipEmbeddedView(viewModel: self.viewModel)
+        )
 
-        let rootView = FlutterAirshipEmbeddedView(viewModel: viewModel)
+        self.viewController.view.backgroundColor = UIColor.purple
+
+        let rootView = FlutterAirshipEmbeddedView(viewModel: self.viewModel)
         self.viewController = UIHostingController(
             rootView: rootView
         )
 
-        _view.translatesAutoresizingMaskIntoConstraints = false
-        _view.addSubview(self.viewController!.view)
-        self.viewController?.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        super.init(frame:frame)
 
-        Task { @MainActor in
-            if let params = args as? [String: Any], let embeddedId = params[Self.embeddedIdKey] as? String {
-                rootView.viewModel.embeddedID = embeddedId
-            }
+        self.translatesAutoresizingMaskIntoConstraints = false
+        self.addSubview(self.viewController.view)
+        self.viewController.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 
-            rootView.viewModel.size = frame.size
+        if let params = args as? [String: Any], let embeddedId = params[Self.embeddedIdKey] as? String {
+            rootView.viewModel.embeddedID = embeddedId
         }
+
+        rootView.viewModel.size = frame.size
 
         channel.setMethodCallHandler { [weak self] (call: FlutterMethodCall, result: @escaping FlutterResult) in
             self?.handle(call, result: result)
         }
     }
 
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
         case "getSize":
-            let width = _view.bounds.width
-            let height = _view.bounds.height
+            let width = self.bounds.width
+            let height = self.bounds.height
             result(["width": width, "height": height])
+        case "getIsAdded":
+            result(["isAdded": self.isAdded])
         default:
             result(FlutterError(code: "UNAVAILABLE",
                                 message: "Unknown method: \(call.method)",
@@ -72,7 +81,22 @@ class AirshipEmbeddedViewWrapper: NSObject, FlutterPlatformView {
     }
 
     func view() -> UIView {
-        return _view
+        return self
+    }
+
+    public override func didMoveToWindow() {
+        super.didMoveToWindow()
+        guard !self.isAdded else { return }
+        self.viewController.willMove(toParent: self.parentViewController())
+        self.parentViewController().addChild(self.viewController)
+        self.viewController.didMove(toParent: self.parentViewController())
+        self.viewController.view.isUserInteractionEnabled = true
+        isAdded = true
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        self.viewModel.size = bounds.size
     }
 }
 
@@ -80,12 +104,16 @@ struct FlutterAirshipEmbeddedView: View {
     @ObservedObject
     var viewModel: ViewModel
 
+    init(viewModel: ViewModel) {
+        self.viewModel = viewModel
+    }
+
     var body: some View {
         if let embeddedID = viewModel.embeddedID {
             AirshipEmbeddedView(embeddedID: embeddedID,
                                 embeddedSize: .init(
-                                    parentWidth: viewModel.width,
-                                    parentHeight: viewModel.height
+                                    parentWidth: viewModel.size?.width,
+                                    parentHeight: viewModel.size?.height
                                 )
             ) {
                 Text("Placeholder: \(embeddedID) \(viewModel.size ?? CGSize())")
@@ -102,16 +130,30 @@ struct FlutterAirshipEmbeddedView: View {
 
         var height: CGFloat {
             guard let height = self.size?.height, height > 0 else {
-                return (try? AirshipUtils.mainWindow()?.screen.bounds.height) ?? 420
+                return try! AirshipUtils.mainWindow()?.screen.bounds.height ?? 500
             }
             return height
         }
 
         var width: CGFloat {
             guard let width = self.size?.width, width > 0 else {
-                return (try? AirshipUtils.mainWindow()?.screen.bounds.width) ?? 420
+                return try! AirshipUtils.mainWindow()?.screen.bounds.width ?? 500
             }
             return width
         }
+    }
+}
+
+extension UIView {
+    //Get Parent View Controller from any view
+    func parentViewController() -> UIViewController {
+        var responder: UIResponder? = self
+        while !(responder is UIViewController) {
+            responder = responder?.next
+            if nil == responder {
+                break
+            }
+        }
+        return (responder as? UIViewController)!
     }
 }
