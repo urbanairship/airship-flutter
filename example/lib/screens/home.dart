@@ -35,8 +35,7 @@ class _HomeState extends State<Home> {
             alignment: Alignment.center,
             child: Wrap(children: <Widget>[
               Center(
-                child:EmbeddedView(embeddedId: "test"),
-              ),
+                  child: EmbeddedView(embeddedId: "test", parentHeight: 200)),
               Image.asset(
                 'assets/airship.png',
               ),
@@ -48,11 +47,11 @@ class _HomeState extends State<Home> {
                     bool pushEnabled = snapshot.data ?? false;
                     enableNotificationsButton =
                         Center(child: NotificationsEnabledButton(
-                          onPressed: () {
-                            Airship.push.setUserNotificationsEnabled(true);
-                            setState(() {});
-                          },
-                        ));
+                      onPressed: () {
+                        Airship.push.setUserNotificationsEnabled(true);
+                        setState(() {});
+                      },
+                    ));
                     return Visibility(
                         visible: !pushEnabled,
                         child: enableNotificationsButton);

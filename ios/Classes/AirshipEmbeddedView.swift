@@ -67,12 +67,6 @@ class AirshipEmbeddedViewWrapper: UIView, FlutterPlatformView {
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
-        case "getSize":
-            let width = self.bounds.width
-            let height = self.bounds.height
-            result(["width": width, "height": height])
-        case "getIsAdded":
-            result(["isAdded": self.isAdded])
         default:
             result(FlutterError(code: "UNAVAILABLE",
                                 message: "Unknown method: \(call.method)",
@@ -115,9 +109,7 @@ struct FlutterAirshipEmbeddedView: View {
                                     parentWidth: viewModel.size?.width,
                                     parentHeight: viewModel.size?.height
                                 )
-            ) {
-                Text("Placeholder: \(embeddedID) \(viewModel.size ?? CGSize())")
-            }
+            )
         } else {
             Text("Please set embeddedId")
         }

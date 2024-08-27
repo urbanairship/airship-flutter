@@ -15,7 +15,8 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
         .displayPreferenceCenter: "com.airship.flutter/event/display_preference_center",
         .notificationResponseReceived: "com.airship.flutter/event/notification_response",
         .pushReceived: "com.airship.flutter/event/push_received",
-        .notificationStatusChanged: "com.airship.flutter/event/notification_status_changed"
+        .notificationStatusChanged: "com.airship.flutter/event/notification_status_changed",
+        .embeddedInfoUpdated: "com.airship.flutter/event/embedded_info_updated"
     ]
 
     private let streams: [AirshipProxyEventType: AirshipEventStream] = {

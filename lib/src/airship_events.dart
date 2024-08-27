@@ -8,14 +8,14 @@ class IOSAuthorizedNotificationSettingsChangedEvent {
   // The authorized settings
   final List<IOSAuthorizedNotificationSetting> authorizedSettings;
 
-  const IOSAuthorizedNotificationSettingsChangedEvent._internal(this.authorizedSettings);
+  const IOSAuthorizedNotificationSettingsChangedEvent._internal(
+      this.authorizedSettings);
 
   static IOSAuthorizedNotificationSettingsChangedEvent fromJson(dynamic json) {
     var authorizedSettings = List<String>.from(json["authorizedSettings"]);
 
     return IOSAuthorizedNotificationSettingsChangedEvent._internal(
-        AirshipUtils.parseIOSAuthorizedSettings(authorizedSettings)
-    );
+        AirshipUtils.parseIOSAuthorizedSettings(authorizedSettings));
   }
 
   @override
@@ -42,27 +42,45 @@ class DisplayMessageCenterEvent {
   }
 }
 
-
 /// Event fired when the message center updates.
 class MessageCenterUpdatedEvent {
-  
   /// Unread count
   final int messageUnreadCount;
 
   /// Message count
   final int messageCount;
 
-  const MessageCenterUpdatedEvent._internal(this.messageUnreadCount, this.messageCount);
+  const MessageCenterUpdatedEvent._internal(
+      this.messageUnreadCount, this.messageCount);
 
   static MessageCenterUpdatedEvent fromJson(dynamic json) {
     var messageUnreadCount = json["messageUnreadCount"];
     var messageCount = json["messageCount"];
-    return MessageCenterUpdatedEvent._internal(messageUnreadCount, messageCount);
+    return MessageCenterUpdatedEvent._internal(
+        messageUnreadCount, messageCount);
   }
 
   @override
   String toString() {
     return "MessageCenterUpdatedEvent(messageUnreadCount=$messageUnreadCount, messageCount=$messageCount)";
+  }
+}
+
+/// Event fired when embedded view info updates.
+class EmbeddedInfoUpdatedEvent {
+  /// Embedded IDs
+  final List<String> embeddedIds;
+
+  const EmbeddedInfoUpdatedEvent._internal(this.embeddedIds);
+
+  static EmbeddedInfoUpdatedEvent fromJson(dynamic json) {
+    List<String> embeddedIds = List<String>.from(json["embeddedIds"] ?? []);
+    return EmbeddedInfoUpdatedEvent._internal(embeddedIds);
+  }
+
+  @override
+  String toString() {
+    return "EmbeddedInfoUpdatedEvent(embeddedIds=$embeddedIds)";
   }
 }
 
