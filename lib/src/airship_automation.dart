@@ -39,14 +39,16 @@ class AirshipAutomation {
     _subscription = onEmbeddedInfoUpdated.listen(_updateEmbeddedIds);
   }
 
+  bool isEmbeddedAvailable({required String embeddedId}) =>
+      _embeddedInfos.any((info) => info.embeddedId == embeddedId);
+
   Stream<bool> isEmbeddedAvailableStream({required String embeddedId}) =>
       (_isEmbeddedAvailableControllers[embeddedId] ??=
               StreamController<bool>.broadcast()
                 ..add(isEmbeddedAvailable(embeddedId: embeddedId)))
           .stream;
 
-  bool isEmbeddedAvailable({required String embeddedId}) =>
-      _embeddedInfos.any((info) => info.embeddedId == embeddedId);
+  List<EmbeddedInfo> getEmbeddedInfos() => _embeddedInfos;
 
   Stream<EmbeddedInfoUpdatedEvent> get onEmbeddedInfoUpdated => _module
       .getEventStream("com.airship.flutter/event/embedded_info_updated")
