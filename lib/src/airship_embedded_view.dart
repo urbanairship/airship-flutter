@@ -41,17 +41,17 @@ class EmbeddedViewState extends State<EmbeddedView>
     with AutomaticKeepAliveClientMixin<EmbeddedView> {
   late MethodChannel _channel;
   late Stream<bool> _readyStream;
-  bool? _isReady;
+  bool? _isEmbeddedAvailable;
 
   @override
   void initState() {
     super.initState();
-    _readyStream =
-        Airship.automation.isReadyStream(embeddedId: widget.embeddedId);
-    _readyStream.listen((isReady) {
+    _readyStream = Airship.automation
+        .isEmbeddedAvailableStream(embeddedId: widget.embeddedId);
+    _readyStream.listen((isEmbeddedAvailable) {
       if (mounted) {
         setState(() {
-          _isReady = isReady;
+          _isEmbeddedAvailable = isEmbeddedAvailable;
         });
       }
     });
@@ -75,7 +75,7 @@ class EmbeddedViewState extends State<EmbeddedView>
       transitionBuilder: (Widget child, Animation<double> animation) {
         return FadeTransition(opacity: animation, child: child);
       },
-      child: _isReady == true
+      child: _isEmbeddedAvailable == true
           ? SizedBox(
               key: ValueKey<bool>(true),
               width: widget.parentWidth ?? availableSize.width,

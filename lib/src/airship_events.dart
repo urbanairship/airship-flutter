@@ -1,3 +1,5 @@
+import 'package:airship_flutter/src/airship_automation.dart';
+
 import 'push_payload.dart';
 import 'push_notification_status.dart';
 import 'ios_push_options.dart';
@@ -66,22 +68,32 @@ class MessageCenterUpdatedEvent {
   }
 }
 
+class EmbeddedInfo {
+  final String embeddedId;
+
+  EmbeddedInfo(this.embeddedId);
+
+  @override
+  String toString() => "EmbeddedInfo(embeddedId=$embeddedId)";
+}
+
 /// Event fired when embedded view info updates.
 class EmbeddedInfoUpdatedEvent {
-  /// Embedded IDs
-  final List<String> embeddedIds;
+  final List<EmbeddedInfo> embeddedInfos;
 
-  const EmbeddedInfoUpdatedEvent._internal(this.embeddedIds);
+  const EmbeddedInfoUpdatedEvent(this.embeddedInfos);
 
   static EmbeddedInfoUpdatedEvent fromJson(dynamic json) {
-    List<String> embeddedIds = List<String>.from(json["embeddedIds"] ?? []);
-    return EmbeddedInfoUpdatedEvent._internal(embeddedIds);
+    List<dynamic> pendingList = json['pending'] as List? ?? [];
+
+    List<EmbeddedInfo> embeddedInfos =
+        pendingList.map((item) => EmbeddedInfo(item['embeddedId'])).toList();
+
+    return EmbeddedInfoUpdatedEvent(embeddedInfos);
   }
 
   @override
-  String toString() {
-    return "EmbeddedInfoUpdatedEvent(embeddedIds=$embeddedIds)";
-  }
+  String toString() => "EmbeddedInfoUpdatedEvent(embeddedInfos=$embeddedInfos)";
 }
 
 /// Event fired when a channel is created.
