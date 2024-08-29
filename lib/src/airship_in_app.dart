@@ -48,7 +48,7 @@ class AirshipInApp {
   List<EmbeddedInfo> getEmbeddedInfos() => _embeddedInfos;
 
   Stream<EmbeddedInfoUpdatedEvent> get onEmbeddedInfoUpdated => _module
-      .getEventStream("com.airship.flutter/event/embedded_info_updated")
+      .getEventStream("com.airship.flutter/event/pending_embedded_updated")
       .map(EmbeddedInfoUpdatedEvent.fromJson);
 
   void _updateEmbeddedIds(EmbeddedInfoUpdatedEvent event) {
