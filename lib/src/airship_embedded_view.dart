@@ -46,8 +46,8 @@ class EmbeddedViewState extends State<EmbeddedView>
   @override
   void initState() {
     super.initState();
-    _readyStream = Airship.automation
-        .isEmbeddedAvailableStream(embeddedId: widget.embeddedId);
+    _readyStream =
+        Airship.inApp.isEmbeddedAvailableStream(embeddedId: widget.embeddedId);
     _readyStream.listen((isEmbeddedAvailable) {
       if (mounted) {
         setState(() {

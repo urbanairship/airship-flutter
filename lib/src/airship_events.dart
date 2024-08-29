@@ -1,9 +1,8 @@
-import 'package:airship_flutter/src/airship_automation.dart';
-
 import 'push_payload.dart';
 import 'push_notification_status.dart';
 import 'ios_push_options.dart';
 import 'airship_utils.dart';
+import 'package:airship_flutter/src/airship_in_app.dart';
 
 /// Event fired when the iOS authorized settings change.
 class IOSAuthorizedNotificationSettingsChangedEvent {

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:airship_flutter/airship_flutter.dart';
-import 'package:airship_flutter/src/airship_automation.dart';
 import 'airship_module.dart';
 
 /// The Main Airship API.
@@ -39,9 +38,6 @@ class Airship {
 
   /// The [AirshipFeatureFlagManager] instance.
   static final featureFlagManager = AirshipFeatureFlagManager(_module);
-
-  /// The [AirshipAutomation] instance.
-  static final automation = AirshipAutomation(_module);
 
   //
   /// Initializes Airship with the given config. Airship will store the config
