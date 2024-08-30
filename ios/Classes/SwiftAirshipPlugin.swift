@@ -285,6 +285,10 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
         case "inApp#getDisplayInterval":
             return try AirshipProxy.shared.inApp.getDisplayInterval()
 
+        case "inApp#resendEmbeddedEvent":
+            AirshipProxy.shared.inApp.resendLastEmbeddedEvent()
+            return nil
+
         // Analytics
         case "analytics#trackScreen":
             try AirshipProxy.shared.analytics.trackScreen(
@@ -457,6 +461,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             try AirshipProxy.shared.featureFlagManager.trackInteraction(flag: featureFlagProxy)
 
             return nil
+
         default:
             return FlutterError(
                 code:"UNAVAILABLE",
@@ -542,13 +547,9 @@ extension FlutterMethodCall {
     }
 }
 
-protocol AirshipEventStreamHandlerDelegate: AnyObject {
-    func handlerWasRemoved(_ handler: AirshipEventStreamHandler)
-}
 
 class AirshipEventStreamHandler: NSObject, FlutterStreamHandler {
     private var eventSink: FlutterEventSink?
-    weak var delegate: AirshipEventStreamHandlerDelegate?
 
     func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
         self.eventSink = events
@@ -557,7 +558,6 @@ class AirshipEventStreamHandler: NSObject, FlutterStreamHandler {
 
     func onCancel(withArguments arguments: Any?) -> FlutterError? {
         self.eventSink = nil
-        delegate?.handlerWasRemoved(self)
         return nil
     }
 
@@ -570,7 +570,7 @@ class AirshipEventStreamHandler: NSObject, FlutterStreamHandler {
     }
 }
 
-class AirshipEventStream: NSObject, AirshipEventStreamHandlerDelegate {
+class AirshipEventStream: NSObject {
     private let eventType: AirshipProxyEventType
     private let name: String
     private let lock = AirshipLock()
@@ -587,7 +587,6 @@ class AirshipEventStream: NSObject, AirshipEventStreamHandlerDelegate {
             binaryMessenger: registrar.messenger()
         )
         let handler = AirshipEventStreamHandler()
-        handler.delegate = self
         eventChannel.setStreamHandler(handler)
 
         lock.sync {
@@ -616,11 +615,5 @@ class AirshipEventStream: NSObject, AirshipEventStreamHandlerDelegate {
             }
         }
         return result
-    }
-
-    func handlerWasRemoved(_ handler: AirshipEventStreamHandler) {
-        lock.sync {
-            handlers.removeAll { $0 === handler }
-        }
     }
 }
