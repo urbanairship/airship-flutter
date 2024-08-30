@@ -1,13 +1,20 @@
 # Flutter Plugin Changelog
 
-## Version 7.7.0 - August 07, 2024
-Minor release that updates Android SDK to 18.1.5 and iOS SDK to 18.7.1 and fixes test devices audience check and holdout group experiments displays.
+## Version 7.7.1 - August 16, 2024
+Patch release that adds a message center message list refresh operation on iOS. This allows message center messages to properly display when launched from a push while the iOS app is backgrounded. iOS apps that open message center messages directly from push notifications are encouraged to update.
 
 ### Changes
-- Updated Android SDK to 18.1.5.
-- Updated iOS SDK to 18.7.1.
+- Refresh message center messages when message is initially unavailable on iOS.
+
+## Version 7.7.0 - August 13, 2024
+Minor release that fixes test devices audience check, holdout group experiments displays and in-app experience displays when resuming from a paused state. Apps that use in-app experiences are encouraged to update.
+
+### Changes
+- Updated Android SDK to 18.1.6.
+- Updated iOS SDK to 18.7.2.
 - Fixed test devices audience check.
 - Fixed holdout group experiments displays.
+- Fixed in-app experience displays when resuming from a paused state.
 
 ## Version 7.6.0 - July 11, 2024
 Minor release that updates the Android SDK to 18.1.1 and the iOS SDK to 18.5.0.
