@@ -542,67 +542,85 @@ extension FlutterMethodCall {
     }
 }
 
-internal class AirshipEventStream : NSObject, FlutterStreamHandler {
+protocol AirshipEventStreamHandlerDelegate: AnyObject {
+    func handlerWasRemoved(_ handler: AirshipEventStreamHandler)
+}
 
-    private var eventSink : FlutterEventSink?
+class AirshipEventStreamHandler: NSObject, FlutterStreamHandler {
+    private var eventSink: FlutterEventSink?
+    weak var delegate: AirshipEventStreamHandlerDelegate?
+
+    func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+        self.eventSink = events
+        return nil
+    }
+
+    func onCancel(withArguments arguments: Any?) -> FlutterError? {
+        self.eventSink = nil
+        delegate?.handlerWasRemoved(self)
+        return nil
+    }
+
+    func notify(_ event: Any) -> Bool {
+        if let sink = self.eventSink {
+            sink(event)
+            return true
+        }
+        return false
+    }
+}
+
+class AirshipEventStream: NSObject, AirshipEventStreamHandlerDelegate {
     private let eventType: AirshipProxyEventType
-    private let lock = AirshipLock()
     private let name: String
-    
+    private let lock = AirshipLock()
+    private var handlers: [AirshipEventStreamHandler] = []
+
     init(_ eventType: AirshipProxyEventType, name: String) {
         self.eventType = eventType
         self.name = name
     }
 
-    @MainActor
-    private func notify(_ event: AirshipProxyEvent) -> Bool {
-        var result = false
-        lock.sync {
-            if let sink = self.eventSink {
-                sink(event.body)
-                result = true
-            }
-        }
-        
-        return result
-    }
-    
     func register(registrar: FlutterPluginRegistrar) {
         let eventChannel = FlutterEventChannel(
             name: self.name,
             binaryMessenger: registrar.messenger()
         )
-        eventChannel.setStreamHandler(self)
+        let handler = AirshipEventStreamHandler()
+        handler.delegate = self
+        eventChannel.setStreamHandler(handler)
+
+        lock.sync {
+            handlers.append(handler)
+        }
     }
-    
+
     @MainActor
     func processPendingEvents() async {
         await AirshipProxyEventEmitter.shared.processPendingEvents(
             type: eventType,
-            handler: { event in
+            handler: { [weak self] event in
+                guard let self = self else { return false }
                 return self.notify(event)
             }
         )
     }
 
-    func onCancel(withArguments arguments: Any?) -> FlutterError? {
+    private func notify(_ event: AirshipProxyEvent) -> Bool {
+        var result = false
         lock.sync {
-            self.eventSink = nil
+            for handler in handlers {
+                if handler.notify(event.body) {
+                    result = true
+                }
+            }
         }
-        
-        return nil
+        return result
     }
 
-    
-    func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+    func handlerWasRemoved(_ handler: AirshipEventStreamHandler) {
         lock.sync {
-            self.eventSink = events
+            handlers.removeAll { $0 === handler }
         }
-        
-        Task {
-           await processPendingEvents()
-        }
-        
-        return nil
     }
 }

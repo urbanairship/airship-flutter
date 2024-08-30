@@ -1,66 +1,67 @@
 import 'package:airship_flutter/airship_flutter.dart';
-
 import 'airship_module.dart';
 import 'dart:async';
 
 class AirshipInApp {
   final AirshipModule _module;
-
-  AirshipInApp(this._module) {
-    _subscription = onEmbeddedInfoUpdated.listen(_updateEmbeddedIds);
-  }
-
   final Map<String, StreamController<bool>> _isEmbeddedAvailableControllers =
       {};
   List<EmbeddedInfo> _embeddedInfos = [];
-  late StreamSubscription<EmbeddedInfoUpdatedEvent> _subscription;
+  late final StreamController<EmbeddedInfoUpdatedEvent>
+      _embeddedInfoUpdatedController;
+  late final StreamSubscription<EmbeddedInfoUpdatedEvent> _subscription;
 
-  /// Pauses or unpauses in-app automation.
-  Future<void> setPaused(bool paused) async {
-    return await _module.channel.invokeMethod('inApp#setPaused', paused);
+  List<EmbeddedInfo> getEmbeddedInfos() => _embeddedInfos;
+
+  AirshipInApp(this._module) {
+    _embeddedInfoUpdatedController =
+        StreamController<EmbeddedInfoUpdatedEvent>.broadcast();
+    _setupEventStream();
+    _subscription = onEmbeddedInfoUpdated.listen(_updateEmbeddedIds);
   }
 
-  /// Checks if in-app automation is paused or not.
-  Future<bool> get isPaused async {
-    return await _module.channel.invokeMethod('inApp#isPaused');
-  }
-
-  /// Sets the display interval for messages.
-  Future<void> setDisplayInterval(int milliseconds) async {
-    return _module.channel
-        .invokeMethod('inApp#setDisplayInterval', milliseconds);
-  }
-
-  /// Gets the display interval for messages.
-  Future<int> get displayInterval async {
-    return await _module.channel.invokeMethod('inApp#getDisplayInterval');
-  }
-
+  /// A flag to determine if an embedded id is available that is not live updated
   bool isEmbeddedAvailable({required String embeddedId}) =>
       _embeddedInfos.any((info) => info.embeddedId == embeddedId);
 
+  /// A live updated stream to determine if an embedded id is available
   Stream<bool> isEmbeddedAvailableStream({required String embeddedId}) =>
       (_isEmbeddedAvailableControllers[embeddedId] ??=
               StreamController<bool>.broadcast()
                 ..add(isEmbeddedAvailable(embeddedId: embeddedId)))
           .stream;
 
-  List<EmbeddedInfo> getEmbeddedInfos() => _embeddedInfos;
+  Stream<EmbeddedInfoUpdatedEvent> get onEmbeddedInfoUpdated =>
+      _embeddedInfoUpdatedController.stream;
 
-  Stream<EmbeddedInfoUpdatedEvent> get onEmbeddedInfoUpdated => _module
-      .getEventStream("com.airship.flutter/event/pending_embedded_updated")
-      .map(EmbeddedInfoUpdatedEvent.fromJson);
+  void _setupEventStream() {
+    _module
+        .getEventStream("com.airship.flutter/event/pending_embedded_updated")
+        .listen((event) {
+      try {
+        _embeddedInfoUpdatedController
+            .add(EmbeddedInfoUpdatedEvent.fromJson(event));
+      } catch (e) {
+        print("Error parsing EmbeddedInfoUpdatedEvent: $e");
+      }
+    });
+  }
 
   void _updateEmbeddedIds(EmbeddedInfoUpdatedEvent event) {
+    /// Update the embedded infos list
     _embeddedInfos = event.embeddedInfos;
+
+    /// Update stream controllers for each embedded id so everything remains synced
     _isEmbeddedAvailableControllers.forEach((id, controller) =>
         controller.add(isEmbeddedAvailable(embeddedId: id)));
   }
 
   void dispose() {
     _subscription.cancel();
-    for (var controller in _isEmbeddedAvailableControllers.values) {
-      controller.close();
-    }
+
+    /// Remove and close all stream controllers for each embedded id
+    _isEmbeddedAvailableControllers.values
+        .forEach((controller) => controller.close());
+    _embeddedInfoUpdatedController.close();
   }
 }

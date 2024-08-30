@@ -60,7 +60,8 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 EventType.PUSH_TOKEN_RECEIVED to "com.airship.flutter/event/push_token_received",
                 EventType.FOREGROUND_PUSH_RECEIVED to "com.airship.flutter/event/push_received",
                 EventType.BACKGROUND_PUSH_RECEIVED to "com.airship.flutter/event/background_push_received",
-                EventType.NOTIFICATION_STATUS_CHANGED to "com.airship.flutter/event/notification_status_changed"
+                EventType.NOTIFICATION_STATUS_CHANGED to "com.airship.flutter/event/notification_status_changed",
+                EventType.PENDING_EMBEDDED_UPDATED to "com.airship.flutter/event/pending_embedded_updated"
         )
     }
 
