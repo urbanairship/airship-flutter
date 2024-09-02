@@ -12,7 +12,7 @@ import 'package:airship_flutter/airship_flutter.dart';
 /// Note: When an embedded view is set to display with its height set to `auto`
 /// the embedded view will size to its native aspect ratio. Any remaining space
 /// in the parent view will be apparent.
-class EmbeddedView extends StatefulWidget {
+class AirshipEmbeddedView extends StatefulWidget {
   /// The embedded view Id.
   final String embeddedId;
 
@@ -27,18 +27,18 @@ class EmbeddedView extends StatefulWidget {
   /// A flag to use flutter hybrid composition method or not. Default to false.
   static bool hybridComposition = false;
 
-  EmbeddedView({
+  AirshipEmbeddedView({
     required this.embeddedId,
     this.parentWidth,
     this.parentHeight,
   });
 
   @override
-  EmbeddedViewState createState() => EmbeddedViewState();
+  AirshipEmbeddedViewState createState() => AirshipEmbeddedViewState();
 }
 
-class EmbeddedViewState extends State<EmbeddedView>
-    with AutomaticKeepAliveClientMixin<EmbeddedView> {
+class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
+    with AutomaticKeepAliveClientMixin<AirshipEmbeddedView> {
   late MethodChannel _channel;
   late Stream<bool> _readyStream;
   bool? _isEmbeddedAvailable;
@@ -119,7 +119,7 @@ class EmbeddedViewState extends State<EmbeddedView>
   }
 
   Widget _getAndroidView() {
-    if (EmbeddedView.hybridComposition) {
+    if (AirshipEmbeddedView.hybridComposition) {
       return wrapWithLayoutBuilder(PlatformViewLink(
         viewType: 'com.airship.flutter/EmbeddedView',
         surfaceFactory:

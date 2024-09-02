@@ -35,7 +35,8 @@ class _HomeState extends State<Home> {
             alignment: Alignment.center,
             child: Wrap(children: <Widget>[
               Center(
-                  child: EmbeddedView(embeddedId: "test", parentHeight: 200)),
+                  child: AirshipEmbeddedView(
+                      embeddedId: "test", parentHeight: 200)),
               Image.asset(
                 'assets/airship.png',
               ),
