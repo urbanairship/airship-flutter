@@ -1,13 +1,12 @@
 # Flutter Plugin Changelog
 
-## Version 7.8.0 - August 30, 2024
+## Version 7.8.0 - September 3, 2024
 
 Minor release that adds early access support for Embedded Content.
 
 ### Changes
 
 - Adds AirshipEmbeddedView and listener methods to Airship.inApp for Embedded Content.
-- Exposes the Airship session ID on Airship.analytics.
 
 ## Version 7.7.1 - August 16, 2024
 
