@@ -135,6 +135,9 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
       }
     });
 
+    Airship.inApp.onEmbeddedInfoUpdated
+        .listen((event) => debugPrint('Embedded info updated $event'));
+
     Airship.messageCenter.onInboxUpdated
         .listen((event) => debugPrint('Inbox updated $event'));
 

@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.os.Build
 import com.urbanairship.actions.ActionResult
+import com.urbanairship.android.framework.proxy.Event
 import com.urbanairship.android.framework.proxy.EventType
 import com.urbanairship.android.framework.proxy.events.EventEmitter
 import com.urbanairship.android.framework.proxy.proxies.AirshipProxy
@@ -22,18 +23,16 @@ import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
 import io.flutter.plugin.platform.PlatformViewRegistry
 import kotlinx.coroutines.*
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     private lateinit var channel: MethodChannel
-
     private lateinit var context: Context
-
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Main) + SupervisorJob()
-
     private var mainActivity: Activity? = null
-
-    private lateinit var streams : Map<EventType, AirshipEventStream>
+    private lateinit var streams: Map<EventType, AirshipEventStream>
 
     companion object {
         @JvmStatic
@@ -50,17 +49,18 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         internal const val AIRSHIP_SHARED_PREFS = "com.urbanairship.flutter"
 
         internal val EVENT_NAME_MAP = mapOf(
-                EventType.BACKGROUND_NOTIFICATION_RESPONSE_RECEIVED to "com.airship.flutter/event/notification_response",
-                EventType.FOREGROUND_NOTIFICATION_RESPONSE_RECEIVED to "com.airship.flutter/event/notification_response",
-                EventType.CHANNEL_CREATED to "com.airship.flutter/event/channel_created",
-                EventType.DEEP_LINK_RECEIVED to "com.airship.flutter/event/deep_link_received",
-                EventType.DISPLAY_MESSAGE_CENTER to "com.airship.flutter/event/display_message_center",
-                EventType.DISPLAY_PREFERENCE_CENTER to "com.airship.flutter/event/display_preference_center",
-                EventType.MESSAGE_CENTER_UPDATED to "com.airship.flutter/event/message_center_updated",
-                EventType.PUSH_TOKEN_RECEIVED to "com.airship.flutter/event/push_token_received",
-                EventType.FOREGROUND_PUSH_RECEIVED to "com.airship.flutter/event/push_received",
-                EventType.BACKGROUND_PUSH_RECEIVED to "com.airship.flutter/event/background_push_received",
-                EventType.NOTIFICATION_STATUS_CHANGED to "com.airship.flutter/event/notification_status_changed"
+            EventType.BACKGROUND_NOTIFICATION_RESPONSE_RECEIVED to "com.airship.flutter/event/notification_response",
+            EventType.FOREGROUND_NOTIFICATION_RESPONSE_RECEIVED to "com.airship.flutter/event/notification_response",
+            EventType.CHANNEL_CREATED to "com.airship.flutter/event/channel_created",
+            EventType.DEEP_LINK_RECEIVED to "com.airship.flutter/event/deep_link_received",
+            EventType.DISPLAY_MESSAGE_CENTER to "com.airship.flutter/event/display_message_center",
+            EventType.DISPLAY_PREFERENCE_CENTER to "com.airship.flutter/event/display_preference_center",
+            EventType.MESSAGE_CENTER_UPDATED to "com.airship.flutter/event/message_center_updated",
+            EventType.PUSH_TOKEN_RECEIVED to "com.airship.flutter/event/push_token_received",
+            EventType.FOREGROUND_PUSH_RECEIVED to "com.airship.flutter/event/push_received",
+            EventType.BACKGROUND_PUSH_RECEIVED to "com.airship.flutter/event/background_push_received",
+            EventType.NOTIFICATION_STATUS_CHANGED to "com.airship.flutter/event/notification_status_changed",
+            EventType.PENDING_EMBEDDED_UPDATED to "com.airship.flutter/event/pending_embedded_updated"
         )
     }
 
@@ -79,6 +79,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         this.streams = generateEventStreams(binaryMessenger)
 
         platformViewRegistry.registerViewFactory("com.airship.flutter/InboxMessageView", InboxMessageViewFactory(binaryMessenger))
+        platformViewRegistry.registerViewFactory("com.airship.flutter/EmbeddedView", EmbeddedViewFactory(binaryMessenger))
 
         scope.launch {
             EventEmitter.shared().pendingEventListener.collect {
@@ -97,12 +98,14 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         val streamMap = mutableMapOf<EventType, AirshipEventStream>()
         streamGroups.forEach { entry ->
             val stream = AirshipEventStream(entry.value, entry.key, binaryMessenger)
-            entry.value.forEach {type ->
+            stream.register() /// Set up handlers for each stream
+            entry.value.forEach { type ->
                 streamMap[type] = stream
             }
         }
         return streamMap
     }
+
 
     override fun onMethodCall(call: MethodCall, result: Result) {
         val proxy = AirshipProxy.shared(context)
@@ -177,6 +180,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             "inApp#isPaused" -> result.resolveResult(call) { proxy.inApp.isPaused() }
             "inApp#setDisplayInterval" -> result.resolveResult(call) { proxy.inApp.setDisplayInterval(call.longArg()) }
             "inApp#getDisplayInterval" -> result.resolveResult(call) { proxy.inApp.getDisplayInterval() }
+            "inApp#resendLastEmbeddedEvent" -> result.resolveResult(call) { proxy.inApp.resendLastEmbeddedEvent() }
 
             // Analytics
             "analytics#trackScreen" -> result.resolveResult(call) { proxy.analytics.trackScreen(call.optStringArg()) }
@@ -184,8 +188,8 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             "analytics#associateIdentifier" -> {
                 val args = call.stringList()
                 proxy.analytics.associateIdentifier(
-                        args[0],
-                        args.getOrNull(1)
+                    args[0],
+                    args.getOrNull(1)
                 )
             }
 
@@ -214,8 +218,8 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             "preferenceCenter#setAutoLaunch" -> result.resolveResult(call) {
                 val args = call.jsonArgs().requireList()
                 proxy.preferenceCenter.setAutoLaunchPreferenceCenter(
-                        args.get(0).requireString(),
-                        args.get(1).getBoolean(false)
+                    args.get(0).requireString(),
+                    args.get(1).getBoolean(false)
                 )
             }
 
@@ -236,13 +240,13 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 val args = call.jsonArgs().requireList().list
 
                 proxy.actions.runAction(args[0].requireString(), args.getOrNull(1))
-                        .addResultCallback { actionResult ->
-                            if (actionResult != null && actionResult.status == ActionResult.STATUS_COMPLETED) {
-                                callback(actionResult.value, null)
-                            } else {
-                                callback(null, Exception("Action failed ${actionResult?.status}"))
-                            }
+                    .addResultCallback { actionResult ->
+                        if (actionResult != null && actionResult.status == ActionResult.STATUS_COMPLETED) {
+                            callback(actionResult.value, null)
+                        } else {
+                            callback(null, Exception("Action failed ${actionResult?.status}"))
                         }
+                    }
             }
 
             // Feature Flag
@@ -305,40 +309,61 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     override fun onDetachedFromActivity() {
         mainActivity = null
     }
-
-    internal class AirshipEventStream(
-            private val eventTypes: List<EventType>,
-            channelName: String,
-            binaryMessenger: BinaryMessenger
-    ) {
-
+    class AirshipEventStreamHandler : EventChannel.StreamHandler {
         private var eventSink: EventChannel.EventSink? = null
 
-        init {
-            val eventChannel = EventChannel(binaryMessenger, channelName)
-            eventChannel.setStreamHandler(object:EventChannel.StreamHandler {
-                override fun onListen(arguments: Any?, eventSink: EventChannel.EventSink?) {
-                    this@AirshipEventStream.eventSink = eventSink
-                    processPendingEvents()
-                }
-
-                override fun onCancel(p0: Any?) {
-                    this@AirshipEventStream.eventSink = null
-                }
-            })
+        override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+            this.eventSink = events
         }
 
-        fun processPendingEvents() {
-            val sink = eventSink ?: return
+        override fun onCancel(arguments: Any?) {
+            this.eventSink = null
+        }
 
-            EventEmitter.shared().processPending(eventTypes) { event ->
-                sink.success(event.body.unwrap())
+        fun notify(event: Any): Boolean {
+            val sink = eventSink
+            return if (sink != null) {
+                sink.success(event)
                 true
+            } else {
+                false
             }
         }
     }
+    class AirshipEventStream(
+        private val eventTypes: List<EventType>,
+        private val name: String,
+        private val binaryMessenger: BinaryMessenger
+    ) {
+        private val handlers = mutableListOf<AirshipEventStreamHandler>()
+        private val lock = ReentrantLock()
+        private val coroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
+        fun register() {
+            val eventChannel = EventChannel(binaryMessenger, name)
+            val handler = AirshipEventStreamHandler()
+            eventChannel.setStreamHandler(handler)
+
+            lock.withLock {
+                handlers.add(handler)
+            }
+        }
+        fun processPendingEvents() {
+            EventEmitter.shared().processPending(eventTypes) { event ->
+                val unwrappedEvent = event.body.unwrap()
+                if (unwrappedEvent != null) {
+                    notify(unwrappedEvent)
+                } else {
+                    /// If it can't be unwrapped we've processed all we can
+                    true
+                }
+            }
+        }
+
+        private fun notify(event: Any): Boolean {
+            return lock.withLock {
+                handlers.any { it.notify(event) }
+            }
+        }
+    }
 }
-
-
-

@@ -8,14 +8,14 @@ class IOSAuthorizedNotificationSettingsChangedEvent {
   // The authorized settings
   final List<IOSAuthorizedNotificationSetting> authorizedSettings;
 
-  const IOSAuthorizedNotificationSettingsChangedEvent._internal(this.authorizedSettings);
+  const IOSAuthorizedNotificationSettingsChangedEvent._internal(
+      this.authorizedSettings);
 
   static IOSAuthorizedNotificationSettingsChangedEvent fromJson(dynamic json) {
     var authorizedSettings = List<String>.from(json["authorizedSettings"]);
 
     return IOSAuthorizedNotificationSettingsChangedEvent._internal(
-        AirshipUtils.parseIOSAuthorizedSettings(authorizedSettings)
-    );
+        AirshipUtils.parseIOSAuthorizedSettings(authorizedSettings));
   }
 
   @override
@@ -42,28 +42,56 @@ class DisplayMessageCenterEvent {
   }
 }
 
-
 /// Event fired when the message center updates.
 class MessageCenterUpdatedEvent {
-  
   /// Unread count
   final int messageUnreadCount;
 
   /// Message count
   final int messageCount;
 
-  const MessageCenterUpdatedEvent._internal(this.messageUnreadCount, this.messageCount);
+  const MessageCenterUpdatedEvent._internal(
+      this.messageUnreadCount, this.messageCount);
 
   static MessageCenterUpdatedEvent fromJson(dynamic json) {
     var messageUnreadCount = json["messageUnreadCount"];
     var messageCount = json["messageCount"];
-    return MessageCenterUpdatedEvent._internal(messageUnreadCount, messageCount);
+    return MessageCenterUpdatedEvent._internal(
+        messageUnreadCount, messageCount);
   }
 
   @override
   String toString() {
     return "MessageCenterUpdatedEvent(messageUnreadCount=$messageUnreadCount, messageCount=$messageCount)";
   }
+}
+
+class EmbeddedInfo {
+  final String embeddedId;
+
+  EmbeddedInfo(this.embeddedId);
+
+  @override
+  String toString() => "EmbeddedInfo(embeddedId=$embeddedId)";
+}
+
+/// Event fired when embedded view info updates.
+class EmbeddedInfoUpdatedEvent {
+  final List<EmbeddedInfo> embeddedInfos;
+
+  const EmbeddedInfoUpdatedEvent(this.embeddedInfos);
+
+  static EmbeddedInfoUpdatedEvent fromJson(dynamic json) {
+    List<dynamic> pendingList = json['pending'] as List? ?? [];
+
+    List<EmbeddedInfo> embeddedInfos =
+        pendingList.map((item) => EmbeddedInfo(item['embeddedId'])).toList();
+
+    return EmbeddedInfoUpdatedEvent(embeddedInfos);
+  }
+
+  @override
+  String toString() => "EmbeddedInfoUpdatedEvent(embeddedInfos=$embeddedInfos)";
 }
 
 /// Event fired when a channel is created.

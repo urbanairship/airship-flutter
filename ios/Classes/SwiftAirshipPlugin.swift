@@ -15,7 +15,8 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
         .displayPreferenceCenter: "com.airship.flutter/event/display_preference_center",
         .notificationResponseReceived: "com.airship.flutter/event/notification_response",
         .pushReceived: "com.airship.flutter/event/push_received",
-        .notificationStatusChanged: "com.airship.flutter/event/notification_status_changed"
+        .notificationStatusChanged: "com.airship.flutter/event/notification_status_changed",
+        .pendingEmbeddedUpdated: "com.airship.flutter/event/pending_embedded_updated"
     ]
 
     private let streams: [AirshipProxyEventType: AirshipEventStream] = {
@@ -45,6 +46,8 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
         }
 
         registrar.register(AirshipInboxMessageViewFactory(registrar), withId: "com.airship.flutter/InboxMessageView")
+        registrar.register(AirshipEmbeddedViewFactory(registrar), withId: "com.airship.flutter/EmbeddedView")
+
         registrar.addApplicationDelegate(self)
 
         AirshipProxyEventEmitter.shared.pendingEventPublisher.sink { [weak self] (event: any AirshipProxyEvent) in
@@ -282,6 +285,10 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
         case "inApp#getDisplayInterval":
             return try AirshipProxy.shared.inApp.getDisplayInterval()
 
+        case "inApp#resendLastEmbeddedEvent":
+            AirshipProxy.shared.inApp.resendLastEmbeddedEvent()
+            return nil
+
         // Analytics
         case "analytics#trackScreen":
             try AirshipProxy.shared.analytics.trackScreen(
@@ -454,6 +461,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             try AirshipProxy.shared.featureFlagManager.trackInteraction(flag: featureFlagProxy)
 
             return nil
+
         default:
             return FlutterError(
                 code:"UNAVAILABLE",
@@ -539,67 +547,73 @@ extension FlutterMethodCall {
     }
 }
 
-internal class AirshipEventStream : NSObject, FlutterStreamHandler {
 
-    private var eventSink : FlutterEventSink?
+class AirshipEventStreamHandler: NSObject, FlutterStreamHandler {
+    private var eventSink: FlutterEventSink?
+
+    func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+        self.eventSink = events
+        return nil
+    }
+
+    func onCancel(withArguments arguments: Any?) -> FlutterError? {
+        self.eventSink = nil
+        return nil
+    }
+
+    func notify(_ event: Any) -> Bool {
+        if let sink = self.eventSink {
+            sink(event)
+            return true
+        }
+        return false
+    }
+}
+
+class AirshipEventStream: NSObject {
     private let eventType: AirshipProxyEventType
-    private let lock = AirshipLock()
     private let name: String
-    
+    private let lock = AirshipLock()
+    private var handlers: [AirshipEventStreamHandler] = []
+
     init(_ eventType: AirshipProxyEventType, name: String) {
         self.eventType = eventType
         self.name = name
     }
 
-    @MainActor
-    private func notify(_ event: AirshipProxyEvent) -> Bool {
-        var result = false
-        lock.sync {
-            if let sink = self.eventSink {
-                sink(event.body)
-                result = true
-            }
-        }
-        
-        return result
-    }
-    
     func register(registrar: FlutterPluginRegistrar) {
         let eventChannel = FlutterEventChannel(
             name: self.name,
             binaryMessenger: registrar.messenger()
         )
-        eventChannel.setStreamHandler(self)
+        let handler = AirshipEventStreamHandler()
+        eventChannel.setStreamHandler(handler)
+
+        lock.sync {
+            handlers.append(handler)
+        }
     }
-    
+
     @MainActor
     func processPendingEvents() async {
         await AirshipProxyEventEmitter.shared.processPendingEvents(
             type: eventType,
-            handler: { event in
+            handler: { [weak self] event in
+                guard let self = self else { return false }
                 return self.notify(event)
             }
         )
     }
 
-    func onCancel(withArguments arguments: Any?) -> FlutterError? {
+    private func notify(_ event: AirshipProxyEvent) -> Bool {
+        var result = false
         lock.sync {
-            self.eventSink = nil
+            for handler in handlers {
+                if handler.notify(event.body) {
+                    result = true
+                }
+            }
         }
-        
-        return nil
-    }
-
-    
-    func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
-        lock.sync {
-            self.eventSink = events
-        }
-        
-        Task {
-           await processPendingEvents()
-        }
-        
-        return nil
+        return result
     }
 }
