@@ -32,7 +32,7 @@ class AirshipInApp {
         StreamController<List<EmbeddedInfo>>.broadcast(onListen: () {
       if (_isFirstStream) {
         _isFirstStream = false;
-        _resendLastEmbeddedUpdate();
+        _resendLastEmbeddedEvent();
       }
     });
   }
@@ -51,9 +51,9 @@ class AirshipInApp {
     });
   }
 
-  Future<void> _resendLastEmbeddedUpdate() async {
+  Future<void> _resendLastEmbeddedEvent() async {
     try {
-      await _module.channel.invokeMethod("inApp#resendEmbeddedEvent");
+      await _module.channel.invokeMethod("inApp#resendLastEmbeddedEvent");
     } catch (e) {
       print("Error resending embedded update: $e");
     }

@@ -285,7 +285,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
         case "inApp#getDisplayInterval":
             return try AirshipProxy.shared.inApp.getDisplayInterval()
 
-        case "inApp#resendEmbeddedEvent":
+        case "inApp#resendLastEmbeddedEvent":
             AirshipProxy.shared.inApp.resendLastEmbeddedEvent()
             return nil
 

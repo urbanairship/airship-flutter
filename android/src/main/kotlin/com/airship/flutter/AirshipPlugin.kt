@@ -179,6 +179,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             "inApp#isPaused" -> result.resolveResult(call) { proxy.inApp.isPaused() }
             "inApp#setDisplayInterval" -> result.resolveResult(call) { proxy.inApp.setDisplayInterval(call.longArg()) }
             "inApp#getDisplayInterval" -> result.resolveResult(call) { proxy.inApp.getDisplayInterval() }
+            "inApp#resendLastEmbeddedEvent" -> result.resolveResult(call) { proxy.inApp.resendLastEmbeddedEvent() }
 
             // Analytics
             "analytics#trackScreen" -> result.resolveResult(call) { proxy.analytics.trackScreen(call.optStringArg()) }
