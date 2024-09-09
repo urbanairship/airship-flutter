@@ -1,5 +1,14 @@
 # Flutter Plugin Changelog
 
+## Version 7.8.1 - September 09, 2024
+
+Patch release that brings back in-app messages methods and fixes a potential Swift compile error.
+
+### Changes
+
+- Brought back `setPaused()`, `isPaused()`, `setDisplayInterval()` and `displayInterval()` methods.
+- Fixed a potential Swift compile error.
+
 ## Version 7.8.0 - September 3, 2024
 
 Minor release that adds early access support for Embedded Content.
@@ -7,14 +16,6 @@ Minor release that adds early access support for Embedded Content.
 ### Changes
 
 - Adds AirshipEmbeddedView and listener methods to Airship.inApp for Embedded Content.
-
-## Version 7.7.1 - August 16, 2024
-
-Patch release that adds a message center message list refresh operation on iOS. This allows message center messages to properly display when launched from a push while the iOS app is backgrounded. iOS apps that open message center messages directly from push notifications are encouraged to update.
-
-### Changes
-
-- Refresh message center messages when message is initially unavailable on iOS.
 
 ## Version 7.7.1 - August 16, 2024
 
