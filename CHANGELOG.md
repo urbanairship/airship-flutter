@@ -1,6 +1,6 @@
 # Flutter Plugin Changelog
 
-## Version 7.8.1 - September 09, 2024
+## Version 7.8.1 - September 10, 2024
 
 Patch release that brings back in-app messages methods and fixes a potential Swift compile error.
 
