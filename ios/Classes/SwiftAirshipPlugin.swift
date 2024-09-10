@@ -452,8 +452,11 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             return try AirshipJSON.wrap(flag).unWrap()
 
         case "featureFlagManager#trackInteraction":
-            guard let arg = try? call.requireAnyArg() as? String,
-                  let jsonData = arg.data(using: .utf8),
+            guard let arg = try? call.requireAnyArg() as? String else {
+                throw AirshipErrors.error("Call requires a String argument")
+            }
+
+            guard let jsonData = arg.data(using: .utf8),
                   let featureFlagProxy = try? JSONDecoder().decode(FeatureFlagProxy.self, from: jsonData) else {
                 throw AirshipErrors.error("Call requires a json string that's decodable to FeatureFlagProxy")
             }
