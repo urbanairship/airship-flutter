@@ -452,7 +452,8 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             return try AirshipJSON.wrap(flag).unWrap()
 
         case "featureFlagManager#trackInteraction":
-            guard let arg = try? call.requireAnyArg() as? String else {
+            guard let argument = try? call.requireAnyArg(),
+                  let arg = argument as? String else {
                 throw AirshipErrors.error("Call requires a String argument")
             }
 
