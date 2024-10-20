@@ -8,6 +8,11 @@
     <application
         android:label="airship_example"
         android:icon="@mipmap/ic_launcher">
+        
+        <meta-data
+            android:name="com.urbanairship.plugin.extender"
+            android:value="com.urbanairship.sample.AirshipExtender" />
+
         <activity
             android:name="io.flutter.embedding.android.FlutterActivity"
             android:launchMode="singleTop"
