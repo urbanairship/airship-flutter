@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 group 'com.airship.airship'
 version '1.0-SNAPSHOT'
 
@@ -45,19 +43,17 @@ android {
     lintOptions {
         disable 'InvalidPackage'
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
 
-    namespace = 'com.airship.airship'
-}
-
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
-        jvmTarget = "17"
+        jvmTarget = '17'
     }
+
+    namespace = 'com.airship.airship'
 }
 
 dependencies {
