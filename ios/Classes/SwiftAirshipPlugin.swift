@@ -87,7 +87,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             }
         }
     }
-    
+
     @MainActor
     private func handle(_ call: FlutterMethodCall) async throws -> Any? {
         switch call.method {
@@ -204,8 +204,18 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             return nil
         
         case "push#enableUserNotifications":
-            return try await AirshipProxy.shared.push.enableUserPushNotifications()
-            
+            guard let args = try? call.requireAnyArg() as? [String: Any] else {
+                throw AirshipErrors.error("Invalid argument type. Expected dictionary.")
+            }
+
+            let json = try AirshipJSON.wrap(args)
+
+            if let enableArgs: EnableUserPushNotificationsArgs = try? json.decode() {
+                return try? await AirshipProxy.shared.push.enableUserPushNotifications(args: enableArgs)
+            } else {
+                return try? await AirshipProxy.shared.push.enableUserPushNotifications()
+            }
+
         case "push#isUserNotificationsEnabled":
             return try AirshipProxy.shared.push.isUserNotificationsEnabled()
         
@@ -356,6 +366,19 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
                 try call.requireBooleanArg()
             )
             return nil
+
+        case "messageCenter#showMessageCenter":
+            let optionalMessageId = call.arguments as? String
+            try AirshipProxy.shared.messageCenter.showMessageCenter(
+                messageID: optionalMessageId
+            )
+            return nil
+
+        case "messageCenter#showMessageView":
+            try AirshipProxy.shared.messageCenter.showMessageView(
+                messageID: try call.requireStringArg()
+            )
+            return nil
         
         // Preference Center
         case "preferenceCenter#display":
@@ -412,7 +435,6 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
                 featuresNames: try call.requireStringArrayArg()
             )
 
-            
         // Locale
         case "locale#setLocaleOverride":
             try AirshipProxy.shared.locale.setCurrentLocale(
@@ -444,7 +466,102 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
             ) as? AirshipJSON
             return result?.unWrap()
 
-        // Feature Flag
+        // Live Activity
+
+        case "liveActivity#start":
+             guard let args = try? call.requireAnyArg() as? [String: Any] else {
+                 throw AirshipErrors.error("Invalid argument type. Expected dictionary.")
+             }
+
+
+             if #available(iOS 16.1, *) {
+                 do {
+
+                     let json = try AirshipJSON.wrap(args)
+
+                     let decoder = JSONDecoder()
+                     decoder.dateDecodingStrategy = .iso8601
+                     let start:LiveActivityRequest.Start = try json.decode(decoder: decoder)
+
+                     let result = try AirshipJSON.wrap(try await LiveActivityManager.shared.start(start))
+
+                     return result.unWrap()
+                 } catch {
+                     throw AirshipErrors.error("Unable to start request: \(error.localizedDescription)")
+                 }
+             } else {
+                 throw AirshipErrors.error("Not available before iOS 16.1")
+             }
+
+        case "liveActivity#update":
+            guard let args = try? call.requireAnyArg() as? [String: Any] else {
+                throw AirshipErrors.error("Invalid argument type. Expected dictionary.")
+            }
+
+
+            if #available(iOS 16.1, *) {
+                let json = try AirshipJSON.wrap(args)
+
+                let decoder = JSONDecoder()
+                decoder.dateDecodingStrategy = .iso8601
+                let update:LiveActivityRequest.Update = try json.decode(decoder: decoder)
+
+                try await LiveActivityManager.shared.update(update)
+
+                return nil
+            } else {
+                throw AirshipErrors.error("Not available before iOS 16.1")
+            }
+        case "liveActivity#listAll":
+            if #available(iOS 16.1, *) {
+                let result = try await LiveActivityManager.shared.listAll()
+                return try AirshipJSON.wrap(result).unWrap() as Any
+            } else {
+                throw AirshipErrors.error("Not available before 16.1")
+            }
+
+        case "liveActivity#list":
+            if #available(iOS 16.1, *) {
+                let result = try await LiveActivityManager.shared.list(try AirshipJSON.wrap(call.arguments).decode())
+                return try AirshipJSON.wrap(result).unWrap() as Any
+            } else {
+                throw AirshipErrors.error("Not available before 16.1")
+            }
+        case "liveActivity#stop":
+            guard let args = try? call.requireAnyArg() as? [String: Any] else {
+                throw AirshipErrors.error("Invalid argument type. Expected dictionary.")
+            }
+
+            if #available(iOS 16.1, *) {
+                let json = try AirshipJSON.wrap(args)
+
+                let decoder = JSONDecoder()
+                decoder.dateDecodingStrategy = .iso8601
+                let request:LiveActivityRequest.End = try json.decode(decoder: decoder)
+
+                try await LiveActivityManager.shared.end(request)
+
+                return nil
+            } else {
+                throw AirshipErrors.error("Not available before iOS 16.1")
+            }
+
+        case "liveUpdate#start":
+            throw AirshipErrors.error("Not available on iOS")
+
+        case "liveUpdate#listAll":
+            throw AirshipErrors.error("Not available on iOS")
+
+        case "liveUpdate#list":
+            throw AirshipErrors.error("Not available on iOS")
+
+        case "liveUpdate#update":
+            throw AirshipErrors.error("Not available on iOS")
+
+        case "liveUpdate#end":
+            throw AirshipErrors.error("Not available on iOS")
+
+            // Feature Flag
         case "featureFlagManager#flag":
             let flag = try await AirshipProxy.shared.featureFlagManager.flag(
                 name: try call.requireStringArg()
