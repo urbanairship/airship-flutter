@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:airship_example/styles.dart';
 
-typedef void TapCallback(String text);
+typedef TapCallback = void Function(String text);
 
 class NotificationsEnabledButton extends StatelessWidget {
-  final onPressed;
+  final VoidCallback onPressed;
 
-  NotificationsEnabledButton({
+  const NotificationsEnabledButton({
+    super.key,
     required this.onPressed,
   });
 
@@ -16,15 +17,15 @@ class NotificationsEnabledButton extends StatelessWidget {
         child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: MaterialButton(
-                child: Text(
-                  "Enable Push",
-                  style: Styles.homeButtonText,
-                ),
                 color: Styles.airshipRed,
                 shape: StadiumBorder(),
                 height: 40,
                 minWidth: 400,
                 padding: EdgeInsets.symmetric(vertical: 35),
-                onPressed: onPressed)));
+                onPressed: onPressed,
+                child: Text(
+                  "Enable Push",
+                  style: Styles.homeButtonText,
+                ))));
   }
 }

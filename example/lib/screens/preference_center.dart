@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+// ignore: depend_on_referenced_packages
 import 'package:airship_flutter/airship_flutter.dart';
 import 'package:flutter_section_list/flutter_section_list.dart';
 
 class PreferenceCenter extends StatefulWidget {
+  const PreferenceCenter({super.key});
+
   @override
-  _PreferenceCenterState createState() => _PreferenceCenterState();
+  PreferenceCenterState createState() => PreferenceCenterState();
 }
 
-class _PreferenceCenterState extends State<PreferenceCenter>
+class PreferenceCenterState extends State<PreferenceCenter>
     with SectionAdapterMixin {
   String preferenceCenterId = "neat";
   PreferenceCenterConfig? fullPreferenceCenterConfig;
@@ -32,7 +35,9 @@ class _PreferenceCenterState extends State<PreferenceCenter>
     Airship.preferenceCenter.onDisplay.listen((event) {});
 
     Airship.push.onNotificationStatusChanged.listen((event) {
-      setState(() { isOptedInToNotifications = event.status.isOptedIn; });
+      setState(() {
+        isOptedInToNotifications = event.status.isOptedIn;
+      });
     });
   }
 
@@ -67,15 +72,15 @@ class _PreferenceCenterState extends State<PreferenceCenter>
   /// Filtered version of the preference center config based on the conditions
   /// defined by sections and items.
   PreferenceCenterConfig? get preferenceCenterConfig {
-    var state = new PreferenceCenterConditionState(isOptedInToNotifications);
+    var state = PreferenceCenterConditionState(isOptedInToNotifications);
 
     if (fullPreferenceCenterConfig == null) return null;
 
-    var sections = fullPreferenceCenterConfig!.sections.where((s) =>
-        s.evaluateConditions(state)
-    ).map((s) => s.copy(
-        s.items?.where((i) => i.evaluateConditions(state)).toList() ?? []
-    )).toList();
+    var sections = fullPreferenceCenterConfig!.sections
+        .where((s) => s.evaluateConditions(state))
+        .map((s) => s.copy(
+            s.items?.where((i) => i.evaluateConditions(state)).toList() ?? []))
+        .toList();
 
     return fullPreferenceCenterConfig!.copy(sections);
   }
@@ -99,8 +104,9 @@ class _PreferenceCenterState extends State<PreferenceCenter>
       } else {
         return false;
       }
-    } else
+    } else {
       return false;
+    }
   }
 
   void onPreferenceChannelItemToggled(String subscriptionId, bool subscribe) {
@@ -119,10 +125,11 @@ class _PreferenceCenterState extends State<PreferenceCenter>
   void applyContactSubscription(
       String subscriptionId, List<ChannelScope> scopes, bool subscribe) {
     List<ChannelScope> currentScopes =
-        activeContactSubscriptions[subscriptionId] ?? List.empty(growable: true);
+        activeContactSubscriptions[subscriptionId] ??
+            List.empty(growable: true);
     List<ChannelScope> newScopes = List.empty(growable: true);
     if (subscribe) {
-      newScopes = new List.from(currentScopes)..addAll(scopes);
+      newScopes = List.from(currentScopes)..addAll(scopes);
     } else {
       currentScopes.removeWhere((item) => scopes.contains(item));
       newScopes = currentScopes;
@@ -266,11 +273,9 @@ class _PreferenceCenterState extends State<PreferenceCenter>
 
   @override
   Widget getItem(BuildContext context, IndexPath indexPath) {
-    return Container(
-      child: Stack(
-        alignment: AlignmentDirectional.bottomCenter,
-        children: <Widget>[item(indexPath), Divider(height: 0.5)],
-      ),
+    return Stack(
+      alignment: AlignmentDirectional.bottomCenter,
+      children: <Widget>[item(indexPath), Divider(height: 0.5)],
     );
   }
 
@@ -287,9 +292,9 @@ class _PreferenceCenterState extends State<PreferenceCenter>
     return Container(
       color: Colors.blueGrey,
       child: ListTile(
-        title: Text('${preferenceCenterConfig?.display?.title ?? ''}',
+        title: Text(preferenceCenterConfig?.display?.title ?? '',
             style: TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text('${preferenceCenterConfig?.display?.subtitle ?? ''}'),
+        subtitle: Text(preferenceCenterConfig?.display?.subtitle ?? ''),
       ),
     );
   }
@@ -305,10 +310,10 @@ class _PreferenceCenterState extends State<PreferenceCenter>
       color: Colors.cyan,
       child: ListTile(
         title: Text(
-            '${preferenceCenterConfig?.sections[section].display?.title ?? ''}',
+            preferenceCenterConfig?.sections[section].display?.title ?? '',
             style: TextStyle(fontWeight: FontWeight.bold)),
         subtitle: Text(
-            '${preferenceCenterConfig?.sections[section].display?.subtitle ?? ''}'),
+            preferenceCenterConfig?.sections[section].display?.subtitle ?? ''),
       ),
     );
   }

@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:airship_example/screens/tag_add.dart';
 import 'package:airship_example/screens/named_user_add.dart';
 import 'package:airship_example/styles.dart';
+// ignore: depend_on_referenced_packages
 import 'package:airship_flutter/airship_flutter.dart';
 
 class Settings extends StatefulWidget {
+  const Settings({super.key});
+
   @override
-  _SettingsState createState() => _SettingsState();
+  SettingsState createState() => SettingsState();
 }
 
-class _SettingsState extends State<Settings> {
+class SettingsState extends State<Settings> {
   @override
   void initState() {
     Airship.analytics.trackScreen('Settings');
