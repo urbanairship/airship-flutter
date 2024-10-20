@@ -29,9 +29,7 @@ class FlutterAutopilot : BaseAutopilot() {
     private val appContext: Context
         get() = UAirship.getApplicationContext()
 
-    override fun onAirshipReady(airship: UAirship) {
-        super.onAirshipReady(airship)
-
+    override fun onReady(context: Context, airship: UAirship) {
         Log.i("FlutterAutopilot", "onAirshipReady")
 
         // If running in the background, start the background Isolate
@@ -65,7 +63,6 @@ class FlutterAutopilot : BaseAutopilot() {
             }
         }
     }
-
 
     companion object {
         private val APP_KEY = stringPreferencesKey("app_key")
