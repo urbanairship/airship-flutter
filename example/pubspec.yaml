@@ -8,10 +8,11 @@ environment:
   sdk: ">=2.17.2 <4.0.0"
 
 dependencies:
+  uuid: ^3.0.7 # For live activities
   flutter:
     sdk: flutter
   flutter_section_list: ^1.1.1
-
+  collection: ^1.18.0
 
 dev_dependencies:
 
@@ -20,7 +21,7 @@ dev_dependencies:
 
   airship_flutter:
     path: ../
-
+  flutter_lints: ^2.0.0  # Add this line (use the latest version available)
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec
 
