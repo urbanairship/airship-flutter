@@ -20,7 +20,6 @@ export 'src/push_notification_status.dart';
 export 'src/push_payload.dart';
 export 'src/ios_push_options.dart';
 
-
 export 'src/attribute_editor.dart';
 export 'src/channel_scope.dart';
 export 'src/custom_event.dart';
@@ -32,4 +31,7 @@ export 'src/scoped_subscription_list_editor.dart';
 export 'src/subscription_list_editor.dart';
 export 'src/tag_group_editor.dart';
 export 'src/tag_editor.dart';
-
+export 'src/live_activity.dart';
+export 'src/live_update.dart';
+export 'src/airship_live_activity_manager.dart';
+export 'src/airship_live_update_manager.dart';
