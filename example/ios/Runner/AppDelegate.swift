@@ -1,8 +1,10 @@
+/* Copyright Airship and Contributors */
+
 import UIKit
 import Flutter
 import AirshipKit
 
-@UIApplicationMain
+@main
 @objc class AppDelegate: FlutterAppDelegate {
   override func application(
     _ application: UIApplication,
