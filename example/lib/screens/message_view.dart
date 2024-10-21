@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+// ignore: depend_on_referenced_packages
 import 'package:airship_flutter/airship_flutter.dart';
 import 'package:airship_example/styles.dart';
 import 'package:flutter/services.dart';
@@ -7,13 +8,13 @@ import 'package:collection/collection.dart';
 class MessageView extends StatefulWidget {
   final String messageId;
 
-  MessageView({required this.messageId});
+  const MessageView({super.key, required this.messageId});
 
   @override
-  _MessageViewState createState() => _MessageViewState();
+  MessageViewState createState() => MessageViewState();
 }
 
-class _MessageViewState extends State<MessageView> {
+class MessageViewState extends State<MessageView> {
   bool isLoading = true;
 
   @override
@@ -38,7 +39,7 @@ class _MessageViewState extends State<MessageView> {
 
           return Scaffold(
             appBar: AppBar(
-              title: message != null ? Text("${message.title}") : Container(),
+              title: message != null ? Text(message.title) : Container(),
               backgroundColor: Styles.background,
             ),
             body: Stack(children: <Widget>[
@@ -82,7 +83,7 @@ class _MessageViewState extends State<MessageView> {
           builder: (context) => AlertDialog(
                 title: Text(
                     e.message != null ? e.message! : "Unable to load message"),
-                content: Text(e.details != null ? e.details : ""),
+                content: Text(e.details ?? ""),
               ));
     });
   }

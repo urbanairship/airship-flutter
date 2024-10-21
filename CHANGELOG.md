@@ -1,5 +1,29 @@
 # Flutter Plugin Changelog
 
+## Version 7.9.0 - October 20, 2024
+
+Minor version release with several new features including: iOS Live Activities, Android Live Updates, Message Center improvements, and iOS notification service extension support in the iOS example project.
+
+### Changes
+
+- Updated Airship Android SDK to [18.3.3](https://github.com/urbanairship/android-library/releases/tag/18.3.3)
+- Updated Airship iOS SDK to [18.11.1](https://github.com/urbanairship/ios-library/releases/tag/18.11.1)
+- Added `notificationPermissionStatus` to `PushNotificationStatus`
+- Added options to `enableUserNotifications` to specify the `PromptPermissionFallback` when enabling user notifications
+- Added new `showMessageCenter(messageId?: string)` and `showMessageView(messageId: string)` to `MessageCenter` to display the OOTB UI even if `autoLaunchDefaultMessageCenter` is disabled
+- Added new APIs to manage [iOS Live Activities](https://docs.airship.com/platform/mobile/ios-live-activities/)
+- Added new APIs to manage [Android Live Updates](https://docs.airship.com/platform/mobile/android-live-updates/)
+- Added a new [iOS plugin extender]() to modify the native Airship SDK after takeOff
+- Added new [Android plugin extender]() to modify the native Airship SDK after takeOff
+
+## Version 7.8.2 - September 13, 2024
+
+Patch release that fixes a potential Swift compile error.
+
+### Changes
+
+- Fixed a potential Swift compile error.
+
 ## Version 7.8.2 - September 13, 2024
 
 Patch release that fixes a potential Swift compile error.

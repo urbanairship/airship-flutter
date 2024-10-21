@@ -39,6 +39,12 @@ class Airship {
   /// The [AirshipFeatureFlagManager] instance.
   static final featureFlagManager = AirshipFeatureFlagManager(_module);
 
+  /// The [AirshipLiveActivityManager] instance.
+  static final liveActivityManager = AirshipLiveActivityManager(_module);
+
+  /// The [AirshipLiveUpdateManager] instance.
+  static final liveUpdateManager = AirshipLiveUpdateManager(_module);
+
   //
   /// Initializes Airship with the given config. Airship will store the config
   /// and automatically use it during the next app init. Any chances to config

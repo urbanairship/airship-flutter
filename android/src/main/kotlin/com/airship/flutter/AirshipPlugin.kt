@@ -3,13 +3,16 @@ package com.airship.flutter
 import android.app.Activity
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import com.urbanairship.actions.ActionResult
-import com.urbanairship.android.framework.proxy.Event
 import com.urbanairship.android.framework.proxy.EventType
 import com.urbanairship.android.framework.proxy.events.EventEmitter
 import com.urbanairship.android.framework.proxy.proxies.AirshipProxy
 import com.urbanairship.android.framework.proxy.proxies.FeatureFlagProxy
+import com.urbanairship.android.framework.proxy.proxies.LiveUpdateRequest
+import com.urbanairship.android.framework.proxy.proxies.EnableUserNotificationsArgs
 import com.urbanairship.json.JsonValue
+import com.urbanairship.json.toJsonList
 import io.flutter.embedding.engine.FlutterShellArgs
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -25,6 +28,8 @@ import io.flutter.plugin.platform.PlatformViewRegistry
 import kotlinx.coroutines.*
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
+import kotlinx.coroutines.Dispatchers
+
 
 class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
@@ -109,6 +114,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     override fun onMethodCall(call: MethodCall, result: Result) {
         val proxy = AirshipProxy.shared(context)
+        val coroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
         when (call.method) {
             // Flutter
@@ -116,6 +122,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
             // Airship
             "takeOff" -> result.resolveResult(call) { proxy.takeOff(call.jsonArgs()) }
+            
             "isFlying" -> result.resolveResult(call) { proxy.isFlying() }
 
             // Channel
@@ -153,9 +160,32 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
             // Push
             "push#setUserNotificationsEnabled" -> result.resolveResult(call) { proxy.push.setUserNotificationsEnabled(call.booleanArg()) }
-            "push#enableUserNotifications" -> result.resolvePending(call) { proxy.push.enableUserPushNotifications() }
+            "push#enableUserNotifications" -> {
+                val args = call.jsonArgs()
+
+                val enableArgs = args?.let {
+                    try {
+                        EnableUserNotificationsArgs.fromJson(it)
+                    } catch (e: Exception) {
+                        null
+                    }
+                }
+
+                coroutineScope.launch {
+                    try {
+                        val enableResult = proxy.push.enableUserPushNotifications(enableArgs)
+                        result.success(enableResult)
+                    } catch (e: Exception) {
+                        result.error("ERROR", "Failed to enable user notifications", e.localizedMessage)
+                    }
+                }
+            }
             "push#isUserNotificationsEnabled" -> result.resolveResult(call) { proxy.push.isUserNotificationsEnabled() }
-            "push#getNotificationStatus" -> result.resolveResult(call) { proxy.push.getNotificationStatus() }
+            "push#getNotificationStatus" -> result.resolveResult(call) {
+                coroutineScope.launch {
+                    proxy.push.getNotificationStatus()
+                }
+            }
             "push#getActiveNotifications" -> result.resolveResult(call) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     proxy.push.getActiveNotifications()
@@ -197,6 +227,8 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             "messageCenter#getMessages" -> result.resolveResult(call) {
                 JsonValue.wrapOpt(proxy.messageCenter.getMessages())
             }
+            "messageCenter#showMessageCenter" -> result.resolveResult(call) { proxy.messageCenter.showMessageCenter(call.optStringArg()) }
+            "messageCenter#showMessageView" -> result.resolveResult(call) { proxy.messageCenter.showMessageView(call.stringArg()) }
             "messageCenter#display" -> result.resolveResult(call) { proxy.messageCenter.display(call.optStringArg()) }
             "messageCenter#markMessageRead" -> result.resolveResult(call) { proxy.messageCenter.markMessageRead(call.stringArg()) }
             "messageCenter#deleteMessage" -> result.resolveResult(call) { proxy.messageCenter.deleteMessage(call.stringArg()) }
@@ -247,6 +279,121 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                             callback(null, Exception("Action failed ${actionResult?.status}"))
                         }
                     }
+            }
+            // Live Activities
+
+            "featureFlagManager#trackInteraction" -> {
+                result.resolveDeferred(call) { callback ->
+                    scope.launch {
+                        try {
+                            val args = call.jsonArgs()
+
+                            val wrapped = JsonValue.wrap(args)
+                            val featureFlagProxy = FeatureFlagProxy(wrapped)
+                            proxy.featureFlagManager.trackInteraction(flag = featureFlagProxy)
+                            callback(null, null)
+                        } catch (e: Exception) {
+                            callback(null, e)
+                        }
+                    }
+                }
+            }
+
+            "liveUpdate#start" -> result.resolveResult(call) {
+                try {
+                    val args = call.jsonArgs()
+                    Log.d("AirshipPlugin", "Received args for liveUpdate#start: $args")
+
+                    val startRequest = LiveUpdateRequest.Start.fromJson(args)
+
+                    Log.d("AirshipPlugin", "Created LiveUpdateRequest.Start: $startRequest")
+
+                    proxy.liveUpdateManager.start(startRequest)
+                    Log.d("AirshipPlugin", "LiveUpdate start method called successfully")
+
+                    null // Return null as the start function doesn't return anything
+                } catch (e: Exception) {
+                    throw e
+                }
+            }
+
+            "liveUpdate#update" -> result.resolveResult(call) {
+                try {
+                    val args = call.jsonArgs()
+                    Log.d("AirshipPlugin", "Received args for liveUpdate#update: $args")
+
+                    val updateRequest = LiveUpdateRequest.Update.fromJson(args)
+
+                    proxy.liveUpdateManager.update(updateRequest)
+                    Log.d("AirshipPlugin", "LiveUpdate update method called successfully")
+                    null
+                } catch (e: Exception) {
+                    Log.e("AirshipPlugin", "Error processing liveUpdate#update request", e)
+                    throw e
+                }
+            }
+
+            "liveUpdate#list" -> result.resolveDeferred(call) { callback ->
+                try {
+                    val args = call.jsonArgs()
+                    Log.d("AirshipPlugin", "Received args for liveUpdate#list: $args")
+
+                    val listRequest = LiveUpdateRequest.List.fromJson(args)
+
+                    coroutineScope.launch {
+                        try {
+                            val liveUpdates = proxy.liveUpdateManager.list(listRequest)
+                            Log.d("AirshipPlugin", "LiveUpdate list method completed successfully")
+                            callback(liveUpdates.toJsonList(), null)
+                        } catch (e: Exception) {
+                            Log.e("AirshipPlugin", "Error listing LiveUpdates", e)
+                            callback(null, e)
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e("AirshipPlugin", "Error processing liveUpdate#list request", e)
+                    callback(null, e)
+                }
+            }
+
+            "liveUpdate#listAll" -> result.resolveDeferred(call) { callback ->
+                coroutineScope.launch {
+                    try {
+                        val liveUpdates = proxy.liveUpdateManager.listAll()
+                        Log.d("AirshipPlugin", "LiveUpdate listAll method completed successfully")
+                        callback(JsonValue.wrap(liveUpdates), null)
+                    } catch (e: Exception) {
+                        Log.e("AirshipPlugin", "Error listing all LiveUpdates", e)
+                        callback(null, e)
+                    }
+                }
+            }
+
+            "liveUpdate#end" -> result.resolveResult(call) {
+                try {
+                    val args = call.jsonArgs()
+                    Log.d("AirshipPlugin", "Received args for liveUpdate#end: $args")
+
+                    val endRequest = LiveUpdateRequest.End.fromJson(args)
+
+                    proxy.liveUpdateManager.end(endRequest)
+                    Log.d("AirshipPlugin", "LiveUpdate end method called successfully")
+                    null
+                } catch (e: Exception) {
+                    Log.e("AirshipPlugin", "Error processing liveUpdate#end request", e)
+                    throw e
+                }
+            }
+
+            "liveUpdate#clearAll" -> result.resolveResult(call) {
+                try {
+                    proxy.liveUpdateManager.clearAll()
+                    Log.d("AirshipPlugin", "LiveUpdate clearAll method called successfully")
+                    null
+                } catch (e: Exception) {
+                    Log.e("AirshipPlugin", "Error processing liveUpdate#clearAll request", e)
+                    throw e
+                }
             }
 
             // Feature Flag

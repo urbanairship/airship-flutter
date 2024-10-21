@@ -10,7 +10,6 @@ import 'package:flutter/widgets.dart' hide Notification;
 import 'airship_utils.dart';
 
 class AirshipPush {
-
   final AirshipModule _module;
   final IOSPush iOS;
   final AndroidPush android;
@@ -22,25 +21,32 @@ class AirshipPush {
 
   /// Tells if user notifications are enabled or not.
   Future<bool> get isUserNotificationsEnabled async {
-    return await _module.channel.invokeMethod(
-        'push#isUserNotificationsEnabled');
+    return await _module.channel
+        .invokeMethod('push#isUserNotificationsEnabled');
   }
 
   /// Enables or disables the user notifications.
   Future<void> setUserNotificationsEnabled(bool enabled) async {
-    return await _module.channel.invokeMethod(
-        'push#setUserNotificationsEnabled', enabled);
+    return await _module.channel
+        .invokeMethod('push#setUserNotificationsEnabled', enabled);
   }
 
   /// Enables user notifications.
-  Future<bool?> enableUserNotifications() async {
-    return await _module.channel.invokeMethod('push#enableUserNotifications');
+  ///
+  /// [args] Optional arguments for enabling user notifications.
+  ///
+  /// Returns a Future with the permission result. The result may be null if the operation fails.
+  Future<bool?> enableUserNotifications(
+      {EnableUserPushNotificationsArgs? options}) async {
+    final Map<String, dynamic> arguments = options?.toJson() ?? {};
+    return await _module.channel
+        .invokeMethod('push#enableUserNotifications', arguments);
   }
 
   /// Gets the notification status.
   Future<PushNotificationStatus?> get notificationStatus async {
-    var payload = await _module.channel.invokeMethod(
-        'push#getNotificationStatus');
+    var payload =
+        await _module.channel.invokeMethod('push#getNotificationStatus');
     return PushNotificationStatus.fromJson(Map<String, dynamic>.from(payload));
   }
 
@@ -54,7 +60,7 @@ class AirshipPush {
   /// Supported on Android Marshmallow (23)+ and iOS 10+.
   Future<List<PushPayload>> get activeNotifications async {
     List notifications =
-    await (_module.channel.invokeMethod('push#getActiveNotifications'));
+        await (_module.channel.invokeMethod('push#getActiveNotifications'));
     return notifications.map((dynamic payload) {
       return PushPayload.fromJson(payload);
     }).toList();
@@ -64,8 +70,8 @@ class AirshipPush {
   ///
   /// The [notification] parameter is the notification ID.
   Future<void> clearNotification(String notification) async {
-    return await _module.channel.invokeMethod(
-        'push#clearNotification', notification);
+    return await _module.channel
+        .invokeMethod('push#clearNotification', notification);
   }
 
   /// Clears all notifications for the application.
@@ -99,7 +105,7 @@ class AirshipPush {
     return _module
         .getEventStream("com.airship.flutter/event/notification_status_changed")
         .map((dynamic value) =>
-        PushNotificationStatusChangedEvent.fromJson(value));
+            PushNotificationStatusChangedEvent.fromJson(value));
   }
 }
 
@@ -108,8 +114,7 @@ class AndroidPush {
   final AirshipModule _module;
   static bool _isBackgroundHandlerSet = false;
 
-  AndroidPush(AirshipModule module)
-      : _module = module;
+  AndroidPush(AirshipModule module) : _module = module;
 
   /// Sets a background message handler.
   Future<void> setBackgroundPushReceivedHandler(
@@ -123,8 +128,7 @@ class AndroidPush {
     }
     _isBackgroundHandlerSet = true;
 
-    final isolateCallback =
-    PluginUtilities.getCallbackHandle(
+    final isolateCallback = PluginUtilities.getCallbackHandle(
         _androidBackgroundMessageIsolateCallback)!;
     final messageCallback = PluginUtilities.getCallbackHandle(handler)!;
     await _module.channel.invokeMapMethod("startBackgroundIsolate", {
@@ -133,7 +137,6 @@ class AndroidPush {
     });
   }
 }
-
 
 @pragma('vm:entry-point')
 void _androidBackgroundMessageIsolateCallback() {
@@ -144,7 +147,7 @@ void _androidBackgroundMessageIsolateCallback() {
       final args = call.arguments;
       final handle = CallbackHandle.fromRawHandle(args["messageCallback"]);
       final callback = PluginUtilities.getCallbackFromHandle(handle)
-      as AndroidBackgroundPushReceivedHandler;
+          as AndroidBackgroundPushReceivedHandler;
       try {
         final event = PushReceivedEvent.fromJson(args["event"]);
         await callback(event);
@@ -158,23 +161,22 @@ void _androidBackgroundMessageIsolateCallback() {
   });
 
   // Tell the native side to start the background isolate.
-  AirshipModule.singleton.backgroundChannel.invokeMethod<void>(
-      "backgroundIsolateStarted");
+  AirshipModule.singleton.backgroundChannel
+      .invokeMethod<void>("backgroundIsolateStarted");
 }
 
 /// Specific iOS Push configuration
 class IOSPush {
   final AirshipModule _module;
 
-  IOSPush(AirshipModule module)
-      : _module = module;
+  IOSPush(AirshipModule module) : _module = module;
 
   /// Checks if auto-badging is enabled on iOS. Badging is not supported for Android.
   Future<bool> isAutoBadgeEnabled() async {
     var isAutoBadgeEnabled = false;
     if (Platform.isIOS) {
       isAutoBadgeEnabled =
-      await _module.channel.invokeMethod('push#ios#isAutobadgeEnabled');
+          await _module.channel.invokeMethod('push#ios#isAutobadgeEnabled');
     }
     return isAutoBadgeEnabled;
   }
@@ -213,8 +215,8 @@ class IOSPush {
       }
     }
 
-    return await _module.channel.invokeMethod(
-        'push#ios#setNotificationOptions', strings);
+    return await _module.channel
+        .invokeMethod('push#ios#setNotificationOptions', strings);
   }
 
   /// Sets the notification options.
@@ -242,8 +244,8 @@ class IOSPush {
       }
     }
 
-    return await _module.channel.invokeMethod(
-        'push#ios#setForegroundPresentationOptions', strings);
+    return await _module.channel
+        .invokeMethod('push#ios#setForegroundPresentationOptions', strings);
   }
 
   /// Enables or disables auto-badging on iOS. Badging is not supported for Android.
@@ -252,8 +254,8 @@ class IOSPush {
       return Future.value();
     }
 
-    return await _module.channel.invokeMethod(
-        'push#ios#setAutobadgeEnabled', enabled);
+    return await _module.channel
+        .invokeMethod('push#ios#setAutobadgeEnabled', enabled);
   }
 
   /// Sets the [badge] number on iOS. Badging is not supported for Android.
@@ -261,8 +263,7 @@ class IOSPush {
     if (!Platform.isIOS) {
       return Future.value();
     }
-    return await _module.channel.invokeMethod(
-        'push#ios#setBadgeNumber', badge);
+    return await _module.channel.invokeMethod('push#ios#setBadgeNumber', badge);
   }
 
   /// Gets the [badge] number on iOS. Badging is not supported for Android.
@@ -282,46 +283,43 @@ class IOSPush {
   }
 
   /// Gets the authorized notification settings.
-  Future<List<
-      IOSAuthorizedNotificationSetting>> get authorizedNotificationSettings async {
+  Future<List<IOSAuthorizedNotificationSetting>>
+      get authorizedNotificationSettings async {
     if (!Platform.isIOS) {
       return Future.value(List.empty());
     }
-    var strings = List<String>.from(
-        await _module.channel.invokeMethod(
-            'push#ios#getAuthorizedNotificationSettings')
-    );
+    var strings = List<String>.from(await _module.channel
+        .invokeMethod('push#ios#getAuthorizedNotificationSettings'));
 
     return AirshipUtils.parseIOSAuthorizedSettings(strings);
   }
 
   /// Gets the authorized notification status.
-  Future<
-      IOSAuthorizedNotificationStatus> get authorizedNotificationStatus async {
+  Future<IOSAuthorizedNotificationStatus>
+      get authorizedNotificationStatus async {
     if (!Platform.isIOS) {
       return Future.value(IOSAuthorizedNotificationStatus.notDetermined);
     }
-    var status = await _module.channel.invokeMethod(
-        'push#ios#getAuthorizedNotificationStatus');
+    var status = await _module.channel
+        .invokeMethod('push#ios#getAuthorizedNotificationStatus');
 
     return AirshipUtils.parseIOSAuthorizedStatus(status);
   }
 
   /// Gets the authorized settings changed event stream.
-  Stream<
-      IOSAuthorizedNotificationSettingsChangedEvent> get onAuthorizedSettingsChanged {
-
+  Stream<IOSAuthorizedNotificationSettingsChangedEvent>
+      get onAuthorizedSettingsChanged {
     if (!Platform.isIOS) {
       return Stream.empty();
     }
 
     return _module
         .getEventStream(
-        "com.airship.flutter/event/ios_authorized_notification_settings_changed")
+            "com.airship.flutter/event/ios_authorized_notification_settings_changed")
         .map((dynamic value) =>
-        IOSAuthorizedNotificationSettingsChangedEvent.fromJson(value));
+            IOSAuthorizedNotificationSettingsChangedEvent.fromJson(value));
   }
 }
 
-typedef AndroidBackgroundPushReceivedHandler = Future<
-    void> Function(PushReceivedEvent pushReceivedEvent);
+typedef AndroidBackgroundPushReceivedHandler = Future<void> Function(
+    PushReceivedEvent pushReceivedEvent);

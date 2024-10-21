@@ -2,8 +2,6 @@ import Flutter
 import AirshipKit
 import AirshipFrameworkProxy
 
-
-@objc(FlutterAirshipAutopilot)
 public class AirshipAutopilot: NSObject {
     
     @objc

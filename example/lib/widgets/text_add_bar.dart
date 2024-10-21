@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:airship_example/styles.dart';
 import 'package:flutter/services.dart' show SystemChannels;
 
-typedef void TapCallback(String text);
+typedef TapCallback = void Function(String text);
 
 class TextAddBar extends StatelessWidget {
   final String label;
@@ -11,6 +11,7 @@ class TextAddBar extends StatelessWidget {
   final focusNode = FocusNode();
 
   TextAddBar({
+    super.key,
     required this.label,
     required this.onTap,
   });

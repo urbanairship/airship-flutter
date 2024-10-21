@@ -8,6 +8,7 @@ import 'package:airship_example/styles.dart';
 import 'package:flutter/services.dart' show DeviceOrientation, SystemChrome;
 
 import 'package:airship_example/screens/home.dart';
+// ignore: depend_on_referenced_packages
 import 'package:airship_flutter/airship_flutter.dart';
 
 // Supported deep links
@@ -28,6 +29,10 @@ void main() {
   ]);
 
   var config = AirshipConfig(
+    androidConfig: AndroidConfig(
+        notificationConfig: AndroidNotificationConfig(
+      icon: "ic_notification",
+    )),
     defaultEnvironment: ConfigEnvironment(
         appKey: "APP_KEY",
         appSecret: "APP_SECRET",
@@ -50,7 +55,10 @@ void main() {
 }
 
 class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _MyAppState createState() => _MyAppState();
 }
 
@@ -146,7 +154,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
 
     Airship.messageCenter.onDisplay.listen((event) {
       key.currentState
-          ?.push(MaterialPageRoute<Null>(builder: (BuildContext context) {
+          ?.push(MaterialPageRoute<void>(builder: (BuildContext context) {
         return event.messageId != null
             ? MessageView(
                 messageId: event.messageId ?? "",
@@ -197,7 +205,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
               unselectedLabelColor: Colors.grey, // Set unselected label color
               labelColor:
                   Styles.airshipBlue, // Set selected label color to airshipBlue
-              tabs: <Tab>[
+              tabs: const <Tab>[
                 Tab(
                   icon: Icon(Icons.home),
                 ),
@@ -221,17 +229,18 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
 
   Widget tabBarView() {
     return PopScope(
+      // ignore: deprecated_member_use
       onPopInvoked: null,
       child: Scaffold(
         backgroundColor: Styles.borders,
         body: TabBarView(
-          children: <Widget>[
+          controller: controller,
+          children: const <Widget>[
             Home(),
             MessageCenter(),
             PreferenceCenter(),
             Settings()
           ],
-          controller: controller,
         ),
         bottomNavigationBar: bottomNavigationBar(),
       ),
