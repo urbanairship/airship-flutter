@@ -2,7 +2,7 @@
 
 ## Version 7.9.0 - October 20, 2024
 
-Minor version release with several new features including: iOS Live Activities, Android Live Updates, Message Center improvements including message expiration date, and iOS notification service extension support in the iOS example project.
+Minor version release with several new features including: iOS Live Activities, Android Live Updates, Message Center improvements, and iOS notification service extension support in the iOS example project.
 
 ### Changes
 

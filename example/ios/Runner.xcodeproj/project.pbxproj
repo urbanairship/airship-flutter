@@ -19,8 +19,6 @@
 		99041C042CC1DAE500031558 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 99041C032CC1DAE500031558 /* SwiftUI.framework */; };
 		99041C072CC1DAE500031558 /* ExampleWidgetsBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99041C062CC1DAE500031558 /* ExampleWidgetsBundle.swift */; };
 		99041C092CC1DAE500031558 /* ExampleWidgetsLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99041C082CC1DAE500031558 /* ExampleWidgetsLiveActivity.swift */; };
-		99041C0B2CC1DAE500031558 /* ExampleWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99041C0A2CC1DAE500031558 /* ExampleWidgets.swift */; };
-		99041C0D2CC1DAE500031558 /* AppIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99041C0C2CC1DAE500031558 /* AppIntent.swift */; };
 		99041C0F2CC1DAE600031558 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 99041C0E2CC1DAE600031558 /* Assets.xcassets */; };
 		99041C132CC1DAE600031558 /* ExampleWidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 99041C002CC1DAE500031558 /* ExampleWidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		99041C1B2CC1DB2900031558 /* ExampleWidgetsAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99041C192CC1DB1D00031558 /* ExampleWidgetsAttributes.swift */; };
@@ -98,8 +96,6 @@
 		99041C032CC1DAE500031558 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		99041C062CC1DAE500031558 /* ExampleWidgetsBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExampleWidgetsBundle.swift; sourceTree = "<group>"; };
 		99041C082CC1DAE500031558 /* ExampleWidgetsLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExampleWidgetsLiveActivity.swift; sourceTree = "<group>"; };
-		99041C0A2CC1DAE500031558 /* ExampleWidgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExampleWidgets.swift; sourceTree = "<group>"; };
-		99041C0C2CC1DAE500031558 /* AppIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIntent.swift; sourceTree = "<group>"; };
 		99041C0E2CC1DAE600031558 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		99041C102CC1DAE600031558 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		99041C192CC1DB1D00031558 /* ExampleWidgetsAttributes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExampleWidgetsAttributes.swift; sourceTree = "<group>"; };
@@ -230,9 +226,7 @@
 			children = (
 				99041C062CC1DAE500031558 /* ExampleWidgetsBundle.swift */,
 				99041C082CC1DAE500031558 /* ExampleWidgetsLiveActivity.swift */,
-				99041C0A2CC1DAE500031558 /* ExampleWidgets.swift */,
 				99041C192CC1DB1D00031558 /* ExampleWidgetsAttributes.swift */,
-				99041C0C2CC1DAE500031558 /* AppIntent.swift */,
 				99041C0E2CC1DAE600031558 /* Assets.xcassets */,
 				99041C102CC1DAE600031558 /* Info.plist */,
 			);
@@ -504,8 +498,6 @@
 			files = (
 				99041C092CC1DAE500031558 /* ExampleWidgetsLiveActivity.swift in Sources */,
 				99041C1B2CC1DB2900031558 /* ExampleWidgetsAttributes.swift in Sources */,
-				99041C0D2CC1DAE500031558 /* AppIntent.swift in Sources */,
-				99041C0B2CC1DAE500031558 /* ExampleWidgets.swift in Sources */,
 				99041C072CC1DAE500031558 /* ExampleWidgetsBundle.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
