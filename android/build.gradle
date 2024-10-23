@@ -27,6 +27,10 @@ rootProject.allprojects {
     }
 }
 
+def isHmsEnabled() {
+    return (rootProject.hasProperty("airshipHmsEnabled") && rootProject.getProperty("airshipHmsEnabled") == "true") || (rootProject.ext.has("airshipHmsEnabled") && rootProject.ext.get("airshipHmsEnabled") == "true")
+}
+
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
@@ -60,5 +64,8 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutine_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutine_version"
     api "com.urbanairship.android:airship-framework-proxy:$airship_framework_proxy_version"
+    if (isHmsEnabled()) {
+        implementation "com.urbanairship.android:airship-framework-proxy-hms:$airship_framework_proxy_version"
+    }
     implementation "androidx.datastore:datastore-preferences:$datastore_preferences_version"
 }
