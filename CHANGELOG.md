@@ -1,5 +1,13 @@
 # Flutter Plugin Changelog
 
+## Version 8.0.0 - October 24, 2024
+
+Major version that makes it easier to include Airship in a hybrid app. The only breaking change is when extending the AirshipPluginExtender protocol on java there is a new extendConfig(Contex, AirshipConfigOptions.Builder) method to implement. Most application will not be affected.
+
+### Changes
+
+- Added new methods to the plugin extender to make hybrid app integrations easier
+
 ## Version 7.9.0 - October 20, 2024
 
 Minor version release with several new features including: iOS Live Activities, Android Live Updates, Message Center improvements, and iOS notification service extension support in the iOS example project.
