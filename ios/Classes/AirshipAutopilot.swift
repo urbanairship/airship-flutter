@@ -10,10 +10,10 @@ public class AirshipAutopilot: NSObject {
     @MainActor @objc
     public func onLoad(launchOptions: [UIApplication.LaunchOptionsKey : Any]?) {
         self.launchOptions = launchOptions
-        try? AirshipProxy.shared.attemptTakeOff(launchOptions: launchOptions)
-
         /// Set Airship Proxy Delegate on Airship Autopilot
         AirshipProxy.shared.delegate = self
+
+        try? AirshipProxy.shared.attemptTakeOff(launchOptions: launchOptions)
     }
     
     private (set) var launchOptions: [UIApplication.LaunchOptionsKey : Any]?
