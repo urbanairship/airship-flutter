@@ -23,11 +23,17 @@ class CustomEvent {
   final String? interactionType;
 
   /// The event properties.
-  final Map<String, dynamic>? properties;
+  final Map<String, Object?>? properties;
 
-  CustomEvent({required this.name, this.value, this.transactionId, this.interactionId, this.interactionType, this.properties});
+  CustomEvent(
+      {required this.name,
+      this.value,
+      this.transactionId,
+      this.interactionId,
+      this.interactionType,
+      this.properties});
 
-  Map<String, dynamic> toJSON() {
+  Map<String, Object?> toJSON() {
     return {
       EVENT_NAME: name,
       EVENT_VALUE: value,

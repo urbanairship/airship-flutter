@@ -1,4 +1,3 @@
-
 /// Inbox message object.
 class InboxMessage {
   /// The message title.
@@ -20,7 +19,7 @@ class InboxMessage {
   final bool isRead;
 
   /// String to String map of any message extras.
-  final Map<String, dynamic>? extras;
+  final Map<String, Object?>? extras;
 
   const InboxMessage._internal(this.title, this.messageId, this.sentDate,
       this.expirationDate, this.listIcon, this.isRead, this.extras);
@@ -32,7 +31,7 @@ class InboxMessage {
     var expirationDate = json["expirationDate"];
     var listIcon = json["listIconUrl"];
     var isRead = json["isRead"];
-    var extras = Map<String, dynamic>.from(json["extras"]);
+    var extras = Map<String, Object?>.from(json["extras"]);
     return InboxMessage._internal(
         title, messageId, sentDate, expirationDate, listIcon, isRead, extras);
   }
