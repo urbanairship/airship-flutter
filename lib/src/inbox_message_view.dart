@@ -98,7 +98,7 @@ class InboxMessageView extends StatelessWidget {
             id: params.id,
             viewType: 'com.airship.flutter/InboxMessageView',
             layoutDirection: TextDirection.ltr,
-            creationParams: <String, dynamic>{},
+            creationParams: <String, Object?>{},
             creationParamsCodec: StandardMessageCodec(),
           )
             ..addOnPlatformViewCreatedListener(params.onPlatformViewCreated)

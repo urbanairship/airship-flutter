@@ -38,7 +38,7 @@ class AirshipPush {
   /// Returns a Future with the permission result. The result may be null if the operation fails.
   Future<bool?> enableUserNotifications(
       {EnableUserPushNotificationsArgs? options}) async {
-    final Map<String, dynamic> arguments = options?.toJson() ?? {};
+    final Map<String, Object?> arguments = options?.toJson() ?? {};
     return await _module.channel
         .invokeMethod('push#enableUserNotifications', arguments);
   }

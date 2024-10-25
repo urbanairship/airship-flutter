@@ -107,7 +107,7 @@ class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
         UiKitView(
           viewType: 'com.airship.flutter/EmbeddedView',
           onPlatformViewCreated: _onPlatformViewCreated,
-          creationParams: <String, dynamic>{
+          creationParams: <String, Object?>{
             'embeddedId': widget.embeddedId,
           },
           creationParamsCodec: const StandardMessageCodec(),
@@ -135,7 +135,7 @@ class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
             id: params.id,
             viewType: 'com.airship.flutter/EmbeddedView',
             layoutDirection: TextDirection.ltr,
-            creationParams: <String, dynamic>{
+            creationParams: <String, Object?>{
               'embeddedId': widget.embeddedId,
             },
             creationParamsCodec: const StandardMessageCodec(),
@@ -151,7 +151,7 @@ class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
       return wrapWithLayoutBuilder(AndroidView(
         viewType: 'com.airship.flutter/EmbeddedView',
         onPlatformViewCreated: _onPlatformViewCreated,
-        creationParams: <String, dynamic>{
+        creationParams: <String, Object?>{
           'embeddedId': widget.embeddedId,
         },
         creationParamsCodec: const StandardMessageCodec(),

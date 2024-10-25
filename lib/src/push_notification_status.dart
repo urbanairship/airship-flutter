@@ -41,7 +41,9 @@ class PushNotificationStatus {
     var isOptedIn = json["isOptedIn"] ?? false;
     var isUserOptedIn = json["isUserOptedIn"] ?? false;
     var notificationPermissionStatus =
-        json["notificationPermissionStatus"] ?? PermissionStatus.notDetermined;
+        json["notificationPermissionStatus"] is PermissionStatus
+            ? json["notificationPermissionStatus"] as PermissionStatus
+            : PermissionStatus.notDetermined;
     return PushNotificationStatus._internal(
         isUserNotificationsEnabled,
         areNotificationsAllowed,
@@ -91,8 +93,8 @@ class EnableUserPushNotificationsArgs {
     this.fallback,
   });
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> json = {};
+  Map<String, Object?> toJson() {
+    final Map<String, Object?> json = {};
 
     if (fallback != null) {
       json['fallback'] = fallback!.name;

@@ -3,23 +3,23 @@ import 'dart:convert';
 
 /// Feature flag manager
 class AirshipFeatureFlagManager {
-
   final AirshipModule _module;
 
   AirshipFeatureFlagManager(AirshipModule module) : _module = module;
 
   /// Gets and evaluates a feature flag with the given [name].
   Future<FeatureFlag> flag(String name) async {
-    var featureFlag = await _module.channel.invokeMethod("featureFlagManager#flag", name);
+    var featureFlag =
+        await _module.channel.invokeMethod("featureFlagManager#flag", name);
     return FeatureFlag._fromJson(featureFlag);
   }
 
-    /// Tracks interaction with feature flag
+  /// Tracks interaction with feature flag
   Future<void> trackInteraction(FeatureFlag flag) async {
-    return await _module.channel.invokeMethod("featureFlagManager#trackInteraction", flag.toJSON());
+    return await _module.channel
+        .invokeMethod("featureFlagManager#trackInteraction", flag.toJSON());
   }
 }
-
 
 /// Airship feature flag object.
 class FeatureFlag {
@@ -38,17 +38,18 @@ class FeatureFlag {
   final bool exists;
 
   /// Optional variables associated with the flag.
-  final Map<String, dynamic>? variables;
+  final Map<String, Object?>? variables;
 
-  const FeatureFlag._internal(this.original, this.isEligible, this.exists, this.variables);
+  const FeatureFlag._internal(
+      this.original, this.isEligible, this.exists, this.variables);
 
   static FeatureFlag _fromJson(dynamic json) {
     var isEligible = json[IS_ELIGIBLE];
     var exists = json[EXISTS];
 
-    Map<String, dynamic>? variables;
+    Map<String, Object?>? variables;
     if (json[VARIABLES] != null) {
-      variables = Map<String, dynamic>.from(json[VARIABLES]);
+      variables = Map<String, Object?>.from(json[VARIABLES]);
     }
 
     var original = json[ORIGINAL];
@@ -57,7 +58,7 @@ class FeatureFlag {
   }
 
   String toJSON() {
-    final Map<String, dynamic> data = {
+    final Map<String, Object?> data = {
       IS_ELIGIBLE: isEligible,
       EXISTS: exists,
       VARIABLES: variables,

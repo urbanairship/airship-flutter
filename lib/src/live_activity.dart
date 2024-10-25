@@ -3,7 +3,7 @@ class LiveActivity {
   final String id;
   final String attributeTypes;
   final LiveActivityContent content;
-  final Map<String, dynamic> attributes;
+  final Map<String, Object?> attributes;
   final String state;
 
   LiveActivity({
@@ -14,8 +14,8 @@ class LiveActivity {
     required this.state,
   });
 
-  static Map<String, dynamic> _ensureStringDynamicMap(dynamic data) {
-    if (data is Map<String, dynamic>) {
+  static Map<String, Object?> _ensureStringDynamicMap(dynamic data) {
+    if (data is Map<String, Object?>) {
       return data;
     } else if (data is Map) {
       return data.map((key, value) => MapEntry(key.toString(),
@@ -26,7 +26,7 @@ class LiveActivity {
   }
 
   factory LiveActivity.fromJson(dynamic json) {
-    final Map<String, dynamic> data = _ensureStringDynamicMap(json);
+    final Map<String, Object?> data = _ensureStringDynamicMap(json);
 
     return LiveActivity(
       id: data['id'] as String? ?? '',
@@ -37,7 +37,7 @@ class LiveActivity {
     );
   }
 
-  Map<String, dynamic> toJson() => {
+  Map<String, Object?> toJson() => {
         'id': id,
         'attributeTypes': attributeTypes,
         'content': content.toJson(),
@@ -47,7 +47,7 @@ class LiveActivity {
 }
 
 class LiveActivityContent {
-  final Map<String, dynamic> state;
+  final Map<String, Object?> state;
   final String? staleDate;
   final double relevanceScore;
 
@@ -58,7 +58,7 @@ class LiveActivityContent {
   });
 
   factory LiveActivityContent.fromJson(dynamic json) {
-    final Map<String, dynamic> data =
+    final Map<String, Object?> data =
         LiveActivity._ensureStringDynamicMap(json);
 
     return LiveActivityContent(
@@ -68,7 +68,7 @@ class LiveActivityContent {
     );
   }
 
-  Map<String, dynamic> toJson() => {
+  Map<String, Object?> toJson() => {
         'state': state,
         'staleDate': staleDate,
         'relevanceScore': relevanceScore,
@@ -81,7 +81,7 @@ abstract class LiveActivityRequest {
 
   const LiveActivityRequest({required this.attributesType});
 
-  Map<String, dynamic> toJson();
+  Map<String, Object?> toJson();
 }
 
 /// Live Activity list request.
@@ -90,13 +90,13 @@ class LiveActivityListRequest extends LiveActivityRequest {
       : super(attributesType: attributesType);
 
   @override
-  Map<String, dynamic> toJson() => {'attributesType': attributesType};
+  Map<String, Object?> toJson() => {'attributesType': attributesType};
 }
 
 /// Live Activity start request.
 class LiveActivityStartRequest extends LiveActivityRequest {
   final LiveActivityContent content;
-  final Map<String, dynamic> attributes;
+  final Map<String, Object?> attributes;
 
   const LiveActivityStartRequest({
     required String attributesType,
@@ -105,7 +105,7 @@ class LiveActivityStartRequest extends LiveActivityRequest {
   }) : super(attributesType: attributesType);
 
   @override
-  Map<String, dynamic> toJson() => {
+  Map<String, Object?> toJson() => {
         'attributesType': attributesType,
         'content': content.toJson(),
         'attributes': attributes,
@@ -124,7 +124,7 @@ class LiveActivityUpdateRequest extends LiveActivityRequest {
   }) : super(attributesType: attributesType);
 
   @override
-  Map<String, dynamic> toJson() => {
+  Map<String, Object?> toJson() => {
         'attributesType': attributesType,
         'activityId': activityId,
         'content': content.toJson(),
@@ -145,7 +145,7 @@ class LiveActivityStopRequest extends LiveActivityRequest {
   }) : super(attributesType: attributesType);
 
   @override
-  Map<String, dynamic> toJson() => {
+  Map<String, Object?> toJson() => {
         'attributesType': attributesType,
         'activityId': activityId,
         if (content != null) 'content': content!.toJson(),
@@ -157,21 +157,21 @@ class LiveActivityStopRequest extends LiveActivityRequest {
 abstract class LiveActivityDismissalPolicy {
   const LiveActivityDismissalPolicy();
 
-  Map<String, dynamic> toJson();
+  Map<String, Object?> toJson();
 }
 
 class LiveActivityDismissalPolicyImmediate extends LiveActivityDismissalPolicy {
   const LiveActivityDismissalPolicyImmediate();
 
   @override
-  Map<String, dynamic> toJson() => const {'type': 'immediate'};
+  Map<String, Object?> toJson() => const {'type': 'immediate'};
 }
 
 class LiveActivityDismissalPolicyDefault extends LiveActivityDismissalPolicy {
   const LiveActivityDismissalPolicyDefault();
 
   @override
-  Map<String, dynamic> toJson() => const {'type': 'default'};
+  Map<String, Object?> toJson() => const {'type': 'default'};
 }
 
 class LiveActivityDismissalPolicyAfterDate extends LiveActivityDismissalPolicy {
@@ -180,7 +180,7 @@ class LiveActivityDismissalPolicyAfterDate extends LiveActivityDismissalPolicy {
   const LiveActivityDismissalPolicyAfterDate(this.date);
 
   @override
-  Map<String, dynamic> toJson() => {
+  Map<String, Object?> toJson() => {
         'type': 'after',
         'date': date,
       };

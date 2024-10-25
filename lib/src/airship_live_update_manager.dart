@@ -27,20 +27,13 @@ class AirshipLiveUpdateManager {
   Future<List<LiveUpdate>> list(LiveUpdateListRequest request) async {
     var response =
         await _module.channel.invokeMethod('liveUpdate#list', request.toJson());
-    return (response as List<dynamic>)
-        .map((e) => LiveUpdate.fromJson(e as Map<String, dynamic>))
+    return (response as List<Object?>)
+        .map((e) => LiveUpdate.fromJson(e as Map<String, Object?>))
         .toList();
   }
 
   /// Lists all Live Updates.
   /// @returns A Future with the result.
-  // Future<List<LiveUpdate>> listAll() async {
-  //   var response = await _module.channel.invokeMethod('liveUpdate#listAll');
-  //   return (response as List<dynamic>)
-  //       .map((e) => LiveUpdate.fromJson(e as Map<String, dynamic>))
-  //       .toList();
-  // }
-
   Future<List<LiveUpdate>> listAll() async {
     try {
       final result = await _module.channel.invokeMethod('liveUpdate#listAll');
