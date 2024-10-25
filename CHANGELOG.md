@@ -1,12 +1,22 @@
 # Flutter Plugin Changelog
 
+## Version 8.0.1 - October 25, 2024
+
+Patch release that fixes an issue with event streams that causes deep links to fail when the app is launched from a terminated state. Apps that use deep linking are encouraged to update.
+
+### Changes
+
+- Fixed event stream handling for initial events
+- Fixed tracking live activities started from a push notification
+
 ## Version 8.0.0 - October 24, 2024
 
-Major version that makes it easier to include Airship in a hybrid app. The only breaking change is when extending the AirshipPluginExtender protocol on java there is a new extendConfig(Contex, AirshipConfigOptions.Builder) method to implement. Most application will not be affected.
+Major version that adds HMS support and makes it easier to include Airship in a hybrid app. The only breaking change is when extending the AirshipPluginExtender protocol on java there is a new extendConfig(Contex, AirshipConfigOptions.Builder) method to implement. Most application will not be affected.
 
 ### Changes
 
 - Added new methods to the plugin extender to make hybrid app integrations easier
+- Added HMS support
 
 ## Version 7.9.0 - October 20, 2024
 

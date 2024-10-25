@@ -2,7 +2,7 @@ import Flutter
 import UIKit
 import AirshipKit
 import AirshipFrameworkProxy
-import Combine 
+import Combine
 
 public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
     private static let eventNames: [AirshipProxyEventType: String] = [
@@ -29,8 +29,10 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
 
     private var subscriptions = Set<AnyCancellable>()
 
+    static let shared = SwiftAirshipPlugin()
+
     public static func register(with registrar: FlutterPluginRegistrar) {
-        SwiftAirshipPlugin().setup(registrar: registrar)
+        SwiftAirshipPlugin.shared.setup(registrar: registrar)
     }
 
     private func setup(registrar: FlutterPluginRegistrar) {
@@ -667,19 +669,38 @@ extension FlutterMethodCall {
 
 class AirshipEventStreamHandler: NSObject, FlutterStreamHandler {
     private var eventSink: FlutterEventSink?
+    private var eventType: AirshipProxyEventType
 
-    func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+    var onListenerAdded: () -> Void
+
+    internal init(
+        eventSink: FlutterEventSink? = nil,
+        eventType: AirshipProxyEventType,
+        onListenerAdded: @escaping () -> Void
+    ) {
+        self.eventSink = eventSink
+        self.eventType = eventType
+        self.onListenerAdded = onListenerAdded
+    }
+
+    func onListen(
+        withArguments arguments: Any?,
+        eventSink events: @escaping FlutterEventSink
+    ) -> FlutterError? {
         self.eventSink = events
+        onListenerAdded()
         return nil
     }
 
     func onCancel(withArguments arguments: Any?) -> FlutterError? {
+
         self.eventSink = nil
         return nil
     }
 
     func notify(_ event: Any) -> Bool {
         if let sink = self.eventSink {
+
             sink(event)
             return true
         }
@@ -703,7 +724,13 @@ class AirshipEventStream: NSObject {
             name: self.name,
             binaryMessenger: registrar.messenger()
         )
-        let handler = AirshipEventStreamHandler()
+
+        let handler = AirshipEventStreamHandler(eventType: eventType) {
+            Task { [weak self] in
+                await self?.processPendingEvents()
+            }
+        }
+
         eventChannel.setStreamHandler(handler)
 
         lock.sync {

@@ -29,6 +29,13 @@ import kotlinx.coroutines.*
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 
 
 class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
@@ -456,25 +463,26 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     override fun onDetachedFromActivity() {
         mainActivity = null
     }
+
     class AirshipEventStreamHandler : EventChannel.StreamHandler {
-        private var eventSink: EventChannel.EventSink? = null
+        val eventFlow: StateFlow<EventChannel.EventSink?> get() = _eventSink
+
+        private var _eventSink: MutableStateFlow<EventChannel.EventSink?> = MutableStateFlow(null)
 
         override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
-            this.eventSink = events
+            this._eventSink.value = events
         }
 
         override fun onCancel(arguments: Any?) {
-            this.eventSink = null
+            this._eventSink.value = null
         }
 
         fun notify(event: Any): Boolean {
-            val sink = eventSink
-            return if (sink != null) {
-                sink.success(event)
+            return _eventSink.value?.let {
+                it.success(event)
+
                 true
-            } else {
-                false
-            }
+            } ?: false
         }
     }
     class AirshipEventStream(
@@ -494,7 +502,14 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             lock.withLock {
                 handlers.add(handler)
             }
+
+            coroutineScope.launch {
+                handler.eventFlow.filterNotNull().collect {
+                    processPendingEvents()
+                }
+            }
         }
+
         fun processPendingEvents() {
             EventEmitter.shared().processPending(eventTypes) { event ->
                 val unwrappedEvent = event.body.unwrap()
