@@ -1,5 +1,14 @@
 # Flutter Plugin Changelog
 
+## Version 8.0.2 - November 4, 2024
+
+Patch release that updates to latest SDKs and resolves an issue with Firebase integrations. Applications that integrate with Firebase are encouraged to update.
+
+### Changes
+- Updated Airship Android SDK to [18.4.0](https://github.com/urbanairship/android-library/releases/tag/18.4.0)
+- Updated Airship iOS SDK to [18.12.0](https://github.com/urbanairship/ios-library/releases/tag/18.12.0)
+- Fixed token clearing during registration retries when Firebase is not yet ready.
+
 ## Version 8.0.1 - October 25, 2024
 
 Patch release that fixes an issue with event streams that causes deep links to fail when the app is launched from a terminated state. Apps that use deep linking are encouraged to update.
