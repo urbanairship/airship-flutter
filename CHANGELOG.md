@@ -1,5 +1,14 @@
 # Flutter Plugin Changelog
 
+## Version 8.0.3 - November 6, 2024
+
+Patch release that resolves an issue with Firebase integrations and fixes an issue with opt-in checks when requestAuthorizationToUseNotifications is set to false on iOS.
+
+### Changes
+- Updated Airship iOS SDK to [18.12.1](https://github.com/urbanairship/ios-library/releases/tag/18.12.0)
+- Fixed issues caused by swizzling conflicts with some Firebase framework integrations.
+- Fixed opt-in check permissions querying when requestAuthorizationToUseNotifications is set to false on iOS.
+
 ## Version 8.0.2 - November 4, 2024
 
 Patch release that updates to latest SDKs and resolves an issue with Firebase integrations. Applications that integrate with Firebase are encouraged to update.
