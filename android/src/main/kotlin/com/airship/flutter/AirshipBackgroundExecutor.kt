@@ -1,18 +1,13 @@
 package com.airship.flutter
 
-import android.util.Log
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Handler
 import androidx.core.content.edit
 import com.urbanairship.json.JsonSerializable
-import com.urbanairship.json.JsonValue
-import com.urbanairship.push.NotificationInfo
-import com.urbanairship.push.PushMessage
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.FlutterShellArgs
 import io.flutter.embedding.engine.dart.DartExecutor.DartCallback
-import io.flutter.embedding.engine.loader.FlutterLoader
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -54,24 +49,24 @@ class AirshipBackgroundExecutor(
     fun startIsolate(callback: Long, args: FlutterShellArgs?) {
         if (flutterEngine != null) return
 
-        val loader = FlutterLoader()
         mainHandler.post {
-            loader.startInitialization(appContext)
-            loader.ensureInitializationCompleteAsync(appContext, null, mainHandler) {
-                if (!isIsolateStarted.get()) {
-                    val engine = FlutterEngine(appContext, args?.toArray())
-                        .also { flutterEngine = it }
+            if (!isIsolateStarted.get()) {
+                // Engine creation is still needed for background execution with v2 embeddings
+                val engine = FlutterEngine(appContext, args?.toArray())
+                    .also { flutterEngine = it }
 
-                    methodChannel =
-                        MethodChannel(engine.dartExecutor, BACKGROUND_CHANNEL).apply {
-                            setMethodCallHandler(this@AirshipBackgroundExecutor)
-                        }
-
-                    val callbackInfo = lookupCallbackInformation(callback)
-                    engine.dartExecutor.executeDartCallback(
-                        DartCallback(appContext.assets, loader.findAppBundlePath(), callbackInfo)
-                    )
+                methodChannel = MethodChannel(engine.dartExecutor, BACKGROUND_CHANNEL).apply {
+                    setMethodCallHandler(this@AirshipBackgroundExecutor)
                 }
+
+                val callbackInfo = lookupCallbackInformation(callback)
+                engine.dartExecutor.executeDartCallback(
+                    DartCallback(
+                        appContext.assets,
+                        "flutter_assets",
+                        callbackInfo
+                    )
+                )
             }
         }
     }
