@@ -4,6 +4,13 @@ on:
   push:
     tags:
       - "[0-9]+.[0-9]+.[0-9]+*"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (no actual publish)'
+        required: false
+        type: boolean
+        default: false
 
 env:
   DEVELOPER_DIR: /Applications/Xcode_15.4.app/Contents/Developer
@@ -30,6 +37,8 @@ jobs:
   release-plugin:
     runs-on: ubuntu-latest
     needs: [ ci ]
+    permissions:
+      id-token: write # Required for authentication using OIDC
     steps:
       - uses: actions/checkout@v3
 
@@ -60,26 +69,18 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
       - run: flutter pub get
 
-      - name: Setup pub credentials
-        run: |
-          mkdir -p ~/.pub-cache
-          cat <<EOF > ~/.pub-cache/credentials.json
-          {
-          "accessToken":"${{ secrets.OAUTH_ACCESS_TOKEN }}",
-          "refreshToken":"${{ secrets.OAUTH_REFRESH_TOKEN }}",
-          "tokenEndpoint":"https://accounts.google.com/o/oauth2/token",
-          "scopes": [ "openid", "https://www.googleapis.com/auth/userinfo.email" ],
-          "expiration": ${{secrets.OAUTH_EXPIRATION }}
-          }
-          EOF
-          mkdir -p ~/Library/Application\ Support/dart/
-          cp ~/.pub-cache/credentials.json ~/Library/Application\ Support/dart/pub-credentials.json
-          cp ~/.pub-cache/credentials.json $PUB_CACHE/credentials.json || true
+      - name: Publish to pub.dev
+        if: ${{ !inputs.dry_run }}
+        uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
 
-      - name: Publish Dart/Flutter package
-        run: flutter pub publish -f
+      - name: Dry Run Publish to pub.dev
+        if: ${{ inputs.dry_run }}
+        uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+        with:
+          dry-run: true
 
       - name: Github Release
+        if: ${{ !inputs.dry_run }}
         uses: actions/create-release@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -101,6 +102,7 @@ jobs:
   release-docs:
     runs-on: macos-14-xlarge
     needs: [ ci, release-plugin ]
+    if: ${{ !inputs.dry_run }}
     steps:
       - uses: actions/checkout@v3
 
