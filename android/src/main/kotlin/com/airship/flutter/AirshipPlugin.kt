@@ -23,7 +23,6 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
-import io.flutter.plugin.common.PluginRegistry.Registrar
 import io.flutter.plugin.platform.PlatformViewRegistry
 import kotlinx.coroutines.*
 import java.util.concurrent.locks.ReentrantLock
@@ -47,17 +46,6 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private lateinit var streams: Map<EventType, AirshipEventStream>
 
     companion object {
-        @JvmStatic
-        fun registerWith(
-            // Registrar is deprecated, but still recommended in case consumers don't use v2 embedding
-            // See: https://docs.flutter.dev/release/breaking-changes/plugin-api-migration#upgrade-steps
-            @Suppress("DEPRECATION")
-            registrar: Registrar
-        ) {
-            val plugin = AirshipPlugin()
-            plugin.register(registrar.context().applicationContext, registrar.messenger(), registrar.platformViewRegistry())
-        }
-
         internal const val AIRSHIP_SHARED_PREFS = "com.urbanairship.flutter"
 
         internal val EVENT_NAME_MAP = mapOf(

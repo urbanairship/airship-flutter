@@ -1,5 +1,12 @@
 # Flutter Plugin Changelog
 
+## Version 9.0.0 - November 14, 2024
+
+Major version release that drops support for v1 embeddings.
+
+### Changes
+- Drops support for deprecated v1 embeddings.
+
 ## Version 8.0.4 - November 8, 2024
 
 Patch release that resolves an issue with Firebase integrations and fixes an issue with opt-in checks when requestAuthorizationToUseNotifications is set to false on iOS.
