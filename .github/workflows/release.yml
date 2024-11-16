@@ -57,16 +57,6 @@ jobs:
             echo ${delimiter}
           } >> $GITHUB_OUTPUT
 
-  publish-dry-run:
-    needs: [ prepare-release ]
-    if: ${{ inputs.dry_run }}
-    permissions:
-      id-token: write # Required for authentication using OIDC
-    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
-    with:
-      dry-run: true
-      working-directory: .
-
   publish:
     needs: [ prepare-release ]
     if: ${{ !inputs.dry_run }}
@@ -75,6 +65,18 @@ jobs:
     uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
     with:
       working-directory: .
+
+  publish-check:
+    needs: [ prepare-release ]
+    if: ${{ inputs.dry_run }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dart-lang/setup-dart@v1
+      - name: Install dependencies
+        run: dart pub get
+      - name: Publish dry run
+        run: dart pub publish --dry-run
 
   create-github-release:
     runs-on: ubuntu-latest
