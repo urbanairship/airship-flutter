@@ -1,6 +1,6 @@
 # Flutter Plugin Changelog
 
-## Version 9.0.0 - November 13, 2024
+## Version 9.0.0 - November 14, 2024
 
 Major version release that drops support for v1 embeddings.
 
