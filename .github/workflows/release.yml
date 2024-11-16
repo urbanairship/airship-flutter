@@ -33,7 +33,7 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
       - uses: subosito/flutter-action@44ac965b96f18d999802d4b807e3256d5a3f9fa1
         with:
-          flutter-version: ${{env.FLUTTER_VERSION}}
+          flutter-version: ${{ env.FLUTTER_VERSION }}
       - name: Run CI
         run: bash ./scripts/run_ci_tasks.sh
 
@@ -48,8 +48,8 @@ jobs:
       - name: Get the version
         id: get_version
         run: |
-          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            VERSION="${{ github.ref#refs/tags/ }}"
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            VERSION="${GITHUB_REF#refs/tags/}"
           else
             VERSION="${{ github.event.inputs.version }}"
           fi
@@ -61,9 +61,9 @@ jobs:
         run: |
           delimiter="$(openssl rand -hex 8)"
           {
-            echo "NOTES<<${delimiter}"
+            echo "NOTES<<$delimiter"
             awk "/## Version $VERSION/{flag=1;next}/## Version/{flag=0}flag" CHANGELOG.md
-            echo "${delimiter}"
+            echo "$delimiter"
           } >> $GITHUB_OUTPUT
 
   publish:
@@ -121,8 +121,8 @@ jobs:
       - name: Get the version
         id: get_version
         run: |
-          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            VERSION="${{ github.ref#refs/tags/ }}"
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            VERSION="${GITHUB_REF#refs/tags/}"
           else
             VERSION="${{ github.event.inputs.version }}"
           fi
