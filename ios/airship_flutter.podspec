@@ -20,7 +20,7 @@ Airship flutter plugin.
   s.public_header_files = 'Classes/**/*.h'
   s.dependency 'Flutter'
   s.ios.deployment_target      = "14.0"
-  s.dependency "AirshipFrameworkProxy", "11.0.4"
+  s.dependency "AirshipFrameworkProxy", "11.0.6"
   s.swift_version = "5.0.0"
 end
 
