@@ -1,6 +1,6 @@
 # Flutter Plugin Changelog
 
-## Version 9.0.1 - November 14, 2024
+## Version 9.0.1 - November 26, 2024
 
 Patch release that updates the iOS SDK to 18.12.2 and Android SDK to 18.4.2
 
