@@ -91,7 +91,7 @@ jobs:
   
   release-docs:
     runs-on: macos-14-xlarge
-    needs: [ ci, release-plugin-pub-dev, release-plugin-github ]
+    needs: [ ci, release-plugin-github ]
     steps:
       - uses: actions/checkout@v3
 
