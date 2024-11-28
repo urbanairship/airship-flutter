@@ -30,8 +30,10 @@ jobs:
   release-plugin-pub-dev:
     needs: [ ci ]
     permissions:
-      id-token: write # Required for authentication using OIDC
+      id-token: write
     uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+    with:
+      flutter: true
 
   release-plugin-github:
     runs-on: ubuntu-latest
