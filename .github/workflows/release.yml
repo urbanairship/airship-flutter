@@ -27,11 +27,17 @@ jobs:
       - name: Run CI
         run: bash ./scripts/run_ci_tasks.sh
 
-  release-plugin:
+  release-plugin-pub-dev:
+    needs: [ ci ]
     permissions:
       id-token: write # Required for authentication using OIDC
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+
+  release-plugin-github:
     runs-on: ubuntu-latest
     needs: [ ci ]
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v3
 
@@ -62,9 +68,6 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
       - run: flutter pub get
 
-      - name: Publish Dart/Flutter package
-        run: flutter pub publish -f
-
       - name: Github Release
         uses: actions/create-release@v1.0.1
         env:
@@ -83,10 +86,10 @@ jobs:
           type: ${{ job.status }}
           job_name: "Failed to release Flutter :("
           url: ${{ secrets.MOBILE_SLACK_WEBHOOK }}
-
+  
   release-docs:
     runs-on: macos-14-xlarge
-    needs: [ ci, release-plugin ]
+    needs: [ ci, release-plugin-pub-dev, release-plugin-github ]
     steps:
       - uses: actions/checkout@v3
 
