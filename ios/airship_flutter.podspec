@@ -1,5 +1,5 @@
 
-AIRSHIP_FLUTTER_VERSION="9.0.1"
+AIRSHIP_FLUTTER_VERSION="9.1.0"
 
 #
 # To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html
@@ -20,7 +20,7 @@ Airship flutter plugin.
   s.public_header_files = 'Classes/**/*.h'
   s.dependency 'Flutter'
   s.ios.deployment_target      = "14.0"
-  s.dependency "AirshipFrameworkProxy", "11.0.6"
+  s.dependency "AirshipFrameworkProxy", "11.1.0"
   s.swift_version = "5.0.0"
 end
 
