@@ -35,7 +35,7 @@ jobs:
 
   release-plugin-github:
     runs-on: ubuntu-latest
-    needs: [ ci ]
+    needs: [ ci , release-plugin-pub-dev ]
     permissions:
       contents: write
     steps:
@@ -89,7 +89,7 @@ jobs:
   
   release-docs:
     runs-on: macos-15-xlarge
-    needs: [ ci, release-plugin-github ]
+    needs: [ ci, release-plugin-github, release-plugin-pub-dev ]
     steps:
       - uses: actions/checkout@v3
 
