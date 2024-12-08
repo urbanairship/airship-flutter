@@ -31,8 +31,6 @@ permissions:
 jobs:
   prepare-release:
     runs-on: macos-latest
-
-    # Fail if job runs longer than 15 minutes
     timeout-minutes: 15
 
     steps:
@@ -41,55 +39,17 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Check dependencies
-        run: |
-          which sed || exit 1
-          which git || exit 1
-          which bash || exit 1
-
-      - name: Verify files exist
-        run: |
-          for file in scripts/update_version.sh scripts/update_proxy_version.sh scripts/update_changelog.sh; do
-            if [ ! -f "$file" ]; then
-              echo "Error: $file not found"
-              exit 1
-            fi
-          done
-
-      - name: Set file permissions
-        run: |
-          chmod +x scripts/update_version.sh
-          chmod +x scripts/update_proxy_version.sh
-          chmod +x scripts/update_changelog.sh
-
       - name: Create Branch
         run: |
           BRANCH="release/flutter-${{ github.event.inputs.flutter_version }}"
           git checkout -b $BRANCH
-        
-      - name: Update Version
-        id: version
-        run: |
-          if ! ./scripts/update_version.sh ${{ github.event.inputs.flutter_version }}; then
-            echo "Failed to update version"
-            exit 1
-          fi
 
-      - name: Update Proxy Version
-        id: proxy
+      - name: Run Updates
         run: |
-          if ! ./scripts/update_proxy_version.sh ${{ github.event.inputs.proxy_version }}; then
-            echo "Failed to update proxy version"
-            exit 1
-          fi
-
-      - name: Update Changelog
-        if: inputs.ios_version != '' && inputs.android_version != ''
-        id: changelog
-        run: |
-          if ! ./scripts/update_changelog.sh "${{ github.event.inputs.flutter_version }}" "${{ github.event.inputs.proxy_version }}" "${{ github.event.inputs.ios_version }}" "${{ github.event.inputs.android_version }}"; then
-            echo "Failed to update changelog"
-            exit 1
+          ./scripts/update_version.sh "${{ github.event.inputs.flutter_version }}" || exit 1
+          ./scripts/update_proxy_version.sh "${{ github.event.inputs.proxy_version }}" || exit 1
+          if [ -n "${{ github.event.inputs.ios_version }}" ] && [ -n "${{ github.event.inputs.android_version }}" ]; then
+            ./scripts/update_changelog.sh "${{ github.event.inputs.flutter_version }}" "${{ github.event.inputs.proxy_version }}" "${{ github.event.inputs.ios_version }}" "${{ github.event.inputs.android_version }}" || exit 1
           fi
 
       - name: Verify Changes
@@ -102,6 +62,9 @@ jobs:
           fi
           echo "Changed files:"
           echo "$CHANGED_FILES"
+          echo "changed_files<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGED_FILES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Create Pull Request
         id: create-pr
@@ -118,18 +81,18 @@ jobs:
           title: "Release ${{ github.event.inputs.flutter_version }}"
           body: |
             Release preparation for ${{ github.event.inputs.flutter_version }}
-            
+
             Updates:
             - Version: ${{ github.event.inputs.flutter_version }}
             - Framework Proxy: ${{ github.event.inputs.proxy_version }}
             - iOS SDK: ${{ github.event.inputs.ios_version }}
             - Android SDK: ${{ github.event.inputs.android_version }}
-            
+
             ## Changed Files
             ```
-            ${{ steps.verify.outputs.CHANGED_FILES }}
+            ${{ steps.verify.outputs.changed_files }}
             ```
-            
+
             Please verify the changes carefully before merging.
           branch: release/flutter-${{ github.event.inputs.flutter_version }}
           base: main
@@ -139,8 +102,8 @@ jobs:
           draft: ${{ github.event.inputs.draft }}
           delete-branch: true
 
-      - name: Check PR Creation
-        if: steps.create-pr.outputs.pull-request-number
+      - name: Handle Success
+        if: success() && steps.create-pr.outputs.pull-request-number
         run: |
           echo "Pull request created successfully"
           echo "PR Number: ${{ steps.create-pr.outputs.pull-request-number }}"
