@@ -36,13 +36,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create Branch
-        run: |
-          BRANCH="release/flutter-${{ github.event.inputs.flutter_version }}"
-          git checkout -b $BRANCH
 
       - name: Run Updates
         run: |
@@ -94,7 +90,7 @@ jobs:
             ```
 
             Please verify the changes carefully before merging.
-          branch: release/flutter-${{ github.event.inputs.flutter_version }}
+          branch: release-${{ github.event.inputs.flutter_version }}
           base: main
           labels: |
             release
