@@ -50,7 +50,7 @@ if [ -n "$IOS_VERSION" ] || [ -n "$ANDROID_VERSION" ]; then
     NEW_ENTRY+="$RELEASE_TYPE release that updates"
 
     if [ -n "$ANDROID_VERSION" ]; then
-        NEW_ENTRY+=" the Android SDK to [$ANDROID_VERSION](https://github.com/urbanairship/android-library/releases/tag/$ANDROID_VERSION)"
+        NEW_ENTRY+=" the Android SDK to $ANDROID_VERSION"
     fi
 
     if [ -n "$IOS_VERSION" ] && [ -n "$ANDROID_VERSION" ]; then
@@ -58,18 +58,18 @@ if [ -n "$IOS_VERSION" ] || [ -n "$ANDROID_VERSION" ]; then
     fi
 
     if [ -n "$IOS_VERSION" ]; then
-        NEW_ENTRY+=" the iOS SDK to [$IOS_VERSION](https://github.com/urbanairship/ios-library/releases/tag/$IOS_VERSION)"
+        NEW_ENTRY+=" the iOS SDK to $IOS_VERSION"
     fi
 
     NEW_ENTRY+="\n\n### Changes\n"
 
     if [ -n "$ANDROID_VERSION" ]; then
-        NEW_ENTRY+="- Updated Android SDK to $ANDROID_VERSION"
+        NEW_ENTRY+="- Updated Android SDK to [$ANDROID_VERSION](https://github.com/urbanairship/android-library/releases/tag/$ANDROID_VERSION)"
     fi
 
     if [ -n "$IOS_VERSION" ]; then
         NEW_ENTRY+="\n"
-        NEW_ENTRY+="- Updated iOS SDK to $IOS_VERSION"
+        NEW_ENTRY+="- Updated iOS SDK to [$IOS_VERSION](https://github.com/urbanairship/ios-library/releases/tag/$IOS_VERSION)"
     fi
 else
     NEW_ENTRY+="$RELEASE_TYPE release."
