@@ -43,10 +43,12 @@ jobs:
       - name: Run Updates
         run: |
           ./scripts/update_version.sh "${{ github.event.inputs.flutter_version }}" || exit 1
-          ./scripts/update_proxy_version.sh "${{ github.event.inputs.proxy_version }}" || exit 1
-          if [ -n "${{ github.event.inputs.ios_version }}" ] && [ -n "${{ github.event.inputs.android_version }}" ]; then
-            ./scripts/update_changelog.sh "${{ github.event.inputs.flutter_version }}" "${{ github.event.inputs.proxy_version }}" "${{ github.event.inputs.ios_version }}" "${{ github.event.inputs.android_version }}" || exit 1
+          if [ -n "${{ github.event.inputs.proxy_version }}" ]; then
+            ./scripts/update_proxy_version.sh "${{ github.event.inputs.proxy_version }}" || exit 1
           fi
+          ./scripts/update_changelog.sh "${{ github.event.inputs.flutter_version }}" \
+            $([ -n "${{ github.event.inputs.ios_version }}" ] && echo "--ios ${{ github.event.inputs.ios_version }}") \
+            $([ -n "${{ github.event.inputs.android_version }}" ] && echo "--android ${{ github.event.inputs.android_version }}") || exit 1
 
       - name: Verify Changes
         id: verify
