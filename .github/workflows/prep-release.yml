@@ -69,27 +69,16 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: |
             Release ${{ github.event.inputs.flutter_version }}
-
-            - Updates version to ${{ github.event.inputs.flutter_version }}
-            - Updates Framework Proxy to ${{ github.event.inputs.proxy_version }}
-            - Updates iOS SDK to ${{ github.event.inputs.ios_version }}
-            - Updates Android SDK to ${{ github.event.inputs.android_version }}
           title: "Release ${{ github.event.inputs.flutter_version }}"
           body: |
-            Release preparation for ${{ github.event.inputs.flutter_version }}
-
-            Updates:
-            - Version: ${{ github.event.inputs.flutter_version }}
             - Framework Proxy: ${{ github.event.inputs.proxy_version }}
             - iOS SDK: ${{ github.event.inputs.ios_version }}
             - Android SDK: ${{ github.event.inputs.android_version }}
 
-            ## Changed Files
+            ## Changed Files:
             ```
             ${{ steps.verify.outputs.changed_files }}
             ```
-
-            Please verify the changes carefully before merging.
           branch: release-${{ github.event.inputs.flutter_version }}
           base: main
           labels: |
@@ -105,8 +94,26 @@ jobs:
           echo "PR Number: ${{ steps.create-pr.outputs.pull-request-number }}"
           echo "PR URL: ${{ steps.create-pr.outputs.pull-request-url }}"
 
+      - name: Slack Notification (Success)
+        if: success() && steps.create-pr.outputs.pull-request-number
+        uses: homoluctus/slatify@master
+        with:
+          type: success
+          job_name: ":tada: Airship Flutter plugin release pull request generated :tada:"
+          message: "@mobile-team A new Airship Flutter plugin release pull request for (v${{ github.event.inputs.flutter_version }}) is ready! :rocket:"
+          url: ${{ secrets.MOBILE_SLACK_WEBHOOK }}
+
       - name: Handle Failure
         if: failure()
         run: |
           echo "::error::Release preparation failed. Please check the logs above for details."
           exit 1
+
+      - name: Slack Notification (Failure)
+        if: failure()
+        uses: homoluctus/slatify@master
+        with:
+          type: failure
+          job_name: ":disappointed: Airship Flutter Plugin Release Failed :disappointed:"
+          message: "@crow The release preparation failed. Please check the workflow logs. :sob:"
+          url: ${{ secrets.MOBILE_SLACK_WEBHOOK }}
