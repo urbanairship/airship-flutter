@@ -6,6 +6,8 @@
 .DS_Store
 *.swp
 profile
+airship_flutter/.swiftpm/
+airship_flutter/.build/
 
 DerivedData/
 build/
