@@ -1,5 +1,13 @@
 # Flutter Plugin Changelog
 
+## Version 17.4.1 - January 3, 2025
+
+Patch release that updates the Android SDK to 18.6.0 and the iOS SDK to 18.14.1
+
+### Changes
+- Updated Android SDK to [18.6.0](https://github.com/urbanairship/android-library/releases/tag/18.6.0)
+- Updated iOS SDK to [18.14.1](https://github.com/urbanairship/ios-library/releases/tag/18.14.1)
+
 ## Version 9.1.0 - December 6, 2024
 
 Minor release that updates the Android Airship SDK to 18.5.0 and iOS Airship SDK to 18.13.0
