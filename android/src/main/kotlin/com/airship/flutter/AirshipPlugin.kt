@@ -277,22 +277,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             }
             // Live Activities
 
-            "featureFlagManager#trackInteraction" -> {
-                result.resolveDeferred(call) { callback ->
-                    scope.launch {
-                        try {
-                            val args = call.jsonArgs()
 
-                            val wrapped = JsonValue.wrap(args)
-                            val featureFlagProxy = FeatureFlagProxy(wrapped)
-                            proxy.featureFlagManager.trackInteraction(flag = featureFlagProxy)
-                            callback(null, null)
-                        } catch (e: Exception) {
-                            callback(null, e)
-                        }
-                    }
-                }
-            }
 
             "liveUpdate#start" -> result.resolveResult(call) {
                 try {
