@@ -176,9 +176,14 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 }
             }
             "push#isUserNotificationsEnabled" -> result.resolveResult(call) { proxy.push.isUserNotificationsEnabled() }
-            "push#getNotificationStatus" -> result.resolveResult(call) {
+            "push#getNotificationStatus" -> result.resolveDeferred(call) { callback ->
                 coroutineScope.launch {
-                    proxy.push.getNotificationStatus()
+                    try {
+                        val status = proxy.push.getNotificationStatus()
+                        callback(status, null)
+                    } catch (e: Exception) {
+                        callback(null, e)
+                    }
                 }
             }
             "push#getActiveNotifications" -> result.resolveResult(call) {
