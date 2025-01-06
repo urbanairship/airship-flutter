@@ -1,6 +1,12 @@
 import Foundation
-import AirshipKit
 import WebKit
+import Flutter
+
+#if canImport(AirshipCore)
+import AirshipCore
+#else
+import AirshipKit
+#endif
 
 class AirshipInboxMessageViewFactory : NSObject, FlutterPlatformViewFactory {
 

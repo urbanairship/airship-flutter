@@ -1,6 +1,12 @@
 import Foundation
-import AirshipKit
 import SwiftUI
+import Flutter
+
+#if canImport(AirshipCore)
+import AirshipCore
+#else
+import AirshipKit
+#endif
 
 class AirshipEmbeddedViewFactory: NSObject, FlutterPlatformViewFactory {
     let registrar: FlutterPluginRegistrar

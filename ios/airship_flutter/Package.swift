@@ -14,17 +14,10 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "airship_flutter_objc",
-            path: "Sources/airship_flutter/obj-c",
-            publicHeadersPath: "include"
-        ),
-        .target(
             name: "airship_flutter",
             dependencies: [
-                "airship_flutter_objc",
                 .product(name: "AirshipFrameworkProxy", package: "airship-mobile-framework-proxy")
             ],
-            path: "Sources/airship_flutter/swift",
             resources: [
                  .process("PrivacyInfo.xcprivacy")
             ]

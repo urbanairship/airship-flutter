@@ -1,10 +1,15 @@
 import Flutter
 import UIKit
-import AirshipKit
 import AirshipFrameworkProxy
 import Combine
 
-public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
+#if canImport(AirshipCore)
+import AirshipCore
+#else
+import AirshipKit
+#endif
+
+public class AirshipPlugin: NSObject, FlutterPlugin {
     private static let eventNames: [AirshipProxyEventType: String] = [
         .authorizedNotificationSettingsChanged: "com.airship.flutter/event/ios_authorized_notification_settings_changed",
         .pushTokenReceived: "com.airship.flutter/event/push_token_received",
@@ -21,7 +26,7 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
 
     private let streams: [AirshipProxyEventType: AirshipEventStream] = {
         var streams: [AirshipProxyEventType: AirshipEventStream] = [:]
-        SwiftAirshipPlugin.eventNames.forEach { (key: AirshipProxyEventType, value: String) in
+        AirshipPlugin.eventNames.forEach { (key: AirshipProxyEventType, value: String) in
             streams[key] = AirshipEventStream(key, name: value)
         }
         return streams
@@ -29,10 +34,10 @@ public class SwiftAirshipPlugin: NSObject, FlutterPlugin {
 
     private var subscriptions = Set<AnyCancellable>()
 
-    static let shared = SwiftAirshipPlugin()
+    static let shared = AirshipPlugin()
 
     public static func register(with registrar: FlutterPluginRegistrar) {
-        SwiftAirshipPlugin.shared.setup(registrar: registrar)
+        AirshipPlugin.shared.setup(registrar: registrar)
     }
 
     private func setup(registrar: FlutterPluginRegistrar) {

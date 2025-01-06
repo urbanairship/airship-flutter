@@ -1,4 +1,5 @@
 import AirshipFrameworkProxy
+import UIKit
 
 @objc(AirshipPluginLoader)
 public class AirshipPluginLoader: NSObject, AirshipPluginLoaderProtocol {
