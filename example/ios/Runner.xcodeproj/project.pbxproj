@@ -438,10 +438,16 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/Airship/AirshipKit.framework",
+				"${BUILT_PRODUCTS_DIR}/AirshipFrameworkProxy/AirshipFrameworkProxy.framework",
+				"${BUILT_PRODUCTS_DIR}/airship_flutter/airship_flutter.framework",
 				"${BUILT_PRODUCTS_DIR}/AirshipServiceExtension/AirshipServiceExtension.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AirshipKit.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AirshipFrameworkProxy.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/airship_flutter.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AirshipServiceExtension.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;

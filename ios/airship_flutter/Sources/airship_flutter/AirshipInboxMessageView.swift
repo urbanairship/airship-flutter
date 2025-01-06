@@ -4,6 +4,7 @@ import Flutter
 
 #if canImport(AirshipCore)
 import AirshipCore
+import AirshipMessageCenter
 #else
 import AirshipKit
 #endif
