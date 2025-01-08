@@ -176,9 +176,14 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 }
             }
             "push#isUserNotificationsEnabled" -> result.resolveResult(call) { proxy.push.isUserNotificationsEnabled() }
-            "push#getNotificationStatus" -> result.resolveResult(call) {
+            "push#getNotificationStatus" -> result.resolveDeferred(call) { callback ->
                 coroutineScope.launch {
-                    proxy.push.getNotificationStatus()
+                    try {
+                        val status = proxy.push.getNotificationStatus()
+                        callback(status, null)
+                    } catch (e: Exception) {
+                        callback(null, e)
+                    }
                 }
             }
             "push#getActiveNotifications" -> result.resolveResult(call) {
@@ -277,22 +282,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             }
             // Live Activities
 
-            "featureFlagManager#trackInteraction" -> {
-                result.resolveDeferred(call) { callback ->
-                    scope.launch {
-                        try {
-                            val args = call.jsonArgs()
 
-                            val wrapped = JsonValue.wrap(args)
-                            val featureFlagProxy = FeatureFlagProxy(wrapped)
-                            proxy.featureFlagManager.trackInteraction(flag = featureFlagProxy)
-                            callback(null, null)
-                        } catch (e: Exception) {
-                            callback(null, e)
-                        }
-                    }
-                }
-            }
 
             "liveUpdate#start" -> result.resolveResult(call) {
                 try {
