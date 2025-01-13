@@ -1,9 +1,14 @@
 /* Copyright Airship and Contributors */
 
 import Foundation
-import AirshipKit
 import AirshipFrameworkProxy
 import ActivityKit
+
+#if canImport(AirshipCore)
+import AirshipCore
+#else
+import AirshipKit
+#endif
 
 @objc(AirshipPluginExtender)
 public class AirshipPluginExtender: NSObject, AirshipPluginExtenderProtocol {
