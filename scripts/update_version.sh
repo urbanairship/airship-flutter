@@ -12,7 +12,7 @@ if [ -z "$1" ]
 fi
 
 # Update AirshipPluginVersion classes with current plugin version
-sed -i '' "s/\(pluginVersion *= *\)\".*\"/\1\"$VERSION\"/g" "$ROOT_PATH/ios/Classes/AirshipPluginVersion.swift"
+sed -i '' "s/\(pluginVersion *= *\)\".*\"/\1\"$VERSION\"/g" "$ROOT_PATH/ios/airship_flutter/Sources/airship_flutter/AirshipPluginVersion.swift"
 sed -i '' "s/\(AIRSHIP_PLUGIN_VERSION *= *\)\".*\"/\1\"$VERSION\"/g" "$ROOT_PATH/android/src/main/kotlin/com/airship/flutter/AirshipPluginVersion.kt"
 
 # Update podspec
