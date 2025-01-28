@@ -382,32 +382,31 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             }
 
             // Feature Flag
-            "featureFlagManager#flag" -> result.resolveDeferred(call) { callback ->
-                scope.launch {
-                    try {
-                        val flag = proxy.featureFlagManager.flag(call.stringArg())
-                        callback(flag, null)
-                    } catch (e: Exception) {
-                        callback(null, e)
-                    }
-                }
+            "featureFlagManager#flag" -> result.resolveResult(call) {
+                val args = call.jsonArgs().requireMap()
+                val flagName = args.get("flagName").requireString()
+                val useResultCache = args.get("useResultCache")?.getBoolean(false) ?: false
+                proxy.featureFlagManager.flag(flagName, useResultCache)
             }
 
-            "featureFlagManager#trackInteraction" -> {
-                result.resolveDeferred(call) { callback ->
-                    scope.launch {
-                        try {
-                            val args = call.stringArg().toMap()
+            "featureFlagManager#trackInteraction" -> result.resolveResult(call) {
+                val parsedFlag = FeatureFlagProxy(JsonValue.wrap(call.stringArg().toMap()))
+                proxy.featureFlagManager.trackInteraction(parsedFlag)
+            }
 
-                            val wrapped = JsonValue.wrap(args)
-                            val featureFlagProxy = FeatureFlagProxy(wrapped)
-                            proxy.featureFlagManager.trackInteraction(flag = featureFlagProxy)
-                            callback(null, null)
-                        } catch (e: Exception) {
-                            callback(null, e)
-                        }
-                    }
-                }
+            "featureFlagManager#resultCacheGetFlag" -> result.resolveResult(call) {
+                proxy.featureFlagManager.resultCache.flag(call.stringArg())
+            }
+
+            "featureFlagManager#resultCacheSetFlag" -> result.resolveResult(call) {
+                val args = call.jsonArgs().requireMap()
+                val flag = FeatureFlagProxy(JsonValue.wrap(args.get("flag").requireString().toMap()))
+                val ttl = args.get("ttl").getLong(0)
+                proxy.featureFlagManager.resultCache.cache(flag, ttl.milliseconds)
+            }
+
+            "featureFlagManager#resultCacheRemoveFlag" -> result.resolveResult(call) {
+                proxy.featureFlagManager.resultCache.removeCachedFlag(call.stringArg())
             }
 
             else -> result.notImplemented()

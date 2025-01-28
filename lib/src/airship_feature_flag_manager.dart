@@ -8,9 +8,15 @@ class AirshipFeatureFlagManager {
   AirshipFeatureFlagManager(AirshipModule module) : _module = module;
 
   /// Gets and evaluates a feature flag with the given [name].
-  Future<FeatureFlag> flag(String name) async {
-    var featureFlag =
-        await _module.channel.invokeMethod("featureFlagManager#flag", name);
+  /// [useResultCache] determines if the cached result should be used.
+  Future<FeatureFlag> flag(String name, {bool useResultCache = false}) async {
+    var featureFlag = await _module.channel.invokeMethod(
+      "featureFlagManager#flag",
+      {
+        "flagName": name,
+        "useResultCache": useResultCache,
+      },
+    );
     return FeatureFlag._fromJson(featureFlag);
   }
 
@@ -18,6 +24,34 @@ class AirshipFeatureFlagManager {
   Future<void> trackInteraction(FeatureFlag flag) async {
     return await _module.channel
         .invokeMethod("featureFlagManager#trackInteraction", flag.toJSON());
+  }
+
+  /// Gets a flag from the result cache.
+  Future<FeatureFlag?> getFlagFromResultCache(String flagName) async {
+    var featureFlag = await _module.channel.invokeMethod(
+      "featureFlagManager#resultCacheGetFlag",
+      flagName,
+    );
+    return featureFlag != null ? FeatureFlag._fromJson(featureFlag) : null;
+  }
+
+  /// Sets a flag in the result cache.
+  Future<void> setFlagInResultCache(FeatureFlag flag, Duration ttl) async {
+    await _module.channel.invokeMethod(
+      "featureFlagManager#resultCacheSetFlag",
+      {
+        "flag": flag.toJSON(),
+        "ttl": ttl.inMilliseconds,
+      },
+    );
+  }
+
+  /// Removes a flag from the result cache.
+  Future<void> removeFlagFromResultCache(String flagName) async {
+    await _module.channel.invokeMethod(
+      "featureFlagManager#resultCacheRemoveFlag",
+      flagName,
+    );
   }
 }
 
