@@ -1,5 +1,13 @@
 # Flutter Plugin Changelog
 
+## Version 10.0.0 - January 28, 2025
+
+Major release that updates the Android SDK to 19.0.0 and the iOS SDK to 19.0.0
+
+### Changes
+- Updated Android SDK to [19.0.0](https://github.com/urbanairship/android-library/releases/tag/19.0.0)
+- Updated iOS SDK to [19.0.0](https://github.com/urbanairship/ios-library/releases/tag/19.0.0)
+
 ## Version 9.1.1 - January 13, 2025
 
 Patch release that updates the Android SDK to 18.6.0 and the iOS SDK to 18.14.2
