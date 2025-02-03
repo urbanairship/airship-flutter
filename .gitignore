@@ -30,6 +30,7 @@ Podfile.lock
 Pods/
 .symlinks/
 xcuserdata/
+.vscode/
 
 doc/api
 
