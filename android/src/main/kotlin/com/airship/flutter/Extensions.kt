@@ -38,37 +38,6 @@ internal fun MethodChannel.Result.error(call: MethodCall, exception: java.lang.E
     this.error("AIRSHIP_ERROR", exception.message, "Method: ${call.method}")
 }
 
-//internal fun <T> MethodChannel.Result.resolveDeferred(call: MethodCall, function: ((T?, Exception?) -> Unit) -> Unit) {
-//    try {
-//        function { result, error ->
-//            if (error != null) {
-//                this.error(call, error)
-//            } else {
-//                try {
-//                    when (result) {
-//                        is Unit -> {
-//                            this.success(null)
-//                        }
-//                        is JsonSerializable -> {
-//                            this.success(result.toJsonValue().unwrap())
-//                        }
-//                        is java.util.LinkedHashSet<*> -> {
-//                            this.success(result.toList())
-//                        }
-//                        else -> {
-//                            this.success(result)
-//                        }
-//                    }
-//                } catch (e: Exception) {
-//                    this.error(call, e)
-//                }
-//            }
-//        }
-//    } catch (e: Exception) {
-//        this.error(call, e)
-//    }
-//}
-
 internal fun MethodCall.jsonArgs(): JsonValue {
     return JsonValue.wrapOpt(arguments)
 }
@@ -95,14 +64,6 @@ internal fun MethodCall.longArg(): Long {
 internal fun MethodCall.stringList(): List<String> {
     return arguments as List<String>
 }
-
-//internal fun <T> MethodChannel.Result.resolvePending(call: MethodCall, function: () -> PendingResult<T>) {
-//    resolveDeferred(call) { callback ->
-//        function().addResultCallback {
-//            callback(it, null)
-//        }
-//    }
-//}
 
 internal fun JsonSerializable.unwrap(): Any? {
     val json = this.toJsonValue()

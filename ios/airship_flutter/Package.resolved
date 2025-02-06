@@ -6,7 +6,7 @@
       "location" : "https://github.com/urbanairship/airship-mobile-framework-proxy.git",
       "state" : {
         "revision" : "3700311c28441c477e2412d9752e6ff0258d8581",
-        "version" : "12.1.0"
+        "version" : "12.1.2"
       }
     },
     {
@@ -15,7 +15,7 @@
       "location" : "https://github.com/urbanairship/ios-library.git",
       "state" : {
         "revision" : "03baf0f2e1dac61ac1fb676d9b3a6d540d2f144f",
-        "version" : "19.0.0"
+        "version" : "19.0.3"
       }
     }
   ],
