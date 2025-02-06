@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
 import 'package:airship_flutter/airship_flutter.dart';
 import 'package:flutter_section_list/flutter_section_list.dart';
+import 'dart:async';
 
 class PreferenceCenter extends StatefulWidget {
   const PreferenceCenter({super.key});
@@ -19,6 +20,8 @@ class PreferenceCenterState extends State<PreferenceCenter>
       <String, List<ChannelScope>>{};
   var isOptedInToNotifications = false;
 
+  final List<StreamSubscription> _subscriptions = [];
+
   @override
   void initState() {
     updateNotificationOptIn();
@@ -30,15 +33,25 @@ class PreferenceCenterState extends State<PreferenceCenter>
     super.initState();
   }
 
+  @override
+  void dispose() {
+    for (var subscription in _subscriptions) {
+      subscription.cancel();
+    }
+    super.dispose();
+  }
+
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initAirshipListeners() async {
-    Airship.preferenceCenter.onDisplay.listen((event) {});
+    _subscriptions.add(Airship.preferenceCenter.onDisplay.listen((event) {}));
 
-    Airship.push.onNotificationStatusChanged.listen((event) {
-      setState(() {
-        isOptedInToNotifications = event.status.isOptedIn;
-      });
-    });
+    _subscriptions.add(Airship.push.onNotificationStatusChanged.listen((event) {
+      if (mounted) {
+        setState(() {
+          isOptedInToNotifications = event.status.isOptedIn;
+        });
+      }
+    }));
   }
 
   Future<void> updatePreferenceCenterConfig() async {

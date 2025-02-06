@@ -5,12 +5,12 @@ import PackageDescription
 
 let package = Package(
     name: "airship_flutter",
-    platforms: [.macOS(.v10_15), .iOS(.v14), .tvOS(.v14), .visionOS(.v1)],
+    platforms: [.macOS(.v10_15), .iOS(.v15), .tvOS(.v15), .visionOS(.v1)],
     products: [
         .library( name: "airship-flutter", targets: ["airship_flutter"])
     ],
     dependencies: [
-        .package(url: "https://github.com/urbanairship/airship-mobile-framework-proxy.git", from: "11.2.2")
+        .package(url: "https://github.com/urbanairship/airship-mobile-framework-proxy.git", from: "12.1.0")
     ],
     targets: [
         .target(

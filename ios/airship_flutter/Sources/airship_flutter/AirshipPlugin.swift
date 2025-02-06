@@ -115,7 +115,7 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
             
         // Channel
         case "channel#getChannelId":
-            return try AirshipProxy.shared.channel.getChannelId()
+            return try AirshipProxy.shared.channel.channelID
             
         case "channel#addTags":
             try AirshipProxy.shared.channel.addTags(
@@ -130,17 +130,27 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
             return nil
 
         case "channel#editTags":
+            let operation = try JSONDecoder().decode(
+                [TagOperation].self,
+                from: try AirshipJSONUtils.data(call.requireAnyArg())
+            )
+
             try AirshipProxy.shared.channel.editTags(
-                json: try call.requireAnyArg()
+                operations: operation
             )
             return nil
 
         case "channel#getTags":
-            return try AirshipProxy.shared.channel.getTags()
-            
+            return try AirshipProxy.shared.channel.tags
+
         case "channel#editTagGroups":
+            let operation = try JSONDecoder().decode(
+                [TagGroupOperation].self,
+                from: try AirshipJSONUtils.data(call.requireAnyArg())
+            )
+
             try AirshipProxy.shared.channel.editTagGroups(
-                json: try call.requireAnyArg()
+                operations: operation
             )
             return nil
             
@@ -151,31 +161,48 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
             return nil
             
         case "channel#editAttributes":
+            let operations = try JSONDecoder().decode(
+                [AttributeOperation].self,
+                from: try AirshipJSONUtils.data(call.requireAnyArg())
+            )
             try AirshipProxy.shared.channel.editAttributes(
-                json: try call.requireAnyArg()
+                operations: operations
             )
             return nil
         
         case "channel#getSubscriptionLists":
-            return try await AirshipProxy.shared.channel.getSubscriptionLists()
+            return try await AirshipProxy.shared.channel.fetchSubscriptionLists()
     
             
         // Contact
         case "contact#editTagGroups":
+            let operations = try JSONDecoder().decode(
+                [TagGroupOperation].self,
+                from: try AirshipJSONUtils.data(call.requireAnyArg())
+            )
             try AirshipProxy.shared.contact.editTagGroups(
-                json: try call.requireAnyArg()
+                operations: operations
             )
             return nil
             
         case "contact#editSubscriptionLists":
+            let operations = try JSONDecoder().decode(
+                [ScopedSubscriptionListOperation].self,
+                from: try AirshipJSONUtils.data(call.requireAnyArg())
+            )
             try AirshipProxy.shared.contact.editSubscriptionLists(
-                json: try call.requireAnyArg()
+                operations: operations
             )
             return nil
             
         case "contact#editAttributes":
+            let operations = try JSONDecoder().decode(
+                [AttributeOperation].self,
+                from: try AirshipJSONUtils.data(call.requireAnyArg())
+            )
+
             try AirshipProxy.shared.contact.editAttributes(
-                json: try call.requireAnyArg()
+                operations: operations
             )
             return nil
         
@@ -197,8 +224,8 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
             return nil
 
         case "contact#getNamedUserId":
-            return try await AirshipProxy.shared.contact.getNamedUser()
-        
+            return try await AirshipProxy.shared.contact.namedUserID
+
     
         // Push
         case "push#getRegistrationToken":
@@ -225,13 +252,13 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
 
         case "push#isUserNotificationsEnabled":
             return try AirshipProxy.shared.push.isUserNotificationsEnabled()
-        
+
         case "push#getNotificationStatus":
-            return try await AirshipProxy.shared.push.getNotificationStatus()
-            
+            return try await AirshipProxy.shared.push.notificationStatus.unwrapped()
+
         case "push#getActiveNotifications":
-            return await AirshipProxy.shared.push.getActiveNotifications()
-            
+            return try await AirshipProxy.shared.push.getActiveNotifications().unwrapped()
+
         case "push#clearNotification":
             AirshipProxy.shared.push.clearNotification(
                 try call.requireStringArg()
@@ -276,11 +303,11 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
             )
             return nil
 
-        case "push#ios#getAuthorizedNotificationStatus":
-            return try AirshipProxy.shared.push.getAuthroizedNotificationStatus()
-
         case "push#ios#getAuthorizedNotificationSettings":
             return try AirshipProxy.shared.push.getAuthorizedNotificationSettings()
+
+        case "push#ios#getAuthorizedNotificationStatus":
+            return try AirshipProxy.shared.push.getAuthroizedNotificationStatus()
 
 
         // In-App
@@ -295,7 +322,7 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
             
         case "inApp#setDisplayInterval":
             try AirshipProxy.shared.inApp.setDisplayInterval(
-                try call.requireIntArg()
+                milliseconds: try call.requireIntArg()
             )
             return nil
             
@@ -331,7 +358,7 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
         // Message Center
         case "messageCenter#getMessages":
             guard
-                let messages = try? await AirshipProxy.shared.messageCenter.getMessages(),
+                let messages = try? await AirshipProxy.shared.messageCenter.messages,
                 let data = try? JSONEncoder().encode(messages),
                 let result = try? JSONSerialization.jsonObject(
                     with: data,
@@ -362,8 +389,8 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
             return nil
             
         case "messageCenter#getUnreadMessageCount":
-            return try await AirshipProxy.shared.messageCenter.getUnreadCount()
-            
+            return try await AirshipProxy.shared.messageCenter.unreadCount
+
         case "messageCenter#refreshMessages":
             try await AirshipProxy.shared.messageCenter.refresh()
             return nil
@@ -454,7 +481,7 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
             return nil
             
         case "locale#getCurrentLocale":
-            return try AirshipProxy.shared.locale.getCurrentLocale()
+            return try AirshipProxy.shared.locale.currentLocale
 
         // Actions
         case "actions#run":
@@ -570,8 +597,15 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
 
             // Feature Flag
         case "featureFlagManager#flag":
+            guard let args = try? call.requireAnyArg() as? [String: Any],
+                  let name = args["flagName"] as? String,
+                  let useResultCache = args["useResultCache"] as? Bool
+            else {
+                throw AirshipErrors.error("Invalid arguments")
+            }
             let flag = try await AirshipProxy.shared.featureFlagManager.flag(
-                name: try call.requireStringArg()
+                name: name,
+                useResultCache: useResultCache
             )
             return try AirshipJSON.wrap(flag).unWrap()
 
@@ -703,10 +737,12 @@ class AirshipEventStreamHandler: NSObject, FlutterStreamHandler {
         return nil
     }
 
+    
     func notify(_ event: Any) -> Bool {
         if let sink = self.eventSink {
-
-            sink(event)
+            DispatchQueue.main.async {
+                sink(event)
+            }
             return true
         }
         return false
@@ -745,24 +781,41 @@ class AirshipEventStream: NSObject {
 
     @MainActor
     func processPendingEvents() async {
-        await AirshipProxyEventEmitter.shared.processPendingEvents(
-            type: eventType,
-            handler: { [weak self] event in
-                guard let self = self else { return false }
-                return self.notify(event)
+        await MainActor.run {
+            Task {
+                await AirshipProxyEventEmitter.shared.processPendingEvents(
+                    type: eventType,
+                    handler: { [weak self] event in
+                        guard let self = self else { return false }
+                        return self.notify(event)
+                    }
+                )
             }
-        )
+        }
     }
 
-    private func notify(_ event: AirshipProxyEvent) -> Bool {
+    private func notify(_ event: any AirshipProxyEvent) -> Bool {
         var result = false
         lock.sync {
             for handler in handlers {
-                if handler.notify(event.body) {
-                    result = true
+                do {
+                    if handler.notify(try event.body.unwrapped()) {
+                        result = true
+                    }
+                } catch {
+                    AirshipLogger.error("Failed to unwrap event body \(event.body) \(error)")
                 }
             }
         }
         return result
+    }
+}
+
+fileprivate extension Encodable {
+    func unwrapped<T>() throws -> T {
+        guard let value = try AirshipJSON.wrap(self).unWrap() as? T else {
+            throw AirshipErrors.error("Failed to unwrap codable")
+        }
+        return value
     }
 }

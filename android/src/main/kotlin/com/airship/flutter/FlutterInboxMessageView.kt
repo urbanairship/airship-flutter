@@ -6,14 +6,20 @@ import android.view.View
 import android.webkit.WebView
 import com.urbanairship.UAirship
 import com.urbanairship.messagecenter.MessageCenter
-import com.urbanairship.messagecenter.webkit.MessageWebView
-import com.urbanairship.messagecenter.webkit.MessageWebViewClient
+
+import com.urbanairship.android.framework.proxy.ui.MessageWebView
+import com.urbanairship.android.framework.proxy.ui.MessageWebViewClient
+
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.platform.PlatformView
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.StandardMessageCodec
 import io.flutter.plugin.platform.PlatformViewFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class FlutterInboxMessageView(
     private var context: Context,
@@ -73,12 +79,16 @@ class FlutterInboxMessageView(
             return
         }
 
-        val message = MessageCenter.shared().inbox.getMessage(call.arguments())
-        if (message != null) {
-            webView.loadMessage(message)
-            message.markRead()
-        } else {
-            result.error("InvalidMessage", "Unable to load message: ${call.arguments}", null)
+        CoroutineScope(Dispatchers.IO).launch {
+            val message = MessageCenter.shared().inbox.getMessage(call.arguments())
+            withContext(Dispatchers.Main) {
+                if (message != null) {
+                    webView.loadMessage(message)
+                    message.markRead()
+                } else {
+                    result.error("InvalidMessage", "Unable to load message: ${call.arguments}", null)
+                }
+            }
         }
     }
 }

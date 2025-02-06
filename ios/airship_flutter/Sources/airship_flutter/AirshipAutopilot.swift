@@ -48,7 +48,22 @@ extension AirshipAutopilot: AirshipProxyDelegate {
     }
     
     public func loadDefaultConfig() -> AirshipConfig {
-        return AirshipConfig.default()
+
+        let path = Bundle.main.path(
+            forResource: "AirshipConfig",
+            ofType: "plist"
+        )
+
+        var config: AirshipConfig?
+        if let path = path, FileManager.default.fileExists(atPath: path) {
+            do {
+                config = try AirshipConfig.default()
+            } catch {
+                AirshipLogger.error("Failed to load AirshipConfig.plist: \(error)")
+            }
+        }
+
+        return config ?? AirshipConfig()
     }
     
     public func onAirshipReady() {
@@ -58,3 +73,4 @@ extension AirshipAutopilot: AirshipProxyDelegate {
         )
     }
 }
+

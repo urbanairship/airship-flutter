@@ -26,7 +26,7 @@ class AirshipInboxMessageViewFactory : NSObject, FlutterPlatformViewFactory {
     }
 }
 
-class AirshipInboxMessageView : NSObject, FlutterPlatformView, NativeBridgeDelegate, WKNavigationDelegate, UANavigationDelegate {
+class AirshipInboxMessageView : NSObject, FlutterPlatformView, NativeBridgeDelegate, WKNavigationDelegate, AirshipWKNavigationDelegate {
     let webView : WKWebView
     let nativeBridge = NativeBridge()
     let channel : FlutterMethodChannel

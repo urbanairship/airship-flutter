@@ -12,7 +12,6 @@ import com.urbanairship.android.framework.proxy.proxies.FeatureFlagProxy
 import com.urbanairship.android.framework.proxy.proxies.LiveUpdateRequest
 import com.urbanairship.android.framework.proxy.proxies.EnableUserNotificationsArgs
 import com.urbanairship.json.JsonValue
-import com.urbanairship.json.toJsonList
 import io.flutter.embedding.engine.FlutterShellArgs
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -24,24 +23,23 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.platform.PlatformViewRegistry
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 
 class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     private lateinit var channel: MethodChannel
     private lateinit var context: Context
-    private val scope: CoroutineScope = CoroutineScope(Dispatchers.Main) + SupervisorJob()
+    private val scope: CoroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var mainActivity: Activity? = null
     private lateinit var streams: Map<EventType, AirshipEventStream>
 
@@ -109,56 +107,52 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     override fun onMethodCall(call: MethodCall, result: Result) {
         val proxy = AirshipProxy.shared(context)
-        val coroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
         when (call.method) {
             // Flutter
             "startBackgroundIsolate" -> startBackgroundIsolate(call, result)
 
             // Airship
-            "takeOff" -> result.resolveResult(call) { proxy.takeOff(call.jsonArgs()) }
+            "takeOff" -> result.resolve(scope, call) { proxy.takeOff(call.jsonArgs()) }
             
-            "isFlying" -> result.resolveResult(call) { proxy.isFlying() }
+            "isFlying" -> result.resolve(scope, call) { proxy.isFlying() }
 
             // Channel
-            "channel#getChannelId" -> result.resolveResult(call) { proxy.channel.getChannelId() }
-            "channel#addTags" -> result.resolveResult(call) {
+            "channel#getChannelId" -> result.resolve(scope, call) { proxy.channel.getChannelId() }
+            "channel#addTags" -> result.resolve(scope, call) {
                 call.stringList().forEach {
                     proxy.channel.addTag(it)
                 }
             }
 
-            "channel#removeTags" ->
-                result.resolveResult(call) {
-                    call.stringList().forEach {
-                        proxy.channel.removeTag(it)
-                    }
+            "channel#removeTags" -> result.resolve(scope, call) {
+                call.stringList().forEach {
+                    proxy.channel.removeTag(it)
                 }
+            }
 
-            "channel#editTags" -> result.resolveResult(call) { proxy.channel.editTags(call.jsonArgs()) }
-            "channel#getTags" -> result.resolveResult(call) { proxy.channel.getTags().toList() }
-            "channel#editTagGroups" -> result.resolveResult(call) { proxy.channel.editTagGroups(call.jsonArgs()) }
-            "channel#editSubscriptionLists" -> result.resolveResult(call) { proxy.channel.editSubscriptionLists(call.jsonArgs()) }
-            "channel#editAttributes" -> result.resolveResult(call) { proxy.channel.editAttributes(call.jsonArgs()) }
-            "channel#getSubscriptionLists" -> result.resolvePending(call) { proxy.channel.getSubscriptionLists() }
-            "channel#enableChannelCreation" -> result.resolveResult(call) { proxy.channel.enableChannelCreation() }
+            "channel#editTags" -> result.resolve(scope, call) { proxy.channel.editTags(call.jsonArgs()) }
+            "channel#getTags" -> result.resolve(scope, call) { proxy.channel.getTags().toList() }
+            "channel#editTagGroups" -> result.resolve(scope, call) { proxy.channel.editTagGroups(call.jsonArgs()) }
+            "channel#editSubscriptionLists" -> result.resolve(scope, call) { proxy.channel.editSubscriptionLists(call.jsonArgs()) }
+            "channel#editAttributes" -> result.resolve(scope, call) { proxy.channel.editAttributes(call.jsonArgs()) }
+            "channel#getSubscriptionLists" -> result.resolve(scope, call) { proxy.channel.getSubscriptionLists() }
+            "channel#enableChannelCreation" -> result.resolve(scope, call) { proxy.channel.enableChannelCreation() }
 
             // Contact
-            "contact#reset" -> result.resolveResult(call) { proxy.contact.reset() }
-            "contact#notifyRemoteLogin" -> result.resolveResult(call) { proxy.contact.notifyRemoteLogin() }
-            "contact#identify" -> result.resolveResult(call) { proxy.contact.identify(call.stringArg()) }
-            "contact#getNamedUserId" -> result.resolveResult(call) { proxy.contact.getNamedUserId() }
-            "contact#editTagGroups" -> result.resolveResult(call) { proxy.contact.editTagGroups(call.jsonArgs()) }
-            "contact#editSubscriptionLists" -> result.resolveResult(call) { proxy.contact.editSubscriptionLists(call.jsonArgs()) }
-            "contact#editAttributes" -> result.resolveResult(call) { proxy.contact.editAttributes(call.jsonArgs()) }
-            "contact#getSubscriptionLists" -> result.resolvePending(call) { proxy.contact.getSubscriptionLists() }
+            "contact#reset" -> result.resolve(scope, call) { proxy.contact.reset() }
+            "contact#notifyRemoteLogin" -> result.resolve(scope, call) { proxy.contact.notifyRemoteLogin() }
+            "contact#identify" -> result.resolve(scope, call) { proxy.contact.identify(call.stringArg()) }
+            "contact#getNamedUserId" -> result.resolve(scope, call) { proxy.contact.getNamedUserId() }
+            "contact#editTagGroups" -> result.resolve(scope, call) { proxy.contact.editTagGroups(call.jsonArgs()) }
+            "contact#editSubscriptionLists" -> result.resolve(scope, call) { proxy.contact.editSubscriptionLists(call.jsonArgs()) }
+            "contact#editAttributes" -> result.resolve(scope, call) { proxy.contact.editAttributes(call.jsonArgs()) }
+            "contact#getSubscriptionLists" -> result.resolve(scope, call) { proxy.contact.getSubscriptionLists() }
 
             // Push
-            "push#setUserNotificationsEnabled" -> result.resolveResult(call) { proxy.push.setUserNotificationsEnabled(call.booleanArg()) }
-            "push#enableUserNotifications" -> {
-                val args = call.jsonArgs()
-
-                val enableArgs = args?.let {
+            "push#setUserNotificationsEnabled" -> result.resolve(scope, call) { proxy.push.setUserNotificationsEnabled(call.booleanArg()) }
+            "push#enableUserNotifications" -> result.resolve(scope, call) {
+                val enableArgs = call.jsonArgs().let {
                     try {
                         EnableUserNotificationsArgs.fromJson(it)
                     } catch (e: Exception) {
@@ -166,55 +160,39 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                     }
                 }
 
-                coroutineScope.launch {
-                    try {
-                        val enableResult = proxy.push.enableUserPushNotifications(enableArgs)
-                        result.success(enableResult)
-                    } catch (e: Exception) {
-                        result.error("ERROR", "Failed to enable user notifications", e.localizedMessage)
-                    }
-                }
+                proxy.push.enableUserPushNotifications(enableArgs)
             }
-            "push#isUserNotificationsEnabled" -> result.resolveResult(call) { proxy.push.isUserNotificationsEnabled() }
-            "push#getNotificationStatus" -> result.resolveDeferred(call) { callback ->
-                coroutineScope.launch {
-                    try {
-                        val status = proxy.push.getNotificationStatus()
-                        callback(status, null)
-                    } catch (e: Exception) {
-                        callback(null, e)
-                    }
-                }
-            }
-            "push#getActiveNotifications" -> result.resolveResult(call) {
+            "push#isUserNotificationsEnabled" -> result.resolve(scope, call) { proxy.push.isUserNotificationsEnabled() }
+            "push#getNotificationStatus" -> result.resolve(scope, call) { proxy.push.getNotificationStatus() }
+            "push#getActiveNotifications" -> result.resolve(scope, call) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     proxy.push.getActiveNotifications()
                 } else {
                     emptyList()
                 }
             }
-            "push#clearNotification" -> result.resolveResult(call) { proxy.push.clearNotification(call.stringArg()) }
-            "push#clearNotifications" -> result.resolveResult(call) { proxy.push.clearNotifications() }
-            "push#getRegistrationToken" -> result.resolveResult(call) { proxy.push.getRegistrationToken() }
-            "push#android#isNotificationChannelEnabled" -> result.resolveResult(call) {
+            "push#clearNotification" -> result.resolve(scope, call) { proxy.push.clearNotification(call.stringArg()) }
+            "push#clearNotifications" -> result.resolve(scope, call) { proxy.push.clearNotifications() }
+            "push#getRegistrationToken" -> result.resolve(scope, call) { proxy.push.getRegistrationToken() }
+            "push#android#isNotificationChannelEnabled" -> result.resolve(scope, call) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     proxy.push.isNotificationChannelEnabled(call.stringArg())
                 } else {
                     false
                 }
             }
-            "push#android#setNotificationConfig" -> result.resolveResult(call) { proxy.push.setNotificationConfig(call.jsonArgs()) }
+            "push#android#setNotificationConfig" -> result.resolve(scope, call) { proxy.push.setNotificationConfig(call.jsonArgs()) }
 
             // In-App
-            "inApp#setPaused" -> result.resolveResult(call) { proxy.inApp.setPaused(call.booleanArg()) }
-            "inApp#isPaused" -> result.resolveResult(call) { proxy.inApp.isPaused() }
-            "inApp#setDisplayInterval" -> result.resolveResult(call) { proxy.inApp.setDisplayInterval(call.longArg()) }
-            "inApp#getDisplayInterval" -> result.resolveResult(call) { proxy.inApp.getDisplayInterval() }
-            "inApp#resendLastEmbeddedEvent" -> result.resolveResult(call) { proxy.inApp.resendLastEmbeddedEvent() }
+            "inApp#setPaused" -> result.resolve(scope, call) { proxy.inApp.setPaused(call.booleanArg()) }
+            "inApp#isPaused" -> result.resolve(scope, call) { proxy.inApp.isPaused() }
+            "inApp#setDisplayInterval" -> result.resolve(scope, call) { proxy.inApp.setDisplayInterval(call.longArg()) }
+            "inApp#getDisplayInterval" -> result.resolve(scope, call) { proxy.inApp.getDisplayInterval() }
+            "inApp#resendLastEmbeddedEvent" -> result.resolve(scope, call) { proxy.inApp.resendLastEmbeddedEvent() }
 
             // Analytics
-            "analytics#trackScreen" -> result.resolveResult(call) { proxy.analytics.trackScreen(call.optStringArg()) }
-            "analytics#addEvent" -> result.resolveResult(call) { proxy.analytics.addEvent(call.jsonArgs()) }
+            "analytics#trackScreen" -> result.resolve(scope, call) { proxy.analytics.trackScreen(call.optStringArg()) }
+            "analytics#addEvent" -> result.resolve(scope, call) { proxy.analytics.addEvent(call.jsonArgs()) }
             "analytics#associateIdentifier" -> {
                 val args = call.stringList()
                 proxy.analytics.associateIdentifier(
@@ -224,30 +202,20 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             }
 
             // Message Center
-            "messageCenter#getMessages" -> result.resolveResult(call) {
-                JsonValue.wrapOpt(proxy.messageCenter.getMessages())
-            }
-            "messageCenter#showMessageCenter" -> result.resolveResult(call) { proxy.messageCenter.showMessageCenter(call.optStringArg()) }
-            "messageCenter#showMessageView" -> result.resolveResult(call) { proxy.messageCenter.showMessageView(call.stringArg()) }
-            "messageCenter#display" -> result.resolveResult(call) { proxy.messageCenter.display(call.optStringArg()) }
-            "messageCenter#markMessageRead" -> result.resolveResult(call) { proxy.messageCenter.markMessageRead(call.stringArg()) }
-            "messageCenter#deleteMessage" -> result.resolveResult(call) { proxy.messageCenter.deleteMessage(call.stringArg()) }
-            "messageCenter#getUnreadMessageCount" -> result.resolveResult(call) { proxy.messageCenter.getUnreadMessagesCount() }
-            "messageCenter#setAutoLaunch" -> result.resolveResult(call) { proxy.messageCenter.setAutoLaunchDefaultMessageCenter(call.booleanArg()) }
-            "messageCenter#refreshMessages" -> result.resolveDeferred(call) { callback ->
-                proxy.messageCenter.refreshInbox().addResultCallback {
-                    if (it == true) {
-                        callback(null, null)
-                    } else {
-                        callback(null, Exception("Failed to refresh"))
-                    }
-                }
-            }
+            "messageCenter#getMessages" -> result.resolve(scope, call) { proxy.messageCenter.getMessages() }
+            "messageCenter#showMessageCenter" -> result.resolve(scope, call) { proxy.messageCenter.showMessageCenter(call.optStringArg()) }
+            "messageCenter#showMessageView" -> result.resolve(scope, call) { proxy.messageCenter.showMessageView(call.stringArg()) }
+            "messageCenter#display" -> result.resolve(scope, call) { proxy.messageCenter.display(call.optStringArg()) }
+            "messageCenter#markMessageRead" -> result.resolve(scope, call) { proxy.messageCenter.markMessageRead(call.stringArg()) }
+            "messageCenter#deleteMessage" -> result.resolve(scope, call) { proxy.messageCenter.deleteMessage(call.stringArg()) }
+            "messageCenter#getUnreadMessageCount" -> result.resolve(scope, call) { proxy.messageCenter.getUnreadMessagesCount()  }
+            "messageCenter#setAutoLaunch" -> result.resolve(scope, call) { proxy.messageCenter.setAutoLaunchDefaultMessageCenter(call.booleanArg()) }
+            "messageCenter#refreshMessages" -> result.resolve(scope, call) {  proxy.messageCenter.refreshInbox() }
 
             // Preference Center
-            "preferenceCenter#display" -> result.resolveResult(call) { proxy.preferenceCenter.displayPreferenceCenter(call.stringArg()) }
-            "preferenceCenter#getConfig" -> result.resolvePending(call) { proxy.preferenceCenter.getPreferenceCenterConfig(call.stringArg()) }
-            "preferenceCenter#setAutoLaunch" -> result.resolveResult(call) {
+            "preferenceCenter#display" -> result.resolve(scope, call) { proxy.preferenceCenter.displayPreferenceCenter(call.stringArg()) }
+            "preferenceCenter#getConfig" -> result.resolve(scope, call) { proxy.preferenceCenter.getPreferenceCenterConfig(call.stringArg()) }
+            "preferenceCenter#setAutoLaunch" -> result.resolve(scope, call) {
                 val args = call.jsonArgs().requireList()
                 proxy.preferenceCenter.setAutoLaunchPreferenceCenter(
                     args.get(0).requireString(),
@@ -256,35 +224,32 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             }
 
             // Privacy Manager
-            "privacyManager#setEnabledFeatures" -> result.resolveResult(call) { proxy.privacyManager.setEnabledFeatures(call.stringList()) }
-            "privacyManager#getEnabledFeatures" -> result.resolveResult(call) { proxy.privacyManager.getFeatureNames() }
-            "privacyManager#enableFeatures" -> result.resolveResult(call) { proxy.privacyManager.enableFeatures(call.stringList()) }
-            "privacyManager#disableFeatures" -> result.resolveResult(call) { proxy.privacyManager.disableFeatures(call.stringList()) }
-            "privacyManager#isFeaturesEnabled" -> result.resolveResult(call) { proxy.privacyManager.isFeatureEnabled(call.stringList()) }
+            "privacyManager#setEnabledFeatures" -> result.resolve(scope, call) { proxy.privacyManager.setEnabledFeatures(call.stringList()) }
+            "privacyManager#getEnabledFeatures" -> result.resolve(scope, call) { proxy.privacyManager.getFeatureNames() }
+            "privacyManager#enableFeatures" -> result.resolve(scope, call) { proxy.privacyManager.enableFeatures(call.stringList()) }
+            "privacyManager#disableFeatures" -> result.resolve(scope, call) { proxy.privacyManager.disableFeatures(call.stringList()) }
+            "privacyManager#isFeaturesEnabled" -> result.resolve(scope, call) { proxy.privacyManager.isFeatureEnabled(call.stringList()) }
 
             // Locale
-            "locale#setLocaleOverride" -> result.resolveResult(call) { proxy.locale.setCurrentLocale(call.stringArg()) }
-            "locale#getCurrentLocale" -> result.resolveResult(call) { proxy.locale.getCurrentLocale() }
-            "locale#clearLocaleOverride" -> result.resolveResult(call) { proxy.locale.clearLocale() }
+            "locale#setLocaleOverride" -> result.resolve(scope, call) { proxy.locale.setCurrentLocale(call.stringArg()) }
+            "locale#getCurrentLocale" -> result.resolve(scope, call) { proxy.locale.getCurrentLocale() }
+            "locale#clearLocaleOverride" -> result.resolve(scope, call) { proxy.locale.clearLocale() }
 
             // Actions
-            "actions#run" -> result.resolveDeferred(call) { callback ->
+            "actions#run" -> result.resolve(scope, call) {
                 val args = call.jsonArgs().requireList().list
 
-                proxy.actions.runAction(args[0].requireString(), args.getOrNull(1))
-                    .addResultCallback { actionResult ->
-                        if (actionResult != null && actionResult.status == ActionResult.STATUS_COMPLETED) {
-                            callback(actionResult.value, null)
-                        } else {
-                            callback(null, Exception("Action failed ${actionResult?.status}"))
-                        }
-                    }
+                val actionResult = proxy.actions.runAction(args[0].requireString(), args.getOrNull(1))
+
+                if (actionResult.status == ActionResult.STATUS_COMPLETED) {
+                    actionResult.value
+                } else {
+                    throw Exception("Action failed with status: ${actionResult.status}")
+                }
             }
+
             // Live Activities
-
-
-
-            "liveUpdate#start" -> result.resolveResult(call) {
+            "liveUpdate#start" -> result.resolve(scope, call) {
                 try {
                     val args = call.jsonArgs()
                     Log.d("AirshipPlugin", "Received args for liveUpdate#start: $args")
@@ -302,7 +267,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 }
             }
 
-            "liveUpdate#update" -> result.resolveResult(call) {
+            "liveUpdate#update" -> result.resolve(scope, call) {
                 try {
                     val args = call.jsonArgs()
                     Log.d("AirshipPlugin", "Received args for liveUpdate#update: $args")
@@ -318,43 +283,32 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 }
             }
 
-            "liveUpdate#list" -> result.resolveDeferred(call) { callback ->
-                try {
-                    val args = call.jsonArgs()
-                    Log.d("AirshipPlugin", "Received args for liveUpdate#list: $args")
+            "liveUpdate#list" -> result.resolve(scope, call) {
+                val args = call.jsonArgs()
+                Log.d("AirshipPlugin", "Received args for liveUpdate#list: $args")
 
-                    val listRequest = LiveUpdateRequest.List.fromJson(args)
+                val listRequest = LiveUpdateRequest.List.fromJson(args)
 
-                    coroutineScope.launch {
-                        try {
-                            val liveUpdates = proxy.liveUpdateManager.list(listRequest)
-                            Log.d("AirshipPlugin", "LiveUpdate list method completed successfully")
-                            callback(liveUpdates.toJsonList(), null)
-                        } catch (e: Exception) {
-                            Log.e("AirshipPlugin", "Error listing LiveUpdates", e)
-                            callback(null, e)
-                        }
-                    }
-                } catch (e: Exception) {
-                    Log.e("AirshipPlugin", "Error processing liveUpdate#list request", e)
-                    callback(null, e)
-                }
-            }
-
-            "liveUpdate#listAll" -> result.resolveDeferred(call) { callback ->
-                coroutineScope.launch {
+                scope.launch {
                     try {
-                        val liveUpdates = proxy.liveUpdateManager.listAll()
-                        Log.d("AirshipPlugin", "LiveUpdate listAll method completed successfully")
-                        callback(JsonValue.wrap(liveUpdates), null)
+                        proxy.liveUpdateManager.list(listRequest)
+                        Log.d("AirshipPlugin", "LiveUpdate list method completed successfully")
                     } catch (e: Exception) {
-                        Log.e("AirshipPlugin", "Error listing all LiveUpdates", e)
-                        callback(null, e)
+                        Log.e("AirshipPlugin", "Error listing LiveUpdates", e)
                     }
                 }
             }
 
-            "liveUpdate#end" -> result.resolveResult(call) {
+            "liveUpdate#listAll" -> result.resolve(scope, call) {
+                try {
+                    proxy.liveUpdateManager.listAll()
+                    Log.d("AirshipPlugin", "LiveUpdate listAll method completed successfully")
+                } catch (e: Exception) {
+                    Log.e("AirshipPlugin", "Error listing all LiveUpdates", e)
+                }
+            }
+
+            "liveUpdate#end" -> result.resolve(scope, call) {
                 try {
                     val args = call.jsonArgs()
                     Log.d("AirshipPlugin", "Received args for liveUpdate#end: $args")
@@ -370,7 +324,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 }
             }
 
-            "liveUpdate#clearAll" -> result.resolveResult(call) {
+            "liveUpdate#clearAll" -> result.resolve(scope, call) {
                 try {
                     proxy.liveUpdateManager.clearAll()
                     Log.d("AirshipPlugin", "LiveUpdate clearAll method called successfully")
@@ -382,30 +336,57 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             }
 
             // Feature Flag
-            "featureFlagManager#flag" -> result.resolveDeferred(call) { callback ->
+            "featureFlagManager#flag" -> result.resolve(scope, call) {
+                val args = call.jsonArgs().requireMap()
+                val flagName = args.get("flagName")?.requireString()
+                val useResultCache = args.get("useResultCache")?.getBoolean(false) ?: false
+                try {
+                    if (flagName == null) {
+                        throw Exception("Missing flagName")
+                    }
+
+                    proxy.featureFlagManager.flag(flagName, useResultCache)
+                } catch (e: Exception) {
+                    result.error("ERROR", "Failed to get flag", e.localizedMessage)
+                }
+            }
+
+            "featureFlagManager#trackInteraction" -> result.resolve(scope, call) {
+                val parsedFlag = FeatureFlagProxy(JsonValue.wrap(call.stringArg().toMap()))
+                proxy.featureFlagManager.trackInteraction(parsedFlag)
+            }
+
+            "featureFlagManager#resultCacheGetFlag" -> result.resolve(scope, call) {
                 scope.launch {
                     try {
-                        val flag = proxy.featureFlagManager.flag(call.stringArg())
-                        callback(flag, null)
+                        proxy.featureFlagManager.resultCache.flag(call.stringArg())
                     } catch (e: Exception) {
-                        callback(null, e)
+                        result.error("ERROR", "Failed to get flag", e.localizedMessage)
                     }
                 }
             }
 
-            "featureFlagManager#trackInteraction" -> {
-                result.resolveDeferred(call) { callback ->
-                    scope.launch {
-                        try {
-                            val args = call.stringArg().toMap()
+            "featureFlagManager#resultCacheSetFlag"-> result.resolve(scope, call) {
+                val args = call.jsonArgs().requireMap()
+                val flag = FeatureFlagProxy(JsonValue.wrap(args.get("flag")?.requireString()?.toMap()))
+                val ttl = args.get("ttl")?.getLong(0)
+                val miliseconds = ttl?.milliseconds ?: throw Exception("Missing ttl")
 
-                            val wrapped = JsonValue.wrap(args)
-                            val featureFlagProxy = FeatureFlagProxy(wrapped)
-                            proxy.featureFlagManager.trackInteraction(flag = featureFlagProxy)
-                            callback(null, null)
-                        } catch (e: Exception) {
-                            callback(null, e)
-                        }
+                scope.launch {
+                    try {
+                        proxy.featureFlagManager.resultCache.cache(flag, miliseconds)
+                    } catch (e: Exception) {
+                        result.error("ERROR", "Failed to set flag", e.localizedMessage)
+                    }
+                }
+            }
+
+            "featureFlagManager#resultCacheRemoveFlag" -> result.resolve(scope, call) {
+                scope.launch {
+                    try {
+                        proxy.featureFlagManager.resultCache.removeCachedFlag(call.stringArg())
+                    } catch (e: Exception) {
+                        result.error("ERROR", "Failed to remove cached flag", e.localizedMessage)
                     }
                 }
             }

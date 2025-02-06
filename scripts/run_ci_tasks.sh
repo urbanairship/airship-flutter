@@ -41,7 +41,8 @@ flutter packages get
 if $ANALYZE; then
     flutter analyze
     # Perform publish dry run to ensure the package can be published
-    flutter pub pub publish --dry-run
+    dart analyze --fatal-infos
+    flutter pub pub publish --dry-run --skip-validation
 fi
 
 # Android
@@ -58,6 +59,7 @@ if $IOS; then
     if [ ! -f ios/AirshipConfig.plist ]; then
       cp ios/AirshipConfig.plist.sample ios/AirshipConfig.plist
     fi
+
     flutter build ios --release --no-codesign
     cd ..
 fi

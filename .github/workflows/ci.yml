@@ -3,15 +3,15 @@ name: CI
 on: [pull_request]
 
 env:
-  DEVELOPER_DIR: /Applications/Xcode_15.4.app/Contents/Developer
-  FLUTTER_VERSION: 3.24.3
+  DEVELOPER_DIR: /Applications/Xcode_16.2.app/Contents/Developer
+  FLUTTER_VERSION: 3.27.3
   JAVA_VERSION: "17.x"
   JAVA_DISTRIBUTION: 'zulu'
   ANDROID_SDK_ROOT: ${{ github.workspace }}/android-sdk
 
 jobs:
   ci:
-    runs-on: macos-14-xlarge
+    runs-on: macos-15-xlarge
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v2
@@ -27,7 +27,7 @@ jobs:
         run: bash ./scripts/run_ci_tasks.sh -z
 
   ci-android:
-    runs-on: macos-14-xlarge
+    runs-on: macos-15-xlarge
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v2
@@ -41,15 +41,17 @@ jobs:
         run: bash ./scripts/run_ci_tasks.sh -a
 
   ci-ios:
-    runs-on: macos-14-xlarge
+    runs-on: macos-15-xlarge
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v2
         with:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
           java-version: ${{ env.JAVA_VERSION }}
-      - uses: subosito/flutter-action@44ac965b96f18d999802d4b807e3256d5a3f9fa1
+      - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
+      - name: Select Xcode version
+        run: sudo xcode-select -s '/Applications/Xcode_16.2.app/Contents/Developer'
       - name: Build iOS
         run: bash ./scripts/run_ci_tasks.sh -i
