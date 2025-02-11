@@ -424,8 +424,7 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
         case "preferenceCenter#getConfig":
             return try await AirshipProxy.shared.preferenceCenter.getPreferenceCenterConfig(
                 preferenceCenterID: try call.requireStringArg()
-            )
-            
+            ).unWrap()
         case "preferenceCenter#setAutoLaunch":
             let args = try call.requireArrayArg()
             guard
