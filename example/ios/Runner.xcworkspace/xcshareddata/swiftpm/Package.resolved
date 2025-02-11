@@ -6,8 +6,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/urbanairship/airship-mobile-framework-proxy.git",
       "state" : {
-        "revision" : "90131b66714b55af587ab7d5a2d5063497974d31",
-        "version" : "12.1.2"
+        "revision" : "e1f350572f97b9493fbecb9cee3ff9c6c924d683",
+        "version" : "13.0.0"
       }
     },
     {
