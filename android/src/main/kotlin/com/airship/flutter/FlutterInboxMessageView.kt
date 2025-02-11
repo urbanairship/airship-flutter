@@ -7,8 +7,8 @@ import android.webkit.WebView
 import com.urbanairship.UAirship
 import com.urbanairship.messagecenter.MessageCenter
 
-import com.urbanairship.android.framework.proxy.ui.MessageWebView
-import com.urbanairship.android.framework.proxy.ui.MessageWebViewClient
+import com.urbanairship.messagecenter.ui.widget.MessageWebView
+import com.urbanairship.messagecenter.ui.widget.MessageWebViewClient
 
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
