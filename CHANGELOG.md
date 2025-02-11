@@ -1,6 +1,6 @@
 # Flutter Plugin Changelog
 
-## Version 10.1.0 - February 10, 2025
+## Version 10.1.0 - February 11, 2025
 
 Minor release that updates the Android SDK to 19.1.0 and the iOS SDK to 19.0.3
 
