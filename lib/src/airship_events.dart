@@ -54,10 +54,9 @@ class MessageCenterUpdatedEvent {
       this.messageUnreadCount, this.messageCount);
 
   static MessageCenterUpdatedEvent fromJson(dynamic json) {
-    var messageUnreadCount = json["messageUnreadCount"];
-    var messageCount = json["messageCount"];
-    return MessageCenterUpdatedEvent._internal(
-        messageUnreadCount, messageCount);
+    final num unread = json["unreadCount"] ?? 0;
+    final num count = json["messageCount"] ?? 0;
+    return MessageCenterUpdatedEvent._internal(unread.toInt(), count.toInt());
   }
 
   @override

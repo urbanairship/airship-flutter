@@ -1,13 +1,13 @@
 {
-  "originHash" : "0120248216bdecfbb082295cb74c7df005aadd64c62506ba17232b126a75215f",
+  "originHash" : "dcc59d897026cf2600fde6dbf7f4f451fe85274f99e3f6aa6f47f9e0b827c3fa",
   "pins" : [
     {
       "identity" : "airship-mobile-framework-proxy",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/urbanairship/airship-mobile-framework-proxy.git",
       "state" : {
-        "revision" : "90131b66714b55af587ab7d5a2d5063497974d31",
-        "version" : "12.1.2"
+        "revision" : "5cdd2519a10e32708da38e05c9945c233f1bf9cf",
+        "version" : "13.0.1"
       }
     },
     {
