@@ -31,7 +31,7 @@ permissions:
 jobs:
   prepare-release:
     runs-on: macos-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - uses: actions/checkout@v4
@@ -40,15 +40,38 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run Updates
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu' # Or temurin, etc.
+          java-version: '17'  # Choose appropriate Java version
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Run Version Updates
         run: |
           ./scripts/update_version.sh "${{ github.event.inputs.flutter_version }}" || exit 1
           if [ -n "${{ github.event.inputs.proxy_version }}" ]; then
+            # Ensure xcodebuild is removed from this script (See Step 1 above)
             ./scripts/update_proxy_version.sh "${{ github.event.inputs.proxy_version }}" || exit 1
           fi
           ./scripts/update_changelog.sh "${{ github.event.inputs.flutter_version }}" \
             $([ -n "${{ github.event.inputs.ios_version }}" ] && echo "--ios ${{ github.event.inputs.ios_version }}") \
             $([ -n "${{ github.event.inputs.android_version }}" ] && echo "--android ${{ github.event.inputs.android_version }}") || exit 1
+
+      - name: Get Example Flutter dependencies
+        # Run flutter pub get inside the example directory
+        run: flutter pub get
+        working-directory: ./example
+
+      - name: Resolve iOS Package Dependencies
+        # Run xcodebuild inside the example/ios directory
+        run: xcodebuild -resolvePackageDependencies
+        working-directory: ./example/ios
+      # -------------------------------------
 
       - name: Verify Changes
         id: verify

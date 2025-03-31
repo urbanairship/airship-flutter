@@ -16,6 +16,6 @@ sed -i.bak -E "s/(\.package\(name: *\"AirshipFrameworkProxy\", *url: *\"[^\"]+\"
 
 find "$ROOT_PATH" -name "*.bak" -delete
 
-pushd "$ROOT_PATH/example/ios"
-xcodebuild -resolvePackageDependencies
-popd
+#pushd "$ROOT_PATH/example/ios"
+#xcodebuild -resolvePackageDependencies
+#popd
