@@ -19,7 +19,7 @@ class AirshipChannel {
   /// the channel ID is created, this method functions the same as `identifier`.
   /// 
   /// @returns A future with the channel ID.
-  Future<String?> waitForChannelId() async {
+  Future<String> waitForChannelId() async {
     return await _module.channel.invokeMethod('channel#waitForChannelId');
   }
 
