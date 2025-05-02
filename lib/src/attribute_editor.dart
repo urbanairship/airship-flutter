@@ -9,6 +9,8 @@ class AttributeEditor {
   static const ATTRIBUTE_OPERATION_SET = "set";
   static const ATTRIBUTE_OPERATION_VALUE = "value";
   static const ATTRIBUTE_OPERATION_VALUE_TYPE = "type";
+  static const ATTRIBUTE_OPERATION_INSTANCE_ID = "instance_id";
+  static const ATTRIBUTE_OPERATION_EXPIRATION_MS = "expiration_milliseconds";
 
   final MethodChannel channel;
 
@@ -18,8 +20,7 @@ class AttributeEditor {
   /// The attribute operation list.
   final List<Map<String, dynamic>> operations;
 
-  AttributeEditor(this.type, this.channel)
-      : operations = [];
+  AttributeEditor(this.type, this.channel) : operations = [];
 
   /// Removes an attribute.
   void removeAttribute(String name) {
@@ -56,6 +57,43 @@ class AttributeEditor {
       ATTRIBUTE_OPERATION_KEY: name,
       ATTRIBUTE_OPERATION_VALUE: value.millisecondsSinceEpoch,
       ATTRIBUTE_OPERATION_VALUE_TYPE: "date"
+    });
+  }
+
+  /// Adds a JSON attribute.
+  ///
+  /// @param name The attribute name.
+  /// @param instanceId The instance ID.
+  /// @param json The json value.
+  /// @param expiration Optional expiration date.
+  void setJsonAttribute(
+      String name, String instanceId, Map<String, dynamic> json,
+      [DateTime? expiration]) {
+    final operation = {
+      ATTRIBUTE_OPERATION_TYPE: ATTRIBUTE_OPERATION_SET,
+      ATTRIBUTE_OPERATION_KEY: name,
+      ATTRIBUTE_OPERATION_INSTANCE_ID: instanceId,
+      ATTRIBUTE_OPERATION_VALUE: json,
+      ATTRIBUTE_OPERATION_VALUE_TYPE: "json"
+    };
+
+    if (expiration != null) {
+      operation[ATTRIBUTE_OPERATION_EXPIRATION_MS] =
+          expiration.millisecondsSinceEpoch;
+    }
+
+    operations.add(operation);
+  }
+
+  /// Removes a JSON attribute.
+  ///
+  /// @param name The attribute name.
+  /// @param instanceId The instance ID.
+  void removeJsonAttribute(String name, String instanceId) {
+    operations.add({
+      ATTRIBUTE_OPERATION_TYPE: ATTRIBUTE_OPERATION_REMOVE,
+      ATTRIBUTE_OPERATION_KEY: name,
+      ATTRIBUTE_OPERATION_INSTANCE_ID: instanceId
     });
   }
 

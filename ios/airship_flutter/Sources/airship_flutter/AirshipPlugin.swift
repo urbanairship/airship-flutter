@@ -117,6 +117,9 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
         case "channel#getChannelId":
             return try AirshipProxy.shared.channel.channelID
             
+        case "channel#waitForChannelId":
+            return try await AirshipProxy.shared.channel.waitForChannelID()
+
         case "channel#addTags":
             try AirshipProxy.shared.channel.addTags(
                 try call.requireStringArrayArg()
