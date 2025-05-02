@@ -14,12 +14,30 @@ class Home extends StatefulWidget {
 }
 
 class HomeState extends State<Home> {
+  bool _isHomeBannerAvailable = false;
+
   @override
   void initState() {
     initAirshipListeners();
     Airship.analytics.trackScreen('Home');
+    _setupEmbeddedContentListener();
 
     super.initState();
+  }
+
+  void _setupEmbeddedContentListener() {
+    // bool isAvailable = Airship.inApp.isEmbeddedAvailable(embeddedId: "test");
+    // print("Airship Embedded Available - $isAvailable");
+    // setState(() {
+    //   _isHomeBannerAvailable = isAvailable;
+    // });
+
+    Airship.inApp.isEmbeddedAvailableStream(embeddedId: "test")
+        .listen((isAvailable) {
+      setState(() {
+        _isHomeBannerAvailable = isAvailable;
+      });
+    });
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
@@ -157,8 +175,14 @@ class HomeState extends State<Home> {
             alignment: Alignment.center,
             child: Wrap(children: <Widget>[
               Center(
-                  child: AirshipEmbeddedView(
-                      embeddedId: "test", parentHeight: 200)),
+                  child: _isHomeBannerAvailable
+                    ? AirshipEmbeddedView(embeddedId: "test", parentHeight: 200)
+                    : Image.asset(
+                      'assets/airship.png',
+                      fit: BoxFit.contain,
+                      width: double.infinity,
+                      height: 200)
+              ),
               Image.asset(
                 'assets/airship.png',
               ),
