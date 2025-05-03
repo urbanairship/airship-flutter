@@ -1,13 +1,14 @@
 # Flutter Plugin Changelog
 
 ## Version 10.3.0 - May 1, 2025
-Minor release that updates the Android SDK to 19.6.2 and the iOS SDK to 19.3.1.
+Minor release that updates the Android SDK to 19.6.2 and the iOS SDK to 19.3.1 and fixes an Embedded View bug.
 
 ### Changes
 - Updated Android SDK to [19.6.2](https://github.com/urbanairship/android-library/releases/tag/19.6.2)
 - Updated iOS SDK to [19.3.1](https://github.com/urbanairship/ios-library/releases/tag/19.3.1)
 - Added support for JSON attributes
 - Added new method `Airship.channel.waitForChannelId()` that waits for the channel ID to be created
+- Fixed bug in `Airship.inApp.isEmbeddedAvailableStream` that disrupted gated rendering of Embedded Views
 
 ## Version 10.2.0 - March 27, 2025
 
