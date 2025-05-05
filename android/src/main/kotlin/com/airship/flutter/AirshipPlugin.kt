@@ -119,6 +119,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
             // Channel
             "channel#getChannelId" -> result.resolve(scope, call) { proxy.channel.getChannelId() }
+            "channel#waitForChannelId" -> result.resolve(scope, call) { proxy.channel.waitForChannelId() }
             "channel#addTags" -> result.resolve(scope, call) {
                 call.stringList().forEach {
                     proxy.channel.addTag(it)

@@ -41,18 +41,24 @@ class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
     with AutomaticKeepAliveClientMixin<AirshipEmbeddedView> {
   late MethodChannel _channel;
   late Stream<bool> _readyStream;
+  late final StreamSubscription<bool> _readySubscription;
+
   bool? _isEmbeddedAvailable;
 
   @override
   void initState() {
     super.initState();
+
+    // Get seed value once
+    _isEmbeddedAvailable =
+        Airship.inApp.isEmbeddedAvailable(embeddedId: widget.embeddedId);
+
+    // Then listen for changes
     _readyStream =
         Airship.inApp.isEmbeddedAvailableStream(embeddedId: widget.embeddedId);
-    _readyStream.listen((isEmbeddedAvailable) {
-      if (mounted) {
-        setState(() {
-          _isEmbeddedAvailable = isEmbeddedAvailable;
-        });
+    _readySubscription = _readyStream.listen((v) {
+      if (mounted && v != _isEmbeddedAvailable) {
+        setState(() => _isEmbeddedAvailable = v);
       }
     });
   }
@@ -161,6 +167,7 @@ class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
 
   @override
   void dispose() {
+    _readySubscription.cancel();
     _channel.setMethodCallHandler(null);
     super.dispose();
   }

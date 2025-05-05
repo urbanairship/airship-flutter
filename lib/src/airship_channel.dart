@@ -15,6 +15,14 @@ class AirshipChannel {
     return await _module.channel.invokeMethod('channel#getChannelId');
   }
 
+  /// Returns the channel ID. If the channel ID is not yet created the function it will wait for it before returning. After
+  /// the channel ID is created, this method functions the same as `identifier`.
+  /// 
+  /// @returns A future with the channel ID.
+  Future<String> waitForChannelId() async {
+    return await _module.channel.invokeMethod('channel#waitForChannelId');
+  }
+
   /// Creates a [SubscriptionListEditor] to modify the subscription lists associated with the channel.
   SubscriptionListEditor editSubscriptionLists() {
     return SubscriptionListEditor("channel#editSubscriptionLists", _module.channel);

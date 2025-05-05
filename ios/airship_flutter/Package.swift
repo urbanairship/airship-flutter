@@ -10,7 +10,7 @@ let package = Package(
         .library( name: "airship-flutter", targets: ["airship_flutter"])
     ],
     dependencies: [
-        .package(url: "https://github.com/urbanairship/airship-mobile-framework-proxy.git", from: "13.0.0")
+        .package(url: "https://github.com/urbanairship/airship-mobile-framework-proxy.git", from: "14.2.1")
     ],
     targets: [
         .target(
