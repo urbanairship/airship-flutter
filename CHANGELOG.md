@@ -1,5 +1,12 @@
 # Flutter Plugin Changelog
 
+## Version 10.3.1 - May 9, 2025
+
+Patch release that updates the iOS SDK to 19.3.2
+
+### Changes
+- Updated iOS SDK to [19.3.2](https://github.com/urbanairship/ios-library/releases/tag/19.3.2)
+
 ## Version 10.3.0 - May 1, 2025
 Minor release that updates the Android SDK to 19.6.2 and the iOS SDK to 19.3.1 and fixes an Embedded View bug.
 
