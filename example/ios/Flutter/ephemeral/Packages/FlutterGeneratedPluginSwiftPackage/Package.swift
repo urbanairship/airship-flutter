@@ -9,20 +9,17 @@ import PackageDescription
 let package = Package(
     name: "FlutterGeneratedPluginSwiftPackage",
     platforms: [
-        .iOS("16.1")
+        .iOS("12.0")
     ],
     products: [
         .library(name: "FlutterGeneratedPluginSwiftPackage", type: .static, targets: ["FlutterGeneratedPluginSwiftPackage"])
     ],
     dependencies: [
-        .package(name: "airship_flutter", path: "/Users/david.crow/source/airship-flutter/ios/airship_flutter")
+        
     ],
     targets: [
         .target(
-            name: "FlutterGeneratedPluginSwiftPackage",
-            dependencies: [
-                .product(name: "airship-flutter", package: "airship_flutter")
-            ]
+            name: "FlutterGeneratedPluginSwiftPackage"
         )
     ]
 )
