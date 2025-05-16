@@ -5,7 +5,7 @@ buildscript {
     ext.kotlin_version = '1.9.0'
     ext.coroutine_version = '1.5.2'
     ext.datastore_preferences_version = '1.1.1'
-    ext.airship_framework_proxy_version = '14.2.3'
+    ext.airship_framework_proxy_version = '14.3.0'
 
 
     repositories {

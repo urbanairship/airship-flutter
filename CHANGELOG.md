@@ -1,5 +1,15 @@
 # Flutter Plugin Changelog
 
+## Version 10.4.0 - May 16, 2025
+
+Minor release that adds support for using Feature Flags as an audience condition for other Feature Flags and Vimeo videos in Scenes.
+
+### Changes
+- Added support for using Feature Flags as an audience condition for other Feature Flags.
+- Added support for Vimeo videos in Scenes.
+- Updated Android SDK to [19.7.0](https://github.com/urbanairship/android-library/releases/tag/19.7.0)
+- Updated iOS SDK to [19.4.0](https://github.com/urbanairship/ios-library/releases/tag/19.4.0)
+
 ## Version 10.3.1 - May 9, 2025
 
 Patch release that updates the iOS SDK to 19.3.2
