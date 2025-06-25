@@ -7,6 +7,7 @@ Minor release that updates the Android SDK to 19.9.1 and the iOS SDK to 19.6.1
 ### Changes
 - Updated Android SDK to [19.9.1](https://github.com/urbanairship/android-library/releases/tag/19.9.1)
 - Updated iOS SDK to [19.6.1](https://github.com/urbanairship/ios-library/releases/tag/19.6.1)
+- Added support for Android `logPrivacyLevel` configuration option in `AndroidConfig`
 
 ## Version 10.4.0 - May 16, 2025
 
