@@ -151,14 +151,18 @@ class AndroidConfig {
   /// Notification config.
   final AndroidNotificationConfig? notificationConfig;
 
+  /// Log privacy level for Android.
+  final AirshipLogPrivacyLevel? logPrivacyLevel;
+
   AndroidConfig(
-      {this.appStoreUri, this.fcmFirebaseAppName, this.notificationConfig});
+      {this.appStoreUri, this.fcmFirebaseAppName, this.notificationConfig, this.logPrivacyLevel});
 
   Map<String, Object?> _toJson() {
     return {
       "appStoreUri": appStoreUri,
       "fcmFirebaseAppName": fcmFirebaseAppName,
-      "notificationConfig": notificationConfig?._toJson()
+      "notificationConfig": notificationConfig?._toJson(),
+      "logPrivacyLevel": logPrivacyLevel?.name
     };
   }
 }

@@ -32,7 +32,8 @@ void main() {
     androidConfig: AndroidConfig(
         notificationConfig: AndroidNotificationConfig(
       icon: "ic_notification",
-    )),
+    ),
+        logPrivacyLevel: AirshipLogPrivacyLevel.public),
     defaultEnvironment: ConfigEnvironment(
         appKey: "APP_KEY",
         appSecret: "APP_SECRET",
