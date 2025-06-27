@@ -3,9 +3,11 @@
 import Foundation
 import AirshipFrameworkProxy
 import ActivityKit
+import Flutter
 
 #if canImport(AirshipCore)
 import AirshipCore
+import AirshipAutomation
 #else
 import AirshipKit
 #endif
@@ -28,5 +30,15 @@ public class AirshipPluginExtender: NSObject, AirshipPluginExtenderProtocol {
         }
       }
     }
+
+    // Register custom views
+    #if canImport(AirshipCore)
+    if #available(iOS 16.0, *) {
+      AirshipCustomViewManager.shared.register(name: "amc-view") { args in
+        // Return SwiftUI View
+        FlutterCustomViewWrapper(viewName: "amc-view", properties: args.properties)
+      }
+    }
+    #endif
   }
 }

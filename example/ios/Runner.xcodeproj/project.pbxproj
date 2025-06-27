@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -27,6 +27,7 @@
 		99041C232CC29E0300031558 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99041C222CC29E0300031558 /* NotificationService.swift */; };
 		99041C272CC29E0300031558 /* AirshipExampleNotificationServiceExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 99041C202CC29E0300031558 /* AirshipExampleNotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		991A20A62CC5807D0025F15C /* ExampleWidgetsAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99041C192CC1DB1D00031558 /* ExampleWidgetsAttributes.swift */; };
+		9957A8A32E139587006E2315 /* AirshipCustomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9957A8A22E139587006E2315 /* AirshipCustomView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -103,6 +104,7 @@
 		99041C202CC29E0300031558 /* AirshipExampleNotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = AirshipExampleNotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		99041C222CC29E0300031558 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		99041C242CC29E0300031558 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		9957A8A22E139587006E2315 /* AirshipCustomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirshipCustomView.swift; sourceTree = "<group>"; };
 		C1D4B4A1D782E3A81A0DDB95 /* Pods-AirshipExampleNotificationServiceExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AirshipExampleNotificationServiceExtension.debug.xcconfig"; path = "Target Support Files/Pods-AirshipExampleNotificationServiceExtension/Pods-AirshipExampleNotificationServiceExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		C46C169E3F4F848ABC87E959 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DF39D0BC24EC8388007487C4 /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
@@ -210,6 +212,7 @@
 				1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */,
 				1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */,
 				99041B722CC1BD3400031558 /* AirshipPluginExtender.swift */,
+				9957A8A22E139587006E2315 /* AirshipCustomView.swift */,
 				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
 			);
@@ -344,7 +347,7 @@
 			);
 			mainGroup = 97C146E51CF9000F007C117D;
 			packageReferences = (
-				781AD8BC2B33823900A9FFBB /* XCLocalSwiftPackageReference "FlutterGeneratedPluginSwiftPackage" */,
+				781AD8BC2B33823900A9FFBB /* XCLocalSwiftPackageReference "Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage" */,
 			);
 			productRefGroup = 97C146EF1CF9000F007C117D /* Products */;
 			projectDirPath = "";
@@ -416,16 +419,10 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/Airship/AirshipKit.framework",
-				"${BUILT_PRODUCTS_DIR}/AirshipFrameworkProxy/AirshipFrameworkProxy.framework",
-				"${BUILT_PRODUCTS_DIR}/airship_flutter/airship_flutter.framework",
 				"${BUILT_PRODUCTS_DIR}/AirshipServiceExtension/AirshipServiceExtension.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AirshipKit.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AirshipFrameworkProxy.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/airship_flutter.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AirshipServiceExtension.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -497,6 +494,7 @@
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
 				99041B732CC1BD3400031558 /* AirshipPluginExtender.swift in Sources */,
+				9957A8A32E139587006E2315 /* AirshipCustomView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1102,7 +1100,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		781AD8BC2B33823900A9FFBB /* XCLocalSwiftPackageReference "FlutterGeneratedPluginSwiftPackage" */ = {
+		781AD8BC2B33823900A9FFBB /* XCLocalSwiftPackageReference "Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage;
 		};

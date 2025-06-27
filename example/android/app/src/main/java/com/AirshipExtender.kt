@@ -17,12 +17,27 @@ import com.urbanairship.liveupdate.LiveUpdateEvent
 import com.urbanairship.liveupdate.LiveUpdateManager
 import com.urbanairship.liveupdate.LiveUpdateResult
 import com.urbanairship.liveupdate.SuspendLiveUpdateNotificationHandler
+import com.urbanairship.sample.R
+import com.urbanairship.scenes.AirshipCustomViewManager
+import com.urbanairship.scenes.AirshipCustomViewHandler
+import com.urbanairship.scenes.AirshipCustomViewArguments
+import android.view.View
+import android.widget.FrameLayout
+import io.flutter.embedding.android.FlutterView
+import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.embedding.engine.dart.DartExecutor
+import io.flutter.plugin.common.MethodChannel
+import androidx.appcompat.app.AppCompatActivity
+import io.flutter.embedding.android.FlutterFragment
 
 
 @Keep
 public final class AirshipExtender: AirshipPluginExtender {
     override fun onAirshipReady(context: Context, airship: UAirship) {
         LiveUpdateManager.shared().register("Example", ExampleLiveUpdateHandler())
+
+        // Register custom views
+        AirshipCustomViewManager.shared().register("amc-view", FlutterCustomViewHandler())
     }
 }
 

@@ -10,6 +10,7 @@ import 'package:flutter/services.dart' show DeviceOrientation, SystemChrome;
 import 'package:airship_example/screens/home.dart';
 // ignore: depend_on_referenced_packages
 import 'package:airship_flutter/airship_flutter.dart';
+import 'package:airship_example/views/amc_custom_view.dart';
 
 // Supported deep links
 const String home_deep_link = "home";
@@ -31,8 +32,8 @@ void main() {
   var config = AirshipConfig(
     androidConfig: AndroidConfig(
         notificationConfig: AndroidNotificationConfig(
-      icon: "ic_notification",
-    ),
+          icon: "ic_notification",
+        ),
         logPrivacyLevel: AirshipLogPrivacyLevel.public),
     defaultEnvironment: ConfigEnvironment(
         appKey: "APP_KEY",
@@ -52,6 +53,7 @@ void main() {
   Airship.contact.identify("FlutterUser");
 
   Airship.messageCenter.setAutoLaunchDefaultMessageCenter(false);
+
   runApp(MyApp());
 }
 
@@ -188,6 +190,24 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
       initialRoute: "/",
       routes: {
         '/': (context) => tabBarView(),
+      },
+      onGenerateRoute: (settings) {
+        // Handle custom view routes
+        if (settings.name?.startsWith('/custom/') ?? false) {
+          final viewName = settings.name!.substring(8); // Remove '/custom/'
+          
+          // Route directly to the appropriate view
+          if (viewName == 'amc-view') {
+            return MaterialPageRoute(
+              builder: (context) => Material(
+                child: AMCCustomView(properties: const {}),
+              ),
+            );
+          }
+        }
+
+        // Fallback for unknown routes
+        return null;
       },
     );
   }
