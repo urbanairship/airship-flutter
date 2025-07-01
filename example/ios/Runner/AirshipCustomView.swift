@@ -77,17 +77,13 @@ public class FlutterCustomView: UIView {
     }
 
     private func embedFlutterView() {
-        print("[AMCVIEW] Creating Flutter view for: \(viewName)")
-
         // Create a new Flutter engine
         flutterEngine = FlutterEngine(name: "airship_custom_\(viewName)")
 
         // Run the engine
         let result = flutterEngine?.run()
-        print("[AMCVIEW] Engine run result: \(result ?? false)")
 
         guard result == true else {
-            print("[AMCVIEW] Failed to run Flutter engine")
             return
         }
 
@@ -99,7 +95,6 @@ public class FlutterCustomView: UIView {
         )
 
         guard let flutterViewController = flutterViewController else {
-            print("[AMCVIEW] Failed to create Flutter view controller")
             return
         }
 
@@ -111,7 +106,6 @@ public class FlutterCustomView: UIView {
             guard let self = self else { return }
 
             let route = "/custom/\(self.viewName)"
-            print("[AMCVIEW] Pushing route: \(route)")
             self.flutterViewController?.pushRoute(route)
         }
     }

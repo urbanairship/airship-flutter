@@ -18,9 +18,6 @@ import com.urbanairship.liveupdate.LiveUpdateManager
 import com.urbanairship.liveupdate.LiveUpdateResult
 import com.urbanairship.liveupdate.SuspendLiveUpdateNotificationHandler
 import com.urbanairship.sample.R
-import com.urbanairship.scenes.AirshipCustomViewManager
-import com.urbanairship.scenes.AirshipCustomViewHandler
-import com.urbanairship.scenes.AirshipCustomViewArguments
 import android.view.View
 import android.widget.FrameLayout
 import io.flutter.embedding.android.FlutterView
@@ -28,7 +25,16 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.dart.DartExecutor
 import io.flutter.plugin.common.MethodChannel
 import androidx.appcompat.app.AppCompatActivity
+import com.urbanairship.android.layout.AirshipCustomViewManager
 import io.flutter.embedding.android.FlutterFragment
+import com.urbanairship.android.layout.AirshipCustomViewHandler
+import com.urbanairship.android.layout.AirshipCustomViewArguments
+import io.flutter.embedding.android.FlutterActivity
+import android.util.Log
+import io.flutter.embedding.android.FlutterSurfaceView
+import io.flutter.embedding.android.FlutterTextureView
+import io.flutter.view.FlutterMain
+import io.flutter.embedding.engine.renderer.FlutterUiDisplayListener
 
 
 @Keep
@@ -37,7 +43,142 @@ public final class AirshipExtender: AirshipPluginExtender {
         LiveUpdateManager.shared().register("Example", ExampleLiveUpdateHandler())
 
         // Register custom views
-        AirshipCustomViewManager.shared().register("amc-view", FlutterCustomViewHandler())
+        AirshipCustomViewManager.register("amc-view", FlutterCustomViewHandler())
+    }
+}
+
+// Handler for Flutter custom views
+class FlutterCustomViewHandler : AirshipCustomViewHandler {
+    override fun onCreateView(context: Context, args: AirshipCustomViewArguments): View {
+        return FlutterCustomView(
+            context,
+            args.name,
+            args.properties
+        )
+    }
+}
+
+// Flutter custom view that embeds a Flutter widget
+class FlutterCustomView(
+    context: Context,
+    private val viewName: String,
+    private val properties: com.urbanairship.json.JsonMap
+) : FrameLayout(context) {
+
+    private var flutterEngine: FlutterEngine? = null
+    private var flutterView: FlutterView? = null
+    private var isEngineInitialized = false
+
+    companion object {
+        private const val TAG = "FlutterCustomView"
+    }
+
+    init {
+        setupView()
+    }
+
+    private fun setupView() {
+        // Set background color to black to match iOS
+        setBackgroundColor(android.graphics.Color.BLACK)
+
+        // Set layout params if not already set
+        if (layoutParams == null) {
+            layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+        }
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        embedFlutterView()
+    }
+
+    private fun embedFlutterView() {
+        if (isEngineInitialized) {
+            return
+        }
+
+        try {
+            val route = "/custom/$viewName"
+
+            // Create a new Flutter engine
+            flutterEngine = FlutterEngine(context).apply {
+                // Set initial route BEFORE starting the engine
+                navigationChannel.setInitialRoute(route)
+
+                // Start executing Dart code
+                dartExecutor.executeDartEntrypoint(
+                    DartExecutor.DartEntrypoint.createDefault()
+                )
+            }
+
+            // Create Flutter view - TextureView provides better performance for embedded views
+            val renderSurface = FlutterTextureView(context)
+            flutterView = FlutterView(context, renderSurface)
+
+            // Add Flutter view to this container
+            val params = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+            addView(flutterView, params)
+
+            // Attach Flutter view to engine
+            flutterView?.attachToFlutterEngine(flutterEngine!!)
+
+            // Notify Flutter of the lifecycle state
+            flutterEngine?.lifecycleChannel?.appIsResumed()
+
+            isEngineInitialized = true
+
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to create Flutter view", e)
+            cleanup()
+        }
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        cleanup()
+    }
+
+    override fun onWindowVisibilityChanged(visibility: Int) {
+        super.onWindowVisibilityChanged(visibility)
+
+        // Handle lifecycle based on visibility
+        when (visibility) {
+            View.VISIBLE -> {
+                flutterEngine?.lifecycleChannel?.appIsResumed()
+            }
+            View.INVISIBLE, View.GONE -> {
+                flutterEngine?.lifecycleChannel?.appIsPaused()
+            }
+        }
+    }
+
+    private fun cleanup() {
+        try {
+            // Notify Flutter the app is being paused
+            flutterEngine?.lifecycleChannel?.appIsPaused()
+
+            // Detach and remove the Flutter view
+            flutterView?.let { view ->
+                view.detachFromFlutterEngine()
+                removeView(view)
+            }
+            flutterView = null
+
+            // Destroy the Flutter engine
+            flutterEngine?.destroy()
+            flutterEngine = null
+
+            isEngineInitialized = false
+
+        } catch (e: Exception) {
+            Log.e(TAG, "Error during cleanup", e)
+        }
+    }
+
+    // Pass properties to Flutter if needed
+    fun updateProperties(newProperties: com.urbanairship.json.JsonMap) {
+        // This could be implemented to send properties to Flutter via MethodChannel
+        // For now, properties are only used during initialization
     }
 }
 
