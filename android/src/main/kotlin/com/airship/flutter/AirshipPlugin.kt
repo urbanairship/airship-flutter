@@ -304,11 +304,8 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             // Feature Flag
             "featureFlagManager#flag" -> result.resolve(scope, call) {
                 val args = call.jsonArgs().requireMap()
-                val flagName = args.get("flagName")?.requireString()
+                val flagName = requireNotNull(args.get("flagName")?.requireString())
                 val useResultCache = args.get("useResultCache")?.getBoolean(false) ?: false
-                if (flagName == null) {
-                    throw Exception("Missing flagName")
-                }
                 proxy.featureFlagManager.flag(flagName, useResultCache)
             }
 
@@ -325,9 +322,8 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 val args = call.jsonArgs().requireMap()
                 val flag = FeatureFlagProxy(JsonValue.wrap(args.get("flag")?.requireString()?.toMap()))
                 val ttl = args.get("ttl")?.getLong(0)
-                val miliseconds = ttl?.milliseconds ?: throw Exception("Missing ttl")
-                proxy.featureFlagManager.resultCache.cache(flag, miliseconds)
-
+                val milliseconds = requireNotNull(ttl?.milliseconds)
+                proxy.featureFlagManager.resultCache.cache(flag, milliseconds)
             }
 
             "featureFlagManager#resultCacheRemoveFlag" -> result.resolve(scope, call) {
