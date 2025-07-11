@@ -154,13 +154,8 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             "push#setUserNotificationsEnabled" -> result.resolve(scope, call) { proxy.push.setUserNotificationsEnabled(call.booleanArg()) }
             "push#enableUserNotifications" -> result.resolve(scope, call) {
                 val enableArgs = call.jsonArgs().let {
-                    try {
-                        EnableUserNotificationsArgs.fromJson(it)
-                    } catch (e: Exception) {
-                        null
-                    }
+                    EnableUserNotificationsArgs.fromJson(it)
                 }
-
                 proxy.push.enableUserPushNotifications(enableArgs)
             }
             "push#isUserNotificationsEnabled" -> result.resolve(scope, call) { proxy.push.isUserNotificationsEnabled() }
@@ -251,37 +246,28 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
             // Live Activities
             "liveUpdate#start" -> result.resolve(scope, call) {
-                try {
-                    val args = call.jsonArgs()
-                    Log.d("AirshipPlugin", "Received args for liveUpdate#start: $args")
+                val args = call.jsonArgs()
+                Log.d("AirshipPlugin", "Received args for liveUpdate#start: $args")
 
-                    val startRequest = LiveUpdateRequest.Start.fromJson(args)
+                val startRequest = LiveUpdateRequest.Start.fromJson(args)
 
-                    Log.d("AirshipPlugin", "Created LiveUpdateRequest.Start: $startRequest")
+                Log.d("AirshipPlugin", "Created LiveUpdateRequest.Start: $startRequest")
 
-                    proxy.liveUpdateManager.start(startRequest)
-                    Log.d("AirshipPlugin", "LiveUpdate start method called successfully")
+                proxy.liveUpdateManager.start(startRequest)
+                Log.d("AirshipPlugin", "LiveUpdate start method called successfully")
 
-                    null // Return null as the start function doesn't return anything
-                } catch (e: Exception) {
-                    throw e
-                }
+                null // Return null as the start function doesn't return anything
             }
 
             "liveUpdate#update" -> result.resolve(scope, call) {
-                try {
-                    val args = call.jsonArgs()
-                    Log.d("AirshipPlugin", "Received args for liveUpdate#update: $args")
+                val args = call.jsonArgs()
+                Log.d("AirshipPlugin", "Received args for liveUpdate#update: $args")
 
-                    val updateRequest = LiveUpdateRequest.Update.fromJson(args)
+                val updateRequest = LiveUpdateRequest.Update.fromJson(args)
 
-                    proxy.liveUpdateManager.update(updateRequest)
-                    Log.d("AirshipPlugin", "LiveUpdate update method called successfully")
-                    null
-                } catch (e: Exception) {
-                    Log.e("AirshipPlugin", "Error processing liveUpdate#update request", e)
-                    throw e
-                }
+                proxy.liveUpdateManager.update(updateRequest)
+                Log.d("AirshipPlugin", "LiveUpdate update method called successfully")
+                null
             }
 
             "liveUpdate#list" -> result.resolve(scope, call) {
@@ -289,51 +275,30 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 Log.d("AirshipPlugin", "Received args for liveUpdate#list: $args")
 
                 val listRequest = LiveUpdateRequest.List.fromJson(args)
-
-                scope.launch {
-                    try {
-                        proxy.liveUpdateManager.list(listRequest)
-                        Log.d("AirshipPlugin", "LiveUpdate list method completed successfully")
-                    } catch (e: Exception) {
-                        Log.e("AirshipPlugin", "Error listing LiveUpdates", e)
-                    }
-                }
+                proxy.liveUpdateManager.list(listRequest)
+                Log.d("AirshipPlugin", "LiveUpdate list method completed successfully")
             }
 
             "liveUpdate#listAll" -> result.resolve(scope, call) {
-                try {
-                    proxy.liveUpdateManager.listAll()
-                    Log.d("AirshipPlugin", "LiveUpdate listAll method completed successfully")
-                } catch (e: Exception) {
-                    Log.e("AirshipPlugin", "Error listing all LiveUpdates", e)
-                }
+                proxy.liveUpdateManager.listAll()
+                Log.d("AirshipPlugin", "LiveUpdate listAll method completed successfully")
             }
 
             "liveUpdate#end" -> result.resolve(scope, call) {
-                try {
-                    val args = call.jsonArgs()
-                    Log.d("AirshipPlugin", "Received args for liveUpdate#end: $args")
+                val args = call.jsonArgs()
+                Log.d("AirshipPlugin", "Received args for liveUpdate#end: $args")
 
-                    val endRequest = LiveUpdateRequest.End.fromJson(args)
+                val endRequest = LiveUpdateRequest.End.fromJson(args)
 
-                    proxy.liveUpdateManager.end(endRequest)
-                    Log.d("AirshipPlugin", "LiveUpdate end method called successfully")
-                    null
-                } catch (e: Exception) {
-                    Log.e("AirshipPlugin", "Error processing liveUpdate#end request", e)
-                    throw e
-                }
+                proxy.liveUpdateManager.end(endRequest)
+                Log.d("AirshipPlugin", "LiveUpdate end method called successfully")
+                null
             }
 
             "liveUpdate#clearAll" -> result.resolve(scope, call) {
-                try {
-                    proxy.liveUpdateManager.clearAll()
-                    Log.d("AirshipPlugin", "LiveUpdate clearAll method called successfully")
-                    null
-                } catch (e: Exception) {
-                    Log.e("AirshipPlugin", "Error processing liveUpdate#clearAll request", e)
-                    throw e
-                }
+                proxy.liveUpdateManager.clearAll()
+                Log.d("AirshipPlugin", "LiveUpdate clearAll method called successfully")
+                null
             }
 
             // Feature Flag
@@ -341,15 +306,10 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 val args = call.jsonArgs().requireMap()
                 val flagName = args.get("flagName")?.requireString()
                 val useResultCache = args.get("useResultCache")?.getBoolean(false) ?: false
-                try {
-                    if (flagName == null) {
-                        throw Exception("Missing flagName")
-                    }
-
-                    proxy.featureFlagManager.flag(flagName, useResultCache)
-                } catch (e: Exception) {
-                    Log.e("AirshipPlugin", "Error processing featureFlagManager#flag", e)
+                if (flagName == null) {
+                    throw Exception("Missing flagName")
                 }
+                proxy.featureFlagManager.flag(flagName, useResultCache)
             }
 
             "featureFlagManager#trackInteraction" -> result.resolve(scope, call) {
@@ -357,15 +317,8 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 proxy.featureFlagManager.trackInteraction(parsedFlag)
             }
 
-            "featureFlagManager#resultCacheGetFlag" -> result.resolve(scope, call) {
-                scope.launch {
-                    try {
-                        proxy.featureFlagManager.resultCache.flag(call.stringArg())
-                    } catch (e: Exception) {
-                        Log.e("AirshipPlugin",
-                            "Error processing featureFlagManager#resultCacheGetFlag", e)
-                    }
-                }
+            "featureFlagManager#resultCacheRemoveFlag" -> result.resolve(scope, call) {
+                proxy.featureFlagManager.resultCache.removeCachedFlag(call.stringArg())
             }
 
             "featureFlagManager#resultCacheSetFlag"-> result.resolve(scope, call) {
@@ -373,26 +326,12 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 val flag = FeatureFlagProxy(JsonValue.wrap(args.get("flag")?.requireString()?.toMap()))
                 val ttl = args.get("ttl")?.getLong(0)
                 val miliseconds = ttl?.milliseconds ?: throw Exception("Missing ttl")
+                proxy.featureFlagManager.resultCache.cache(flag, miliseconds)
 
-                scope.launch {
-                    try {
-                        proxy.featureFlagManager.resultCache.cache(flag, miliseconds)
-                    } catch (e: Exception) {
-                        Log.e("AirshipPlugin",
-                            "Error processing featureFlagManager#resultCacheSetFlag", e)
-                    }
-                }
             }
 
             "featureFlagManager#resultCacheRemoveFlag" -> result.resolve(scope, call) {
-                scope.launch {
-                    try {
-                        proxy.featureFlagManager.resultCache.removeCachedFlag(call.stringArg())
-                    } catch (e: Exception) {
-                        Log.e("AirshipPlugin",
-                            "Error processing featureFlagManager#resultCacheRemoveFlag", e)
-                    }
-                }
+                proxy.featureFlagManager.resultCache.removeCachedFlag(call.stringArg())
             }
 
             else -> result.notImplemented()
