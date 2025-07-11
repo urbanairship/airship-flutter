@@ -348,7 +348,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
                     proxy.featureFlagManager.flag(flagName, useResultCache)
                 } catch (e: Exception) {
-                    result.error("ERROR", "Failed to get flag", e.localizedMessage)
+                    Log.e("AirshipPlugin", "Error processing featureFlagManager#flag", e)
                 }
             }
 
@@ -362,7 +362,8 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                     try {
                         proxy.featureFlagManager.resultCache.flag(call.stringArg())
                     } catch (e: Exception) {
-                        result.error("ERROR", "Failed to get flag", e.localizedMessage)
+                        Log.e("AirshipPlugin",
+                            "Error processing featureFlagManager#resultCacheGetFlag", e)
                     }
                 }
             }
@@ -377,7 +378,8 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                     try {
                         proxy.featureFlagManager.resultCache.cache(flag, miliseconds)
                     } catch (e: Exception) {
-                        result.error("ERROR", "Failed to set flag", e.localizedMessage)
+                        Log.e("AirshipPlugin",
+                            "Error processing featureFlagManager#resultCacheSetFlag", e)
                     }
                 }
             }
@@ -387,7 +389,8 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                     try {
                         proxy.featureFlagManager.resultCache.removeCachedFlag(call.stringArg())
                     } catch (e: Exception) {
-                        result.error("ERROR", "Failed to remove cached flag", e.localizedMessage)
+                        Log.e("AirshipPlugin",
+                            "Error processing featureFlagManager#resultCacheRemoveFlag", e)
                     }
                 }
             }
