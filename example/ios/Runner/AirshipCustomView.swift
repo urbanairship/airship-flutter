@@ -77,11 +77,22 @@ public class FlutterCustomView: UIView {
     }
 
     private func embedFlutterView() {
+        // Encode properties as base64 to pass in route
+        var route = "/custom/\(viewName)"
+        if let props = properties {
+            do {
+                let jsonData = try JSONSerialization.data(withJSONObject: props.unWrap() ?? [:])
+                let encodedProperties = jsonData.base64EncodedString(options: [])
+                    .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+                route = "/custom/\(viewName)?props=\(encodedProperties)"
+            } catch {}
+        }
+
         // Create a new Flutter engine
         flutterEngine = FlutterEngine(name: "airship_custom_\(viewName)")
 
-        // Run the engine
-        let result = flutterEngine?.run()
+        // Run the engine with initial route
+        let result = flutterEngine?.run(withEntrypoint: nil, initialRoute: route)
 
         guard result == true else {
             return
@@ -100,14 +111,6 @@ public class FlutterCustomView: UIView {
 
         // Add the Flutter view
         addSubview(flutterViewController.view)
-
-        // Navigate to custom view route
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-            guard let self = self else { return }
-
-            let route = "/custom/\(self.viewName)"
-            self.flutterViewController?.pushRoute(route)
-        }
     }
 
     private func removeFlutterView() {

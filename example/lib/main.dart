@@ -11,6 +11,8 @@ import 'package:airship_example/screens/home.dart';
 // ignore: depend_on_referenced_packages
 import 'package:airship_flutter/airship_flutter.dart';
 import 'package:airship_example/views/amc_custom_view.dart';
+import 'package:airship_example/views/lottie_custom_view.dart';
+import 'package:airship_example/utils/custom_view_utils.dart';
 
 // Supported deep links
 const String home_deep_link = "home";
@@ -192,22 +194,14 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
         '/': (context) => tabBarView(),
       },
       onGenerateRoute: (settings) {
-        // Handle custom view routes
-        if (settings.name?.startsWith('/custom/') ?? false) {
-          final viewName = settings.name!.substring(8); // Remove '/custom/'
-          
-          // Route directly to the appropriate view
-          if (viewName == 'amc-view') {
-            return MaterialPageRoute(
-              builder: (context) => Material(
-                child: AMCCustomView(properties: const {}),
-              ),
-            );
-          }
-        }
-
-        // Fallback for unknown routes
-        return null;
+        // Handle custom view routes using the utility
+        return CustomViewUtils.generateCustomViewRoute(
+          settings,
+          {
+            'amc-view': (props) => AMCCustomView(properties: props),
+            'lottie-view': (props) => LottieCustomView(properties: props),
+          },
+        );
       },
     );
   }

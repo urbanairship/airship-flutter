@@ -35,6 +35,8 @@ import io.flutter.embedding.android.FlutterSurfaceView
 import io.flutter.embedding.android.FlutterTextureView
 import io.flutter.view.FlutterMain
 import io.flutter.embedding.engine.renderer.FlutterUiDisplayListener
+import android.os.Handler
+import android.os.Looper
 
 
 @Keep
@@ -98,7 +100,13 @@ class FlutterCustomView(
         }
 
         try {
-            val route = "/custom/$viewName"
+            // Encode properties as base64 to pass in route
+            val propertiesJson = properties.toString()
+            val encodedProperties = android.util.Base64.encodeToString(
+                propertiesJson.toByteArray(Charsets.UTF_8),
+                android.util.Base64.URL_SAFE or android.util.Base64.NO_WRAP
+            )
+            val route = "/custom/$viewName?props=$encodedProperties"
 
             // Create a new Flutter engine
             flutterEngine = FlutterEngine(context).apply {

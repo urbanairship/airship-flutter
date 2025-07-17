@@ -38,6 +38,11 @@ public class AirshipPluginExtender: NSObject, AirshipPluginExtenderProtocol {
         // Return SwiftUI View
         FlutterCustomViewWrapper(viewName: "amc-view", properties: args.properties)
       }
+
+      AirshipCustomViewManager.shared.register(name: "lottie-view") { args in
+        // Return SwiftUI View
+        FlutterCustomViewWrapper(viewName: "lottie-view", properties: args.properties)
+      }
     }
     #endif
   }
