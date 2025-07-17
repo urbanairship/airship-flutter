@@ -6,6 +6,8 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.view.View
+import android.widget.FrameLayout
 import androidx.annotation.Keep
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -17,12 +19,42 @@ import com.urbanairship.liveupdate.LiveUpdateEvent
 import com.urbanairship.liveupdate.LiveUpdateManager
 import com.urbanairship.liveupdate.LiveUpdateResult
 import com.urbanairship.liveupdate.SuspendLiveUpdateNotificationHandler
-
+import com.airbnb.lottie.LottieAnimationView
+import com.airbnb.lottie.LottieDrawable
+import com.urbanairship.android.layout.AirshipCustomViewArguments
+import com.urbanairship.android.layout.AirshipCustomViewHandler
+import com.urbanairship.android.layout.AirshipCustomViewManager
 
 @Keep
 public final class AirshipExtender: AirshipPluginExtender {
     override fun onAirshipReady(context: Context, airship: UAirship) {
         LiveUpdateManager.shared().register("Example", ExampleLiveUpdateHandler())
+
+        // Register native Lottie view
+        AirshipCustomViewManager.register("lottie-view", object : AirshipCustomViewHandler {
+            override fun onCreateView(context: Context, args: AirshipCustomViewArguments): View {
+                return LottieAnimationView(context).apply {
+                    // Get animation URL from properties
+                    val animationUrl = args.properties.get("animationUrl")?.string
+
+                    // Set background color
+                    setBackgroundColor(android.graphics.Color.BLACK)
+
+                    // Load and play animation
+                    if (!animationUrl.isNullOrEmpty()) {
+                        setAnimationFromUrl(animationUrl)
+                        repeatCount = LottieDrawable.INFINITE
+                        playAnimation()
+                    }
+
+                    // Set layout params
+                    layoutParams = FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                        FrameLayout.LayoutParams.MATCH_PARENT
+                    )
+                }
+            }
+        })
     }
 }
 

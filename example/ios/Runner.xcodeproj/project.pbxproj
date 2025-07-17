@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -27,6 +27,8 @@
 		99041C232CC29E0300031558 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99041C222CC29E0300031558 /* NotificationService.swift */; };
 		99041C272CC29E0300031558 /* AirshipExampleNotificationServiceExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 99041C202CC29E0300031558 /* AirshipExampleNotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		991A20A62CC5807D0025F15C /* ExampleWidgetsAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99041C192CC1DB1D00031558 /* ExampleWidgetsAttributes.swift */; };
+		99A068FA2E3068630054FC6F /* airship-flutter in Frameworks */ = {isa = PBXBuildFile; productRef = 99A068F92E3068630054FC6F /* airship-flutter */; };
+		99A068FC2E3068AF0054FC6F /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 99A068FB2E3068AF0054FC6F /* Lottie */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -114,8 +116,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				99A068FA2E3068630054FC6F /* airship-flutter in Frameworks */,
 				78A318202AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage in Frameworks */,
 				143BE52DA16A846DF7F599FB /* Pods_Runner.framework in Frameworks */,
+				99A068FC2E3068AF0054FC6F /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -270,6 +274,8 @@
 			name = Runner;
 			packageProductDependencies = (
 				78A3181F2AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage */,
+				99A068F92E3068630054FC6F /* airship-flutter */,
+				99A068FB2E3068AF0054FC6F /* Lottie */,
 			);
 			productName = Runner;
 			productReference = 97C146EE1CF9000F007C117D /* Runner.app */;
@@ -344,7 +350,9 @@
 			);
 			mainGroup = 97C146E51CF9000F007C117D;
 			packageReferences = (
-				781AD8BC2B33823900A9FFBB /* XCLocalSwiftPackageReference "FlutterGeneratedPluginSwiftPackage" */,
+				781AD8BC2B33823900A9FFBB /* XCLocalSwiftPackageReference "Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage" */,
+				99A068F72E305B3B0054FC6F /* XCRemoteSwiftPackageReference "lottie-ios" */,
+				99A068F82E3068630054FC6F /* XCLocalSwiftPackageReference "../../ios/airship_flutter" */,
 			);
 			productRefGroup = 97C146EF1CF9000F007C117D /* Products */;
 			projectDirPath = "";
@@ -1102,16 +1110,40 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		781AD8BC2B33823900A9FFBB /* XCLocalSwiftPackageReference "FlutterGeneratedPluginSwiftPackage" */ = {
+		781AD8BC2B33823900A9FFBB /* XCLocalSwiftPackageReference "Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage;
 		};
+		99A068F82E3068630054FC6F /* XCLocalSwiftPackageReference "../../ios/airship_flutter" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../ios/airship_flutter;
+		};
 /* End XCLocalSwiftPackageReference section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		99A068F72E305B3B0054FC6F /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "git@github.com:airbnb/lottie-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.5.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
 		78A3181F2AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FlutterGeneratedPluginSwiftPackage;
+		};
+		99A068F92E3068630054FC6F /* airship-flutter */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = "airship-flutter";
+		};
+		99A068FB2E3068AF0054FC6F /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 99A068F72E305B3B0054FC6F /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
