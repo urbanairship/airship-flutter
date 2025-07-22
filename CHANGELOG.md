@@ -1,12 +1,5 @@
 # Flutter Plugin Changelog
 
-## Version 10.6.0 - July 22, 2025
-
-Minor release that fixes Flutter methods calls to avoid crashes when the native side throws an error. Apps using Feature flags are encouraged to update.
-
-### Changes
-- Fixed crash for Feature Flags methods
-
 ## Version 10.5.0 - June 25, 2025
 
 Minor release that updates the Android SDK to 19.9.1 and the iOS SDK to 19.6.1
