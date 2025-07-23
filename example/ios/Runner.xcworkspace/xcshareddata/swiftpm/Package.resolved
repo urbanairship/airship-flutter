@@ -1,0 +1,33 @@
+{
+  "originHash" : "49090efe9bc61ff4f6bad6abee56e21bb63829a77af819ee6f06f6011e246f85",
+  "pins" : [
+    {
+      "identity" : "airship-mobile-framework-proxy",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/urbanairship/airship-mobile-framework-proxy.git",
+      "state" : {
+        "revision" : "835408a3fd0f13933fe5624f9984a01d556d3d29",
+        "version" : "14.5.1"
+      }
+    },
+    {
+      "identity" : "ios-library",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/urbanairship/ios-library.git",
+      "state" : {
+        "revision" : "157aea6c8f0df89f21d01f06edb85eeaeac5c4a7",
+        "version" : "19.7.0"
+      }
+    },
+    {
+      "identity" : "lottie-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "git@github.com:airbnb/lottie-ios.git",
+      "state" : {
+        "revision" : "a004050748dc197c56256a14dca49a035d74726c",
+        "version" : "4.5.2"
+      }
+    }
+  ],
+  "version" : 3
+}
