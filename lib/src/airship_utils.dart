@@ -12,6 +12,7 @@ class AirshipUtils {
         case "in_app_automation": features.add(Feature.inAppAutomation); break;
         case "tags_and_attributes": features.add(Feature.tagsAndAttributes); break;
         case "message_center": features.add(Feature.messageCenter); break;
+        case "feature_flags": features.add(Feature.featureFlags); break;
         case "contacts": features.add(Feature.contacts); break;
         default: print("Invalid feature: $element");
       }
@@ -28,6 +29,7 @@ class AirshipUtils {
         case Feature.inAppAutomation: strings.add("in_app_automation"); break;
         case Feature.tagsAndAttributes: strings.add("tags_and_attributes"); break;
         case Feature.messageCenter: strings.add("message_center"); break;
+        case Feature.featureFlags: strings.add("feature_flags"); break;
         case Feature.contacts: strings.add("contacts"); break;
       }
     }
