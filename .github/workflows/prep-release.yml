@@ -30,7 +30,7 @@ permissions:
 
 jobs:
   prepare-release:
-    runs-on: macos-latest
+    runs-on: macos-15-xlarge
     timeout-minutes: 20
 
     steps:
