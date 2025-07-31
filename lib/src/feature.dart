@@ -4,5 +4,6 @@ enum Feature {
   inAppAutomation,
   tagsAndAttributes,
   messageCenter,
+  featureFlags,
   contacts;
 }
