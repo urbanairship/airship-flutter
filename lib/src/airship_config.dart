@@ -100,16 +100,18 @@ class ConfigEnvironment {
   final String appSecret;
   final LogLevel? logLevel;
   final IOSEnvironment? ios;
+  final AndroidEnvironment? android;
 
   ConfigEnvironment(
-      {required this.appKey, required this.appSecret, this.logLevel, this.ios});
+      {required this.appKey, required this.appSecret, this.logLevel, this.ios, this.android});
 
   Map<String, Object?> _toJson() {
     return {
       "appKey": appKey,
       "appSecret": appSecret,
       "logLevel": logLevel?.name,
-      "ios": ios?._toJson()
+      "ios": ios?._toJson(),
+      "android": android?._toJson()
     };
   }
 }
@@ -118,6 +120,16 @@ class IOSEnvironment {
   final AirshipLogPrivacyLevel? logPrivacyLevel;
 
   IOSEnvironment({this.logPrivacyLevel});
+
+  Map<String, Object?> _toJson() {
+    return {"logPrivacyLevel": logPrivacyLevel?.name};
+  }
+}
+
+class AndroidEnvironment {
+  final AirshipLogPrivacyLevel? logPrivacyLevel;
+
+  AndroidEnvironment({this.logPrivacyLevel});
 
   Map<String, Object?> _toJson() {
     return {"logPrivacyLevel": logPrivacyLevel?.name};
@@ -151,18 +163,14 @@ class AndroidConfig {
   /// Notification config.
   final AndroidNotificationConfig? notificationConfig;
 
-  /// Log privacy level for Android.
-  final AirshipLogPrivacyLevel? logPrivacyLevel;
-
   AndroidConfig(
-      {this.appStoreUri, this.fcmFirebaseAppName, this.notificationConfig, this.logPrivacyLevel});
+      {this.appStoreUri, this.fcmFirebaseAppName, this.notificationConfig});
 
   Map<String, Object?> _toJson() {
     return {
       "appStoreUri": appStoreUri,
       "fcmFirebaseAppName": fcmFirebaseAppName,
-      "notificationConfig": notificationConfig?._toJson(),
-      "logPrivacyLevel": logPrivacyLevel?.name
+      "notificationConfig": notificationConfig?._toJson()
     };
   }
 }
