@@ -32,13 +32,13 @@ void main() {
     androidConfig: AndroidConfig(
         notificationConfig: AndroidNotificationConfig(
       icon: "ic_notification",
-    ),
-        logPrivacyLevel: AirshipLogPrivacyLevel.public),
+    )),
     defaultEnvironment: ConfigEnvironment(
         appKey: "APP_KEY",
         appSecret: "APP_SECRET",
         logLevel: LogLevel.verbose,
-        ios: IOSEnvironment(logPrivacyLevel: AirshipLogPrivacyLevel.public)),
+        ios: IOSEnvironment(logPrivacyLevel: AirshipLogPrivacyLevel.public),
+        android: AndroidEnvironment(logPrivacyLevel: AirshipLogPrivacyLevel.public)),
   );
 
   Airship.takeOff(config);
