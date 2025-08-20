@@ -2,7 +2,7 @@
 
 ## Version 10.7.1 - August 20, 2025
 
-Patch release that updates the Android SDK to 19.10.2 and the iOS SDK to 19.8.2
+Patch release with several bug fixes for Scenes, including an important reporting fix for embedded content.
 
 ### Changes
 - Updated Android SDK to [19.10.2](https://github.com/urbanairship/android-library/releases/tag/19.10.2)
