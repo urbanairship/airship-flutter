@@ -3,7 +3,7 @@ name: CI
 on: [pull_request]
 
 env:
-  DEVELOPER_DIR: /Applications/Xcode_16.2.app/Contents/Developer
+  DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer
   FLUTTER_VERSION: 3.27.3
   JAVA_VERSION: "17.x"
   JAVA_DISTRIBUTION: 'zulu'
@@ -51,7 +51,5 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
-      - name: Select Xcode version
-        run: sudo xcode-select -s '/Applications/Xcode_16.2.app/Contents/Developer'
       - name: Build iOS
         run: bash ./scripts/run_ci_tasks.sh -i
