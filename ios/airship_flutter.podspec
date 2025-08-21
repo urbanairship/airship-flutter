@@ -1,5 +1,5 @@
 
-AIRSHIP_FLUTTER_VERSION="10.7.0"
+AIRSHIP_FLUTTER_VERSION="10.7.1"
 
 #
 # To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html
@@ -19,7 +19,7 @@ Airship flutter plugin.
   s.source_files = 'airship_flutter/Sources/airship_flutter/**/*'
   s.dependency 'Flutter'
   s.ios.deployment_target      = "15.0"
-  s.dependency "AirshipFrameworkProxy", "14.6.0"
+  s.dependency "AirshipFrameworkProxy", "14.6.1"
   s.swift_version = "5.0.0"
   s.resource_bundles = {'airship_flutter_privacy' => ['airship_flutter/Sources/airship_flutter/PrivacyInfo.xcprivacy']}
 end
