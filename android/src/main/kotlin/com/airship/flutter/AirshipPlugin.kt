@@ -12,6 +12,7 @@ import com.urbanairship.android.framework.proxy.proxies.FeatureFlagProxy
 import com.urbanairship.android.framework.proxy.proxies.LiveUpdateRequest
 import com.urbanairship.android.framework.proxy.proxies.EnableUserNotificationsArgs
 import com.urbanairship.json.JsonValue
+import com.urbanairship.json.requireMap
 import io.flutter.embedding.engine.FlutterShellArgs
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -333,7 +334,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             }
 
             "featureFlagManager#trackInteraction" -> result.resolve(scope, call) {
-                val parsedFlag = FeatureFlagProxy(JsonValue.wrap(call.stringArg().toMap()))
+                val parsedFlag = FeatureFlagProxy(JsonValue.parseString(call.stringArg()))
                 proxy.featureFlagManager.trackInteraction(parsedFlag)
             }
 
@@ -343,7 +344,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
             "featureFlagManager#resultCacheSetFlag"-> result.resolve(scope, call) {
                 val args = call.jsonArgs().requireMap()
-                val flag = FeatureFlagProxy(JsonValue.wrap(args.get("flag")?.requireString()?.toMap()))
+                val flag = FeatureFlagProxy(JsonValue.parseString(args.require("flag").requireString()))
                 val ttl = args.get("ttl")?.getLong(0)
                 val milliseconds = requireNotNull(ttl?.milliseconds)
                 proxy.featureFlagManager.resultCache.cache(flag, milliseconds)
