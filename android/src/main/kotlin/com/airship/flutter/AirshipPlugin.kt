@@ -31,7 +31,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -42,7 +41,10 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private data class FlutterState(
         val engineAttached: Boolean = false,
         val activityAttached: Boolean = false
-    )
+    ) {
+        var isFullyAttached: Boolean
+            get() = engineAttached && activityAttached
+    }
 
     private lateinit var channel: MethodChannel
     private lateinit var context: Context
@@ -95,7 +97,9 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             EventEmitter.shared().pendingEventListener
                 .combine(flutterState) { event, state -> Pair(event, state) }
                 .collect { (event, state) ->
-                    streams[event.type]?.processPendingEvents()
+                    if (state.isFullyAttached) {
+                        streams[event.type]?.processPendingEvents()
+                    }
                 }
         }
     }
@@ -430,10 +434,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
         fun processPendingEvents() {
             EventEmitter.shared().processPending(eventTypes) { event ->
-                if (!flutterState.value.engineAttached) return@processPending false
-                if (event.type.requiresActivity && !flutterState.value.activityAttached) {
-                    return@processPending false
-                }
+                if (!flutterState.value.isFullyAttached) return@processPending false
 
                 val unwrappedEvent = event.body.unwrap()
                 if (unwrappedEvent != null) {
@@ -452,10 +453,3 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         }
     }
 }
-
-internal val EventType.requiresActivity: Boolean
-    get() = this == EventType.DISPLAY_MESSAGE_CENTER ||
-            this == EventType.DISPLAY_PREFERENCE_CENTER ||
-            this == EventType.DEEP_LINK_RECEIVED ||
-            this == EventType.FOREGROUND_NOTIFICATION_RESPONSE_RECEIVED ||
-            this == EventType.PENDING_EMBEDDED_UPDATED
