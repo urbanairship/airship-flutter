@@ -42,7 +42,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         val engineAttached: Boolean = false,
         val activityAttached: Boolean = false
     ) {
-        var isFullyAttached: Boolean
+        val isFullyAttached: Boolean
             get() = engineAttached && activityAttached
     }
 
