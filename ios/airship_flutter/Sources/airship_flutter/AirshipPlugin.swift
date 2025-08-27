@@ -106,8 +106,7 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
         // Airship
         case "takeOff":
             return try AirshipProxy.shared.takeOff(
-                json: try call.requireAnyArg(),
-                launchOptions: AirshipAutopilot.shared.launchOptions
+                json: try call.requireAnyArg()
             )
             
         case "isFlying":
@@ -499,8 +498,8 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
             let result = try await AirshipProxy.shared.action.runAction(
                 actionName,
                 value: args.count == 2 ? arg : nil
-            ) as? AirshipJSON
-            return result?.unWrap()
+            )
+            return result.unWrap()
 
         // Live Activity
 
@@ -783,17 +782,13 @@ class AirshipEventStream: NSObject {
 
     @MainActor
     func processPendingEvents() async {
-        await MainActor.run {
-            Task {
-                await AirshipProxyEventEmitter.shared.processPendingEvents(
-                    type: eventType,
-                    handler: { [weak self] event in
-                        guard let self = self else { return false }
-                        return self.notify(event)
-                    }
-                )
+        AirshipProxyEventEmitter.shared.processPendingEvents(
+            type: eventType,
+            handler: { [weak self] event in
+                guard let self = self else { return false }
+                return self.notify(event)
             }
-        }
+        )
     }
 
     private func notify(_ event: any AirshipProxyEvent) -> Bool {
