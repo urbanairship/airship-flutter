@@ -165,11 +165,45 @@ void _androidBackgroundMessageIsolateCallback() {
       .invokeMethod<void>("backgroundIsolateStarted");
 }
 
+typedef ForegroundPresentationOptionsCallback 
+    = Future<List<IOSForegroundPresentationOption>?> Function(PushPayload payload);
+    
 /// Specific iOS Push configuration
 class IOSPush {
   final AirshipModule _module;
 
-  IOSPush(AirshipModule module) : _module = module;
+  ForegroundPresentationOptionsCallback? presentationOverridesCallback;
+
+  IOSPush(AirshipModule module) : _module = module {
+    if (Platform.isIOS) {
+      _module
+          .getEventStream("com.airship.flutter/event/push_received")
+          .listen((event) async {
+        print("Received push_received event: $event");
+        try {
+          final payload = PushPayload.fromJson(event['pushPayload']);
+          final requestId = event['requestId'] as String;
+
+          if (presentationOverridesCallback != null) {
+            try {
+              final result = await presentationOverridesCallback!.call(payload);
+              final options = result?.map((e) => e.name).toList();
+              await _module.channel.invokeMethod(
+                  'push#ios#pushIosIsOverridePresentationOptions',
+                  {'requestId': requestId, 'options': options});
+            } catch (error, stack) {
+              print("Error in presentationOverridesCallback: $error\n$stack");
+              _module.channel.invokeMethod(
+                  'push#ios#pushIosIsOverridePresentationOptions',
+                  {'requestId': requestId, 'options': null});
+            }
+          }
+        } catch (e, st) {
+          print("Failed to process push_received event: $e\n$st");
+        }
+      });
+    }
+  }
 
   /// Checks if auto-badging is enabled on iOS. Badging is not supported for Android.
   Future<bool> isAutoBadgeEnabled() async {
@@ -246,6 +280,17 @@ class IOSPush {
 
     return await _module.channel
         .invokeMethod('push#ios#setForegroundPresentationOptions', strings);
+  }
+
+  void setForegroundPresentationOptionsCallback(ForegroundPresentationOptionsCallback? callback) async {
+    
+    if (Platform.isIOS) {
+      presentationOverridesCallback = callback;
+    }
+
+    return await _module.channel
+        .invokeMethod('push#ios#pushIosIsOverridePresentationOptionsEnabled', {'enabled': callback != null});
+
   }
 
   /// Enables or disables auto-badging on iOS. Badging is not supported for Android.

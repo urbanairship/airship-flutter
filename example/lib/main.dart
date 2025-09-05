@@ -120,6 +120,10 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
     Airship.push.iOS.authorizedNotificationStatus
         .then((value) => debugPrint("authorizedNotificationStatus $value"));
 
+    Airship.push.iOS.setForegroundPresentationOptionsCallback((PushPayload payload) async {
+      return [IOSForegroundPresentationOption.banner, IOSForegroundPresentationOption.list, IOSForegroundPresentationOption.sound, IOSForegroundPresentationOption.badge] ;
+    });
+ 
     Airship.onDeepLink.listen((event) {
       const home_tab = 0;
       const message_tab = 1;
