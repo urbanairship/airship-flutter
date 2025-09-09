@@ -111,10 +111,43 @@ class AirshipPush {
 
 /// Specific Android Push configuration
 class AndroidPush {
+  
   final AirshipModule _module;
   static bool _isBackgroundHandlerSet = false;
+  static bool _isForegroundPredicateSet = false;
+  ForegroundDisplayPredicate? _foregroundDisplayPredicate;
 
-  AndroidPush(AirshipModule module) : _module = module;
+  AndroidPush(AirshipModule module) : _module = module {
+    if (Platform.isAndroid) {
+      _module
+          .getEventStream("com.airship.flutter/event/override_presentation_options")
+          .listen((event) async {
+        print("Received push_received event: $event");
+
+        try {
+          final payload = PushPayload.fromJson(event['pushPayload']);
+          final requestId = event['requestId'] as String;
+
+          if (_foregroundDisplayPredicate != null) {
+            try {
+              final result = await _foregroundDisplayPredicate!.call(payload);
+              //final options = result?.map((e) => e.name).toList();
+              await _module.channel.invokeMethod(
+                  'push#overrideForegroundDisplay',
+                  {'requestId': requestId, 'result': result});
+            } catch (error, stack) {
+              print("Error in presentationOverridesCallback: $error\n$stack");
+              _module.channel.invokeMethod(
+                  'push#overrideForegroundDisplay',
+                  {'requestId': requestId, 'result': true});
+            }
+          }
+        } catch (e, st) {
+          print("Failed to process push_received event: $e\n$st");
+        }
+      });
+    }
+  }
 
   /// Sets a background message handler.
   Future<void> setBackgroundPushReceivedHandler(
@@ -136,6 +169,25 @@ class AndroidPush {
       "messageCallback": messageCallback.toRawHandle()
     });
   }
+
+  /// Overrides the foreground display per notification.
+  /// The predicate should return quickly to avoid delaying notification delivery.
+  void setForegroundDisplayPredicate(ForegroundDisplayPredicate? predicate) async {
+    if (defaultTargetPlatform != TargetPlatform.android) {
+      return;
+    }
+    if (_isForegroundPredicateSet) {
+      print("Airship foreground notification predicate already set!");
+      return;
+    }
+
+    _isForegroundPredicateSet = true;
+    _foregroundDisplayPredicate = predicate;
+    await _module.channel.invokeMapMethod('push#isOverrideForegroundDisplayEnabled', {
+      'enabled': (predicate != null)
+    });
+  }
+
 }
 
 @pragma('vm:entry-point')
@@ -164,9 +216,6 @@ void _androidBackgroundMessageIsolateCallback() {
   AirshipModule.singleton.backgroundChannel
       .invokeMethod<void>("backgroundIsolateStarted");
 }
-
-typedef ForegroundPresentationOptionsCallback 
-    = Future<List<IOSForegroundPresentationOption>?> Function(PushPayload payload);
     
 /// Specific iOS Push configuration
 class IOSPush {
@@ -177,7 +226,7 @@ class IOSPush {
   IOSPush(AirshipModule module) : _module = module {
     if (Platform.isIOS) {
       _module
-          .getEventStream("com.airship.flutter/event/push_received")
+          .getEventStream("com.airship.flutter/event/override_presentation_options")
           .listen((event) async {
         print("Received push_received event: $event");
         try {
@@ -189,12 +238,12 @@ class IOSPush {
               final result = await presentationOverridesCallback!.call(payload);
               final options = result?.map((e) => e.name).toList();
               await _module.channel.invokeMethod(
-                  'push#ios#pushIosIsOverridePresentationOptions',
+                  'push#ios#overridePresentationOptions',
                   {'requestId': requestId, 'options': options});
             } catch (error, stack) {
               print("Error in presentationOverridesCallback: $error\n$stack");
               _module.channel.invokeMethod(
-                  'push#ios#pushIosIsOverridePresentationOptions',
+                  'push#ios#overridePresentationOptions',
                   {'requestId': requestId, 'options': null});
             }
           }
@@ -289,8 +338,7 @@ class IOSPush {
     }
 
     return await _module.channel
-        .invokeMethod('push#ios#pushIosIsOverridePresentationOptionsEnabled', {'enabled': callback != null});
-
+        .invokeMethod('push#ios#isOverridePresentationOptionsEnabled', {'enabled': callback != null});
   }
 
   /// Enables or disables auto-badging on iOS. Badging is not supported for Android.
@@ -368,3 +416,9 @@ class IOSPush {
 
 typedef AndroidBackgroundPushReceivedHandler = Future<void> Function(
     PushReceivedEvent pushReceivedEvent);
+
+typedef ForegroundDisplayPredicate = Future<bool> Function(PushPayload payload);
+
+typedef ForegroundPresentationOptionsCallback 
+    = Future<List<IOSForegroundPresentationOption>?> Function(PushPayload payload);
+

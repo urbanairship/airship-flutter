@@ -22,7 +22,7 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
         .pushReceived: "com.airship.flutter/event/push_received",
         .notificationStatusChanged: "com.airship.flutter/event/notification_status_changed",
         .pendingEmbeddedUpdated: "com.airship.flutter/event/pending_embedded_updated",
-        .overridePresentationOptions: "com.airship.ios.override_presentation_options"
+        .overridePresentationOptions: "com.airship.flutter/event/override_presentation_options"
     ]
 
     private let streams: [AirshipProxyEventType: AirshipEventStream] = {
@@ -101,15 +101,15 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
                 self.pendingPresentationRequests[requestID] = request
             }
             
-            if let stream = self.streams[.overridePresentationOptions] {
+            if let stream = self.streams[.pushReceived] {
                 Task {
                     await stream
-                        .notify(
+/*                         .notify(
                             OverridePresentationOptionsEvent(
                                 pushPayload: request.pushPayload,
                                 requestId: requestID
                             )
-                        )
+                        ) */
                 }
             }
         }
@@ -361,14 +361,14 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
             )
             return nil
 
-        case "push#ios#pushIosIsOverridePresentationOptionsEnabled":
+        case "push#ios#isOverridePresentationOptionsEnabled":
             if let args = call.arguments as? [String: Any],
                 let enabled = args["enabled"] as? Bool {
                 overridePresentationOptionsEnabled = enabled
             }
             return nil
         
-        case "push#ios#pushIosIsOverridePresentationOptions":
+        case "push#ios#isOverridePresentationOptions":
             if let args = call.arguments as? [String: Any],
                let requestID = args["requestId"] as? String,
                let options = args["options"] as? [String]?
