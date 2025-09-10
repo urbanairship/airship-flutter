@@ -21,7 +21,7 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
         .notificationResponseReceived: "com.airship.flutter/event/notification_response",
         .pushReceived: "com.airship.flutter/event/push_received",
         .notificationStatusChanged: "com.airship.flutter/event/notification_status_changed",
-        .pendingEmbeddedUpdated: "com.airship.flutter/event/pending_embedded_updated",
+        .pendingEmbeddedUpdated: "com.airship.flutter/event/pending_embedded_updated"
         .overridePresentationOptions: "com.airship.flutter/event/override_presentation_options"
     ]
 
@@ -89,27 +89,37 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
             }
             
         }.store(in: &self.subscriptions)
-        
+
         AirshipProxy.shared.push.presentationOptionOverrides = { request in
             guard self.overridePresentationOptionsEnabled else {
                 request.result(options: nil)
                 return
             }
             
+            guard
+                let requestPayload = try? AirshipJSON.wrap(
+                    request.pushPayload
+                ).unWrap()
+            else {
+                AirshipLogger.error("Failed to generate payload: \(request)")
+                request.result(options: nil)
+                return
+            }
+
             let requestID = UUID().uuidString
             self.lock.sync {
                 self.pendingPresentationRequests[requestID] = request
             }
             
-            if let stream = self.streams[.pushReceived] {
+            if let stream = self.streams[.overridePresentationOptions] {
                 Task {
                     await stream
-/*                         .notify(
+                         .notify(
                             OverridePresentationOptionsEvent(
                                 pushPayload: request.pushPayload,
                                 requestId: requestID
                             )
-                        ) */
+                        )
                 }
             }
         }

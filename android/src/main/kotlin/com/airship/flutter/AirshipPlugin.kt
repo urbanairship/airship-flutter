@@ -61,17 +61,16 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 foregroundDisplayRequestMap[requestId] = deferred
 
                 var stream = streams[EventType.FOREGROUND_PUSH_RECEIVED]
-/*                 stream.notify(
+                stream.notify(
                     OverridePresentationOptionsEvent(
                         pushPayload: value,
                         requestId: requestID
                     )
-                ) */
+                ) *
             }
 
             return deferred.await()
-        }
-    }
+        }    }
 
     companion object {
         internal const val AIRSHIP_SHARED_PREFS = "com.urbanairship.flutter"
@@ -211,8 +210,8 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 }
             }
             "push#android#setNotificationConfig" -> result.resolve(scope, call) { proxy.push.setNotificationConfig(call.jsonArgs()) }
-            "push#isOverrideForegroundDisplayEnabled" -> overrideForegroundDisplayEnabled(call, result)
-            "push#overrideForegroundDisplay" -> overrideForegroundDisplay(call, result)
+            "push#android#isOverrideForegroundDisplayEnabled" -> overrideForegroundDisplayEnabled(call, result)
+            "push#android#overrideForegroundDisplay" -> overrideForegroundDisplay(call, result)
 
             // In-App
             "inApp#setPaused" -> result.resolve(scope, call) { proxy.inApp.setPaused(call.booleanArg()) }
@@ -394,7 +393,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private fun overrideForegroundDisplay(call: MethodCall, result: Result) {
         val args = call.arguments as Map<*, *>
         val requestId = args["requestId"] as? String
-        //val result = args["requestId"] as? String
+        val shouldDisplay = args["result"] as? Boolean
         if (requestId == null) {
             return
         }

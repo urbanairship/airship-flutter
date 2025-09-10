@@ -119,7 +119,7 @@ class AndroidPush {
 
   AndroidPush(AirshipModule module) : _module = module {
     if (Platform.isAndroid) {
-      _module
+       _module
           .getEventStream("com.airship.flutter/event/override_presentation_options")
           .listen((event) async {
         print("Received push_received event: $event");
@@ -131,14 +131,13 @@ class AndroidPush {
           if (_foregroundDisplayPredicate != null) {
             try {
               final result = await _foregroundDisplayPredicate!.call(payload);
-              //final options = result?.map((e) => e.name).toList();
               await _module.channel.invokeMethod(
-                  'push#overrideForegroundDisplay',
+                  'push#android#overrideForegroundDisplay',
                   {'requestId': requestId, 'result': result});
             } catch (error, stack) {
               print("Error in presentationOverridesCallback: $error\n$stack");
               _module.channel.invokeMethod(
-                  'push#overrideForegroundDisplay',
+                  'push#android#overrideForegroundDisplay',
                   {'requestId': requestId, 'result': true});
             }
           }
@@ -183,7 +182,7 @@ class AndroidPush {
 
     _isForegroundPredicateSet = true;
     _foregroundDisplayPredicate = predicate;
-    await _module.channel.invokeMapMethod('push#isOverrideForegroundDisplayEnabled', {
+    await _module.channel.invokeMapMethod('push#android#isOverrideForegroundDisplayEnabled', {
       'enabled': (predicate != null)
     });
   }
