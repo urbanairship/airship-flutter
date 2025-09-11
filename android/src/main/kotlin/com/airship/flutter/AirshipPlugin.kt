@@ -60,17 +60,19 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 val requestId = UUID.randomUUID().toString()
                 foregroundDisplayRequestMap[requestId] = deferred
 
-                var stream = streams[EventType.FOREGROUND_PUSH_RECEIVED]
-                stream.notify(
+                var stream = streams[EventType.DEEP_LINK_RECEIVED]
+                /*stream.notify(
+                    AirshipEventStream()
                     OverridePresentationOptionsEvent(
                         pushPayload: value,
                         requestId: requestID
                     )
-                ) *
+                ) */
             }
 
             return deferred.await()
-        }    }
+        }    
+    }
 
     companion object {
         internal const val AIRSHIP_SHARED_PREFS = "com.urbanairship.flutter"
@@ -87,8 +89,8 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             EventType.FOREGROUND_PUSH_RECEIVED to "com.airship.flutter/event/push_received",
             EventType.BACKGROUND_PUSH_RECEIVED to "com.airship.flutter/event/background_push_received",
             EventType.NOTIFICATION_STATUS_CHANGED to "com.airship.flutter/event/notification_status_changed",
-            EventType.PENDING_EMBEDDED_UPDATED to "com.airship.flutter/event/pending_embedded_updated",
-            EventType.OVERRIDE_FOREGROUND_PRESENTATION to "com.airship.flutter/event/override_presentation_options"
+            EventType.PENDING_EMBEDDED_UPDATED to "com.airship.flutter/event/pending_embedded_updated"
+            //EventType.OVERRIDE_FOREGROUND_PRESENTATION to "com.airship.flutter/event/override_presentation_options"
         )
     }
 
@@ -399,7 +401,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         }
 
         synchronized(this.foregroundDisplayRequestMap) {
-            this.foregroundDisplayRequestMap.remove(requestId)?.complete(shouldDisplay)
+            this.foregroundDisplayRequestMap.remove(requestId)?.complete(shouldDisplay ?: false)
         }
     }
 

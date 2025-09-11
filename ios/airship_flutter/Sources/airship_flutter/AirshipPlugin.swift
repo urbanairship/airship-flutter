@@ -22,7 +22,7 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
         .pushReceived: "com.airship.flutter/event/push_received",
         .notificationStatusChanged: "com.airship.flutter/event/notification_status_changed",
         .pendingEmbeddedUpdated: "com.airship.flutter/event/pending_embedded_updated"
-        .overridePresentationOptions: "com.airship.flutter/event/override_presentation_options"
+        //.overridePresentationOptions: "com.airship.flutter/event/override_presentation_options"
     ]
 
     private let streams: [AirshipProxyEventType: AirshipEventStream] = {
@@ -112,7 +112,7 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
             }
             
             if let stream = self.streams[.overridePresentationOptions] {
-                Task {
+/*                 Task {
                     await stream
                          .notify(
                             OverridePresentationOptionsEvent(
@@ -120,7 +120,7 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
                                 requestId: requestID
                             )
                         )
-                }
+                } */
             }
         }
     }
@@ -378,7 +378,7 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
             }
             return nil
         
-        case "push#ios#isOverridePresentationOptions":
+        case "push#ios#overridePresentationOptions":
             if let args = call.arguments as? [String: Any],
                let requestID = args["requestId"] as? String,
                let options = args["options"] as? [String]?
