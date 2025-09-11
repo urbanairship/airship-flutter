@@ -1,5 +1,14 @@
 # Flutter Plugin Changelog
 
+## Version 10.8.0 - August 28, 2025
+Minor release that updates the Android SDK to 19.11.0 and the iOS SDK to 19.8.3.
+
+### 
+- Updated Android SDK to [19.11.0](https://github.com/urbanairship/android-library/releases/tag/19.11.0)
+- Updated iOS SDK to [19.8.3](https://github.com/urbanairship/ios-library/releases/tag/19.8.3)
+- Updated Android event emitting to wait for an attached activity for all events but background push recieved.
+- Fixed Feature Flag method bindings for `Airship.featureFlagManager.trackInteraction` and `Airship.featureFlagManager.setFlagInResultCache` on Android.
+
 ## Version 10.7.1 - August 20, 2025
 
 Patch release with several bug fixes for Scenes, including an important reporting fix for embedded content.

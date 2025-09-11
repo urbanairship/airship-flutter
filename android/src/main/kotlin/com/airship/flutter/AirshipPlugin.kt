@@ -13,6 +13,7 @@ import com.urbanairship.android.framework.proxy.proxies.LiveUpdateRequest
 import com.urbanairship.android.framework.proxy.proxies.EnableUserNotificationsArgs
 import com.urbanairship.android.framework.proxy.proxies.SuspendingPredicate
 import com.urbanairship.json.JsonValue
+import com.urbanairship.json.requireMap
 import io.flutter.embedding.engine.FlutterShellArgs
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -31,7 +32,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CompletableDeferred
@@ -41,10 +44,20 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     private val proxy = AirshipProxy.shared(context)
 
+    private data class FlutterState(
+        val engineAttached: Boolean = false,
+        val activityAttached: Boolean = false
+    ) {
+        val isFullyAttached: Boolean
+            get() = engineAttached && activityAttached
+    }
+
     private lateinit var channel: MethodChannel
     private lateinit var context: Context
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var mainActivity: Activity? = null
+    private val flutterState: MutableStateFlow<FlutterState> = MutableStateFlow(FlutterState())
+
     private lateinit var streams: Map<EventType, AirshipEventStream>
 
     private var isOverrideForegroundDisplayEnabled: Boolean = false
@@ -96,10 +109,12 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         register(binding.applicationContext, binding.binaryMessenger, binding.platformViewRegistry)
+        flutterState.update { it.copy(engineAttached = true) }
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)
+        flutterState.update { it.copy(engineAttached = false) }
     }
 
     private fun register(context: Context, binaryMessenger: BinaryMessenger, platformViewRegistry: PlatformViewRegistry) {
@@ -112,9 +127,14 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         platformViewRegistry.registerViewFactory("com.airship.flutter/EmbeddedView", EmbeddedViewFactory(binaryMessenger))
 
         scope.launch {
-            EventEmitter.shared().pendingEventListener.collect {
-                streams[it.type]?.processPendingEvents()
-            }
+            // This combines the two flows into a single, cohesive collector.
+            EventEmitter.shared().pendingEventListener
+                .combine(flutterState) { event, state -> Pair(event, state) }
+                .collect { (event, state) ->
+                    if (state.isFullyAttached) {
+                        streams[event.type]?.processPendingEvents()
+                    }
+                }
         }
 
         proxy.push.foregroundNotificationDisplayPredicate = this.foregroundDisplayPredicate
@@ -129,7 +149,12 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
         val streamMap = mutableMapOf<EventType, AirshipEventStream>()
         streamGroups.forEach { entry ->
-            val stream = AirshipEventStream(entry.value, entry.key, binaryMessenger)
+            val stream = AirshipEventStream(
+                eventTypes =entry.value,
+                name = entry.key,
+                binaryMessenger = binaryMessenger,
+                flutterState = flutterState
+            )
             stream.register() /// Set up handlers for each stream
             entry.value.forEach { type ->
                 streamMap[type] = stream
@@ -346,7 +371,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             }
 
             "featureFlagManager#trackInteraction" -> result.resolve(scope, call) {
-                val parsedFlag = FeatureFlagProxy(JsonValue.wrap(call.stringArg().toMap()))
+                val parsedFlag = FeatureFlagProxy(JsonValue.parseString(call.stringArg()))
                 proxy.featureFlagManager.trackInteraction(parsedFlag)
             }
 
@@ -356,14 +381,10 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
             "featureFlagManager#resultCacheSetFlag"-> result.resolve(scope, call) {
                 val args = call.jsonArgs().requireMap()
-                val flag = FeatureFlagProxy(JsonValue.wrap(args.get("flag")?.requireString()?.toMap()))
+                val flag = FeatureFlagProxy(JsonValue.parseString(args.require("flag").requireString()))
                 val ttl = args.get("ttl")?.getLong(0)
                 val milliseconds = requireNotNull(ttl?.milliseconds)
                 proxy.featureFlagManager.resultCache.cache(flag, milliseconds)
-            }
-
-            "featureFlagManager#resultCacheRemoveFlag" -> result.resolve(scope, call) {
-                proxy.featureFlagManager.resultCache.removeCachedFlag(call.stringArg())
             }
 
             else -> result.notImplemented()
@@ -407,23 +428,27 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         mainActivity = binding.activity
+        flutterState.update { it.copy(activityAttached = true) }
     }
 
     override fun onDetachedFromActivityForConfigChanges() {
         mainActivity = null
+        flutterState.update { it.copy(activityAttached = false) }
     }
 
     override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
         mainActivity = binding.activity
+        flutterState.update { it.copy(activityAttached = true) }
     }
 
     override fun onDetachedFromActivity() {
         mainActivity = null
+        flutterState.update { it.copy(activityAttached = false) }
     }
+
 
     class AirshipEventStreamHandler : EventChannel.StreamHandler {
         val eventFlow: StateFlow<EventChannel.EventSink?> get() = _eventSink
-
         private var _eventSink: MutableStateFlow<EventChannel.EventSink?> = MutableStateFlow(null)
 
         override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
@@ -437,15 +462,16 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         fun notify(event: Any): Boolean {
             return _eventSink.value?.let {
                 it.success(event)
-
                 true
             } ?: false
         }
     }
-    class AirshipEventStream(
+
+    private class AirshipEventStream(
         private val eventTypes: List<EventType>,
         private val name: String,
-        private val binaryMessenger: BinaryMessenger
+        private val binaryMessenger: BinaryMessenger,
+        private val flutterState: StateFlow<FlutterState>
     ) {
         private val handlers = mutableListOf<AirshipEventStreamHandler>()
         private val lock = ReentrantLock()
@@ -469,6 +495,8 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
         fun processPendingEvents() {
             EventEmitter.shared().processPending(eventTypes) { event ->
+                if (!flutterState.value.isFullyAttached) return@processPending false
+
                 val unwrappedEvent = event.body.unwrap()
                 if (unwrappedEvent != null) {
                     notify(unwrappedEvent)

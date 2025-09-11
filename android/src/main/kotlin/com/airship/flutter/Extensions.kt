@@ -2,6 +2,7 @@ package com.airship.flutter
 
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
+import android.util.Log
 import com.airship.flutter.AirshipPlugin.Companion.AIRSHIP_SHARED_PREFS
 import com.urbanairship.app.GlobalActivityMonitor
 import com.urbanairship.json.JsonSerializable
@@ -17,25 +18,37 @@ internal fun MethodChannel.Result.resolve(scope: CoroutineScope, call: MethodCal
         try {
             when (val result = function()) {
                 is Unit -> {
-                    this@resolve.success(null)
+                    this@resolve.successSafe(null)
                 }
                 is JsonSerializable -> {
-                    this@resolve.success(result.toJsonValue().unwrap())
+                    this@resolve.successSafe(result.toJsonValue().unwrap())
                 }
                 is java.util.LinkedHashSet<*> -> {
-                    this@resolve.success(result.toList())
+                    this@resolve.successSafe(result.toList())
                 }
                 else -> {
-                    this@resolve.success(JsonValue.wrapOpt(result).unwrap())
+                    this@resolve.successSafe(JsonValue.wrapOpt(result).unwrap())
                 }
             }
         } catch (e: Exception) {
-            this@resolve.error(call, e)
+            this@resolve.errorSafe(call, e)
         }
     }
 }
-internal fun MethodChannel.Result.error(call: MethodCall, exception: java.lang.Exception) {
-    this.error("AIRSHIP_ERROR", exception.message, "Method: ${call.method}")
+private fun MethodChannel.Result.successSafe(result: Any?) {
+    try {
+        this.success(result)
+    } catch (e: Exception) {
+        Log.e("AirshipPlugin", "Failed to send success result", e)
+    }
+}
+
+private fun MethodChannel.Result.errorSafe(call: MethodCall, exception: Exception) {
+    try {
+        this.error("AIRSHIP_ERROR", exception.message, "Method: ${call.method}")
+    } catch (e: Exception) {
+        Log.e("AirshipPlugin", "Failed to send error result", e)
+    }
 }
 
 internal fun MethodCall.jsonArgs(): JsonValue {
