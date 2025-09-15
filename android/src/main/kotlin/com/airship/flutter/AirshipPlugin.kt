@@ -12,6 +12,9 @@ import com.urbanairship.android.framework.proxy.proxies.FeatureFlagProxy
 import com.urbanairship.android.framework.proxy.proxies.LiveUpdateRequest
 import com.urbanairship.android.framework.proxy.proxies.EnableUserNotificationsArgs
 import com.urbanairship.android.framework.proxy.proxies.SuspendingPredicate
+import com.urbanairship.android.framework.proxy.Event
+import com.urbanairship.json.JsonMap
+import com.urbanairship.json.jsonMapOf
 import com.urbanairship.json.JsonValue
 import com.urbanairship.json.requireMap
 import io.flutter.embedding.engine.FlutterShellArgs
@@ -42,8 +45,6 @@ import java.util.UUID
 
 class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
-    private val proxy = AirshipProxy.shared(context)
-
     private data class FlutterState(
         val engineAttached: Boolean = false,
         val activityAttached: Boolean = false
@@ -73,14 +74,11 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 val requestId = UUID.randomUUID().toString()
                 foregroundDisplayRequestMap[requestId] = deferred
 
-                var stream = streams[EventType.DEEP_LINK_RECEIVED]
-                /*stream.notify(
-                    AirshipEventStream()
-                    OverridePresentationOptionsEvent(
-                        pushPayload: value,
-                        requestId: requestID
-                    )
-                ) */
+                var stream = streams[EventType.OVERRIDE_FOREGROUND_PRESENTATION]
+                stream?.notify(
+                    OverridePresentationOptionsEvent(value, requestId)
+                )
+
             }
 
             return deferred.await()
@@ -102,8 +100,8 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             EventType.FOREGROUND_PUSH_RECEIVED to "com.airship.flutter/event/push_received",
             EventType.BACKGROUND_PUSH_RECEIVED to "com.airship.flutter/event/background_push_received",
             EventType.NOTIFICATION_STATUS_CHANGED to "com.airship.flutter/event/notification_status_changed",
-            EventType.PENDING_EMBEDDED_UPDATED to "com.airship.flutter/event/pending_embedded_updated"
-            //EventType.OVERRIDE_FOREGROUND_PRESENTATION to "com.airship.flutter/event/override_presentation_options"
+            EventType.PENDING_EMBEDDED_UPDATED to "com.airship.flutter/event/pending_embedded_updated",
+            EventType.OVERRIDE_FOREGROUND_PRESENTATION to "com.airship.flutter/event/override_presentation_options"
         )
     }
 
@@ -137,6 +135,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 }
         }
 
+        val proxy = AirshipProxy.shared(context)
         proxy.push.foregroundNotificationDisplayPredicate = this.foregroundDisplayPredicate
     }
 
@@ -513,4 +512,24 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             }
         }
     }
+}
+
+internal class OverridePresentationOptionsEvent(
+    override val body: JsonMap
+) : Event {
+
+    override val type: EventType = EventType.FOREGROUND_PUSH_RECEIVED
+
+    /**
+     * Default constructor that builds the JsonMap from parameters.
+     *
+     * @param pushPayload The push payload.
+     * @param requestId The request ID.
+     */
+    constructor(pushPayload: Map<String, Any>, requestId: String) : this(
+        jsonMapOf(
+            "pushPayload" to pushPayload,
+            "requestId" to requestId
+        )
+    )
 }

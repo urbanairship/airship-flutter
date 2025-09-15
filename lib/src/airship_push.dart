@@ -122,9 +122,9 @@ class AndroidPush {
        _module
           .getEventStream("com.airship.flutter/event/override_presentation_options")
           .listen((event) async {
-        print("Received push_received event: $event");
+        print("Received override_presentation_options event: $event");
 
-        try {
+         try {
           final payload = PushPayload.fromJson(event['pushPayload']);
           final requestId = event['requestId'] as String;
 
@@ -139,11 +139,11 @@ class AndroidPush {
               _module.channel.invokeMethod(
                   'push#android#overrideForegroundDisplay',
                   {'requestId': requestId, 'result': true});
-            }
+            } 
           }
         } catch (e, st) {
           print("Failed to process push_received event: $e\n$st");
-        }
+        } 
       });
     }
   }
@@ -182,8 +182,8 @@ class AndroidPush {
 
     _isForegroundPredicateSet = true;
     _foregroundDisplayPredicate = predicate;
-    await _module.channel.invokeMapMethod('push#android#isOverrideForegroundDisplayEnabled', {
-      'enabled': (predicate != null)
+    await _module.channel.invokeMapMethod("push#android#isOverrideForegroundDisplayEnabled", {
+      "enabled": (predicate != null)
     });
   }
 
@@ -227,7 +227,7 @@ class IOSPush {
       _module
           .getEventStream("com.airship.flutter/event/override_presentation_options")
           .listen((event) async {
-        print("Received push_received event: $event");
+        print("Received override_presentation_options event: $event");
         try {
           final payload = PushPayload.fromJson(event['pushPayload']);
           final requestId = event['requestId'] as String;
@@ -331,10 +331,12 @@ class IOSPush {
   }
 
   void setForegroundPresentationOptionsCallback(ForegroundPresentationOptionsCallback? callback) async {
-    
-    if (Platform.isIOS) {
-      presentationOverridesCallback = callback;
+
+    if (!Platform.isIOS) {
+      return Future.value();
     }
+
+    presentationOverridesCallback = callback;
 
     return await _module.channel
         .invokeMethod('push#ios#isOverridePresentationOptionsEnabled', {'enabled': callback != null});

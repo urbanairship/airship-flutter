@@ -21,8 +21,8 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
         .notificationResponseReceived: "com.airship.flutter/event/notification_response",
         .pushReceived: "com.airship.flutter/event/push_received",
         .notificationStatusChanged: "com.airship.flutter/event/notification_status_changed",
-        .pendingEmbeddedUpdated: "com.airship.flutter/event/pending_embedded_updated"
-        //.overridePresentationOptions: "com.airship.flutter/event/override_presentation_options"
+        .pendingEmbeddedUpdated: "com.airship.flutter/event/pending_embedded_updated",
+        .overridePresentationOptions: "com.airship.flutter/event/override_presentation_options"
     ]
 
     private let streams: [AirshipProxyEventType: AirshipEventStream] = {
@@ -112,7 +112,7 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
             }
             
             if let stream = self.streams[.overridePresentationOptions] {
-/*                 Task {
+                 Task {
                     await stream
                          .notify(
                             OverridePresentationOptionsEvent(
@@ -120,7 +120,7 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
                                 requestId: requestID
                             )
                         )
-                } */
+                }
             }
         }
     }
@@ -896,5 +896,22 @@ fileprivate extension Encodable {
             throw AirshipErrors.error("Failed to unwrap codable")
         }
         return value
+    }
+}
+
+struct OverridePresentationOptionsEvent: AirshipProxyEvent {
+    let type: AirshipProxyEventType = .overridePresentationOptions
+    let body: Body
+
+    init(
+        pushPayload: ProxyPushPayload,
+        requestId: String
+    ) {
+        self.body = Body(pushPayload: pushPayload, requestId: requestId)
+    }
+
+    struct Body: Codable, Sendable {
+        let pushPayload: ProxyPushPayload
+        let requestId: String
     }
 }
