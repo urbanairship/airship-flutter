@@ -518,7 +518,7 @@ internal class OverridePresentationOptionsEvent(
     override val body: JsonMap
 ) : Event {
 
-    override val type: EventType = EventType.FOREGROUND_PUSH_RECEIVED
+    override val type: EventType = EventType.OVERRIDE_FOREGROUND_PRESENTATION
 
     /**
      * Default constructor that builds the JsonMap from parameters.
