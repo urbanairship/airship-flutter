@@ -119,12 +119,11 @@ class AndroidPush {
 
   AndroidPush(AirshipModule module) : _module = module {
     if (Platform.isAndroid) {
-       _module
+      _module
           .getEventStream("com.airship.flutter/event/override_presentation_options")
           .listen((event) async {
         print("Received override_presentation_options event: $event");
-
-         try {
+        try {
           final payload = PushPayload.fromJson(event['pushPayload']);
           final requestId = event['requestId'] as String;
 
@@ -139,11 +138,11 @@ class AndroidPush {
               _module.channel.invokeMethod(
                   'push#android#overrideForegroundDisplay',
                   {'requestId': requestId, 'result': true});
-            } 
+            }
           }
         } catch (e, st) {
           print("Failed to process push_received event: $e\n$st");
-        } 
+        }
       });
     }
   }

@@ -42,6 +42,8 @@ import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CompletableDeferred
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
+import kotlin.collections.get
 
 class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
@@ -61,30 +63,6 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     private lateinit var streams: Map<EventType, AirshipEventStream>
 
-    private var isOverrideForegroundDisplayEnabled: Boolean = false
-    private val foregroundDisplayRequestMap = mutableMapOf<String, CompletableDeferred<Boolean>>()
-    private val foregroundDisplayPredicate = object : SuspendingPredicate<Map<String, Any>> {
-        override suspend fun apply(value: Map<String, Any>): Boolean {
-            val deferred = CompletableDeferred<Boolean>()
-            synchronized(foregroundDisplayRequestMap) {
-                if (!isOverrideForegroundDisplayEnabled) {
-                    return true
-                }
-
-                val requestId = UUID.randomUUID().toString()
-                foregroundDisplayRequestMap[requestId] = deferred
-
-                var stream = streams[EventType.OVERRIDE_FOREGROUND_PRESENTATION]
-                stream?.notify(
-                    OverridePresentationOptionsEvent(value, requestId)
-                )
-
-            }
-
-            return deferred.await()
-        }    
-    }
-
     companion object {
         internal const val AIRSHIP_SHARED_PREFS = "com.urbanairship.flutter"
 
@@ -103,6 +81,30 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             EventType.PENDING_EMBEDDED_UPDATED to "com.airship.flutter/event/pending_embedded_updated",
             EventType.OVERRIDE_FOREGROUND_PRESENTATION to "com.airship.flutter/event/override_presentation_options"
         )
+
+        @Volatile
+        var isOverrideForegroundDisplayEnabled: Boolean = false
+    }
+
+    private val foregroundDisplayRequestMap =
+        ConcurrentHashMap<String, CompletableDeferred<Boolean>>()
+    private val foregroundDisplayPredicate = object : SuspendingPredicate<Map<String, Any>> {
+        override suspend fun apply(value: Map<String, Any>): Boolean {
+            val deferred = CompletableDeferred<Boolean>()
+            println("apply() called, isOverrideForegroundDisplayEnabled=$isOverrideForegroundDisplayEnabled")
+            if (!isOverrideForegroundDisplayEnabled) {
+                return true
+            }
+
+            val requestId = UUID.randomUUID().toString()
+            foregroundDisplayRequestMap[requestId] = deferred
+
+            var stream = streams[EventType.OVERRIDE_FOREGROUND_PRESENTATION]
+            stream?.notify(
+                OverridePresentationOptionsEvent(value, requestId)
+            )
+            return deferred.await()
+        }
     }
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
@@ -135,8 +137,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 }
         }
 
-        val proxy = AirshipProxy.shared(context)
-        proxy.push.foregroundNotificationDisplayPredicate = this.foregroundDisplayPredicate
+        AirshipProxy.shared(this.context).push.foregroundNotificationDisplayPredicate = this.foregroundDisplayPredicate
     }
 
     private fun generateEventStreams(binaryMessenger: BinaryMessenger): Map<EventType, AirshipEventStream> {
@@ -149,7 +150,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         val streamMap = mutableMapOf<EventType, AirshipEventStream>()
         streamGroups.forEach { entry ->
             val stream = AirshipEventStream(
-                eventTypes =entry.value,
+                eventTypes = entry.value,
                 name = entry.key,
                 binaryMessenger = binaryMessenger,
                 flutterState = flutterState
@@ -403,13 +404,17 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
 
      private fun overrideForegroundDisplayEnabled(call: MethodCall, result: Result) {
-        val args = call.arguments as Map<*, *>
-        val enabled = args["enabled"] as? Boolean
-        if (enabled != null) {
-            this.isOverrideForegroundDisplayEnabled = enabled
-        }
-        
-        result.success(null)
+         val args = call.arguments as Map<*, *>
+         val enabled = args["enabled"] as? Boolean
+         if (enabled != null) {
+             isOverrideForegroundDisplayEnabled = enabled
+             if (!enabled) {
+                 foregroundDisplayRequestMap.values.forEach {
+                     it.complete(true)
+                 }
+                 foregroundDisplayRequestMap.clear()
+             }
+         }
     }
 
     private fun overrideForegroundDisplay(call: MethodCall, result: Result) {
@@ -420,9 +425,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             return
         }
 
-        synchronized(this.foregroundDisplayRequestMap) {
-            this.foregroundDisplayRequestMap.remove(requestId)?.complete(shouldDisplay ?: false)
-        }
+        this.foregroundDisplayRequestMap.remove(requestId)?.complete(shouldDisplay ?: false)
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
@@ -459,10 +462,12 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         }
 
         fun notify(event: Any): Boolean {
-            return _eventSink.value?.let {
-                it.success(event)
-                true
-            } ?: false
+            val sink = _eventSink.value
+            if (sink == null) {
+                return false
+            }
+            sink.success(event)
+            return true
         }
     }
 
