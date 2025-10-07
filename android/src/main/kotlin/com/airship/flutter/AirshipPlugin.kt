@@ -16,7 +16,6 @@ import com.urbanairship.android.framework.proxy.Event
 import com.urbanairship.json.JsonMap
 import com.urbanairship.json.jsonMapOf
 import com.urbanairship.json.JsonValue
-import com.urbanairship.json.requireMap
 import io.flutter.embedding.engine.FlutterShellArgs
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -99,10 +98,8 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             val requestId = UUID.randomUUID().toString()
             foregroundDisplayRequestMap[requestId] = deferred
 
-            var stream = streams[EventType.OVERRIDE_FOREGROUND_PRESENTATION]
-            stream?.notify(
-                OverridePresentationOptionsEvent(value, requestId)
-            )
+            val event = OverridePresentationOptionsEvent(value, requestId)
+            EventEmitter.shared().addEvent(event)
             return deferred.await()
         }
     }
@@ -143,20 +140,20 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private fun generateEventStreams(binaryMessenger: BinaryMessenger): Map<EventType, AirshipEventStream> {
         // A single stream might map to multiple event types, create a map of the reverse index
         val streamGroups = mutableMapOf<String, MutableList<EventType>>()
-        EVENT_NAME_MAP.forEach {
-            streamGroups.getOrPut(it.value) { mutableListOf() }.add(it.key)
+        EVENT_NAME_MAP.forEach { (eventType, name) ->
+            streamGroups.getOrPut(name) { mutableListOf() }.add(eventType)
         }
 
         val streamMap = mutableMapOf<EventType, AirshipEventStream>()
-        streamGroups.forEach { entry ->
+        streamGroups.forEach { (name, types) ->
             val stream = AirshipEventStream(
-                eventTypes = entry.value,
-                name = entry.key,
+                eventTypes = types,
+                name = name,
                 binaryMessenger = binaryMessenger,
                 flutterState = flutterState
             )
             stream.register() /// Set up handlers for each stream
-            entry.value.forEach { type ->
+            types.forEach { type ->
                 streamMap[type] = stream
             }
         }
@@ -414,6 +411,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                  }
                  foregroundDisplayRequestMap.clear()
              }
+             result.success(null)
          }
     }
 
@@ -426,6 +424,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         }
 
         this.foregroundDisplayRequestMap.remove(requestId)?.complete(shouldDisplay ?: false)
+        result.success(null)
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
@@ -454,6 +453,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         private var _eventSink: MutableStateFlow<EventChannel.EventSink?> = MutableStateFlow(null)
 
         override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+            Log.d("AirshipPlugin", "onListen called for $events")
             this._eventSink.value = events
         }
 
@@ -463,11 +463,13 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
         fun notify(event: Any): Boolean {
             val sink = _eventSink.value
-            if (sink == null) {
+            Log.d("AirshipPlugin", "notify() called, sink=$sink, event=$event")
+            if (sink != null) {
+                sink.success(event)
+                return true
+            } else {
                 return false
             }
-            sink.success(event)
-            return true
         }
     }
 
@@ -511,7 +513,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             }
         }
 
-        fun notify(event: Any): Boolean {
+         fun notify(event: Any): Boolean {
             return lock.withLock {
                 handlers.any { it.notify(event) }
             }

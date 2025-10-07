@@ -122,28 +122,28 @@ class AndroidPush {
       _module
           .getEventStream("com.airship.flutter/event/override_presentation_options")
           .listen((event) async {
-        print("Received override_presentation_options event: $event");
-        try {
-          final payload = PushPayload.fromJson(event['pushPayload']);
-          final requestId = event['requestId'] as String;
-
-          if (_foregroundDisplayPredicate != null) {
+            print("Received override_presentation_options event: $event");
             try {
-              final result = await _foregroundDisplayPredicate!.call(payload);
-              await _module.channel.invokeMethod(
-                  'push#android#overrideForegroundDisplay',
-                  {'requestId': requestId, 'result': result});
-            } catch (error, stack) {
-              print("Error in presentationOverridesCallback: $error\n$stack");
-              _module.channel.invokeMethod(
-                  'push#android#overrideForegroundDisplay',
-                  {'requestId': requestId, 'result': true});
+              final payload = PushPayload.fromJson(event['pushPayload']);
+              final requestId = event['requestId'] as String;
+
+              if (_foregroundDisplayPredicate != null) {
+                try {
+                  final result = await _foregroundDisplayPredicate!.call(payload);
+                  await _module.channel.invokeMethod(
+                      'push#android#overrideForegroundDisplay',
+                      {'requestId': requestId, 'result': result});
+                } catch (error, stack) {
+                  print("Error in presentationOverridesCallback: $error\n$stack");
+                  _module.channel.invokeMethod(
+                      'push#android#overrideForegroundDisplay',
+                      {'requestId': requestId, 'result': true});
+                }
+              }
+            } catch (e, st) {
+              print("Failed to process push_received event: $e\n$st");
             }
-          }
-        } catch (e, st) {
-          print("Failed to process push_received event: $e\n$st");
-        }
-      });
+          });
     }
   }
 
@@ -226,7 +226,7 @@ class IOSPush {
       _module
           .getEventStream("com.airship.flutter/event/override_presentation_options")
           .listen((event) async {
-        print("Received override_presentation_options event: $event");
+            print("Received override_presentation_options event: $event");
         try {
           final payload = PushPayload.fromJson(event['pushPayload']);
           final requestId = event['requestId'] as String;
