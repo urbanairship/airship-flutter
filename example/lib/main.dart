@@ -21,7 +21,7 @@ Future<void> backgroundMessageHandler(PushReceivedEvent event) async {
   debugPrint("Background Push Received $event");
 }
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -42,6 +42,8 @@ void main() {
   );
 
   Airship.takeOff(config);
+  await Airship.featureFlagManager.flag("rad_flag");
+
   Airship.push.android
       .setBackgroundPushReceivedHandler(backgroundMessageHandler);
 
@@ -83,7 +85,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
 
   static void trackFeatureFlagInteraction() {
     Airship.featureFlagManager.flag("rad_flag").then((flag) {
-      Airship.featureFlagManager.trackInteraction(flag);
+      Airship.featureFlagManager.trackInteraction(flag!);
     }).catchError((e) {
       debugPrint('Error: $e');
     });
