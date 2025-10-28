@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'airship_module.dart';
 import 'dart:convert';
 
@@ -19,15 +20,16 @@ class AirshipFeatureFlagManager {
       },
     );
     return FeatureFlag._fromJson(featureFlag);
+  } on PlatformException catch (e) {
+    // Catches only PlatformException 
+    print("Airship feature flag error: $e");
+    return null;
   } catch (e) {
-   if (e.runtimeType.toString() == 'PlatformException') {
-      print("Airship feature flag error: $e");
-    } else {
-      print("Unexpected error: $e");
-    }
+    // Catches any other exception type
+    print("Unexpected error: $e");
     return null;
   }
-}
+  }
 
   /// Tracks interaction with feature flag
   Future<void> trackInteraction(FeatureFlag flag) async {
