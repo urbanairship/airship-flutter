@@ -42,6 +42,7 @@ void main() {
   );
 
   Airship.takeOff(config);
+
   Airship.push.android
       .setBackgroundPushReceivedHandler(backgroundMessageHandler);
 
@@ -83,7 +84,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
 
   static void trackFeatureFlagInteraction() {
     Airship.featureFlagManager.flag("rad_flag").then((flag) {
-      Airship.featureFlagManager.trackInteraction(flag);
+      Airship.featureFlagManager.trackInteraction(flag!);
     }).catchError((e) {
       debugPrint('Error: $e');
     });
