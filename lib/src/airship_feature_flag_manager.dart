@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'airship_module.dart';
 import 'dart:convert';
 
@@ -9,7 +10,8 @@ class AirshipFeatureFlagManager {
 
   /// Gets and evaluates a feature flag with the given [name].
   /// [useResultCache] determines if the cached result should be used.
-  Future<FeatureFlag> flag(String name, {bool useResultCache = false}) async {
+  Future<FeatureFlag?> flag(String name, {bool useResultCache = false}) async {
+  try {
     var featureFlag = await _module.channel.invokeMethod(
       "featureFlagManager#flag",
       {
@@ -18,6 +20,15 @@ class AirshipFeatureFlagManager {
       },
     );
     return FeatureFlag._fromJson(featureFlag);
+  } on PlatformException catch (e) {
+    // Catches only PlatformException 
+    print("Airship feature flag error: $e");
+    return null;
+  } catch (e) {
+    // Catches any other exception type
+    print("Unexpected error: $e");
+    return null;
+  }
   }
 
   /// Tracks interaction with feature flag
