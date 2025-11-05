@@ -513,7 +513,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             }
         }
 
-         fun notify(event: Any): Boolean {
+         private fun notify(event: Any): Boolean {
             return lock.withLock {
                 handlers.any { it.notify(event) }
             }
