@@ -11,8 +11,11 @@ import com.urbanairship.android.framework.proxy.proxies.AirshipProxy
 import com.urbanairship.android.framework.proxy.proxies.FeatureFlagProxy
 import com.urbanairship.android.framework.proxy.proxies.LiveUpdateRequest
 import com.urbanairship.android.framework.proxy.proxies.EnableUserNotificationsArgs
+import com.urbanairship.android.framework.proxy.proxies.SuspendingPredicate
+import com.urbanairship.android.framework.proxy.Event
+import com.urbanairship.json.JsonMap
+import com.urbanairship.json.jsonMapOf
 import com.urbanairship.json.JsonValue
-import com.urbanairship.json.requireMap
 import io.flutter.embedding.engine.FlutterShellArgs
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -36,6 +39,10 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.CompletableDeferred
+import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
+import kotlin.collections.get
 
 class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
@@ -70,8 +77,31 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             EventType.FOREGROUND_PUSH_RECEIVED to "com.airship.flutter/event/push_received",
             EventType.BACKGROUND_PUSH_RECEIVED to "com.airship.flutter/event/background_push_received",
             EventType.NOTIFICATION_STATUS_CHANGED to "com.airship.flutter/event/notification_status_changed",
-            EventType.PENDING_EMBEDDED_UPDATED to "com.airship.flutter/event/pending_embedded_updated"
+            EventType.PENDING_EMBEDDED_UPDATED to "com.airship.flutter/event/pending_embedded_updated",
+            EventType.OVERRIDE_FOREGROUND_PRESENTATION to "com.airship.flutter/event/override_presentation_options"
         )
+
+        @Volatile
+        var isOverrideForegroundDisplayEnabled: Boolean = false
+    }
+
+    private val foregroundDisplayRequestMap =
+        ConcurrentHashMap<String, CompletableDeferred<Boolean>>()
+    private val foregroundDisplayPredicate = object : SuspendingPredicate<Map<String, Any>> {
+        override suspend fun apply(value: Map<String, Any>): Boolean {
+            val deferred = CompletableDeferred<Boolean>()
+            Log.d("AirshipPlugin", "apply() called, isOverrideForegroundDisplayEnabled=$isOverrideForegroundDisplayEnabled")
+            if (!isOverrideForegroundDisplayEnabled) {
+                return true
+            }
+
+            val requestId = UUID.randomUUID().toString()
+            foregroundDisplayRequestMap[requestId] = deferred
+
+            val event = OverridePresentationOptionsEvent(value, requestId)
+            EventEmitter.shared().addEvent(event)
+            return deferred.await()
+        }
     }
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
@@ -103,25 +133,27 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                     }
                 }
         }
+
+        AirshipProxy.shared(this.context).push.foregroundNotificationDisplayPredicate = this.foregroundDisplayPredicate
     }
 
     private fun generateEventStreams(binaryMessenger: BinaryMessenger): Map<EventType, AirshipEventStream> {
         // A single stream might map to multiple event types, create a map of the reverse index
         val streamGroups = mutableMapOf<String, MutableList<EventType>>()
-        EVENT_NAME_MAP.forEach {
-            streamGroups.getOrPut(it.value) { mutableListOf() }.add(it.key)
+        EVENT_NAME_MAP.forEach { (eventType, name) ->
+            streamGroups.getOrPut(name) { mutableListOf() }.add(eventType)
         }
 
         val streamMap = mutableMapOf<EventType, AirshipEventStream>()
-        streamGroups.forEach { entry ->
+        streamGroups.forEach { (name, types) ->
             val stream = AirshipEventStream(
-                eventTypes =entry.value,
-                name = entry.key,
+                eventTypes = types,
+                name = name,
                 binaryMessenger = binaryMessenger,
                 flutterState = flutterState
             )
             stream.register() /// Set up handlers for each stream
-            entry.value.forEach { type ->
+            types.forEach { type ->
                 streamMap[type] = stream
             }
         }
@@ -202,6 +234,8 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 }
             }
             "push#android#setNotificationConfig" -> result.resolve(scope, call) { proxy.push.setNotificationConfig(call.jsonArgs()) }
+            "push#android#isOverrideForegroundDisplayEnabled" -> overrideForegroundDisplayEnabled(call, result)
+            "push#android#overrideForegroundDisplay" -> overrideForegroundDisplay(call, result)
 
             // In-App
             "inApp#setPaused" -> result.resolve(scope, call) { proxy.inApp.setPaused(call.booleanArg()) }
@@ -366,6 +400,33 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         result.success(null)
     }
 
+     private fun overrideForegroundDisplayEnabled(call: MethodCall, result: Result) {
+         val args = call.arguments as Map<*, *>
+         val enabled = args["enabled"] as? Boolean
+         if (enabled != null) {
+             isOverrideForegroundDisplayEnabled = enabled
+             if (!enabled) {
+                 foregroundDisplayRequestMap.values.forEach {
+                     it.complete(true)
+                 }
+                 foregroundDisplayRequestMap.clear()
+             }
+             result.success(null)
+         }
+    }
+
+    private fun overrideForegroundDisplay(call: MethodCall, result: Result) {
+        val args = call.arguments as Map<*, *>
+        val requestId = args["requestId"] as? String
+        val shouldDisplay = args["result"] as? Boolean
+        if (requestId == null) {
+            return
+        }
+
+        this.foregroundDisplayRequestMap.remove(requestId)?.complete(shouldDisplay ?: false)
+        result.success(null)
+    }
+
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         mainActivity = binding.activity
         flutterState.update { it.copy(activityAttached = true) }
@@ -392,6 +453,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         private var _eventSink: MutableStateFlow<EventChannel.EventSink?> = MutableStateFlow(null)
 
         override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+            Log.d("AirshipPlugin", "onListen called for $events")
             this._eventSink.value = events
         }
 
@@ -400,10 +462,14 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         }
 
         fun notify(event: Any): Boolean {
-            return _eventSink.value?.let {
-                it.success(event)
-                true
-            } ?: false
+            val sink = _eventSink.value
+            Log.d("AirshipPlugin", "notify() called, sink=$sink, event=$event")
+            if (sink != null) {
+                sink.success(event)
+                return true
+            } else {
+                return false
+            }
         }
     }
 
@@ -447,10 +513,30 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             }
         }
 
-        private fun notify(event: Any): Boolean {
+         private fun notify(event: Any): Boolean {
             return lock.withLock {
                 handlers.any { it.notify(event) }
             }
         }
     }
+}
+
+internal class OverridePresentationOptionsEvent(
+    override val body: JsonMap
+) : Event {
+
+    override val type: EventType = EventType.OVERRIDE_FOREGROUND_PRESENTATION
+
+    /**
+     * Default constructor that builds the JsonMap from parameters.
+     *
+     * @param pushPayload The push payload.
+     * @param requestId The request ID.
+     */
+    constructor(pushPayload: Map<String, Any>, requestId: String) : this(
+        jsonMapOf(
+            "pushPayload" to pushPayload,
+            "requestId" to requestId
+        )
+    )
 }

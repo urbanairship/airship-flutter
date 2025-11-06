@@ -21,7 +21,8 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
         .notificationResponseReceived: "com.airship.flutter/event/notification_response",
         .pushReceived: "com.airship.flutter/event/push_received",
         .notificationStatusChanged: "com.airship.flutter/event/notification_status_changed",
-        .pendingEmbeddedUpdated: "com.airship.flutter/event/pending_embedded_updated"
+        .pendingEmbeddedUpdated: "com.airship.flutter/event/pending_embedded_updated",
+        .overridePresentationOptions: "com.airship.flutter/event/override_presentation_options"
     ]
 
     private let streams: [AirshipProxyEventType: AirshipEventStream] = {
@@ -34,12 +35,33 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
 
     private var subscriptions = Set<AnyCancellable>()
 
+
+    private let lock = AirshipLock()
+    
+    var pendingPresentationRequests: [String: PresentationOptionsOverridesRequest] = [:]
+    
+    @objc
+    public var overridePresentationOptionsEnabled: Bool = false {
+        didSet {
+            if (!overridePresentationOptionsEnabled) {
+                lock.sync {
+                    self.pendingPresentationRequests.values.forEach { request in
+                        request.result(options: nil)
+                    }
+                    self.pendingPresentationRequests.removeAll()
+                }
+            }
+        }
+    }
+    
     static let shared = AirshipPlugin()
 
+    @MainActor
     public static func register(with registrar: FlutterPluginRegistrar) {
         AirshipPlugin.shared.setup(registrar: registrar)
     }
 
+    @MainActor
     private func setup(registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(
             name: "com.airship.flutter/airship",
@@ -65,7 +87,50 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
             Task {
                 await stream.processPendingEvents()
             }
+            
         }.store(in: &self.subscriptions)
+
+        AirshipProxy.shared.push.presentationOptionOverrides = { request in
+            guard self.overridePresentationOptionsEnabled else {
+                request.result(options: nil)
+                return
+            }
+            
+            guard
+                let requestPayload = try? AirshipJSON.wrap(
+                    request.pushPayload
+                ).unWrap()
+            else {
+                AirshipLogger.error("Failed to generate payload: \(request)")
+                request.result(options: nil)
+                return
+            }
+
+            let requestID = UUID().uuidString
+            self.lock.sync {
+                self.pendingPresentationRequests[requestID] = request
+            }
+            
+            if let stream = self.streams[.overridePresentationOptions] {
+                 Task {
+                    await stream
+                         .notify(
+                            OverridePresentationOptionsEvent(
+                                pushPayload: request.pushPayload,
+                                requestId: requestID
+                            )
+                        )
+                }
+            }
+        }
+    }
+    
+    @objc
+    public func presentationOptionOverridesResult(requestID: String, presentationOptions: [String]?) {
+        lock.sync {
+            pendingPresentationRequests[requestID]?.result(optionNames: presentationOptions)
+            pendingPresentationRequests[requestID] = nil
+        }
     }
 
     public func application(
@@ -304,6 +369,23 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
                 names: try call.requireStringArrayArg()
             )
             return nil
+
+        case "push#ios#isOverridePresentationOptionsEnabled":
+            if let args = call.arguments as? [String: Any],
+                let enabled = args["enabled"] as? Bool {
+                overridePresentationOptionsEnabled = enabled
+            }
+            return nil
+        
+        case "push#ios#overridePresentationOptions":
+            if let args = call.arguments as? [String: Any],
+               let requestID = args["requestId"] as? String,
+               let options = args["options"] as? [String]?
+            {
+                presentationOptionOverridesResult(requestID: requestID, presentationOptions: options)
+            }
+            return nil
+            
 
         case "push#ios#getAuthorizedNotificationSettings":
             return try AirshipProxy.shared.push.getAuthorizedNotificationSettings()
@@ -791,7 +873,7 @@ class AirshipEventStream: NSObject {
         )
     }
 
-    private func notify(_ event: any AirshipProxyEvent) -> Bool {
+    func notify(_ event: any AirshipProxyEvent) -> Bool {
         var result = false
         lock.sync {
             for handler in handlers {
@@ -814,5 +896,22 @@ fileprivate extension Encodable {
             throw AirshipErrors.error("Failed to unwrap codable")
         }
         return value
+    }
+}
+
+struct OverridePresentationOptionsEvent: AirshipProxyEvent {
+    let type: AirshipProxyEventType = .overridePresentationOptions
+    let body: Body
+
+    init(
+        pushPayload: ProxyPushPayload,
+        requestId: String
+    ) {
+        self.body = Body(pushPayload: pushPayload, requestId: requestId)
+    }
+
+    struct Body: Codable, Sendable {
+        let pushPayload: ProxyPushPayload
+        let requestId: String
     }
 }
