@@ -1,6 +1,6 @@
 /* Copyright Airship and Contributors */
 
 import UserNotifications
-import AirshipServiceExtension
+import AirshipNotificationServiceExtension
 
 class NotificationService: UANotificationServiceExtension {}

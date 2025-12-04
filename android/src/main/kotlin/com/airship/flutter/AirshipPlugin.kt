@@ -261,7 +261,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
                 val actionResult = proxy.actions.runAction(args[0].requireString(), args.getOrNull(1))
 
-                if (actionResult.status == ActionResult.STATUS_COMPLETED) {
+                if (actionResult.status == ActionResult.Status.COMPLETED) {
                     actionResult.value
                 } else {
                     throw Exception("Action failed with status: ${actionResult.status}")

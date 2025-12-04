@@ -1,5 +1,45 @@
 # Migration Guide
 
+# 10.x to 11.x
+
+## Min iOS Version
+
+This version of the plugin now requires iOS 16+ as the min deployment target.
+
+## Android Extender Changes
+
+The `AirshipPluginExtender.onAirshipReady` method signature has changed. It no longer receives a `UAirship` instance - use the static `Airship` accessor instead.
+
+### Before (10.x)
+
+```kotlin
+import com.urbanairship.android.framework.proxy.AirshipPluginExtender
+
+class MyExtender : AirshipPluginExtender {
+    override fun onAirshipReady(context: Context, airship: UAirship) {
+        // Custom setup using airship instance
+        airship.analytics.registerSDKExtension(...)
+    }
+}
+```
+
+### After (11.x)
+
+```kotlin
+import com.urbanairship.Airship
+import com.urbanairship.android.framework.proxy.AirshipPluginExtender
+
+class MyExtender : AirshipPluginExtender {
+    override fun onAirshipReady(context: Context) {
+        // Custom setup using static Airship accessor
+        Airship.analytics.registerSDKExtension(...)
+    }
+}
+```
+
+Key changes:
+- The `onAirshipReady` method no longer receives a `UAirship` instance - use the static `Airship` accessor instead
+
 # 6.x to 7.x
 
 ### Min iOS Version

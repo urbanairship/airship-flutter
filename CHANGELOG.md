@@ -1,5 +1,16 @@
 # Flutter Plugin Changelog
 
+## Version 11.0.0 - December 3, 2025
+
+Major release that updates the Android SDK to 20.0.4 and iOS SDK to 20.0.2.
+
+### Changes
+- Updated Android SDK to [20.0.4](https://github.com/urbanairship/android-library/releases/tag/20.0.4)
+- Updated iOS SDK to [20.0.2](https://github.com/urbanairship/ios-library/releases/tag/20.0.2)
+- Updated Kotlin to 2.0.21
+- Minimum iOS deployment target is now iOS 16.0 (requires Xcode 14+)
+- The `AirshipPluginExtender.onAirshipReady` method no longer receives a `UAirship` instance. Use the static `Airship` accessor instead.
+
 ## Version 10.10.1 - November 14, 2025
 
 Patch release that fixes YouTube video playback in In-App Automation and Scenes. Applications that use YouTube videos in Scenes and non-html In-App Automations (IAA) must update to resolve playback errors.

@@ -1,13 +1,13 @@
 {
-  "originHash" : "795bdcdc61fc6bf47bf79de798761c74d06ebcfcf8fcd7b0ba795e617e636a48",
+  "originHash" : "56dd19619f07dfc35e6d02c1e61e8553fa9a4a9c4684cfae7a1c890bb5e56437",
   "pins" : [
     {
       "identity" : "airship-mobile-framework-proxy",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/urbanairship/airship-mobile-framework-proxy.git",
       "state" : {
-        "revision" : "ab6df7fc0e18cddbf22d4346185ce930b22a82a8",
-        "version" : "14.7.0"
+        "revision" : "6cc0911a4fc3d38c5fe1fd637cdbac02505ab401",
+        "version" : "15.0.1"
       }
     },
     {
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/urbanairship/ios-library.git",
       "state" : {
-        "revision" : "3b2ce8226544d3a22f5fdadf1d324b1491661665",
-        "version" : "19.8.3"
+        "revision" : "775fecb5e4be7183c27b4ff4d3bf2c56d81f39fa",
+        "version" : "20.0.2"
       }
     }
   ],

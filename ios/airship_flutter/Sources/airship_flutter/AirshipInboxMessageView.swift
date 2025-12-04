@@ -87,7 +87,7 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView, NativeBridgeDeleg
             return
         }
 
-        let inbox = MessageCenter.shared.inbox
+        let inbox = Airship.messageCenter.inbox
 
         let message = await inbox.message(forID: messageId)
 
@@ -106,7 +106,7 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView, NativeBridgeDeleg
 
         if let message = await inbox.message(forID: messageId) {
             var request = URLRequest(url: message.bodyURL)
-            let user = await MessageCenter.shared.inbox.user
+            let user = await Airship.messageCenter.inbox.user
             
             if let user = user {
                 guard let auth = AirshipUtils.authHeader(username: user.username, password: user.password) else {
