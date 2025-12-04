@@ -11,7 +11,7 @@ import com.airship.flutter.AirshipBackgroundExecutor.Companion.handleBackgroundM
 import com.urbanairship.Airship
 import com.urbanairship.analytics.Extension
 import com.urbanairship.android.framework.proxy.BaseAutopilot
-import com.urbanairship.android.framework.proxy.EventType
+import com.urbanairship.android.framework.proxy.events.EventType
 import com.urbanairship.android.framework.proxy.ProxyConfig
 import com.urbanairship.android.framework.proxy.ProxyStore
 import com.urbanairship.android.framework.proxy.events.EventEmitter
