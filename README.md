@@ -34,38 +34,6 @@ Then run:
 flutter pub get
 ```
 
-### Platform Setup
-
-#### iOS
-
-Add your `AirshipConfig.plist` to your iOS project's `Runner` directory with your Airship credentials:
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-  <key>developmentAppKey</key>
-  <string>YOUR_DEV_APP_KEY</string>
-  <key>developmentAppSecret</key>
-  <string>YOUR_DEV_APP_SECRET</string>
-  <key>productionAppKey</key>
-  <string>YOUR_PROD_APP_KEY</string>
-  <key>productionAppSecret</key>
-  <string>YOUR_PROD_APP_SECRET</string>
-</dict>
-</plist>
-```
-
-#### Android
-
-Add your `airshipconfig.properties` to `android/app/src/main/assets/`:
-```properties
-developmentAppKey = YOUR_DEV_APP_KEY
-developmentAppSecret = YOUR_DEV_APP_SECRET
-productionAppKey = YOUR_PROD_APP_KEY
-productionAppSecret = YOUR_PROD_APP_SECRET
-```
-
 ### Initialization
 
 Initialize Airship in your app:
