@@ -1,5 +1,14 @@
 # Flutter Plugin Changelog
 
+## Version 10.10.2 - December 16, 2025
+
+Patch release that updates the Android SDK to  and the iOS SDK to .
+
+### Changes
+- Updated Android SDK to [](https://github.com/urbanairship/android-library/releases/tag/)
+- Updated iOS SDK to [](https://github.com/urbanairship/ios-library/releases/tag/)
+
+
 ## Version 10.10.1 - November 14, 2025
 
 Patch release that fixes YouTube video playback in In-App Automation and Scenes. Applications that use YouTube videos in Scenes and non-html In-App Automations (IAA) must update to resolve playback errors.
@@ -28,7 +37,7 @@ Minor release that updates the Android SDK to 19.13.4 and the iOS SDK to 19.11.0
 ## Version 10.8.0 - August 28, 2025
 Minor release that updates the Android SDK to 19.11.0 and the iOS SDK to 19.8.3.
 
-### 
+###
 - Updated Android SDK to [19.11.0](https://github.com/urbanairship/android-library/releases/tag/19.11.0)
 - Updated iOS SDK to [19.8.3](https://github.com/urbanairship/ios-library/releases/tag/19.8.3)
 - Updated Android event emitting to wait for an attached activity for all events but background push recieved.
