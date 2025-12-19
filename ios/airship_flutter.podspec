@@ -19,7 +19,7 @@ Airship flutter plugin.
   s.source_files = 'airship_flutter/Sources/airship_flutter/**/*'
   s.dependency 'Flutter'
   s.ios.deployment_target      = "16.0"
-  s.dependency "AirshipFrameworkProxy", "15.0.1"
+  s.dependency "AirshipFrameworkProxy", "15.0.3"
   s.swift_version = "5.0.0"
   s.resource_bundles = {'airship_flutter_privacy' => ['airship_flutter/Sources/airship_flutter/PrivacyInfo.xcprivacy']}
 end
