@@ -1,7 +1,6 @@
 package com.airship.flutter
 
 import android.content.Context
-import android.content.Context.MODE_PRIVATE
 import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -9,11 +8,10 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.airship.flutter.AirshipBackgroundExecutor.Companion.handleBackgroundMessage
-import com.urbanairship.UAirship
-import com.urbanairship.analytics.Analytics
+import com.urbanairship.Airship
 import com.urbanairship.analytics.Extension
 import com.urbanairship.android.framework.proxy.BaseAutopilot
-import com.urbanairship.android.framework.proxy.EventType
+import com.urbanairship.android.framework.proxy.events.EventType
 import com.urbanairship.android.framework.proxy.ProxyConfig
 import com.urbanairship.android.framework.proxy.ProxyStore
 import com.urbanairship.android.framework.proxy.events.EventEmitter
@@ -27,10 +25,10 @@ import kotlinx.coroutines.runBlocking
 class FlutterAutopilot : BaseAutopilot() {
 
     private val appContext: Context
-        get() = UAirship.getApplicationContext()
+        get() = Airship.application.applicationContext
 
-    override fun onReady(context: Context, airship: UAirship) {
-        Log.i("FlutterAutopilot", "onAirshipReady")
+    override fun onReady(context: Context) {
+        Log.i("FlutterAutopilot", "onReady")
 
         // If running in the background, start the background Isolate
         // so that we can communicate with the Flutter app.
@@ -46,7 +44,7 @@ class FlutterAutopilot : BaseAutopilot() {
             }
         }
 
-        airship.analytics.registerSDKExtension(Extension.FLUTTER, AirshipPluginVersion.AIRSHIP_PLUGIN_VERSION);
+        Airship.analytics.registerSDKExtension(Extension.FLUTTER, AirshipPluginVersion.AIRSHIP_PLUGIN_VERSION)
     }
 
     override fun onMigrateData(context: Context, proxyStore: ProxyStore) {

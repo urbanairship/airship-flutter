@@ -5,7 +5,7 @@ import android.content.Context
 import android.os.Build
 import android.util.Log
 import com.urbanairship.actions.ActionResult
-import com.urbanairship.android.framework.proxy.EventType
+import com.urbanairship.android.framework.proxy.events.EventType
 import com.urbanairship.android.framework.proxy.events.EventEmitter
 import com.urbanairship.android.framework.proxy.proxies.AirshipProxy
 import com.urbanairship.android.framework.proxy.proxies.FeatureFlagProxy
@@ -261,7 +261,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
                 val actionResult = proxy.actions.runAction(args[0].requireString(), args.getOrNull(1))
 
-                if (actionResult.status == ActionResult.STATUS_COMPLETED) {
+                if (actionResult.status == ActionResult.Status.COMPLETED) {
                     actionResult.value
                 } else {
                     throw Exception("Action failed with status: ${actionResult.status}")

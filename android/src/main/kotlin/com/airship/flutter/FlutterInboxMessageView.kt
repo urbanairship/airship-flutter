@@ -4,7 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.view.View
 import android.webkit.WebView
-import com.urbanairship.UAirship
+import com.urbanairship.Airship
 import com.urbanairship.messagecenter.MessageCenter
 
 import com.urbanairship.messagecenter.ui.widget.MessageWebView
@@ -74,7 +74,7 @@ class FlutterInboxMessageView(
 
     private fun loadMessage(call: MethodCall, result: MethodChannel.Result) {
         webviewResult = result
-        if (!(UAirship.isTakingOff() || UAirship.isFlying())) {
+        if (!(Airship.isTakingOff || Airship.isFlying)) {
             result.error("AIRSHIP_GROUNDED", "Takeoff not called.", null)
             return
         }

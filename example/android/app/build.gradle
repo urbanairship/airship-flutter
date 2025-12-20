@@ -24,7 +24,7 @@ if (flutterVersionName == null) {
 }
 
 android {
-    compileSdk 34
+    compileSdk 36
 
     namespace 'com.urbanairship.sample'
 
@@ -39,7 +39,7 @@ android {
     defaultConfig {
         applicationId "com.urbanairship.sample"
         minSdkVersion 23
-        targetSdkVersion 34
+        targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
