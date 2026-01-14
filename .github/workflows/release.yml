@@ -6,14 +6,14 @@ on:
       - "[0-9]+.[0-9]+.[0-9]+*"
 
 env:
-  DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer
-  FLUTTER_VERSION: 3.24.3
+  DEVELOPER_DIR: /Applications/Xcode_26.0.app/Contents/Developer
+  FLUTTER_VERSION: 3.27.3
   JAVA_VERSION: "17.x"
   JAVA_DISTRIBUTION: 'zulu'
 
 jobs:
   ci:
-    runs-on: macos-15-xlarge
+    runs-on: macos-26-xlarge
 
     steps:
       - uses: actions/checkout@v3
@@ -88,7 +88,7 @@ jobs:
           url: ${{ secrets.MOBILE_SLACK_WEBHOOK }}
   
   release-docs:
-    runs-on: macos-15-xlarge
+    runs-on: macos-26-xlarge
     needs: [ ci, release-plugin-github, release-plugin-pub-dev ]
     steps:
       - uses: actions/checkout@v3
