@@ -4,6 +4,10 @@ plugins {
      id "com.google.gms.google-services" version "4.3.14" apply false
 }
 
+ext {
+    minSdkVersion = 23
+}
+
 allprojects {
     repositories {
         google()

@@ -1,15 +1,15 @@
 # Flutter Plugin Changelog
 
-## Version 11.1.0 - January 15, 2026
+## Version 11.1.0 - January 22, 2026
 
-Minor release that includes several fixes and improvements for Scenes, In-App Automations, and notification handling.
+Minor release that includes accessibility improvements for Message Center and fixes a potential crash on Android.
 
 ### Changes
-- Updated Android SDK to [20.1.0](https://github.com/urbanairship/android-library/releases/tag/20.1.0)
-- Updated iOS SDK to [20.0.3](https://github.com/urbanairship/ios-library/releases/tag/20.0.3)
-- Added support for Story pause/resume and back/next controls.
-- Added support for additional text styles and markdown highlighting in Scenes.
-- Fixed safe area handling during keyboard presentation in Scenes on iOS.
+- Updated Android SDK to [20.1.1](https://github.com/urbanairship/android-library/releases/tag/20.1.1)
+- Updated iOS SDK to [20.1.1](https://github.com/urbanairship/ios-library/releases/tag/20.1.1)
+- Fixed a potential crash in Android Scenes with specific image and display settings.
+- Improved VoiceOver focus handling for Message Center on iOS.
+- Fixed an issue where the Message Center title was not being marked as a heading on Android.
 
 
 ## Version 11.0.0 - December 19, 2025
