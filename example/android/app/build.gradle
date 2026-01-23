@@ -38,7 +38,7 @@ android {
 
     defaultConfig {
         applicationId "com.urbanairship.sample"
-        minSdkVersion 23
+        minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
@@ -68,6 +68,10 @@ flutter {
 }
 
 dependencies {
+    // Required for AirshipExtender to access framework proxy and live update APIs
+    implementation "com.urbanairship.android:airship-framework-proxy:15.2.0"
+    implementation "com.urbanairship.android:urbanairship-live-update:20.1.1"
+
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'

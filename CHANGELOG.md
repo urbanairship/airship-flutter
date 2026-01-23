@@ -1,5 +1,17 @@
 # Flutter Plugin Changelog
 
+## Version 11.1.0 - January 22, 2026
+
+Minor release that includes accessibility improvements for Message Center and fixes a potential crash on Android.
+
+### Changes
+- Updated Android SDK to [20.1.1](https://github.com/urbanairship/android-library/releases/tag/20.1.1)
+- Updated iOS SDK to [20.1.1](https://github.com/urbanairship/ios-library/releases/tag/20.1.1)
+- Fixed a potential crash in Android Scenes with specific image and display settings.
+- Improved VoiceOver focus handling for Message Center on iOS.
+- Fixed an issue where the Message Center title was not being marked as a heading on Android.
+
+
 ## Version 11.0.0 - December 19, 2025
 
 Major release that updates the Android SDK to 20.0.4 and iOS SDK to 20.0.2.
@@ -39,7 +51,7 @@ Minor release that updates the Android SDK to 19.13.4 and the iOS SDK to 19.11.0
 ## Version 10.8.0 - August 28, 2025
 Minor release that updates the Android SDK to 19.11.0 and the iOS SDK to 19.8.3.
 
-### 
+###
 - Updated Android SDK to [19.11.0](https://github.com/urbanairship/android-library/releases/tag/19.11.0)
 - Updated iOS SDK to [19.8.3](https://github.com/urbanairship/ios-library/releases/tag/19.8.3)
 - Updated Android event emitting to wait for an attached activity for all events but background push recieved.
