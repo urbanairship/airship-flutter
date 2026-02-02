@@ -1,5 +1,44 @@
 # Flutter Plugin Changelog
 
+## Version 11.1.0 - January 22, 2026
+
+Minor release that includes accessibility improvements for Message Center and fixes a potential crash on Android.
+
+### Changes
+- Updated Android SDK to [20.1.1](https://github.com/urbanairship/android-library/releases/tag/20.1.1)
+- Updated iOS SDK to [20.1.1](https://github.com/urbanairship/ios-library/releases/tag/20.1.1)
+- Fixed a potential crash in Android Scenes with specific image and display settings.
+- Improved VoiceOver focus handling for Message Center on iOS.
+- Fixed an issue where the Message Center title was not being marked as a heading on Android.
+
+
+## Version 11.0.0 - December 19, 2025
+
+Major release that updates the Android SDK to 20.0.4 and iOS SDK to 20.0.2.
+
+### Changes
+- Updated Android SDK to [20.0.6](https://github.com/urbanairship/android-library/releases/tag/20.0.6)
+- Updated iOS SDK to [20.0.3](https://github.com/urbanairship/ios-library/releases/tag/20.0.3)
+- Updated Kotlin to 2.0.21
+- Minimum iOS deployment target is now iOS 16.0 (requires Xcode 14+)
+- The `AirshipPluginExtender.onAirshipReady` method no longer receives a `UAirship` instance. Use the static `Airship` accessor instead.
+
+## Version 10.10.1 - November 14, 2025
+
+Patch release that fixes YouTube video playback in In-App Automation and Scenes. Applications that use YouTube videos in Scenes and non-html In-App Automations (IAA) must update to resolve playback errors.
+
+### Changes
+- Updated Android SDK to [19.13.6](https://github.com/urbanairship/android-library/releases/tag/19.13.6)
+- Updated iOS SDK to [19.11.2](https://github.com/urbanairship/ios-library/releases/tag/19.11.2)
+
+## Version 10.10.0 - October 31, 2025 🎃
+
+Minor release that updates the Android SDK to 19.13.5 and the iOS SDK to 19.11.1
+
+### Changes
+- Updated Android SDK to [19.13.5](https://github.com/urbanairship/android-library/releases/tag/19.13.5)
+- Updated iOS SDK to [19.11.1](https://github.com/urbanairship/ios-library/releases/tag/19.11.1)
+
 ## Version 10.9.0 - October 29, 2025
 
 Minor release that updates the Android SDK to 19.13.4 and the iOS SDK to 19.11.0
@@ -12,7 +51,7 @@ Minor release that updates the Android SDK to 19.13.4 and the iOS SDK to 19.11.0
 ## Version 10.8.0 - August 28, 2025
 Minor release that updates the Android SDK to 19.11.0 and the iOS SDK to 19.8.3.
 
-### 
+###
 - Updated Android SDK to [19.11.0](https://github.com/urbanairship/android-library/releases/tag/19.11.0)
 - Updated iOS SDK to [19.8.3](https://github.com/urbanairship/ios-library/releases/tag/19.8.3)
 - Updated Android event emitting to wait for an attached activity for all events but background push recieved.

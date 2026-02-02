@@ -40,9 +40,34 @@ class AirshipInApp {
   bool isEmbeddedAvailable({required String embeddedId}) =>
       _embeddedInfos.any((info) => info.embeddedId == embeddedId);
 
-  Stream<bool> isEmbeddedAvailableStream({required String embeddedId}) =>
-      onEmbeddedInfoUpdated.map((embeddedInfos) =>
-          embeddedInfos.any((info) => info.embeddedId == embeddedId));
+  /// Returns a stream that emits whether embedded content is available for the given ID.
+  /// The stream immediately emits the current availability state upon subscription,
+  /// then emits updates whenever the embedded info changes.
+  Stream<bool> isEmbeddedAvailableStream({required String embeddedId}) {
+    late StreamController<bool> controller;
+    StreamSubscription<List<EmbeddedInfo>>? subscription;
+
+    controller = StreamController<bool>(
+      onListen: () {
+        // Immediately emit current cached state
+        final isAvailable = _embeddedInfos.any((info) => info.embeddedId == embeddedId);
+        controller.add(isAvailable);
+
+        // Subscribe to future updates from the broadcast stream
+        subscription = _embeddedInfoUpdatedController.stream.listen((embeddedInfos) {
+          if (!controller.isClosed) {
+            final isAvailable = embeddedInfos.any((info) => info.embeddedId == embeddedId);
+            controller.add(isAvailable);
+          }
+        });
+      },
+      onCancel: () {
+        subscription?.cancel();
+      },
+    );
+
+    return controller.stream.distinct();
+  }
 
   Stream<List<EmbeddedInfo>> get onEmbeddedInfoUpdated =>
       _embeddedInfoUpdatedController.stream;
