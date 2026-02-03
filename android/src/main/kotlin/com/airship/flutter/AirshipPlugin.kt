@@ -12,7 +12,7 @@ import com.urbanairship.android.framework.proxy.proxies.FeatureFlagProxy
 import com.urbanairship.android.framework.proxy.proxies.LiveUpdateRequest
 import com.urbanairship.android.framework.proxy.proxies.EnableUserNotificationsArgs
 import com.urbanairship.android.framework.proxy.proxies.SuspendingPredicate
-import com.urbanairship.android.framework.proxy.Event
+import com.urbanairship.android.framework.proxy.events.Event
 import com.urbanairship.json.JsonMap
 import com.urbanairship.json.jsonMapOf
 import com.urbanairship.json.JsonValue
