@@ -15,82 +15,102 @@ class MessageView extends StatefulWidget {
 }
 
 class MessageViewState extends State<MessageView> {
-  bool isLoading = true;
+  bool _isLoading = true;
 
   @override
   void initState() {
-    Airship.analytics.trackScreen('Message View');
     super.initState();
+    Airship.analytics.trackScreen('Message View');
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<InboxMessage>>(
-        future: Airship.messageCenter.messages,
-        builder: (context, snapshot) {
-          List<InboxMessage> list = [];
+      future: Airship.messageCenter.messages,
+      builder: (context, snapshot) {
+        final messages = snapshot.data ?? [];
+        
+        final message = messages.firstWhereOrNull(
+          (thisMessage) => widget.messageId == thisMessage.messageId,
+        );
 
-          if (snapshot.hasData) {
-            list = snapshot.data!;
-          }
-
-          InboxMessage? message = list.firstWhereOrNull(
-              (thisMessage) => widget.messageId == thisMessage.messageId);
-
-          return Scaffold(
-            appBar: AppBar(
-              title: message != null ? Text(message.title) : Container(),
-              backgroundColor: Styles.background,
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(
+              message?.title ?? 'Message',
+              overflow: TextOverflow.ellipsis,
             ),
-            body: Stack(children: <Widget>[
-              isLoading
-                  ? Center(child: CircularProgressIndicator())
-                  : Container(),
+            backgroundColor: Styles.background,
+            elevation: 0,
+          ),
+          backgroundColor: Styles.background,
+          body: Stack(
+            children: [
               InboxMessageView(
-                  messageId: widget.messageId,
-                  onLoadStarted: handleLoadStarted,
-                  onLoadFinished: handleLoadFinished,
-                  onLoadError: handleLoadError,
-                  onClose: handleClose)
-            ]),
-          );
-        });
+                messageId: widget.messageId,
+                onLoadStarted: _handleLoadStarted,
+                onLoadFinished: _handleLoadFinished,
+                onLoadError: _handleLoadError,
+                onClose: _handleClose,
+              ),
+              if (_isLoading)
+                Container(
+                  color: Colors.black45,
+                  child: const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
-  onStarted() {
-    setState(() {
-      isLoading = true;
-    });
+  void _handleLoadStarted() {
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
   }
 
-  handleLoadStarted() {
-    setState(() {
-      isLoading = true;
-    });
+  void _handleLoadFinished() {
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
-  handleLoadFinished() {
-    setState(() {
-      isLoading = false;
-    });
-  }
-
-  handleLoadError(PlatformException e) {
-    setState(() {
-      isLoading = false;
+  void _handleLoadError(PlatformException e) {
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+      
       showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-                title: Text(
-                    e.message != null ? e.message! : "Unable to load message"),
-                content: Text(e.details ?? ""),
-              ));
-    });
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(e.message ?? "Unable to load message"),
+          content: Text(e.details ?? "An error occurred while loading the message."),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
-  handleClose() {
-    setState(() {
-      isLoading = false;
-    });
+  void _handleClose() {
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+      Navigator.of(context).pop();
+    }
   }
 }

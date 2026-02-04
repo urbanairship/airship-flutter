@@ -24,13 +24,9 @@ class PreferenceCenterState extends State<PreferenceCenter>
 
   @override
   void initState() {
-    updateNotificationOptIn();
-    updatePreferenceCenterConfig();
-    initAirshipListeners();
-    fillInSubscriptionList();
-
-    Airship.analytics.trackScreen('Preference Center');
     super.initState();
+    Airship.analytics.trackScreen('Preference Center');
+    _initializeData();
   }
 
   @override
@@ -41,45 +37,73 @@ class PreferenceCenterState extends State<PreferenceCenter>
     super.dispose();
   }
 
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initAirshipListeners() async {
-    _subscriptions.add(Airship.preferenceCenter.onDisplay.listen((event) {}));
+  Future<void> _initializeData() async {
+    await Future.wait([
+      updateNotificationOptIn(),
+      updatePreferenceCenterConfig(),
+      fillInSubscriptionList(),
+    ]);
+    initAirshipListeners();
+  }
 
-    _subscriptions.add(Airship.push.onNotificationStatusChanged.listen((event) {
-      if (mounted) {
-        setState(() {
-          isOptedInToNotifications = event.status.isOptedIn;
-        });
-      }
-    }));
+  // Platform messages are asynchronous, so we initialize in an async method.
+  void initAirshipListeners() {
+    _subscriptions.add(
+      Airship.preferenceCenter.onDisplay.listen((event) {
+        // Handle preference center display event if needed
+      }),
+    );
+
+    _subscriptions.add(
+      Airship.push.onNotificationStatusChanged.listen((event) {
+        if (mounted) {
+          setState(() {
+            isOptedInToNotifications = event.status.isOptedIn;
+          });
+        }
+      }),
+    );
   }
 
   Future<void> updatePreferenceCenterConfig() async {
-    fullPreferenceCenterConfig =
-        await Airship.preferenceCenter.getConfig(preferenceCenterId);
-    setState(() {});
+    try {
+      fullPreferenceCenterConfig =
+          await Airship.preferenceCenter.getConfig(preferenceCenterId);
+      if (mounted) {
+        setState(() {});
+      }
+    } catch (e) {
+      debugPrint('Error loading preference center config: $e');
+    }
   }
 
-  Future updateNotificationOptIn() async {
-    var status = await Airship.push.notificationStatus;
-    if (status == null) return;
-
-    setState(() {
-      isOptedInToNotifications = status.isOptedIn;
-    });
+  Future<void> updateNotificationOptIn() async {
+    try {
+      final status = await Airship.push.notificationStatus;
+      if (status != null && mounted) {
+        setState(() {
+          isOptedInToNotifications = status.isOptedIn;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error updating notification opt-in status: $e');
+    }
   }
 
-  void fillInSubscriptionList() async {
-    Map<String, List<ChannelScope>> contactSubscriptionLists =
-        await Airship.contact.subscriptionLists;
-    List<String> channelSubscriptionLists =
-        await Airship.channel.subscriptionLists;
-    activeChannelSubscriptions = List.from(channelSubscriptionLists);
-
-    contactSubscriptionLists.forEach((key, value) {
-      activeContactSubscriptions[key] = value;
-    });
-    setState(() {});
+  Future<void> fillInSubscriptionList() async {
+    try {
+      final contactSubscriptionLists = await Airship.contact.subscriptionLists;
+      final channelSubscriptionLists = await Airship.channel.subscriptionLists;
+      
+      if (mounted) {
+        setState(() {
+          activeChannelSubscriptions = List.from(channelSubscriptionLists);
+          activeContactSubscriptions = Map.from(contactSubscriptionLists);
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading subscription lists: $e');
+    }
   }
 
   /// Filtered version of the preference center config based on the conditions
@@ -123,69 +147,82 @@ class PreferenceCenterState extends State<PreferenceCenter>
   }
 
   void onPreferenceChannelItemToggled(String subscriptionId, bool subscribe) {
-    SubscriptionListEditor editor = Airship.channel.editSubscriptionLists();
-    if (subscribe) {
-      editor.subscribe(subscriptionId);
-      activeChannelSubscriptions.add(subscriptionId);
-    } else {
-      editor.unsubscribe(subscriptionId);
-      activeChannelSubscriptions.remove(subscriptionId);
-    }
+    final editor = Airship.channel.editSubscriptionLists();
+    
+    setState(() {
+      if (subscribe) {
+        editor.subscribe(subscriptionId);
+        activeChannelSubscriptions.add(subscriptionId);
+      } else {
+        editor.unsubscribe(subscriptionId);
+        activeChannelSubscriptions.remove(subscriptionId);
+      }
+    });
+    
     editor.apply();
-    setState(() {});
   }
 
   void applyContactSubscription(
       String subscriptionId, List<ChannelScope> scopes, bool subscribe) {
-    List<ChannelScope> currentScopes =
-        activeContactSubscriptions[subscriptionId] ??
-            List.empty(growable: true);
-    List<ChannelScope> newScopes = List.empty(growable: true);
+    final currentScopes = activeContactSubscriptions[subscriptionId] ?? [];
+    
     if (subscribe) {
-      newScopes = List.from(currentScopes)..addAll(scopes);
+      final newScopes = List<ChannelScope>.from(currentScopes)..addAll(scopes);
+      activeContactSubscriptions[subscriptionId] = newScopes;
     } else {
-      currentScopes.removeWhere((item) => scopes.contains(item));
-      newScopes = currentScopes;
+      final newScopes = List<ChannelScope>.from(currentScopes)
+        ..removeWhere((item) => scopes.contains(item));
+      activeContactSubscriptions[subscriptionId] = newScopes;
     }
-    activeContactSubscriptions[subscriptionId] = newScopes;
   }
 
   void onPreferenceContactSubscriptionItemToggled(
       String subscriptionId, List<ChannelScope> scopes, bool subscribe) {
-    ScopedSubscriptionListEditor editor =
-        Airship.contact.editSubscriptionLists();
-    if (subscribe) {
-      for (ChannelScope scope in scopes) {
+    final editor = Airship.contact.editSubscriptionLists();
+    
+    for (final scope in scopes) {
+      if (subscribe) {
         editor.subscribe(subscriptionId, scope);
-      }
-    } else {
-      for (ChannelScope scope in scopes) {
+      } else {
         editor.unsubscribe(subscriptionId, scope);
       }
     }
+    
     editor.apply();
     applyContactSubscription(subscriptionId, scopes, subscribe);
-    setState(() {});
+    
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   Widget bindChannelSubscriptionItem(
       PreferenceCenterChannelSubscriptionItem item) {
     return SwitchListTile(
-        title: Text('${item.display.title}',
-            style: TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text('${item.display.subtitle}'),
-        value: isSubscribedChannelSubscription(item.subscriptionId),
-        onChanged: (bool value) {
-          onPreferenceChannelItemToggled(item.subscriptionId, value);
-        });
+      title: Text(
+        item.display.title ?? '',
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
+      subtitle: item.display.subtitle != null
+          ? Text(item.display.subtitle!)
+          : null,
+      value: isSubscribedChannelSubscription(item.subscriptionId),
+      onChanged: (bool value) {
+        onPreferenceChannelItemToggled(item.subscriptionId, value);
+      },
+    );
   }
 
   Widget bindContactSubscriptionItem(
       PreferenceCenterContactSubscriptionItem item) {
     return SwitchListTile(
-      title: Text('${item.display.title}',
-          style: TextStyle(fontWeight: FontWeight.bold)),
-      subtitle: Text('${item.display.subtitle}'),
+      title: Text(
+        item.display.title ?? '',
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
+      subtitle: item.display.subtitle != null
+          ? Text(item.display.subtitle!)
+          : null,
       value: isSubscribedContactSubscription(item.subscriptionId, []),
       onChanged: (bool value) {
         onPreferenceContactSubscriptionItemToggled(
@@ -196,52 +233,62 @@ class PreferenceCenterState extends State<PreferenceCenter>
 
   List<Widget> contactScopes(
       PreferenceCenterContactSubscriptionGroupItem item) {
-    List<PreferenceCenterContactSubscriptionGroupItemComponent> components =
-        item.components;
-    List<Widget> widgets = [];
-    for (PreferenceCenterContactSubscriptionGroupItemComponent component
-        in components) {
-      String? componentLabel = component.display.title;
-      List<ChannelScope> scopes = component.scopes;
-      Widget widget = FilterChip(
+    return item.components.map((component) {
+      final componentLabel = component.display.title;
+      final scopes = component.scopes;
+      
+      return FilterChip(
         avatar: CircleAvatar(
           backgroundColor: Colors.grey.shade800,
         ),
-        label: Text('$componentLabel'),
+        label: Text(componentLabel ?? ''),
         selected: isSubscribedContactSubscription(item.subscriptionId, scopes),
         onSelected: (bool value) {
           onPreferenceContactSubscriptionItemToggled(
               item.subscriptionId, scopes, value);
         },
       );
-      widgets.add(widget);
-    }
-    return widgets;
+    }).toList();
   }
 
   Widget bindContactSubscriptionGroupItem(
       PreferenceCenterContactSubscriptionGroupItem item) {
     return Column(
-      children: <Widget>[
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
         ListTile(
-          title: Text('${item.display.title}',
-              style: TextStyle(fontWeight: FontWeight.bold)),
-          subtitle: Text('${item.display.subtitle}'),
+          title: Text(
+            item.display.title ?? '',
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          subtitle: item.display.subtitle != null
+              ? Text(item.display.subtitle!)
+              : null,
         ),
-        Wrap(
-          runAlignment: WrapAlignment.start,
-          spacing: 10,
-          children: contactScopes(item),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Wrap(
+            runAlignment: WrapAlignment.start,
+            spacing: 10,
+            runSpacing: 8,
+            children: contactScopes(item),
+          ),
         ),
+        const SizedBox(height: 8),
       ],
     );
   }
 
   Widget bindAlertItem(PreferenceCenterAlertItem item) {
     return ListTile(
-      title: Text('${item.display.title}',
-          style: TextStyle(fontWeight: FontWeight.bold)),
-      subtitle: Text('${item.display.subtitle}'),
+      leading: const Icon(Icons.info_outline, color: Colors.blue),
+      title: Text(
+        item.display.title ?? '',
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
+      subtitle: item.display.subtitle != null
+          ? Text(item.display.subtitle!)
+          : null,
     );
   }
 
@@ -268,9 +315,12 @@ class PreferenceCenterState extends State<PreferenceCenter>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Preference Center'),
+        title: const Text('Preference Center'),
+        elevation: 2,
       ),
-      body: SectionListView.builder(adapter: this),
+      body: fullPreferenceCenterConfig == null
+          ? const Center(child: CircularProgressIndicator())
+          : SectionListView.builder(adapter: this),
     );
   }
 
@@ -286,47 +336,69 @@ class PreferenceCenterState extends State<PreferenceCenter>
 
   @override
   Widget getItem(BuildContext context, IndexPath indexPath) {
-    return Stack(
-      alignment: AlignmentDirectional.bottomCenter,
-      children: <Widget>[item(indexPath), Divider(height: 0.5)],
+    return Column(
+      children: [
+        item(indexPath),
+        const Divider(height: 1, thickness: 0.5),
+      ],
     );
   }
 
   @override
   bool shouldExistHeader() {
-    if (preferenceCenterConfig != null) {
-      return true;
-    }
-    return false;
+    return preferenceCenterConfig != null && 
+           preferenceCenterConfig!.display != null;
   }
 
   @override
   Widget getHeader(BuildContext context) {
+    final display = preferenceCenterConfig?.display;
+    
     return Container(
-      color: Colors.blueGrey,
+      color: Colors.blueGrey.shade700,
       child: ListTile(
-        title: Text(preferenceCenterConfig?.display?.title ?? '',
-            style: TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(preferenceCenterConfig?.display?.subtitle ?? ''),
+        contentPadding: const EdgeInsets.all(16),
+        title: Text(
+          display?.title ?? '',
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
+        subtitle: display?.subtitle != null && display!.subtitle!.isNotEmpty
+            ? Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Text(display.subtitle!),
+              )
+            : null,
       ),
     );
   }
 
   @override
   bool shouldExistSectionHeader(int section) {
-    return preferenceCenterConfig?.sections[section] != null;
+    return preferenceCenterConfig?.sections[section].display != null;
   }
 
   @override
   Widget getSectionHeader(BuildContext context, int section) {
+    final sectionData = preferenceCenterConfig?.sections[section];
+    final display = sectionData?.display;
+    
     return Container(
-      color: Colors.cyan,
+      color: Colors.cyan.shade700,
       child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         title: Text(
-            preferenceCenterConfig?.sections[section].display?.title ?? '',
-            style: TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(
-            preferenceCenterConfig?.sections[section].display?.subtitle ?? ''),
+          display?.title ?? '',
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+        subtitle: display?.subtitle != null && display!.subtitle!.isNotEmpty
+            ? Text(display.subtitle!)
+            : null,
       ),
     );
   }
