@@ -54,7 +54,7 @@ void main() async {
   // Enable push notifications
   await Airship.push.setUserNotificationsEnabled(true);
 
-  runApp(MyApp());
+  runApp(AirshipApp());
 }
 ```
 
