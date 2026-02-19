@@ -13,8 +13,10 @@ class PreferenceCenter extends StatefulWidget {
 
 class PreferenceCenterState extends State<PreferenceCenter>
     with SectionAdapterMixin {
-  String preferenceCenterId = "neat";
+  String preferenceCenterId = "app_default";
   PreferenceCenterConfig? fullPreferenceCenterConfig;
+  bool _configLoadCompleted = false;
+  String? _configLoadError;
   var activeChannelSubscriptions = List<String>.empty(growable: true);
   Map<String, List<ChannelScope>> activeContactSubscriptions =
       <String, List<ChannelScope>>{};
@@ -43,11 +45,10 @@ class PreferenceCenterState extends State<PreferenceCenter>
       updatePreferenceCenterConfig(),
       fillInSubscriptionList(),
     ]);
-    initAirshipListeners();
+    _initAirshipListeners();
   }
 
-  // Platform messages are asynchronous, so we initialize in an async method.
-  void initAirshipListeners() {
+  void _initAirshipListeners() {
     _subscriptions.add(
       Airship.preferenceCenter.onDisplay.listen((event) {
         // Handle preference center display event if needed
@@ -66,14 +67,22 @@ class PreferenceCenterState extends State<PreferenceCenter>
   }
 
   Future<void> updatePreferenceCenterConfig() async {
+    if (mounted) setState(() {
+      _configLoadCompleted = false;
+      _configLoadError = null;
+    });
     try {
       fullPreferenceCenterConfig =
           await Airship.preferenceCenter.getConfig(preferenceCenterId);
-      if (mounted) {
-        setState(() {});
-      }
+      _configLoadError = null;
     } catch (e) {
       debugPrint('Error loading preference center config: $e');
+      fullPreferenceCenterConfig = null;
+      _configLoadError = e.toString();
+    }
+    _configLoadCompleted = true;
+    if (mounted) {
+      setState(() {});
     }
   }
 
@@ -107,7 +116,6 @@ class PreferenceCenterState extends State<PreferenceCenter>
   }
 
   /// Filtered version of the preference center config based on the conditions
-  /// defined by sections and items.
   PreferenceCenterConfig? get preferenceCenterConfig {
     var state = PreferenceCenterConditionState(isOptedInToNotifications);
 
@@ -197,130 +205,313 @@ class PreferenceCenterState extends State<PreferenceCenter>
   }
 
   Widget bindChannelSubscriptionItem(
-      PreferenceCenterChannelSubscriptionItem item) {
-    return SwitchListTile(
-      title: Text(
-        item.display.title ?? '',
-        style: const TextStyle(fontWeight: FontWeight.bold),
+      PreferenceCenterChannelSubscriptionItem item, ColorScheme colorScheme) {
+    final isSubscribed = isSubscribedChannelSubscription(item.subscriptionId);
+    
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: SwitchListTile(
+        secondary: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: isSubscribed 
+                ? colorScheme.primaryContainer 
+                : colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(
+            isSubscribed ? Icons.notifications_active : Icons.notifications_outlined,
+            color: isSubscribed ? colorScheme.primary : colorScheme.onSurfaceVariant,
+            size: 22,
+          ),
+        ),
+        title: Text(
+          item.display.title ?? '',
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        ),
+        subtitle: item.display.subtitle != null
+            ? Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(item.display.subtitle!),
+              )
+            : null,
+        value: isSubscribed,
+        onChanged: (bool value) {
+          onPreferenceChannelItemToggled(item.subscriptionId, value);
+        },
       ),
-      subtitle: item.display.subtitle != null
-          ? Text(item.display.subtitle!)
-          : null,
-      value: isSubscribedChannelSubscription(item.subscriptionId),
-      onChanged: (bool value) {
-        onPreferenceChannelItemToggled(item.subscriptionId, value);
-      },
     );
   }
 
   Widget bindContactSubscriptionItem(
-      PreferenceCenterContactSubscriptionItem item) {
-    return SwitchListTile(
-      title: Text(
-        item.display.title ?? '',
-        style: const TextStyle(fontWeight: FontWeight.bold),
+      PreferenceCenterContactSubscriptionItem item, ColorScheme colorScheme) {
+    final isSubscribed = isSubscribedContactSubscription(item.subscriptionId, []);
+    
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: SwitchListTile(
+        secondary: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: isSubscribed 
+                ? colorScheme.primaryContainer 
+                : colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(
+            isSubscribed ? Icons.mail : Icons.mail_outline,
+            color: isSubscribed ? colorScheme.primary : colorScheme.onSurfaceVariant,
+            size: 22,
+          ),
+        ),
+        title: Text(
+          item.display.title ?? '',
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        ),
+        subtitle: item.display.subtitle != null
+            ? Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(item.display.subtitle!),
+              )
+            : null,
+        value: isSubscribed,
+        onChanged: (bool value) {
+          onPreferenceContactSubscriptionItemToggled(
+              item.subscriptionId, [], value);
+        },
       ),
-      subtitle: item.display.subtitle != null
-          ? Text(item.display.subtitle!)
-          : null,
-      value: isSubscribedContactSubscription(item.subscriptionId, []),
-      onChanged: (bool value) {
-        onPreferenceContactSubscriptionItemToggled(
-            item.subscriptionId, [], value);
-      },
     );
   }
 
   List<Widget> contactScopes(
-      PreferenceCenterContactSubscriptionGroupItem item) {
+      PreferenceCenterContactSubscriptionGroupItem item, ColorScheme colorScheme) {
     return item.components.map((component) {
       final componentLabel = component.display.title;
       final scopes = component.scopes;
+      final isSelected = isSubscribedContactSubscription(item.subscriptionId, scopes);
       
       return FilterChip(
-        avatar: CircleAvatar(
-          backgroundColor: Colors.grey.shade800,
-        ),
+        avatar: isSelected 
+            ? Icon(Icons.check, size: 18, color: colorScheme.primary)
+            : null,
         label: Text(componentLabel ?? ''),
-        selected: isSubscribedContactSubscription(item.subscriptionId, scopes),
+        selected: isSelected,
         onSelected: (bool value) {
           onPreferenceContactSubscriptionItemToggled(
               item.subscriptionId, scopes, value);
         },
+        showCheckmark: false,
+        selectedColor: colorScheme.primaryContainer,
+        backgroundColor: colorScheme.surfaceContainerHighest,
       );
     }).toList();
   }
 
   Widget bindContactSubscriptionGroupItem(
-      PreferenceCenterContactSubscriptionGroupItem item) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ListTile(
-          title: Text(
-            item.display.title ?? '',
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          subtitle: item.display.subtitle != null
-              ? Text(item.display.subtitle!)
-              : null,
+      PreferenceCenterContactSubscriptionGroupItem item, ColorScheme colorScheme) {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: colorScheme.secondaryContainer,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    Icons.category_outlined,
+                    color: colorScheme.secondary,
+                    size: 22,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.display.title ?? '',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        ),
+                      ),
+                      if (item.display.subtitle != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Text(
+                            item.display.subtitle!,
+                            style: TextStyle(
+                              color: colorScheme.onSurfaceVariant,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: contactScopes(item, colorScheme),
+            ),
+          ],
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Wrap(
-            runAlignment: WrapAlignment.start,
-            spacing: 10,
-            runSpacing: 8,
-            children: contactScopes(item),
-          ),
-        ),
-        const SizedBox(height: 8),
-      ],
-    );
-  }
-
-  Widget bindAlertItem(PreferenceCenterAlertItem item) {
-    return ListTile(
-      leading: const Icon(Icons.info_outline, color: Colors.blue),
-      title: Text(
-        item.display.title ?? '',
-        style: const TextStyle(fontWeight: FontWeight.bold),
       ),
-      subtitle: item.display.subtitle != null
-          ? Text(item.display.subtitle!)
-          : null,
     );
   }
 
-  Widget item(IndexPath indexPath) {
+  Widget bindAlertItem(PreferenceCenterAlertItem item, ColorScheme colorScheme) {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      color: colorScheme.primaryContainer.withOpacity(0.3),
+      child: ListTile(
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: colorScheme.primaryContainer,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(
+            Icons.info_outline,
+            color: colorScheme.primary,
+            size: 22,
+          ),
+        ),
+        title: Text(
+          item.display.title ?? '',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            color: colorScheme.primary,
+          ),
+        ),
+        subtitle: item.display.subtitle != null
+            ? Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(item.display.subtitle!),
+              )
+            : null,
+      ),
+    );
+  }
+
+  Widget bindContactManagementItem(
+      PreferenceCenterContactManagementItem item, ColorScheme colorScheme) {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      color: colorScheme.secondaryContainer.withOpacity(0.3),
+      child: ListTile(
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: colorScheme.secondaryContainer,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(
+            Icons.person_outline,
+            color: colorScheme.onSecondaryContainer,
+            size: 22,
+          ),
+        ),
+        title: Text(
+          item.display.title ?? 'Contact management',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onSurface,
+          ),
+        ),
+        subtitle: item.display.subtitle != null
+            ? Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(item.display.subtitle!),
+              )
+            : null,
+      ),
+    );
+  }
+
+  Widget item(IndexPath indexPath, ColorScheme colorScheme) {
     List<PreferenceCenterItem> items =
         preferenceCenterConfig?.sections[indexPath.section].items ?? [];
     PreferenceCenterItem item = items[indexPath.item];
+    
     switch (item.type) {
       case PreferenceCenterItemType.channelSubscription:
         return bindChannelSubscriptionItem(
-            item as PreferenceCenterChannelSubscriptionItem);
+            item as PreferenceCenterChannelSubscriptionItem, colorScheme);
       case PreferenceCenterItemType.contactSubscription:
         return bindContactSubscriptionItem(
-            item as PreferenceCenterContactSubscriptionItem);
+            item as PreferenceCenterContactSubscriptionItem, colorScheme);
       case PreferenceCenterItemType.contactSubscriptionGroup:
         return bindContactSubscriptionGroupItem(
-            item as PreferenceCenterContactSubscriptionGroupItem);
+            item as PreferenceCenterContactSubscriptionGroupItem, colorScheme);
       case PreferenceCenterItemType.alert:
-        return bindAlertItem(item as PreferenceCenterAlertItem);
+        return bindAlertItem(item as PreferenceCenterAlertItem, colorScheme);
+      case PreferenceCenterItemType.contactManagement:
+        return bindContactManagementItem(
+            item as PreferenceCenterContactManagementItem, colorScheme);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Preference Center'),
-        elevation: 2,
+        title: const Text('Preferences'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _initializeData,
+            tooltip: 'Refresh',
+          ),
+        ],
       ),
-      body: fullPreferenceCenterConfig == null
-          ? const Center(child: CircularProgressIndicator())
-          : SectionListView.builder(adapter: this),
+      body: !_configLoadCompleted
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(color: colorScheme.primary),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Loading preferences...',
+                    style: TextStyle(
+                      color: colorScheme.onSurfaceVariant,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : fullPreferenceCenterConfig == null
+              ? _configLoadError != null
+                  ? _ErrorState(
+                      colorScheme: colorScheme,
+                      message: _configLoadError!,
+                      onRetry: _initializeData,
+                    )
+                  : _EmptyState(
+                      colorScheme: colorScheme,
+                      reason: _EmptyReason.noConfig,
+                    )
+              : preferenceCenterConfig?.sections.isEmpty == true
+                  ? _EmptyState(
+                      colorScheme: colorScheme,
+                      reason: _EmptyReason.allSectionsFiltered,
+                      isOptedInToNotifications: isOptedInToNotifications,
+                    )
+                  : SectionListView.builder(adapter: this),
     );
   }
 
@@ -336,12 +527,8 @@ class PreferenceCenterState extends State<PreferenceCenter>
 
   @override
   Widget getItem(BuildContext context, IndexPath indexPath) {
-    return Column(
-      children: [
-        item(indexPath),
-        const Divider(height: 1, thickness: 0.5),
-      ],
-    );
+    final colorScheme = Theme.of(context).colorScheme;
+    return item(indexPath, colorScheme);
   }
 
   @override
@@ -352,25 +539,65 @@ class PreferenceCenterState extends State<PreferenceCenter>
 
   @override
   Widget getHeader(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final display = preferenceCenterConfig?.display;
     
     return Container(
-      color: Colors.blueGrey.shade700,
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
-        title: Text(
-          display?.title ?? '',
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            colorScheme.primaryContainer,
+            colorScheme.primaryContainer.withOpacity(0.5),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-        subtitle: display?.subtitle != null && display!.subtitle!.isNotEmpty
-            ? Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Text(display.subtitle!),
-              )
-            : null,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: colorScheme.primary.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  Icons.tune,
+                  color: colorScheme.primary,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  display?.title ?? 'Preferences',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    color: colorScheme.onPrimaryContainer,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (display?.subtitle != null && display!.subtitle!.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Text(
+                display.subtitle!,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: colorScheme.onPrimaryContainer.withOpacity(0.8),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -382,23 +609,177 @@ class PreferenceCenterState extends State<PreferenceCenter>
 
   @override
   Widget getSectionHeader(BuildContext context, int section) {
+    final colorScheme = Theme.of(context).colorScheme;
     final sectionData = preferenceCenterConfig?.sections[section];
     final display = sectionData?.display;
     
-    return Container(
-      color: Colors.cyan.shade700,
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        title: Text(
-          display?.title ?? '',
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(32, 24, 16, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            (display?.title ?? '').toUpperCase(),
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 12,
+              color: colorScheme.primary,
+              letterSpacing: 1.2,
+            ),
           ),
+          if (display?.subtitle != null && display!.subtitle!.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                display.subtitle!,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+enum _EmptyReason {
+  /// No preference center config was returned (e.g. not configured in Airship).
+  noConfig,
+  /// Config loaded but all sections are hidden by conditions (e.g. notification opt-in).
+  allSectionsFiltered,
+}
+
+class _EmptyState extends StatelessWidget {
+  final ColorScheme colorScheme;
+  final _EmptyReason reason;
+  final bool? isOptedInToNotifications;
+
+  const _EmptyState({
+    required this.colorScheme,
+    required this.reason,
+    this.isOptedInToNotifications,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final String title;
+    final String subtitle;
+    switch (reason) {
+      case _EmptyReason.noConfig:
+        title = 'No preference center configured';
+        subtitle =
+            "Add a preference center with ID \"app_default\" in the Airship dashboard, or change preferenceCenterId in this screen.";
+        break;
+      case _EmptyReason.allSectionsFiltered:
+        title = 'No preferences to show';
+        subtitle = isOptedInToNotifications == false
+            ? 'Some preferences may appear when notifications are enabled.'
+            : 'All sections are currently hidden by their conditions.';
+        break;
+    }
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.tune_outlined,
+                size: 48,
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              subtitle,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
         ),
-        subtitle: display?.subtitle != null && display!.subtitle!.isNotEmpty
-            ? Text(display.subtitle!)
-            : null,
+      ),
+    );
+  }
+}
+
+class _ErrorState extends StatelessWidget {
+  final ColorScheme colorScheme;
+  final String message;
+  final VoidCallback onRetry;
+
+  const _ErrorState({
+    required this.colorScheme,
+    required this.message,
+    required this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: colorScheme.errorContainer,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.error_outline,
+                size: 48,
+                color: colorScheme.onErrorContainer,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Failed to load preferences',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 24),
+            FilledButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Retry'),
+            ),
+          ],
+        ),
       ),
     );
   }

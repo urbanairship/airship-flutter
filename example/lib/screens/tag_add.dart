@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:airship_example/styles.dart';
-import 'package:airship_example/widgets/text_add_bar.dart';
 // ignore: depend_on_referenced_packages
 import 'package:airship_flutter/airship_flutter.dart';
 
@@ -14,6 +12,8 @@ class TagAdd extends StatefulWidget {
 }
 
 class TagAddState extends State<TagAdd> {
+  final TextEditingController _controller = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
   bool _isLoading = false;
   List<String> _tags = [];
 
@@ -22,6 +22,13 @@ class TagAddState extends State<TagAdd> {
     super.initState();
     Airship.analytics.trackScreen('Add Tag');
     _loadTags();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode.dispose();
+    super.dispose();
   }
 
   Future<void> _loadTags() async {
@@ -37,57 +44,36 @@ class TagAddState extends State<TagAdd> {
     }
   }
 
-  Future<void> _handleAddTag(String tagText) async {
-    if (tagText.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter a valid tag'),
-          backgroundColor: Colors.orange,
-        ),
-      );
-      return;
-    }
-
-    final trimmedTag = tagText.trim();
+  Future<void> _handleAddTag() async {
+    final tagText = _controller.text.trim();
     
-    if (_tags.contains(trimmedTag)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Tag already exists'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+    if (tagText.isEmpty) {
+      _showSnackBar('Please enter a valid tag', isWarning: true);
       return;
     }
 
-    FocusScope.of(context).unfocus();
+    if (_tags.contains(tagText)) {
+      _showSnackBar('Tag already exists', isWarning: true);
+      return;
+    }
+
+    _focusNode.unfocus();
     setState(() => _isLoading = true);
 
     try {
-      await Airship.channel.addTags([trimmedTag]);
+      await Airship.channel.addTags([tagText]);
       
       if (mounted) {
         setState(() {
-          _tags.add(trimmedTag);
+          _tags.add(tagText);
         });
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Tag "$trimmedTag" added'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        
+        _controller.clear();
+        _showSnackBar('Tag "$tagText" added', isSuccess: true);
         widget.updateParent();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to add tag: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        _showSnackBar('Failed to add tag: $e', isError: true);
       }
     } finally {
       if (mounted) {
@@ -106,17 +92,12 @@ class TagAddState extends State<TagAdd> {
         setState(() {
           _tags.remove(tag);
         });
-        
+        _showSnackBar('Tag removed', isSuccess: true);
         widget.updateParent();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to remove tag: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        _showSnackBar('Failed to remove tag: $e', isError: true);
       }
     } finally {
       if (mounted) {
@@ -125,206 +106,261 @@ class TagAddState extends State<TagAdd> {
     }
   }
 
+  void _showSnackBar(String message, {bool isSuccess = false, bool isError = false, bool isWarning = false}) {
+    final colorScheme = Theme.of(context).colorScheme;
+    Color? backgroundColor;
+    
+    if (isSuccess) {
+      backgroundColor = Colors.green.shade600;
+    } else if (isError) {
+      backgroundColor = colorScheme.error;
+    } else if (isWarning) {
+      backgroundColor = Colors.orange.shade700;
+    }
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: backgroundColor,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  Future<bool?> _confirmRemove(String tag) async {
+    final colorScheme = Theme.of(context).colorScheme;
+    
+    return showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Remove Tag'),
+          content: Text('Are you sure you want to remove "$tag"?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: FilledButton.styleFrom(
+                backgroundColor: colorScheme.error,
+              ),
+              child: const Text('Remove'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Manage Tags"),
-        backgroundColor: Styles.background,
-        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+          tooltip: 'Back',
+        ),
+        title: const Text('Manage Tags'),
         actions: [
           if (_tags.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(right: 8.0),
-              child: Center(
-                child: Chip(
-                  label: Text(
-                    '${_tags.length}',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+            Center(
+              child: Container(
+                margin: const EdgeInsets.only(right: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '${_tags.length}',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: colorScheme.primary,
                   ),
-                  backgroundColor: Styles.airshipBlue,
                 ),
               ),
             ),
         ],
       ),
-      backgroundColor: Styles.background,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: TextAddBar(
-                label: "Add a tag",
-                onTap: _isLoading ? null : _handleAddTag,
-              ),
+      body: Column(
+        children: [
+          // Add Tag Input
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: colorScheme.surface,
+              boxShadow: [
+                BoxShadow(
+                  color: colorScheme.shadow.withOpacity(0.1),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
-            if (_isLoading)
-              const Padding(
-                padding: EdgeInsets.all(16.0),
-                child: LinearProgressIndicator(),
-              ),
-            if (_tags.isEmpty && !_isLoading)
-              Expanded(
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(
-                        Icons.label_off,
-                        size: 64,
-                        color: Colors.grey,
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
+                    focusNode: _focusNode,
+                    decoration: InputDecoration(
+                      hintText: 'Enter a new tag',
+                      prefixIcon: Icon(
+                        Icons.label_outline,
+                        color: colorScheme.onSurfaceVariant,
                       ),
-                      SizedBox(height: 16),
-                      Text(
-                        'No tags yet',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        'Add your first tag above',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
+                      suffixIcon: _controller.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () {
+                                _controller.clear();
+                                setState(() {});
+                              },
+                            )
+                          : null,
+                    ),
+                    textInputAction: TextInputAction.done,
+                    onSubmitted: (_) => _handleAddTag(),
+                    onChanged: (_) => setState(() {}),
                   ),
                 ),
-              )
-            else if (_tags.isNotEmpty)
-              Expanded(child: _buildTagList(_tags)),
-          ],
+                const SizedBox(width: 12),
+                FilledButton.icon(
+                  onPressed: _isLoading || _controller.text.trim().isEmpty
+                      ? null
+                      : _handleAddTag,
+                  icon: const Icon(Icons.add, size: 20),
+                  label: const Text('Add'),
+                ),
+              ],
+            ),
+          ),
+          
+          // Loading indicator
+          if (_isLoading)
+            LinearProgressIndicator(color: colorScheme.primary),
+          
+          // Tags List
+          Expanded(
+            child: _tags.isEmpty
+                ? _EmptyState(colorScheme: colorScheme)
+                : ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: _tags.length,
+                    itemBuilder: (context, index) {
+                      final tag = _tags[index];
+                      return _TagCard(
+                        tag: tag,
+                        onDelete: () async {
+                          final confirmed = await _confirmRemove(tag);
+                          if (confirmed == true) {
+                            _handleRemoveTag(tag);
+                          }
+                        },
+                        colorScheme: colorScheme,
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TagCard extends StatelessWidget {
+  final String tag;
+  final VoidCallback onDelete;
+  final ColorScheme colorScheme;
+
+  const _TagCard({
+    required this.tag,
+    required this.onDelete,
+    required this.colorScheme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.orange.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(
+            Icons.label,
+            color: Colors.orange.shade700,
+            size: 22,
+          ),
+        ),
+        title: Text(
+          tag,
+          style: const TextStyle(fontWeight: FontWeight.w500),
+        ),
+        trailing: IconButton(
+          icon: Icon(
+            Icons.delete_outline,
+            color: colorScheme.error,
+          ),
+          onPressed: onDelete,
+          tooltip: 'Remove tag',
         ),
       ),
     );
   }
+}
 
-  Widget _buildTagList(List<String> tags) {
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0),
-      itemCount: tags.length,
-      itemBuilder: (context, index) {
-        final tag = tags[index];
-        return Dismissible(
-          key: ValueKey(tag),
-          direction: DismissDirection.endToStart,
-          background: Container(
-            alignment: Alignment.centerRight,
-            padding: const EdgeInsets.only(right: 20.0),
+class _EmptyState extends StatelessWidget {
+  final ColorScheme colorScheme;
+
+  const _EmptyState({required this.colorScheme});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Styles.airshipRed,
-              borderRadius: BorderRadius.circular(12),
+              color: colorScheme.surfaceContainerHighest,
+              shape: BoxShape.circle,
             ),
-            child: const Icon(
-              Icons.delete,
-              color: Colors.white,
-              size: 32,
-            ),
-          ),
-          confirmDismiss: (direction) async {
-            return await showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: const Text('Confirm'),
-                  content: Text('Remove tag "$tag"?'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(false),
-                      child: const Text('Cancel'),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(true),
-                      style: TextButton.styleFrom(
-                        foregroundColor: Colors.red,
-                      ),
-                      child: const Text('Remove'),
-                    ),
-                  ],
-                );
-              },
-            );
-          },
-          onDismissed: (_) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Tag "$tag" removed'),
-                action: SnackBarAction(
-                  label: 'Undo',
-                  onPressed: () async {
-                    await Airship.channel.addTags([tag]);
-                    _loadTags();
-                    widget.updateParent();
-                  },
-                ),
-              ),
-            );
-            _handleRemoveTag(tag);
-          },
-          child: Card(
-            elevation: 2.0,
-            margin: const EdgeInsets.symmetric(vertical: 4.0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: ListTile(
-              leading: CircleAvatar(
-                backgroundColor: Styles.airshipBlue.withOpacity(0.2),
-                child: const Icon(
-                  Icons.label,
-                  color: Styles.airshipBlue,
-                ),
-              ),
-              title: Text(
-                tag,
-                style: const TextStyle(fontWeight: FontWeight.w500),
-              ),
-              trailing: IconButton(
-                icon: const Icon(Icons.delete_outline, color: Colors.red),
-                onPressed: _isLoading
-                    ? null
-                    : () async {
-                        final confirm = await showDialog<bool>(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: const Text('Confirm'),
-                              content: Text('Remove tag "$tag"?'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () =>
-                                      Navigator.of(context).pop(false),
-                                  child: const Text('Cancel'),
-                                ),
-                                TextButton(
-                                  onPressed: () =>
-                                      Navigator.of(context).pop(true),
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: Colors.red,
-                                  ),
-                                  child: const Text('Remove'),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-
-                        if (confirm == true) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Tag "$tag" removed')),
-                          );
-                          _handleRemoveTag(tag);
-                        }
-                      },
-              ),
+            child: Icon(
+              Icons.label_off_outlined,
+              size: 48,
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
-        );
-      },
+          const SizedBox(height: 24),
+          Text(
+            'No tags yet',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Add your first tag above',
+            style: TextStyle(
+              fontSize: 14,
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

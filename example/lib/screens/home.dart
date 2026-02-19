@@ -16,20 +16,18 @@ class Home extends StatefulWidget {
 class HomeState extends State<Home> {
   static const Uuid _uuid = Uuid();
   static const double _embeddedViewHeight = 200.0;
-  static const double _standardSpacing = 16.0;
-  static const double _buttonWidth = 100.0;
-  
+  static const String _embeddedViewId = 'test';
+
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    initAirshipListeners();
+    _initAirshipListeners();
     Airship.analytics.trackScreen('Home');
   }
 
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initAirshipListeners() async {
+  Future<void> _initAirshipListeners() async {
     Airship.channel.onChannelCreated.listen((event) {
       if (mounted) {
         setState(() {});
@@ -46,15 +44,12 @@ class HomeState extends State<Home> {
       if (Platform.isIOS) {
         final startRequest = LiveActivityStartRequest(
           attributesType: 'ExampleWidgetsAttributes',
-          attributes: {
-            "name": _uuid.v4(),
-          },
+          attributes: {'name': _uuid.v4()},
           content: LiveActivityContent(
             state: {'emoji': '🙌'}, 
             relevanceScore: 0.0,
           ),
         );
-
         await Airship.liveActivityManager.start(startRequest);
       } else if (Platform.isAndroid) {
         final createRequest = LiveUpdateStartRequest(
@@ -62,26 +57,15 @@ class HomeState extends State<Home> {
           type: 'Example',
           content: {'emoji': '🙌'},
         );
-
         await Airship.liveUpdateManager.start(createRequest);
       }
       
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Activity started successfully'),
-            duration: Duration(seconds: 2),
-          ),
-        );
+        _showSnackBar('Activity started successfully', isSuccess: true);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to start activity: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        _showSnackBar('Failed to start activity: $e', isError: true);
       }
     } finally {
       if (mounted) {
@@ -101,9 +85,7 @@ class HomeState extends State<Home> {
         
         if (activities.isEmpty) {
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('No active activities to stop')),
-            );
+            _showSnackBar('No active activities to stop');
           }
           return;
         }
@@ -114,7 +96,6 @@ class HomeState extends State<Home> {
             activityId: activity.id,
             dismissalPolicy: LiveActivityDismissalPolicyImmediate(),
           );
-
           await Airship.liveActivityManager.end(stopRequest);
         }
       } else if (Platform.isAndroid) {
@@ -122,9 +103,7 @@ class HomeState extends State<Home> {
         
         if (updates.isEmpty) {
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('No active updates to stop')),
-            );
+            _showSnackBar('No active updates to stop');
           }
           return;
         }
@@ -136,18 +115,11 @@ class HomeState extends State<Home> {
       }
       
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('All activities stopped')),
-        );
+        _showSnackBar('All activities stopped', isSuccess: true);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to stop activities: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        _showSnackBar('Failed to stop activities: $e', isError: true);
       }
     } finally {
       if (mounted) {
@@ -167,9 +139,7 @@ class HomeState extends State<Home> {
         
         if (activities.isEmpty) {
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('No active activities to update')),
-            );
+            _showSnackBar('No active activities to update');
           }
           return;
         }
@@ -185,7 +155,6 @@ class HomeState extends State<Home> {
             activityId: activity.id,
             content: content,
           );
-
           await Airship.liveActivityManager.update(updateRequest);
         }
       } else if (Platform.isAndroid) {
@@ -193,40 +162,27 @@ class HomeState extends State<Home> {
         
         if (updates.isEmpty) {
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('No active updates to update')),
-            );
+            _showSnackBar('No active updates to update');
           }
           return;
         }
 
         for (final update in updates) {
           final currentEmoji = update.content['emoji'] ?? '';
-
           final request = LiveUpdateUpdateRequest(
             name: update.name,
-            content: {
-              'emoji': currentEmoji == '🙌' ? '👍' : '🙌',
-            },
+            content: {'emoji': currentEmoji == '🙌' ? '👍' : '🙌'},
           );
-
           await Airship.liveUpdateManager.update(request);
         }
       }
       
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Activities updated successfully')),
-        );
+        _showSnackBar('Activities updated successfully', isSuccess: true);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to update activities: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        _showSnackBar('Failed to update activities: $e', isError: true);
       }
     } finally {
       if (mounted) {
@@ -235,150 +191,286 @@ class HomeState extends State<Home> {
     }
   }
 
-  Widget _buildActionRow(
-      String label, String buttonText, VoidCallback onPressed) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: _standardSpacing),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Text(
-              label,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          SizedBox(
-            width: _buttonWidth,
-            child: ElevatedButton(
-              onPressed: _isLoading ? null : onPressed,
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white,
-                backgroundColor: Styles.airshipBlue.withOpacity(0.8),
-                disabledBackgroundColor: Colors.grey,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: Text(buttonText),
-            ),
-          ),
-        ],
+  void _showSnackBar(String message, {bool isSuccess = false, bool isError = false}) {
+    final colorScheme = Theme.of(context).colorScheme;
+    Color? backgroundColor;
+    
+    if (isSuccess) {
+      backgroundColor = Colors.green.shade600;
+    } else if (isError) {
+      backgroundColor = colorScheme.error;
+    }
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: backgroundColor,
+        duration: const Duration(seconds: 2),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Styles.background,
+      appBar: AppBar(
+        title: const Text('Airship'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () => setState(() {}),
+            tooltip: 'Refresh',
+          ),
+        ],
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: _standardSpacing),
+          padding: const EdgeInsets.all(16),
           child: Column(
             children: [
+              _buildEmbeddedViewSection(colorScheme),
               const SizedBox(height: 24),
-              // Embedded View
-              const AirshipEmbeddedView(
-                embeddedId: "test",
-                parentHeight: _embeddedViewHeight,
-              ),
+              _buildLogoSection(colorScheme, isDark),
               const SizedBox(height: 24),
-              // Airship Logo
-              Image.asset(
-                'assets/airship.png',
-                semanticLabel: 'Airship Logo',
-              ),
-              const SizedBox(height: 24),
-              // Enable Notifications Button
-              FutureBuilder<bool?>(
-                future: Airship.push.isUserNotificationsEnabled,
-                builder: (context, AsyncSnapshot<bool?> snapshot) {
-                  final pushEnabled = snapshot.data ?? false;
-                  
-                  if (pushEnabled) {
-                    return const SizedBox.shrink();
-                  }
-                  
-                  return NotificationsEnabledButton(
-                    onPressed: () async {
-                      await Airship.push.enableUserNotifications(
-                        options: const EnableUserPushNotificationsArgs(
-                          fallback: PromptPermissionFallback.systemSettings,
-                        ),
-                      );
-                      if (mounted) {
-                        setState(() {});
-                      }
-                    },
-                  );
-                },
-              ),
+              _buildNotificationsSection(),
+              _buildChannelIdCard(colorScheme),
               const SizedBox(height: 16),
-              // Channel Identifier
-              FutureBuilder<String?>(
-                future: Airship.channel.identifier,
-                builder: (context, snapshot) {
-                  return Text(
-                    snapshot.hasData && snapshot.data != null
-                        ? snapshot.data!
-                        : "Channel not set",
-                    textAlign: TextAlign.center,
-                    style: Styles.homePrimaryText,
-                  );
-                },
+              _buildLiveActivitiesCard(colorScheme),
+              const SizedBox(height: 24),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmbeddedViewSection(ColorScheme colorScheme) {
+    return Column(
+      children: [
+        AirshipEmbeddedView(
+          embeddedId: _embeddedViewId, parentHeight: _embeddedViewHeight,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLogoSection(ColorScheme colorScheme, bool isDark) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: isDark
+            ? colorScheme.surfaceContainerHighest.withOpacity(0.5)
+            : colorScheme.primaryContainer.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Image.asset(
+        'assets/airship.png',
+        semanticLabel: 'Airship Logo',
+        height: 60,
+      ),
+    );
+  }
+
+  Widget _buildNotificationsSection() {
+    return FutureBuilder<bool?>(
+      future: Airship.push.isUserNotificationsEnabled,
+      builder: (context, snapshot) {
+        if (snapshot.data == true) return const SizedBox.shrink();
+        return NotificationsEnabledButton(
+          onPressed: () async {
+            await Airship.push.enableUserNotifications(
+              options: EnableUserPushNotificationsArgs(
+                fallback: PromptPermissionFallback.systemSettings,
               ),
-              const SizedBox(height: 36),
-              // Live Activities/Updates Card
-              Card(
-                color: Colors.grey.withOpacity(0.1),
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+            );
+            if (mounted) setState(() {});
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildChannelIdCard(ColorScheme colorScheme) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: colorScheme.primaryContainer,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(Icons.fingerprint, color: colorScheme.primary, size: 24),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Channel ID',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  FutureBuilder<String?>(
+                    future: Airship.channel.identifier,
+                    builder: (context, snapshot) {
+                      final channelId = snapshot.data;
+                      final hasChannel = channelId != null && channelId.isNotEmpty;
+                      return Text(
+                        hasChannel ? channelId! : 'Not available',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: hasChannel
+                              ? colorScheme.onSurface
+                              : colorScheme.onSurfaceVariant,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+            IconButton(
+              icon: Icon(Icons.copy, color: colorScheme.primary, size: 20),
+              onPressed: () async {
+                final channelId = await Airship.channel.identifier;
+                if (channelId != null && mounted) _showSnackBar('Channel ID copied');
+              },
+              tooltip: 'Copy Channel ID',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLiveActivitiesCard(ColorScheme colorScheme) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: colorScheme.secondaryContainer,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Platform.isIOS ? Icons.widgets : Icons.update,
+                    color: colorScheme.secondary,
+                    size: 24,
+                  ),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(_standardSpacing),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Platform.isIOS ? Icons.widgets : Icons.update,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            Platform.isIOS ? 'Live Activities' : 'Live Updates',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              fontSize: 18,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      _buildActionRow('Start New', 'Start', _startNewActivity),
-                      const SizedBox(height: 8),
-                      _buildActionRow('End All', 'End', _stopAllActivities),
-                      const SizedBox(height: 8),
-                      _buildActionRow('Update All', 'Update', _updateAllActivities),
-                    ],
+                const SizedBox(width: 12),
+                Text(
+                  Platform.isIOS ? 'Live Activities' : 'Live Updates',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 18,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            if (_isLoading)
+              const Padding(
+                padding: EdgeInsets.only(bottom: 16),
+                child: LinearProgressIndicator(),
+              ),
+            _ActionButton(
+              icon: Icons.play_arrow_rounded,
+              label: 'Start New',
+              onPressed: _isLoading ? null : _startNewActivity,
+              colorScheme: colorScheme,
+            ),
+            const SizedBox(height: 12),
+            _ActionButton(
+              icon: Icons.stop_rounded,
+              label: 'End All',
+              onPressed: _isLoading ? null : _stopAllActivities,
+              colorScheme: colorScheme,
+              isDestructive: true,
+            ),
+            const SizedBox(height: 12),
+            _ActionButton(
+              icon: Icons.refresh_rounded,
+              label: 'Update All',
+              onPressed: _isLoading ? null : _updateAllActivities,
+              colorScheme: colorScheme,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ActionButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback? onPressed;
+  final ColorScheme colorScheme;
+  final bool isDestructive;
+
+  const _ActionButton({
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+    required this.colorScheme,
+    this.isDestructive = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isDestructive ? colorScheme.error : colorScheme.primary;
+    final backgroundColor = isDestructive 
+        ? colorScheme.errorContainer.withOpacity(0.3)
+        : colorScheme.primaryContainer.withOpacity(0.3);
+
+    return Material(
+      color: backgroundColor,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            children: [
+              Icon(icon, color: color, size: 24),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: colorScheme.onSurface,
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+              Icon(
+                Icons.chevron_right,
+                color: colorScheme.onSurfaceVariant,
+              ),
             ],
           ),
         ),

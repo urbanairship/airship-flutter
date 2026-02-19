@@ -12,9 +12,9 @@ import 'package:airship_example/screens/home.dart';
 import 'package:airship_flutter/airship_flutter.dart';
 
 // Supported deep links
-const String home_deep_link = "home";
-const String message_center_deep_link = "message_center";
-const String settings_deep_link = "settings";
+const String homeDeepLink = "home";
+const String messageCenterDeepLink = "message_center";
+const String settingsDeepLink = "settings";
 
 @pragma('vm:entry-point')
 Future<void> backgroundMessageHandler(PushReceivedEvent event) async {
@@ -30,21 +30,22 @@ void main() {
 
   var config = AirshipConfig(
     androidConfig: AndroidConfig(
-        notificationConfig: AndroidNotificationConfig(
-      icon: "ic_notification",
-    )),
+      notificationConfig: AndroidNotificationConfig(
+        icon: "ic_notification",
+      ),
+    ),
     defaultEnvironment: ConfigEnvironment(
-        appKey: "APP_KEY",
-        appSecret: "APP_SECRET",
-        logLevel: LogLevel.verbose,
-        ios: IOSEnvironment(logPrivacyLevel: AirshipLogPrivacyLevel.public),
-        android: AndroidEnvironment(logPrivacyLevel: AirshipLogPrivacyLevel.public)),
+      appKey: "",
+      appSecret: "",
+      logLevel: LogLevel.verbose,
+      ios: IOSEnvironment(logPrivacyLevel: AirshipLogPrivacyLevel.public),
+      android: AndroidEnvironment(logPrivacyLevel: AirshipLogPrivacyLevel.public),
+    ),
   );
 
   Airship.takeOff(config);
 
-  Airship.push.android
-      .setBackgroundPushReceivedHandler(backgroundMessageHandler);
+  Airship.push.android.setBackgroundPushReceivedHandler(backgroundMessageHandler);
 
   Airship.push.iOS.setForegroundPresentationOptions([
     IOSForegroundPresentationOption.banner,
@@ -53,49 +54,76 @@ void main() {
   Airship.contact.identify("FlutterUser");
 
   Airship.messageCenter.setAutoLaunchDefaultMessageCenter(false);
-  runApp(MyApp());
+  runApp(const AirshipApp());
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+class AirshipApp extends StatefulWidget {
+  const AirshipApp({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
-  _MyAppState createState() => _MyAppState();
+  State<AirshipApp> createState() => _AirshipAppState();
 }
 
-// SingleTickerProviderStateMixin is used for animation
-class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
-  late TabController controller;
+class _AirshipAppState extends State<AirshipApp> {
+  final ThemeModeNotifier _themeModeNotifier = ThemeModeNotifier();
 
-  final GlobalKey<NavigatorState> key = GlobalKey();
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: _themeModeNotifier,
+      builder: (context, _) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: "Airship Sample App",
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: _themeModeNotifier.themeMode,
+          home: MainNavigator(themeModeNotifier: _themeModeNotifier),
+        );
+      },
+    );
+  }
+}
+
+class MainNavigator extends StatefulWidget {
+  final ThemeModeNotifier themeModeNotifier;
+
+  const MainNavigator({
+    super.key,
+    required this.themeModeNotifier,
+  });
+
+  @override
+  State<MainNavigator> createState() => _MainNavigatorState();
+}
+
+class _MainNavigatorState extends State<MainNavigator> {
+  int _currentIndex = 0;
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
-    controller = TabController(length: 4, vsync: this);
-    initPlatformState();
-    addFlutterTag();
-    trackFeatureFlagInteraction();
-
-    // Uncomment to enable Hybrid Composition on Android
-    // InboxMessageView.hybridComposition = true;
+    _initPlatformState();
+    _addFlutterTag();
+    _trackFeatureFlagInteraction();
   }
 
-  static void trackFeatureFlagInteraction() {
+  static void _trackFeatureFlagInteraction() {
     Airship.featureFlagManager.flag("rad_flag").then((flag) {
-      Airship.featureFlagManager.trackInteraction(flag!);
+      if (flag != null) {
+        Airship.featureFlagManager.trackInteraction(flag);
+      }
     }).catchError((e) {
       debugPrint('Error: $e');
     });
   }
 
-  static void addFlutterTag() {
+  static void _addFlutterTag() {
     Airship.channel.addTags(["flutter"]);
   }
 
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
+  Future<void> _initPlatformState() async {
     Airship.push.onPushReceived.listen((event) {
       debugPrint('Push Received $event');
     });
@@ -122,26 +150,16 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
         .then((value) => debugPrint("authorizedNotificationStatus $value"));
 
     Airship.onDeepLink.listen((event) {
-      const home_tab = 0;
-      const message_tab = 1;
-      const settings_tab = 2;
-
       switch (event.deepLink) {
-        case home_deep_link:
-          {
-            controller.animateTo(home_tab);
-            break;
-          }
-        case message_center_deep_link:
-          {
-            controller.animateTo(message_tab);
-            break;
-          }
-        case settings_deep_link:
-          {
-            controller.animateTo(settings_tab);
-            break;
-          }
+        case homeDeepLink:
+          setState(() => _currentIndex = 0);
+          break;
+        case messageCenterDeepLink:
+          setState(() => _currentIndex = 1);
+          break;
+        case settingsDeepLink:
+          setState(() => _currentIndex = 3);
+          break;
       }
     });
 
@@ -155,14 +173,15 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
         .listen((event) => debugPrint('Show inbox $event'));
 
     Airship.messageCenter.onDisplay.listen((event) {
-      key.currentState
-          ?.push(MaterialPageRoute<void>(builder: (BuildContext context) {
-        return event.messageId != null
-            ? MessageView(
-                messageId: event.messageId ?? "",
-              )
-            : SizedBox();
-      }));
+      if (event.messageId != null) {
+        _navigatorKey.currentState?.push(
+          MaterialPageRoute<void>(
+            builder: (BuildContext context) => MessageView(
+              messageId: event.messageId!,
+            ),
+          ),
+        );
+      }
     });
 
     Airship.channel.onChannelCreated.listen((event) {
@@ -172,79 +191,75 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      navigatorKey: key,
-      title: "Airship Sample App",
-      theme: ThemeData(
-        primaryColor: Styles.borders,
-        colorScheme: ColorScheme.fromSwatch().copyWith(
-          secondary: Styles.airshipBlue, // Set the accent color to airshipBlue
-        ),
-        switchTheme: SwitchThemeData(
-          trackColor:
-              WidgetStateProperty.all(Styles.airshipBlue), // Set track color
-        ),
-      ),
-      initialRoute: "/",
-      routes: {
-        '/': (context) => tabBarView(),
+    return Navigator(
+      key: _navigatorKey,
+      onGenerateRoute: (settings) {
+        return MaterialPageRoute(
+          builder: (context) => _MainScaffold(
+            currentIndex: _currentIndex,
+            onIndexChanged: (index) => setState(() => _currentIndex = index),
+            themeModeNotifier: widget.themeModeNotifier,
+          ),
+        );
       },
     );
   }
+}
 
-  Widget bottomNavigationBar() {
-    return Container(
-      color: Styles.borders, // Set the same color as the tab bar
-      child: SafeArea(
-        bottom: true,
-        child: Material(
-          color: Colors.transparent,
-          child: Container(
-            color: Styles.borders,
-            child: TabBar(
-              indicatorColor: Styles.airshipRed,
-              unselectedLabelColor: Colors.grey, // Set unselected label color
-              labelColor:
-                  Styles.airshipBlue, // Set selected label color to airshipBlue
-              tabs: const <Tab>[
-                Tab(
-                  icon: Icon(Icons.home),
-                ),
-                Tab(
-                  icon: Icon(Icons.inbox),
-                ),
-                Tab(
-                  icon: Icon(Icons.menu),
-                ),
-                Tab(
-                  icon: Icon(Icons.settings),
-                ),
-              ],
-              controller: controller,
-            ),
-          ),
-        ),
+class _MainScaffold extends StatelessWidget {
+  final int currentIndex;
+  final ValueChanged<int> onIndexChanged;
+  final ThemeModeNotifier themeModeNotifier;
+
+  const _MainScaffold({
+    required this.currentIndex,
+    required this.onIndexChanged,
+    required this.themeModeNotifier,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Scaffold(
+      body: IndexedStack(
+        index: currentIndex,
+        children: [
+          const Home(),
+          const MessageCenter(),
+          const PreferenceCenter(),
+          Settings(themeModeNotifier: themeModeNotifier),
+        ],
       ),
-    );
-  }
-
-  Widget tabBarView() {
-    return PopScope(
-      // ignore: deprecated_member_use
-      onPopInvoked: null,
-      child: Scaffold(
-        backgroundColor: Styles.borders,
-        body: TabBarView(
-          controller: controller,
-          children: const <Widget>[
-            Home(),
-            MessageCenter(),
-            PreferenceCenter(),
-            Settings()
-          ],
-        ),
-        bottomNavigationBar: bottomNavigationBar(),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: currentIndex,
+        onDestinationSelected: onIndexChanged,
+        backgroundColor: colorScheme.surface,
+        surfaceTintColor: Colors.transparent,
+        elevation: 3,
+        shadowColor: colorScheme.shadow,
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.inbox_outlined),
+            selectedIcon: Icon(Icons.inbox),
+            label: 'Messages',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.tune_outlined),
+            selectedIcon: Icon(Icons.tune),
+            label: 'Preferences',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.settings_outlined),
+            selectedIcon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
+        ],
       ),
     );
   }
