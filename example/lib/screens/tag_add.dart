@@ -36,7 +36,7 @@ class TagAddState extends State<TagAdd> {
       final tags = await Airship.channel.tags;
       if (mounted) {
         setState(() {
-          _tags = tags;
+          _tags = List<String>.from(tags, growable: true);
         });
       }
     } catch (e) {
@@ -197,7 +197,7 @@ class TagAddState extends State<TagAdd> {
               color: colorScheme.surface,
               boxShadow: [
                 BoxShadow(
-                  color: colorScheme.shadow.withOpacity(0.1),
+                  color: colorScheme.shadow.withValues(alpha: 0.1),
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
@@ -293,7 +293,7 @@ class _TagCard extends StatelessWidget {
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.orange.withOpacity(0.15),
+            color: Colors.orange.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(

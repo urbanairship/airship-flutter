@@ -175,7 +175,7 @@ class SettingsState extends State<Settings> {
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: isEnabled 
-                          ? Colors.green.withOpacity(0.15)
+                          ? Colors.green.withValues(alpha: 0.15)
                           : colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -253,7 +253,7 @@ class SettingsState extends State<Settings> {
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: hasTags 
-                              ? Colors.orange.withOpacity(0.15)
+                              ? Colors.orange.withValues(alpha: 0.15)
                               : colorScheme.surfaceContainerHighest,
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -378,7 +378,7 @@ class SettingsState extends State<Settings> {
                   'Sample App',
                   style: TextStyle(
                     fontSize: 12,
-                    color: colorScheme.onSurfaceVariant.withOpacity(0.7),
+                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                   ),
                 ),
               ],

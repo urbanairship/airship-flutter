@@ -115,7 +115,7 @@ class MessageViewState extends State<MessageView> {
                 ),
               if (_isLoading && !_hasError)
                 Container(
-                  color: colorScheme.surface.withOpacity(0.8),
+                  color: colorScheme.surface.withValues(alpha: 0.8),
                   child: Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -204,6 +204,7 @@ class MessageViewState extends State<MessageView> {
 
     if (confirmed == true && mounted) {
       await Airship.messageCenter.deleteMessage(message.messageId);
+      if (!context.mounted) return;
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Message deleted')),

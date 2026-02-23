@@ -193,7 +193,7 @@ class NamedUserAddState extends State<NamedUserAdd> {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: Colors.green.withOpacity(0.15),
+                                    color: Colors.green.withValues(alpha: 0.15),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Row(
@@ -304,7 +304,7 @@ class NamedUserAddState extends State<NamedUserAdd> {
                   
                   // Info Card
                   Card(
-                    color: colorScheme.primaryContainer.withOpacity(0.3),
+                    color: colorScheme.primaryContainer.withValues(alpha: 0.3),
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Row(

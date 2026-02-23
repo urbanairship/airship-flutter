@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Professional color palette — refined blues and slate neutrals
+/// Color palette — refined blues and slate neutrals
 class AirshipColors {
   // Primary — confident blue
   static const Color primaryBlue = Color(0xFF1D4ED8);
@@ -62,7 +62,7 @@ class AppTheme {
     final colorScheme = ColorScheme.dark(
       primary: AirshipColors.primaryBlueLight,
       onPrimary: Colors.white,
-      primaryContainer: AirshipColors.primaryBlue.withOpacity(0.25),
+      primaryContainer: AirshipColors.primaryBlue.withValues(alpha: 0.25),
       onPrimaryContainer: AirshipColors.primaryContainerLight,
       secondary: AirshipColors.darkOnSurfaceVariant,
       onSecondary: AirshipColors.darkSurface,
@@ -112,7 +112,7 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: BorderSide(
-            color: colorScheme.outlineVariant.withOpacity(0.5),
+            color: colorScheme.outlineVariant.withValues(alpha: 0.5),
             width: 1,
           ),
         ),
@@ -155,7 +155,7 @@ class AppTheme {
           if (states.contains(WidgetState.selected)) {
             return Colors.transparent;
           }
-          return colorScheme.outline.withOpacity(0.5);
+          return colorScheme.outline.withValues(alpha: 0.5);
         }),
       ),
       
@@ -218,14 +218,14 @@ class AppTheme {
       // Input decoration theme
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: colorScheme.surfaceContainerHighest.withOpacity(0.5),
+        fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: colorScheme.outline.withOpacity(0.3)),
+          borderSide: BorderSide(color: colorScheme.outline.withValues(alpha: 0.3)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -334,7 +334,7 @@ class AppTheme {
       
       // Divider theme
       dividerTheme: DividerThemeData(
-        color: colorScheme.outlineVariant.withOpacity(0.5),
+        color: colorScheme.outlineVariant.withValues(alpha: 0.5),
         thickness: 1,
         space: 1,
       ),

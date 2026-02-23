@@ -67,10 +67,12 @@ class PreferenceCenterState extends State<PreferenceCenter>
   }
 
   Future<void> updatePreferenceCenterConfig() async {
-    if (mounted) setState(() {
-      _configLoadCompleted = false;
-      _configLoadError = null;
-    });
+    if (mounted) {
+      setState(() {
+        _configLoadCompleted = false;
+        _configLoadError = null;
+      });
+    }
     try {
       fullPreferenceCenterConfig =
           await Airship.preferenceCenter.getConfig(preferenceCenterId);
@@ -373,7 +375,7 @@ class PreferenceCenterState extends State<PreferenceCenter>
   Widget bindAlertItem(PreferenceCenterAlertItem item, ColorScheme colorScheme) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      color: colorScheme.primaryContainer.withOpacity(0.3),
+      color: colorScheme.primaryContainer.withValues(alpha: 0.3),
       child: ListTile(
         leading: Container(
           padding: const EdgeInsets.all(8),
@@ -443,7 +445,7 @@ class PreferenceCenterState extends State<PreferenceCenter>
     List<PreferenceCenterItem> items =
         preferenceCenterConfig?.sections[indexPath.section].items ?? [];
     PreferenceCenterItem item = items[indexPath.item];
-    
+
     switch (item.type) {
       case PreferenceCenterItemType.channelSubscription:
         return bindChannelSubscriptionItem(
@@ -533,15 +535,15 @@ class PreferenceCenterState extends State<PreferenceCenter>
 
   @override
   bool shouldExistHeader() {
-    return preferenceCenterConfig != null && 
-           preferenceCenterConfig!.display != null;
+    return preferenceCenterConfig != null &&
+        preferenceCenterConfig!.display != null;
   }
 
   @override
   Widget getHeader(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final display = preferenceCenterConfig?.display;
-    
+
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(20),
@@ -549,7 +551,7 @@ class PreferenceCenterState extends State<PreferenceCenter>
         gradient: LinearGradient(
           colors: [
             colorScheme.primaryContainer,
-            colorScheme.primaryContainer.withOpacity(0.5),
+            colorScheme.primaryContainer.withValues(alpha: 0.5),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -564,7 +566,7 @@ class PreferenceCenterState extends State<PreferenceCenter>
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: colorScheme.primary.withOpacity(0.2),
+                  color: colorScheme.primary.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
@@ -593,7 +595,7 @@ class PreferenceCenterState extends State<PreferenceCenter>
                 display.subtitle!,
                 style: TextStyle(
                   fontSize: 14,
-                  color: colorScheme.onPrimaryContainer.withOpacity(0.8),
+                  color: colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
                 ),
               ),
             ),
@@ -612,7 +614,7 @@ class PreferenceCenterState extends State<PreferenceCenter>
     final colorScheme = Theme.of(context).colorScheme;
     final sectionData = preferenceCenterConfig?.sections[section];
     final display = sectionData?.display;
-    
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(32, 24, 16, 8),
       child: Column(

@@ -23,7 +23,7 @@ class NotificationsEnabledButton extends StatelessWidget {
             gradient: LinearGradient(
               colors: [
                 colorScheme.primaryContainer,
-                colorScheme.primaryContainer.withOpacity(0.6),
+                colorScheme.primaryContainer.withValues(alpha: 0.6),
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -35,7 +35,7 @@ class NotificationsEnabledButton extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: colorScheme.primary.withOpacity(0.2),
+                  color: colorScheme.primary.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
@@ -62,7 +62,7 @@ class NotificationsEnabledButton extends StatelessWidget {
                       'Stay updated with the latest messages',
                       style: TextStyle(
                         fontSize: 13,
-                        color: colorScheme.onPrimaryContainer.withOpacity(0.8),
+                        color: colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
                       ),
                     ),
                   ],

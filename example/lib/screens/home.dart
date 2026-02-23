@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:airship_example/styles.dart';
 import 'package:airship_example/widgets/notifications_enabled_button.dart';
 // ignore: depend_on_referenced_packages
 import 'package:airship_flutter/airship_flutter.dart';
@@ -262,8 +261,8 @@ class HomeState extends State<Home> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: isDark
-            ? colorScheme.surfaceContainerHighest.withOpacity(0.5)
-            : colorScheme.primaryContainer.withOpacity(0.3),
+            ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
+            : colorScheme.primaryContainer.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Image.asset(
@@ -327,7 +326,7 @@ class HomeState extends State<Home> {
                       final channelId = snapshot.data;
                       final hasChannel = channelId != null && channelId.isNotEmpty;
                       return Text(
-                        hasChannel ? channelId! : 'Not available',
+                        channelId ?? 'Not available',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -442,8 +441,8 @@ class _ActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = isDestructive ? colorScheme.error : colorScheme.primary;
     final backgroundColor = isDestructive 
-        ? colorScheme.errorContainer.withOpacity(0.3)
-        : colorScheme.primaryContainer.withOpacity(0.3);
+        ? colorScheme.errorContainer.withValues(alpha: 0.3)
+        : colorScheme.primaryContainer.withValues(alpha: 0.3);
 
     return Material(
       color: backgroundColor,
