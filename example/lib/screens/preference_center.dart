@@ -410,7 +410,7 @@ class PreferenceCenterState extends State<PreferenceCenter>
       PreferenceCenterContactManagementItem item, ColorScheme colorScheme) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      color: colorScheme.secondaryContainer.withOpacity(0.3),
+      color: colorScheme.secondaryContainer.withValues(alpha: 0.3),
       child: ListTile(
         leading: Container(
           padding: const EdgeInsets.all(8),
