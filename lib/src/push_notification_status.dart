@@ -88,7 +88,7 @@ class EnableUserPushNotificationsArgs {
 
   /// Creates a new instance of [EnableUserPushNotificationsArgs].
   ///
-  /// Both [fallback] and [options] are optional.
+  /// A [fallback] strategy is optional.
   EnableUserPushNotificationsArgs({
     this.fallback,
   });
