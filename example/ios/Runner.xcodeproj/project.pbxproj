@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -155,7 +155,6 @@
 				8F532E75F9F5CF4C5A37E275 /* Pods-Runner.release.xcconfig */,
 				7636C941BC2D5543C3D84A83 /* Pods-Runner.profile.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -254,7 +253,6 @@
 				99041C182CC1DAE600031558 /* Embed Foundation Extensions */,
 				9705A1C41CF9048500538489 /* Embed Frameworks */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
-				A702656A7E98059BE3F1DB39 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -339,8 +337,8 @@
 			);
 			mainGroup = 97C146E51CF9000F007C117D;
 			packageReferences = (
-				781AD8BC2B33823900A9FFBB /* XCLocalSwiftPackageReference "FlutterGeneratedPluginSwiftPackage" */,
-				99A0698B2E32E92A0054FC6F /* XCLocalSwiftPackageReference "airship_flutter" */,
+				781AD8BC2B33823900A9FFBB /* XCLocalSwiftPackageReference "Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage" */,
+				99A0698B2E32E92A0054FC6F /* XCLocalSwiftPackageReference "../../ios/airship_flutter" */,
 				45B52C3F2EE1632500DF7D5E /* XCRemoteSwiftPackageReference "ios-library" */,
 			);
 			productRefGroup = 97C146EF1CF9000F007C117D /* Products */;
@@ -414,28 +412,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" build\n";
-		};
-		A702656A7E98059BE3F1DB39 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/Airship/AirshipKit.framework",
-				"${BUILT_PRODUCTS_DIR}/AirshipFrameworkProxy/AirshipFrameworkProxy.framework",
-				"${BUILT_PRODUCTS_DIR}/airship_flutter/airship_flutter.framework",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AirshipKit.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AirshipFrameworkProxy.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/airship_flutter.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
 		};
 		AFCBB3E3E1E00A8CCE68FC89 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1072,11 +1048,11 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		781AD8BC2B33823900A9FFBB /* XCLocalSwiftPackageReference "FlutterGeneratedPluginSwiftPackage" */ = {
+		781AD8BC2B33823900A9FFBB /* XCLocalSwiftPackageReference "Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage;
 		};
-		99A0698B2E32E92A0054FC6F /* XCLocalSwiftPackageReference "airship_flutter" */ = {
+		99A0698B2E32E92A0054FC6F /* XCLocalSwiftPackageReference "../../ios/airship_flutter" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../../ios/airship_flutter;
 		};

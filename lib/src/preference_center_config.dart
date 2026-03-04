@@ -342,7 +342,8 @@ enum PreferenceCenterItemType {
   channelSubscription,
   contactSubscription,
   contactSubscriptionGroup,
-  alert
+  alert,
+  contactManagement,
 }
 
 /// Preference center item.
@@ -384,6 +385,8 @@ abstract class PreferenceCenterItem {
         return PreferenceCenterContactSubscriptionGroupItem._fromJson(_toMap(json));
       case "alert":
         return PreferenceCenterAlertItem._fromJson(_toMap(json));
+      case "contact_management":
+        return PreferenceCenterContactManagementItem._fromJson(_toMap(json));
     }
     throw Exception("Invalid item: $type");
   }
@@ -465,6 +468,55 @@ class PreferenceCenterAlertItem implements PreferenceCenterItem {
   @override
   String toString() {
     return "PreferenceCenterAlertItem(display=$display, button=$button, conditions=$conditions)";
+  }
+}
+
+/// Preference center contact management item.
+/// Displays a link or message for managing contact/identity preferences.
+class PreferenceCenterContactManagementItem implements PreferenceCenterItem {
+  /// The contact management item type.
+  @override
+  final PreferenceCenterItemType type =
+      PreferenceCenterItemType.contactManagement;
+
+  /// The item display information.
+  @override
+  final PreferenceCenterCommonDisplay display;
+
+  /// A list of preference center conditions.
+  @override
+  final List<PreferenceCenterCondition>? conditions;
+
+  const PreferenceCenterContactManagementItem._internal(
+      this.display, this.conditions);
+
+  @override
+  bool evaluateConditions(PreferenceCenterConditionState state) {
+    if (conditions == null || conditions!.isEmpty) {
+      return true;
+    }
+    for (var condition in conditions!) {
+      if (!condition.evaluate(state)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  static PreferenceCenterContactManagementItem _fromJson(
+      Map<String, dynamic> json) {
+    var display = json["display"] != null
+        ? PreferenceCenterCommonDisplay._fromJson(_toMap(json["display"]))
+        : PreferenceCenterCommonDisplay._internal(null, null);
+    var conditions = json["conditions"] != null
+        ? PreferenceCenterCondition._fromJsonList(_toList(json["conditions"]))
+        : null;
+    return PreferenceCenterContactManagementItem._internal(display, conditions);
+  }
+
+  @override
+  String toString() {
+    return "PreferenceCenterContactManagementItem(display=$display, conditions=$conditions)";
   }
 }
 
