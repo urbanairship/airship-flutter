@@ -1,5 +1,14 @@
 # Flutter Plugin Changelog
 
+## Version 11.2.0 - March 4, 2026
+
+Minor release that updates the Android SDK to 20.4.0 and the iOS SDK to 20.4.0.
+
+### Changes
+- Updated Android SDK to [20.4.0](https://github.com/urbanairship/android-library/releases/tag/20.4.0)
+- Updated iOS SDK to [20.4.0](https://github.com/urbanairship/ios-library/releases/tag/20.4.0)
+
+
 ## Version 11.1.0 - January 22, 2026
 
 Minor release that includes accessibility improvements for Message Center and fixes a potential crash on Android.
