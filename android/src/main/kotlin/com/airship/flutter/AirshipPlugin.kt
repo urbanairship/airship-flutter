@@ -399,19 +399,19 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         result.success(null)
     }
 
-     private fun overrideForegroundDisplayEnabled(call: MethodCall, result: Result) {
-         val args = call.arguments as Map<*, *>
-         val enabled = args["enabled"] as? Boolean
-         if (enabled != null) {
-             isOverrideForegroundDisplayEnabled = enabled
-             if (!enabled) {
-                 foregroundDisplayRequestMap.values.forEach {
-                     it.complete(true)
-                 }
-                 foregroundDisplayRequestMap.clear()
-             }
-             result.success(null)
-         }
+    private fun overrideForegroundDisplayEnabled(call: MethodCall, result: Result) {
+        val args = call.arguments as Map<*, *>
+        val enabled = args["enabled"] as? Boolean
+        if (enabled != null) {
+            isOverrideForegroundDisplayEnabled = enabled
+            if (!enabled) {
+                foregroundDisplayRequestMap.values.forEach {
+                    it.complete(true)
+                }
+                foregroundDisplayRequestMap.clear()
+            }
+            result.success(null)
+        }
     }
 
     private fun overrideForegroundDisplay(call: MethodCall, result: Result) {
