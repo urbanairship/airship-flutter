@@ -126,8 +126,7 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
         }
     }
     
-    @objc
-    public func presentationOptionOverridesResult(requestID: String, presentationOptions: [String]?) {
+    func presentationOptionOverridesResult(requestID: String, presentationOptions: [String]?) {
         lock.sync {
             pendingPresentationRequests[requestID]?.result(optionNames: presentationOptions)
             pendingPresentationRequests[requestID] = nil
