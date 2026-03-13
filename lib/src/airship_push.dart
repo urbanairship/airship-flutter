@@ -170,7 +170,7 @@ class AndroidPush {
 
   /// Overrides the foreground display per notification.
   /// The predicate should return quickly to avoid delaying notification delivery.
-  void setForegroundDisplayPredicate(ForegroundDisplayPredicate? predicate) async {
+  Future<void> setForegroundDisplayPredicate(ForegroundDisplayPredicate? predicate) async {
     if (defaultTargetPlatform != TargetPlatform.android) {
       return;
     }
@@ -329,7 +329,7 @@ class IOSPush {
         .invokeMethod('push#ios#setForegroundPresentationOptions', strings);
   }
 
-  void setForegroundPresentationOptionsCallback(ForegroundPresentationOptionsCallback? callback) async {
+  Future<void> setForegroundPresentationOptionsCallback(ForegroundPresentationOptionsCallback? callback) async {
 
     if (!Platform.isIOS) {
       return Future.value();

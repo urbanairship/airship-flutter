@@ -90,8 +90,14 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
             
         }.store(in: &self.subscriptions)
 
-        AirshipProxy.shared.push.presentationOptionOverrides = { request in
-            guard self.overridePresentationOptionsEnabled else {
+        AirshipProxy.shared.push.presentationOptionOverrides = { [weak self] request in
+            guard let self else {
+                request.result(options: nil)
+                return
+            }
+            var isEnabled = false
+            self.lock.sync { isEnabled = self.overridePresentationOptionsEnabled }
+            guard isEnabled else {
                 request.result(options: nil)
                 return
             }
@@ -111,22 +117,16 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
                 self.pendingPresentationRequests[requestID] = request
             }
             
-            if let stream = self.streams[.overridePresentationOptions] {
-                 Task {
-                    await stream
-                         .notify(
-                            OverridePresentationOptionsEvent(
-                                pushPayload: request.pushPayload,
-                                requestId: requestID
-                            )
-                        )
-                }
-            }
+            AirshipProxyEventEmitter.shared.addEvent(
+                OverridePresentationOptionsEvent(
+                    pushPayload: request.pushPayload,
+                    requestId: requestID
+                )
+            )
         }
     }
     
-    @objc
-    public func presentationOptionOverridesResult(requestID: String, presentationOptions: [String]?) {
+    func presentationOptionOverridesResult(requestID: String, presentationOptions: [String]?) {
         lock.sync {
             pendingPresentationRequests[requestID]?.result(optionNames: presentationOptions)
             pendingPresentationRequests[requestID] = nil
@@ -873,7 +873,7 @@ class AirshipEventStream: NSObject {
         )
     }
 
-    func notify(_ event: any AirshipProxyEvent) -> Bool {
+    private func notify(_ event: any AirshipProxyEvent) -> Bool {
         var result = false
         lock.sync {
             for handler in handlers {
