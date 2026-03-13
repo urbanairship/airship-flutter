@@ -873,7 +873,7 @@ class AirshipEventStream: NSObject {
         )
     }
 
-    func notify(_ event: any AirshipProxyEvent) -> Bool {
+    private func notify(_ event: any AirshipProxyEvent) -> Bool {
         var result = false
         lock.sync {
             for handler in handlers {
