@@ -329,7 +329,7 @@ class IOSPush {
         .invokeMethod('push#ios#setForegroundPresentationOptions', strings);
   }
 
-  void setForegroundPresentationOptionsCallback(ForegroundPresentationOptionsCallback? callback) async {
+  Future<void> setForegroundPresentationOptionsCallback(ForegroundPresentationOptionsCallback? callback) async {
 
     if (!Platform.isIOS) {
       return Future.value();
