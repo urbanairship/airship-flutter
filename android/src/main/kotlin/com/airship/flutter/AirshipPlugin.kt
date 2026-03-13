@@ -80,13 +80,12 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             EventType.PENDING_EMBEDDED_UPDATED to "com.airship.flutter/event/pending_embedded_updated",
             EventType.OVERRIDE_FOREGROUND_PRESENTATION to "com.airship.flutter/event/override_presentation_options"
         )
-
-        @Volatile
-        var isOverrideForegroundDisplayEnabled: Boolean = false
     }
 
     private val foregroundDisplayRequestMap =
         ConcurrentHashMap<String, CompletableDeferred<Boolean>>()
+    @Volatile
+    private var isOverrideForegroundDisplayEnabled: Boolean = false
     private val foregroundDisplayPredicate = object : SuspendingPredicate<Map<String, Any>> {
         override suspend fun apply(value: Map<String, Any>): Boolean {
             val deferred = CompletableDeferred<Boolean>()
