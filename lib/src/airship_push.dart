@@ -114,7 +114,6 @@ class AndroidPush {
   
   final AirshipModule _module;
   static bool _isBackgroundHandlerSet = false;
-  static bool _isForegroundPredicateSet = false;
   ForegroundDisplayPredicate? _foregroundDisplayPredicate;
 
   AndroidPush(AirshipModule module) : _module = module {
@@ -174,12 +173,7 @@ class AndroidPush {
     if (defaultTargetPlatform != TargetPlatform.android) {
       return;
     }
-    if (_isForegroundPredicateSet) {
-      print("Airship foreground notification predicate already set!");
-      return;
-    }
 
-    _isForegroundPredicateSet = true;
     _foregroundDisplayPredicate = predicate;
     await _module.channel.invokeMapMethod("push#android#isOverrideForegroundDisplayEnabled", {
       "enabled": (predicate != null)
@@ -330,14 +324,13 @@ class IOSPush {
   }
 
   Future<void> setForegroundPresentationOptionsCallback(ForegroundPresentationOptionsCallback? callback) async {
-
     if (!Platform.isIOS) {
-      return Future.value();
+      return;
     }
 
     presentationOverridesCallback = callback;
 
-    return await _module.channel
+    await _module.channel
         .invokeMethod('push#ios#isOverridePresentationOptionsEnabled', {'enabled': callback != null});
   }
 
