@@ -90,7 +90,6 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private val foregroundDisplayPredicate = object : SuspendingPredicate<Map<String, Any>> {
         override suspend fun apply(value: Map<String, Any>): Boolean {
             val deferred = CompletableDeferred<Boolean>()
-            Log.d("AirshipPlugin", "apply() called, isOverrideForegroundDisplayEnabled=$isOverrideForegroundDisplayEnabled")
             if (!isOverrideForegroundDisplayEnabled) {
                 return true
             }
