@@ -90,7 +90,11 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
             
         }.store(in: &self.subscriptions)
 
-        AirshipProxy.shared.push.presentationOptionOverrides = { request in
+        AirshipProxy.shared.push.presentationOptionOverrides = { [weak self] request in
+            guard let self else {
+                request.result(options: nil)
+                return
+            }
             guard self.overridePresentationOptionsEnabled else {
                 request.result(options: nil)
                 return
