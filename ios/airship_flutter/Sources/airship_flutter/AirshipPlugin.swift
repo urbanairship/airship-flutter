@@ -95,7 +95,9 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
                 request.result(options: nil)
                 return
             }
-            guard self.overridePresentationOptionsEnabled else {
+            var isEnabled = false
+            self.lock.sync { isEnabled = self.overridePresentationOptionsEnabled }
+            guard isEnabled else {
                 request.result(options: nil)
                 return
             }
