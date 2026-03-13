@@ -117,17 +117,12 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
                 self.pendingPresentationRequests[requestID] = request
             }
             
-            if let stream = self.streams[.overridePresentationOptions] {
-                 Task {
-                    await stream
-                         .notify(
-                            OverridePresentationOptionsEvent(
-                                pushPayload: request.pushPayload,
-                                requestId: requestID
-                            )
-                        )
-                }
-            }
+            AirshipProxyEventEmitter.shared.addEvent(
+                OverridePresentationOptionsEvent(
+                    pushPayload: request.pushPayload,
+                    requestId: requestID
+                )
+            )
         }
     }
     
