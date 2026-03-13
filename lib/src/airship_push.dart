@@ -170,7 +170,7 @@ class AndroidPush {
 
   /// Overrides the foreground display per notification.
   /// The predicate should return quickly to avoid delaying notification delivery.
-  void setForegroundDisplayPredicate(ForegroundDisplayPredicate? predicate) async {
+  Future<void> setForegroundDisplayPredicate(ForegroundDisplayPredicate? predicate) async {
     if (defaultTargetPlatform != TargetPlatform.android) {
       return;
     }
