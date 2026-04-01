@@ -1,6 +1,6 @@
 # Flutter Plugin Changelog
 
-## Version 11.3.0 - March 30, 2026
+## Version 11.3.0 - April 1, 2026
 
 Minor release that updates the Android SDK to 20.6.1 and the iOS SDK to 20.6.0
 
