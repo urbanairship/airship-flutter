@@ -33,7 +33,7 @@ class AirshipPush {
 
   /// Enables user notifications.
   ///
-  /// [args] Optional arguments for enabling user notifications.
+  /// [options] Optional arguments for enabling user notifications.
   ///
   /// Returns a Future with the permission result. The result may be null if the operation fails.
   Future<bool?> enableUserNotifications(

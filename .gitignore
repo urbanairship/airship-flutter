@@ -32,7 +32,7 @@ Pods/
 xcuserdata/
 .vscode/
 
-doc/api
+doc/
 
 # do not edit or check into version control
 .flutter-plugins-dependencies

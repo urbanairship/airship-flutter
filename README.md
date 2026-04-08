@@ -58,7 +58,7 @@ void main() async {
 }
 ```
 
-For a more detailed setup guide, please see the full [Getting Started Documentation](https://docs.airship.com/platform/mobile/setup/sdk/flutter/).
+For a more detailed setup guide, please see the full [Getting Started Documentation](https://www.airship.com/docs/developer/sdk-integration/flutter/installation/getting-started/).
 
 ## Supported Versions
 
@@ -85,11 +85,11 @@ For a more detailed setup guide, please see the full [Getting Started Documentat
 
 ## Resources
 
-- **[Documentation](https://docs.airship.com/platform/mobile/setup/sdk/flutter/)** - Complete SDK integration guides
+- **[Documentation](https://www.airship.com/docs/developer/sdk-integration/flutter/installation/getting-started/)** - Complete SDK integration guides
 - **[API Reference](https://docs.airship.com/reference/libraries/flutter/latest/)** - Detailed API documentation
 - **[GitHub Issues](https://github.com/urbanairship/airship-flutter/issues)** - Report bugs and request features
-- **[Changelog](CHANGELOG.md)** - Release notes and version history
-- **[Migration Guide](MIGRATION.md)** - Upgrade guides between major versions
+- **[Changelog](https://github.com/urbanairship/airship-flutter/blob/main/CHANGELOG.md)** - Release notes and version history
+- **[Migration Guide](https://github.com/urbanairship/airship-flutter/blob/main/MIGRATION.md)** - Upgrade guides between major versions
 
 ## Issues
 
