@@ -1,3 +1,4 @@
+public import Foundation
 import AirshipFrameworkProxy
 
 @objc(AirshipPluginLoader)
