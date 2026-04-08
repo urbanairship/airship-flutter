@@ -1,5 +1,12 @@
 # Flutter Plugin Changelog
 
+## Version 11.3.1 - April 8, 2026
+
+Patch release that fixes iOS cold start push notification and deep link events not firing.
+
+### Changes
+- Fixed iOS cold start push notification and deep link events not firing due to the plugin loader initializing too late to set `UNUserNotificationCenter.delegate`
+
 ## Version 11.3.0 - April 1, 2026
 
 Minor release that updates the Android SDK to 20.6.1 and the iOS SDK to 20.6.0
