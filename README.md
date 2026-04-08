@@ -26,7 +26,7 @@ The official Airship Flutter plugin for iOS and Android.
 Add the dependency to your `pubspec.yaml`:
 ```yaml
 dependencies:
-  airship_flutter: ^11.3.0
+  airship_flutter: ^11.3.1
 ```
 
 Then run:
