@@ -1,5 +1,5 @@
 public import Foundation
-import AirshipFrameworkProxy
+public import AirshipFrameworkProxy
 
 @objc(AirshipPluginLoader)
 @MainActor
