@@ -18,8 +18,9 @@
 
 3. To edit the iOS plugin, in Android Studio right click `ios` folder to open the menu and click Flutter -> Open iOS module in Xcode
 
-    [Follow this guide for swift package manager support](https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers)
-    note: plugin developers need to turn SPM on and off manually.
+    The plugin ships both a `Package.swift` (SPM) and `airship_flutter.podspec` (CocoaPods). Apps on Flutter 3.24+ that run `flutter config --enable-swift-package-manager` will resolve the plugin via SPM; others fall back to CocoaPods automatically. When editing, keep the two in sync — source paths and resources are declared from the same `Sources/airship_flutter/` layout.
+
+    [Flutter SPM app-developer guide](https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers)
 
 4. To edit Android plugin in Android Studio right click `android` folder to open the menu and click Flutter -> Open Android module in Android Studio
 

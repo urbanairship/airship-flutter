@@ -8,6 +8,7 @@
 profile
 airship_flutter/.swiftpm/
 airship_flutter/.build/
+airship_flutter/Package.resolved
 
 DerivedData/
 build/
