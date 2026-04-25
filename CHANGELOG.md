@@ -1,5 +1,13 @@
 # Flutter Plugin Changelog
 
+## Version 11.3.2 - April 24, 2026
+
+Patch release that updates the Android SDK to 20.6.4 and the iOS SDK to 20.6.3.
+
+### Changes
+- Updated Android SDK to [20.6.4](https://github.com/urbanairship/android-library/releases/tag/20.6.4)
+- Updated iOS SDK to [20.6.3](https://github.com/urbanairship/ios-library/releases/tag/20.6.3)
+
 ## Version 11.3.1 - April 8, 2026
 
 Patch release that fixes iOS cold start push notification and deep link events not firing.
