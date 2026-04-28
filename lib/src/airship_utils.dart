@@ -61,8 +61,6 @@ class AirshipUtils {
         return "email";
       case ChannelScope.sms:
         return "sms";
-      default:
-        throw ArgumentError("Invalid scope: ${scope.name}");
     }
   }
 

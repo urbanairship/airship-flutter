@@ -64,11 +64,13 @@ For a more detailed setup guide, please see the full [Getting Started Documentat
 
 | Airship Flutter Version | Airship SDK Version | Flutter Version | Support Status |
 | :---------------------- | :------------------ | :-------------- | :------------- |
-| **11.x**                | 20.x                | 3.0.2+          | **Active**     |
+| **11.x**                | 20.x                | 3.24.0+         | **Active**     |
 | **10.x**                | 19.x                | 3.0.2+          | Maintenance    |
 | **9.x**                 | 18.x                | 3.0.2+          | Unsupported    |
 
-*Table last updated: December 3, 2025*
+*Table last updated: April 17, 2026*
+
+The iOS plugin supports both Swift Package Manager and CocoaPods. SPM is used automatically when enabled in your app (`flutter config --enable-swift-package-manager`); otherwise CocoaPods is used. Flutter's plugin-author docs list 3.24.0 as the minimum Flutter version for SPM-based plugin integration.
 
 ## Requirements
 
