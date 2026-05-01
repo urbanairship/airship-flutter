@@ -203,7 +203,7 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
         case "channel#editTags":
             let operation = try JSONDecoder().decode(
                 [TagOperation].self,
-                from: try AirshipJSONUtils.data(call.requireAnyArg())
+                from: try AirshipJSON.wrap(call.requireAnyArg()).toData()
             )
 
             try AirshipProxy.shared.channel.editTags(
@@ -217,7 +217,7 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
         case "channel#editTagGroups":
             let operation = try JSONDecoder().decode(
                 [TagGroupOperation].self,
-                from: try AirshipJSONUtils.data(call.requireAnyArg())
+                from: try AirshipJSON.wrap(call.requireAnyArg()).toData()
             )
 
             try AirshipProxy.shared.channel.editTagGroups(
@@ -234,7 +234,7 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
         case "channel#editAttributes":
             let operations = try JSONDecoder().decode(
                 [AttributeOperation].self,
-                from: try AirshipJSONUtils.data(call.requireAnyArg())
+                from: try AirshipJSON.wrap(call.requireAnyArg()).toData()
             )
             try AirshipProxy.shared.channel.editAttributes(
                 operations: operations
@@ -249,7 +249,7 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
         case "contact#editTagGroups":
             let operations = try JSONDecoder().decode(
                 [TagGroupOperation].self,
-                from: try AirshipJSONUtils.data(call.requireAnyArg())
+                from: try AirshipJSON.wrap(call.requireAnyArg()).toData()
             )
             try AirshipProxy.shared.contact.editTagGroups(
                 operations: operations
@@ -259,7 +259,7 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
         case "contact#editSubscriptionLists":
             let operations = try JSONDecoder().decode(
                 [ScopedSubscriptionListOperation].self,
-                from: try AirshipJSONUtils.data(call.requireAnyArg())
+                from: try AirshipJSON.wrap(call.requireAnyArg()).toData()
             )
             try AirshipProxy.shared.contact.editSubscriptionLists(
                 operations: operations
@@ -269,7 +269,7 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
         case "contact#editAttributes":
             let operations = try JSONDecoder().decode(
                 [AttributeOperation].self,
-                from: try AirshipJSONUtils.data(call.requireAnyArg())
+                from: try AirshipJSON.wrap(call.requireAnyArg()).toData()
             )
 
             try AirshipProxy.shared.contact.editAttributes(
