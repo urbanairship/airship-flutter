@@ -35,8 +35,9 @@ void main() {
       ),
     ),
     defaultEnvironment: ConfigEnvironment(
-      appKey: "",
-      appSecret: "",
+      // Replace with your Airship project's credentials.
+      appKey: "APP_KEY",
+      appSecret: "APP_SECRET",
       logLevel: LogLevel.verbose,
       ios: IOSEnvironment(logPrivacyLevel: AirshipLogPrivacyLevel.public),
       android: AndroidEnvironment(logPrivacyLevel: AirshipLogPrivacyLevel.public),
