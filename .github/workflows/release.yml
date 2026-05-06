@@ -6,7 +6,7 @@ on:
       - "[0-9]+.[0-9]+.[0-9]+*"
 
 env:
-  DEVELOPER_DIR: /Applications/Xcode_26.0.app/Contents/Developer
+  DEVELOPER_DIR: /Applications/Xcode_26.4.app/Contents/Developer
   FLUTTER_VERSION: 3.27.3
   JAVA_VERSION: "17.x"
   JAVA_DISTRIBUTION: 'zulu'
@@ -21,8 +21,6 @@ jobs:
         with:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
           java-version: ${{ env.JAVA_VERSION }}
-      - name: Select Xcode version
-        run: sudo xcode-select -s '/Applications/Xcode_26.0.app/Contents/Developer'
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{env.FLUTTER_VERSION}}
@@ -129,9 +127,29 @@ jobs:
         run: |
           gsutil cp doc/$VERSION.tar.gz gs://ua-web-ci-prod-docs-transfer/libraries/flutter/$VERSION.tar.gz
 
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: doc/api
+
       - name: Slack Notification
         uses: homoluctus/slatify@master
         with:
           type: ${{ job.status }}
           job_name: ":raised_hands: Airship Flutter Plugin Released! :raised_hands:"
           url: ${{ secrets.MOBILE_SLACK_WEBHOOK }}
+
+  deploy-docs:
+    needs: release-docs
+    runs-on: ubuntu-latest
+    continue-on-error: true # Remove when migration to GH Pages is complete
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,13 +1,10 @@
-import AirshipFrameworkProxy
-import UIKit
+public import Foundation
+public import AirshipFrameworkProxy
 
 @objc(AirshipPluginLoader)
+@MainActor
 public class AirshipPluginLoader: NSObject, AirshipPluginLoaderProtocol {
-    public static func onApplicationDidFinishLaunching(
-        launchOptions: [UIApplication.LaunchOptionsKey : Any]?
-    ) {
-        Task { @MainActor in
-            AirshipAutopilot.shared.onLoad()
-        }
+    public static func onLoad() {
+        AirshipAutopilot.shared.onLoad()
     }
 }

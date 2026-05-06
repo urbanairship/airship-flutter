@@ -149,6 +149,14 @@ class _MainNavigatorState extends State<MainNavigator> {
     Airship.push.iOS.authorizedNotificationStatus
         .then((value) => debugPrint("authorizedNotificationStatus $value"));
 
+    Airship.push.iOS.setForegroundPresentationOptionsCallback((PushPayload payload) async {
+      return [IOSForegroundPresentationOption.banner, IOSForegroundPresentationOption.list, IOSForegroundPresentationOption.sound, IOSForegroundPresentationOption.badge] ;
+    });
+
+    Airship.push.android.setForegroundDisplayPredicate((PushPayload payload) async {
+      return true;
+    });
+ 
     Airship.onDeepLink.listen((event) {
       switch (event.deepLink) {
         case homeDeepLink:
