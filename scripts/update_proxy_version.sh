@@ -12,7 +12,7 @@ fi
 
 sed -i.bak -E "s/(ext\.airship_framework_proxy_version *= *')([^']*)(')/\1$PROXY_VERSION\3/" "$ROOT_PATH/android/build.gradle"
 sed -i.bak -E "s/(s\.dependency *\"AirshipFrameworkProxy\", *\")([^\"]*)(\")/\1$PROXY_VERSION\3/" "$ROOT_PATH/ios/airship_flutter.podspec"
-sed -i.bak -E "s/(\.package\(name: *\"AirshipFrameworkProxy\", *url: *\"[^\"]+\", *from: *\")([^\"]*)(\")/\1$PROXY_VERSION\3/" "$ROOT_PATH/ios/airship_flutter/Package.swift"
+sed -i.bak -E "s|(\.package\(url: *\"https://github.com/urbanairship/airship-mobile-framework-proxy\.git\", *from: *\")([^\"]*)(\")|\1$PROXY_VERSION\3|" "$ROOT_PATH/ios/airship_flutter/Package.swift"
 
 find "$ROOT_PATH" -name "*.bak" -delete
 

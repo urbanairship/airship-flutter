@@ -1,13 +1,13 @@
-// swift-tools-version: 5.9
+// swift-tools-version: 6.0
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
 
 let package = Package(
     name: "airship_flutter",
-    platforms: [.macOS(.v10_15), .iOS(.v16), .tvOS(.v16), .visionOS(.v1)],
+    platforms: [.iOS(.v16), .visionOS(.v1)],
     products: [
-        .library( name: "airship-flutter", targets: ["airship_flutter"])
+        .library(name: "airship-flutter", targets: ["airship_flutter"])
     ],
     dependencies: [
         .package(url: "https://github.com/urbanairship/airship-mobile-framework-proxy.git", from: "15.7.0")
@@ -20,6 +20,9 @@ let package = Package(
             ],
             resources: [
                  .process("PrivacyInfo.xcprivacy")
+            ],
+            swiftSettings: [
+                .swiftLanguageMode(.v5)
             ]
         )
     ]
