@@ -1,5 +1,13 @@
 # Flutter Plugin Changelog
 
+## Version 12.0.0 - May 7, 2026
+
+Major release that raises the minimum supported Flutter version to 3.24.0 to fully support Swift Package Manager on iOS.
+
+### Changes
+- Raised minimum Flutter version to 3.24.0 and Dart SDK to 3.5.0
+- Improved Swift Package Manager support for the iOS plugin
+
 ## Version 11.4.0 - May 1, 2026
 
 Minor release that updates the Android SDK to 20.7.0 and the iOS SDK to 20.7.0.
