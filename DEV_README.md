@@ -61,7 +61,7 @@ to initiate communication from dart -> native, and `EventChannel` from native ->
 
 #### Xcode build errors
 
-You may have to build and deploy the plugin from Android Studio before opening it in Xcode. This will trigger all the pod installs.
+You may have to build and deploy the plugin from Android Studio (or run `flutter pub get` in `example/`) before opening it in Xcode. This generates the Flutter SPM package the example workspace depends on.
 
 #### Android red symbols
 
