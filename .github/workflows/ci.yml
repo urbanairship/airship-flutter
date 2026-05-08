@@ -51,5 +51,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
+      - name: Enable Swift Package Manager
+        run: flutter config --enable-swift-package-manager
       - name: Build iOS
         run: bash ./scripts/run_ci_tasks.sh -i
