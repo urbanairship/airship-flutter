@@ -55,6 +55,9 @@ fi
 
 # iOS
 if $IOS; then
+    # Example is SPM-only; CocoaPods fallback fails because the example has no Podfile.
+    flutter config --enable-swift-package-manager
+
     cd example
     if [ ! -f ios/AirshipConfig.plist ]; then
       cp ios/AirshipConfig.plist.sample ios/AirshipConfig.plist
