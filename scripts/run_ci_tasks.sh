@@ -35,6 +35,13 @@ while true; do
   shift
 done
 
+# Example is SPM-only. Enable SPM before `pub get` so the plugin resolution
+# pass classifies plugins as Swift Packages; flipping the flag later does
+# not retroactively change classification and Flutter falls back to pods.
+if $IOS; then
+    flutter config --enable-swift-package-manager
+fi
+
 flutter packages get
 
 # Flutter Analysis
@@ -55,9 +62,6 @@ fi
 
 # iOS
 if $IOS; then
-    # Example is SPM-only; CocoaPods fallback fails because the example has no Podfile.
-    flutter config --enable-swift-package-manager
-
     cd example
     if [ ! -f ios/AirshipConfig.plist ]; then
       cp ios/AirshipConfig.plist.sample ios/AirshipConfig.plist
