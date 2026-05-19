@@ -2,12 +2,13 @@
 
 ## Version 12.0.1 - May 19, 2026
 
-Patch release that updates the Android SDK to 20.7.2 and the iOS SDK to 20.7.1.
+Patch release that updates the Android SDK to 20.7.2 and the iOS SDK to 20.7.1, and fixes notification permission status parsing.
 
 ### Changes
 - Updated Airship Framework Proxy to 15.9.0
 - Updated iOS SDK to [20.7.1](https://github.com/urbanairship/ios-library/releases/tag/20.7.1)
 - Updated Android SDK to [20.7.2](https://github.com/urbanairship/android-library/releases/tag/20.7.2)
+- Fixed `PushNotificationStatus.notificationPermissionStatus` always returning `notDetermined` (#300)
 
 ## Version 12.0.0 - May 7, 2026
 
