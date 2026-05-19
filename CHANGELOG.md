@@ -1,5 +1,14 @@
 # Flutter Plugin Changelog
 
+## Version 12.1.0 - May 19, 2026
+
+Minor release that updates the Android SDK to 20.7.2 and the iOS SDK to 20.7.1.
+
+### Changes
+- Updated Airship Framework Proxy to 15.9.0
+- Updated iOS SDK to [20.7.1](https://github.com/urbanairship/ios-library/releases/tag/20.7.1)
+- Updated Android SDK to [20.7.2](https://github.com/urbanairship/android-library/releases/tag/20.7.2)
+
 ## Version 12.0.0 - May 7, 2026
 
 Major release that raises the minimum supported Flutter version to 3.24.0 to fully support Swift Package Manager on iOS.
