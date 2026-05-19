@@ -47,6 +47,7 @@ flutter packages get
 # Flutter Analysis
 if $ANALYZE; then
     flutter analyze
+    flutter test
     # Perform publish dry run to ensure the package can be published
     dart analyze --fatal-infos
     flutter pub pub publish --dry-run --skip-validation

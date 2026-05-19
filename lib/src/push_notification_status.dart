@@ -41,9 +41,7 @@ class PushNotificationStatus {
     var isOptedIn = json["isOptedIn"] ?? false;
     var isUserOptedIn = json["isUserOptedIn"] ?? false;
     var notificationPermissionStatus =
-        json["notificationPermissionStatus"] is PermissionStatus
-            ? json["notificationPermissionStatus"] as PermissionStatus
-            : PermissionStatus.notDetermined;
+        _parsePermissionStatus(json["notificationPermissionStatus"]);
     return PushNotificationStatus._internal(
         isUserNotificationsEnabled,
         areNotificationsAllowed,
@@ -52,6 +50,18 @@ class PushNotificationStatus {
         isOptedIn,
         isUserOptedIn,
         notificationPermissionStatus);
+  }
+
+  static PermissionStatus _parsePermissionStatus(dynamic value) {
+    switch (value) {
+      case "granted":
+        return PermissionStatus.granted;
+      case "denied":
+        return PermissionStatus.denied;
+      case "not_determined":
+      default:
+        return PermissionStatus.notDetermined;
+    }
   }
 
   @override
