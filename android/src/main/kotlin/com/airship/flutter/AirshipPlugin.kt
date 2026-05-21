@@ -203,6 +203,18 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             "contact#editSubscriptionLists" -> result.resolve(scope, call) { proxy.contact.editSubscriptionLists(call.jsonArgs()) }
             "contact#editAttributes" -> result.resolve(scope, call) { proxy.contact.editAttributes(call.jsonArgs()) }
             "contact#getSubscriptionLists" -> result.resolve(scope, call) { proxy.contact.getSubscriptionLists() }
+            "contact#registerEmail" -> result.resolve(scope, call) {
+                val args = call.arguments as Map<*, *>
+                val address = args["address"] as String
+                val options = JsonValue.wrapOpt(args["options"])
+                proxy.contact.registerEmail(address, options)
+            }
+            "contact#registerSms" -> result.resolve(scope, call) {
+                val args = call.arguments as Map<*, *>
+                val msisdn = args["msisdn"] as String
+                val options = JsonValue.wrapOpt(args["options"])
+                proxy.contact.registerSms(msisdn, options)
+            }
 
             // Push
             "push#setUserNotificationsEnabled" -> result.resolve(scope, call) { proxy.push.setUserNotificationsEnabled(call.booleanArg()) }
