@@ -1,5 +1,13 @@
 # Flutter Plugin Changelog
 
+## Version 12.1.0 - May 20, 2026
+
+Minor release that adds contact email and SMS channel registration.
+
+### Changes
+- Added `AirshipContact.registerEmail` and `AirshipContact.registerSms` methods
+- Added `EmailRegistrationOptions` and `SmsRegistrationOptions`
+
 ## Version 12.0.1 - May 19, 2026
 
 Patch release that updates the Android SDK to 20.7.2 and the iOS SDK to 20.7.1, and fixes notification permission status parsing.
