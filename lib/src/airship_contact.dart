@@ -1,6 +1,8 @@
 import 'airship_module.dart';
 import 'attribute_editor.dart';
+import 'email_registration_options.dart';
 import 'scoped_subscription_list_editor.dart';
+import 'sms_registration_options.dart';
 import 'tag_group_editor.dart';
 import 'channel_scope.dart';
 import 'airship_utils.dart';
@@ -63,4 +65,21 @@ class AirshipContact {
     return TagGroupEditor('contact#editTagGroups', _module.channel);
   }
 
+  /// Registers an email channel.
+  Future<void> registerEmail(
+      String address, EmailRegistrationOptions options) async {
+    return await _module.channel.invokeMethod('contact#registerEmail', {
+      'address': address,
+      'options': options.toJson(),
+    });
+  }
+
+  /// Registers an SMS channel.
+  Future<void> registerSms(
+      String msisdn, SmsRegistrationOptions options) async {
+    return await _module.channel.invokeMethod('contact#registerSms', {
+      'msisdn': msisdn,
+      'options': options.toJson(),
+    });
+  }
 }

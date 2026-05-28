@@ -23,6 +23,8 @@ export 'src/ios_push_options.dart';
 export 'src/attribute_editor.dart';
 export 'src/channel_scope.dart';
 export 'src/custom_event.dart';
+export 'src/email_registration_options.dart';
+export 'src/sms_registration_options.dart';
 export 'src/feature.dart';
 export 'src/inbox_message.dart';
 export 'src/inbox_message_view.dart';

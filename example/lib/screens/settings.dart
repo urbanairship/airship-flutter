@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:airship_example/screens/tag_add.dart';
 import 'package:airship_example/screens/named_user_add.dart';
+import 'package:airship_example/screens/contact_channel_registration.dart';
 import 'package:airship_example/styles.dart';
 // ignore: depend_on_referenced_packages
 import 'package:airship_flutter/airship_flutter.dart';
@@ -87,6 +88,15 @@ class SettingsState extends State<Settings> {
       context,
       MaterialPageRoute(
         builder: (context) => TagAdd(updateParent: _updateState),
+      ),
+    );
+  }
+
+  Future<void> _navigateToContactChannels() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const ContactChannelRegistration(),
       ),
     );
   }
@@ -300,6 +310,28 @@ class SettingsState extends State<Settings> {
                       onTap: _navigateToTags,
                     );
                   },
+                ),
+                Divider(height: 1, indent: 72, endIndent: 16),
+                ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(
+                      Icons.contact_mail,
+                      color: Colors.blue.shade700,
+                      size: 22,
+                    ),
+                  ),
+                  title: const Text('Contact Channels'),
+                  subtitle: const Text('Register email and SMS'),
+                  trailing: Icon(
+                    Icons.chevron_right,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                  onTap: _navigateToContactChannels,
                 ),
               ],
             ),

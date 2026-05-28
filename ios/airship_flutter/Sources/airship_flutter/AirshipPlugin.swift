@@ -297,7 +297,42 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
         case "contact#getNamedUserId":
             return try await AirshipProxy.shared.contact.namedUserID
 
-    
+        case "contact#registerEmail":
+            let args = try call.requireMapArg()
+            guard let address = args["address"] as? String,
+                  let optionsObject = args["options"]
+            else {
+                throw AirshipErrors.error("Invalid arguments for contact#registerEmail")
+            }
+            let optionsData = try JSONSerialization.data(withJSONObject: optionsObject)
+            let options = try JSONDecoder().decode(
+                EmailRegistrationProxyOptions.self,
+                from: optionsData
+            )
+            try AirshipProxy.shared.contact.registerEmail(
+                address,
+                options: options
+            )
+            return nil
+
+        case "contact#registerSms":
+            let args = try call.requireMapArg()
+            guard let msisdn = args["msisdn"] as? String,
+                  let optionsObject = args["options"]
+            else {
+                throw AirshipErrors.error("Invalid arguments for contact#registerSms")
+            }
+            let optionsData = try JSONSerialization.data(withJSONObject: optionsObject)
+            let options = try JSONDecoder().decode(
+                SMSRegistrationProxyOptions.self,
+                from: optionsData
+            )
+            try AirshipProxy.shared.contact.registerSMS(
+                msisdn,
+                options: options
+            )
+            return nil
+
         // Push
         case "push#getRegistrationToken":
             return try AirshipProxy.shared.push.getRegistrationToken()
@@ -739,6 +774,14 @@ extension FlutterMethodCall {
             throw AirshipErrors.error("Argument must not be null")
         }
         
+        return args
+    }
+
+    func requireMapArg() throws -> [String: Any] {
+        guard let args = self.arguments as? [String: Any] else {
+            throw AirshipErrors.error("Argument must be a map")
+        }
+
         return args
     }
     
