@@ -1,6 +1,6 @@
 # Flutter Plugin Changelog
 
-## Version 12.1.0 - May 20, 2026
+## Version 12.1.0 - May 28, 2026
 
 Minor release that adds contact email and SMS channel registration.
 
