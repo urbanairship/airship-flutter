@@ -1,14 +1,15 @@
 package com.airship.flutter
 
 import android.content.Context
-import android.graphics.Bitmap
+import android.view.ContextThemeWrapper
 import android.view.View
-import android.webkit.WebView
+import com.airship.airship.R
 import com.urbanairship.Airship
-import com.urbanairship.messagecenter.MessageCenter
-
-import com.urbanairship.messagecenter.ui.widget.MessageWebView
-import com.urbanairship.messagecenter.ui.widget.MessageWebViewClient
+import com.urbanairship.messagecenter.Message
+import com.urbanairship.messagecenter.ui.view.MessageView
+import com.urbanairship.messagecenter.ui.view.MessageViewModel
+import com.urbanairship.messagecenter.ui.view.MessageViewState
+import com.urbanairship.messagecenter.ui.view.bind
 
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -18,45 +19,58 @@ import io.flutter.plugin.common.StandardMessageCodec
 import io.flutter.plugin.platform.PlatformViewFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.plus
 
 class FlutterInboxMessageView(
-    private var context: Context,
+    context: Context,
     channel: MethodChannel
 ) : PlatformView, MethodChannel.MethodCallHandler {
 
+    private val viewModel = MessageViewModel()
+    private val messageView: MessageView = MessageView(
+        ContextThemeWrapper(context, R.style.FlutterAirshipMessageViewTheme)
+    )
+    private val scope: CoroutineScope = CoroutineScope(Dispatchers.Main.immediate) + SupervisorJob()
+    private var currentMessageId: String? = null
     private lateinit var webviewResult: MethodChannel.Result
 
-    private val webView: MessageWebView by lazy {
-        val view = MessageWebView(context)
-        view.webViewClient = object : MessageWebViewClient() {
-            override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
-                super.onPageStarted(view, url, favicon)
-                channel.invokeMethod("onLoadStarted", null)
-            }
-
-            override fun onPageFinished(view: WebView?, url: String?) {
-                super.onPageFinished(view, url)
+    init {
+        messageView.listener = object : MessageView.Listener {
+            override fun onMessageLoaded(message: Message) {
+                viewModel.markMessagesRead(message)
                 channel.invokeMethod("onLoadFinished", null)
             }
 
-            override fun onClose(webView: WebView) {
-                super.onClose(webView)
-                channel.invokeMethod("onClose", null)
+            override fun onMessageLoadError(error: MessageViewState.Error.Type) {
+                val details = when (error) {
+                    MessageViewState.Error.Type.LOAD_FAILED -> "Message load failed"
+                    MessageViewState.Error.Type.UNAVAILABLE -> "Message not available"
+                }
+                webviewResult.error("InvalidMessage", "Unable to load message", details)
             }
 
-            @Deprecated("Deprecated in Java")
-            override fun onReceivedError(view: WebView?, errorCode: Int, description: String?, failingUrl: String?) {
-                super.onReceivedError(view, errorCode, description, failingUrl)
-                if (errorCode == 410) {
-                    webviewResult.error("InvalidMessage", "Unable to load message", "Message not available")
-                } else {
-                    webviewResult.error("InvalidMessage", "Unable to load message", "Message load failed")
+            override fun onRetryClicked() {
+                currentMessageId?.let { viewModel.loadMessage(it) }
+            }
+
+            override fun onCloseMessage() {
+                channel.invokeMethod("onClose", null)
+            }
+        }
+
+        @Suppress("RestrictedApi")
+        messageView.bind(viewModel, scope)
+
+        scope.launch {
+            viewModel.states.collect { state ->
+                if (state is MessageViewState.Loading) {
+                    channel.invokeMethod("onLoadStarted", null)
                 }
             }
         }
-        view
     }
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
@@ -66,10 +80,10 @@ class FlutterInboxMessageView(
         }
     }
 
-    override fun getView(): View = webView
+    override fun getView(): View = messageView
 
     override fun dispose() {
-
+        scope.cancel()
     }
 
     private fun loadMessage(call: MethodCall, result: MethodChannel.Result) {
@@ -79,17 +93,12 @@ class FlutterInboxMessageView(
             return
         }
 
-        CoroutineScope(Dispatchers.IO).launch {
-            val message = MessageCenter.shared().inbox.getMessage(call.arguments())
-            withContext(Dispatchers.Main) {
-                if (message != null) {
-                    webView.loadMessage(message)
-                    message.markRead()
-                } else {
-                    result.error("InvalidMessage", "Unable to load message: ${call.arguments}", null)
-                }
-            }
+        val messageId = call.arguments<String>() ?: run {
+            result.error("InvalidArgument", "Must be a message ID", null)
+            return
         }
+        currentMessageId = messageId
+        viewModel.loadMessage(messageId)
     }
 }
 
