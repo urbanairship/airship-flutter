@@ -1,5 +1,5 @@
 import Foundation
-import WebKit
+import SwiftUI
 import Flutter
 
 #if canImport(AirshipCore)
@@ -26,43 +26,92 @@ class AirshipInboxMessageViewFactory : NSObject, FlutterPlatformViewFactory {
     }
 }
 
-class AirshipInboxMessageView : NSObject, FlutterPlatformView, NativeBridgeDelegate, WKNavigationDelegate, AirshipWKNavigationDelegate {
-    let webView : WKWebView
-    let nativeBridge = NativeBridge()
-    let channel : FlutterMethodChannel
-    var webviewResult : FlutterResult
+@MainActor
+private class MessageState: ObservableObject {
+    @Published var viewModel: MessageCenterMessageViewModel?
+    @Published var phase: MessageCenterMessageContentPhase = .loading
+    var onClose: (@MainActor @Sendable () -> Void)?
+    var onPhaseChange: (@MainActor (MessageCenterMessageContentPhase) -> Void)?
+}
 
-    init(frame: CGRect, viewId: Int64, registrar: FlutterPluginRegistrar) {
-        self.webView = WKWebView(frame: frame)
-        self.webView.configuration.dataDetectorTypes = [.all]
+private struct MessageContainerView: View {
+    @ObservedObject var state: MessageState
 
-        let channelName = "com.airship.flutter/InboxMessageView_\(viewId)"
-        self.channel = FlutterMethodChannel(name: channelName, binaryMessenger: registrar.messenger())
-        self.webviewResult = { result in print(result!) }
-        
-        super.init()
-
-        self.webView.navigationDelegate = self.nativeBridge
-        self.nativeBridge.forwardNavigationDelegate = self
-        self.nativeBridge.nativeBridgeDelegate = self
-        weak var weakSelf = self
-        channel.setMethodCallHandler { (call, result) in
-            if let strongSelf = weakSelf {
-                Task {
-                    await strongSelf.handle(call, result: result)
-                }
-            } else {
-                result(FlutterError(code:"UNAVAILABLE",
-                                    message:"Instance no longer available",
-                                    details:nil))
+    var body: some View {
+        if let viewModel = state.viewModel {
+            MessageCenterMessageContentView(
+                viewModel: viewModel,
+                phase: $state.phase,
+                dismissAction: state.onClose
+            )
+            .id(viewModel.messageID)
+            .onChange(of: state.phase) { phase in
+                state.onPhaseChange?(phase)
             }
         }
     }
+}
 
-    public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) async {
+class AirshipInboxMessageView : UIView, FlutterPlatformView {
+    private let state = MessageState()
+    private let viewController: UIViewController
+    private var isAdded = false
+    private let channel: FlutterMethodChannel
+    private var webviewResult: FlutterResult = { result in print(result!) }
+
+    required init(frame: CGRect, viewId: Int64, registrar: FlutterPluginRegistrar) {
+        let channelName = "com.airship.flutter/InboxMessageView_\(viewId)"
+        self.channel = FlutterMethodChannel(name: channelName, binaryMessenger: registrar.messenger())
+        self.viewController = UIHostingController(rootView: MessageContainerView(state: self.state))
+        self.viewController.view.backgroundColor = .clear
+
+        super.init(frame: frame)
+
+        self.addSubview(self.viewController.view)
+        self.viewController.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+
+        self.state.onClose = { [weak self] in
+            self?.channel.invokeMethod("onClose", arguments: nil)
+        }
+
+        self.state.onPhaseChange = { [weak self] phase in
+            guard let self else { return }
+            switch phase {
+            case .loading:
+                break
+            case .loaded:
+                self.channel.invokeMethod("onLoadFinished", arguments: nil)
+                Task { await self.state.viewModel?.markRead() }
+            case .error(let error):
+                let details = error == .messageGone ? "Message not available" : "Message load failed"
+                self.webviewResult(FlutterError(
+                    code: "MessageLoadFailed",
+                    message: "Unable to load message",
+                    details: details
+                ))
+            }
+        }
+
+        weak var weakSelf = self
+        channel.setMethodCallHandler { (call, result) in
+            guard let strongSelf = weakSelf else {
+                result(FlutterError(code:"UNAVAILABLE",
+                                    message:"Instance no longer available",
+                                    details:nil))
+                return
+            }
+            strongSelf.handle(call, result: result)
+        }
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    private func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
         case "loadMessage":
-            await loadMessage(call, result: result)
+            loadMessage(call, result: result)
         default:
             result(FlutterError(code:"UNAVAILABLE",
                                 message:"Unknown method: \(call.method)",
@@ -70,16 +119,16 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView, NativeBridgeDeleg
         }
     }
 
-    private func loadMessage(_ call: FlutterMethodCall, result: @escaping FlutterResult) async {
+    private func loadMessage(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         webviewResult = result
-        channel.invokeMethod("onLoadStarted", arguments: nil)
-        guard let messageId = call.arguments as? String else {
+
+        guard let messageID = call.arguments as? String else {
             result(FlutterError(code: "InvalidArgument",
                                 message: "Must be a message ID",
                                 details:nil))
             return
         }
-        
+
         guard Airship.isFlying else {
             result(FlutterError(code: "AIRSHIP_GROUNDED",
                                 message: "Takeoff not called.",
@@ -87,91 +136,23 @@ class AirshipInboxMessageView : NSObject, FlutterPlatformView, NativeBridgeDeleg
             return
         }
 
-        let inbox = Airship.messageCenter.inbox
+        channel.invokeMethod("onLoadStarted", arguments: nil)
 
-        let message = await inbox.message(forID: messageId)
-
-        if message == nil {
-            /// Attempt a refresh is the message isn't available - as can happen when launched from a push
-            let success = try? await inbox.refreshMessages(timeout: 100)
-
-            /// If message is nil and we fail to refresh, throw error
-            if success == false {
-                result(FlutterError(code:"InvalidMessage",
-                                    message:"Unable to load message: \(messageId), message unavailable and message refresh failed.",
-                                    details:nil))
-                return
-            }
-        }
-
-        if let message = await inbox.message(forID: messageId) {
-            var request = URLRequest(url: message.bodyURL)
-            let user = await Airship.messageCenter.inbox.user
-            
-            if let user = user {
-                guard let auth = AirshipUtils.authHeader(username: user.username, password: user.password) else {
-                    result(FlutterError(code:"InvalidState",
-                                        message:"User not created.",
-                                        details:nil))
-                    return
-                }
-                request.addValue(auth, forHTTPHeaderField: "Authorization")
-            
-                await self.webView.load(request)
-                await inbox.markRead(messages: [message])
-                
-            }
-                
-           
-        } else {
-            /// If refresh attempt succeeds and we still don't have a message
-            result(FlutterError(code:"InvalidMessage",
-                                message:"Unable to load message after successful inbox refresh: \(messageId))",
-                                details:nil))
-            return
-        }
-      }
+        state.phase = .loading
+        state.viewModel = MessageCenterMessageViewModel(messageID: messageID)
+    }
 
     func view() -> UIView {
-        return webView
+        return self
     }
 
-    func close() {
-        channel.invokeMethod("onClose", arguments: nil)
-    }
-    
-    func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse,
-                 decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
-
-        if let response = navigationResponse.response as? HTTPURLResponse {
-            if (response.statusCode >= 400 && response.statusCode <= 599) {
-                decisionHandler(.cancel)
-                if (response.statusCode == 410) {
-                    webviewResult(FlutterError(code:"MessageLoadFailed",
-                           message:"Unable to load message",
-                           details:"Message not available"))
-                } else {
-                    webviewResult(FlutterError(code:"MessageLoadFailed",
-                           message:"Unable to load message",
-                           details:"Message load failed"))
-                }
-                return
-            }
-        }
-        decisionHandler(.allow)
-    }
-    
-    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        channel.invokeMethod("onLoadFinished", arguments: nil)
-    }
-    
-    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-        webviewResult(FlutterError(code:"MessageLoadFailed",
-                                   message:"Unable to load message",
-                                   details:error.localizedDescription))
-    }
-    
-    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
-        webView.navigationDelegate?.webView?(webView, didFail: navigation, withError: error)
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        guard !isAdded else { return }
+        viewController.willMove(toParent: parentViewController())
+        parentViewController().addChild(viewController)
+        viewController.didMove(toParent: parentViewController())
+        viewController.view.isUserInteractionEnabled = true
+        isAdded = true
     }
 }
