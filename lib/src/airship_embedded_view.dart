@@ -7,6 +7,35 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:airship_flutter/airship_flutter.dart';
 
+/// Controls which pending embedded content instance is displayed when more
+/// than one is available for the same embedded ID.
+abstract class AirshipEmbeddedViewSelection {
+  const AirshipEmbeddedViewSelection();
+
+  Map<String, Object?> toJson();
+}
+
+/// Display by priority ordering. This is the default.
+class AirshipEmbeddedViewSelectionPriority extends AirshipEmbeddedViewSelection {
+  const AirshipEmbeddedViewSelectionPriority();
+
+  @override
+  Map<String, Object?> toJson() => const {'type': 'priority'};
+}
+
+/// Display a specific pending instance by its instance ID.
+class AirshipEmbeddedViewSelectionInstanceId extends AirshipEmbeddedViewSelection {
+  final String instanceId;
+
+  const AirshipEmbeddedViewSelectionInstanceId(this.instanceId);
+
+  @override
+  Map<String, Object?> toJson() => {
+        'type': 'instance_id',
+        'instanceId': instanceId,
+      };
+}
+
 /// Embedded platform view.
 ///
 /// Note: When an embedded view is set to display with its height set to `auto`
@@ -24,6 +53,10 @@ class AirshipEmbeddedView extends StatefulWidget {
   /// This allows proper collapse to 0 height when the view is dismissed.
   final double? parentHeight;
 
+  /// How to select which pending content to display when more than one is
+  /// available. Defaults to priority ordering.
+  final AirshipEmbeddedViewSelection? selection;
+
   /// A flag to use flutter hybrid composition method or not. Default to false.
   static bool hybridComposition = false;
 
@@ -31,6 +64,7 @@ class AirshipEmbeddedView extends StatefulWidget {
     required this.embeddedId,
     this.parentWidth,
     this.parentHeight,
+    this.selection,
   });
 
   @override
@@ -115,6 +149,7 @@ class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
           onPlatformViewCreated: _onPlatformViewCreated,
           creationParams: <String, Object?>{
             'embeddedId': widget.embeddedId,
+            'selection': widget.selection?.toJson(),
           },
           creationParamsCodec: const StandardMessageCodec(),
         ),
@@ -143,6 +178,7 @@ class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
             layoutDirection: TextDirection.ltr,
             creationParams: <String, Object?>{
               'embeddedId': widget.embeddedId,
+              'selection': widget.selection?.toJson(),
             },
             creationParamsCodec: const StandardMessageCodec(),
             onFocus: () {
@@ -159,6 +195,7 @@ class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
         onPlatformViewCreated: _onPlatformViewCreated,
         creationParams: <String, Object?>{
           'embeddedId': widget.embeddedId,
+          'selection': widget.selection?.toJson(),
         },
         creationParamsCodec: const StandardMessageCodec(),
       ));

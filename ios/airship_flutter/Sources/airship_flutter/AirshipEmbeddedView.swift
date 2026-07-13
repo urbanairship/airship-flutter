@@ -27,6 +27,13 @@ class AirshipEmbeddedViewFactory: NSObject, FlutterPlatformViewFactory {
 class AirshipEmbeddedViewWrapper: UIView, FlutterPlatformView {
     private static let embeddedIdKey: String = "embeddedId"
 
+    private static func parseSelection(_ dict: [String: Any]?) -> AirshipEmbeddedSelection {
+        if dict?["type"] as? String == "instance_id", let instanceId = dict?["instanceId"] as? String {
+            return .instance(instanceId)
+        }
+        return .priority
+    }
+
     var viewModel = FlutterAirshipEmbeddedView.ViewModel()
 
     public var viewController: UIViewController
@@ -56,8 +63,11 @@ class AirshipEmbeddedViewWrapper: UIView, FlutterPlatformView {
         self.addSubview(self.viewController.view)
         self.viewController.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 
-        if let params = args as? [String: Any], let embeddedId = params[Self.embeddedIdKey] as? String {
-            rootView.viewModel.embeddedID = embeddedId
+        if let params = args as? [String: Any] {
+            if let embeddedId = params[Self.embeddedIdKey] as? String {
+                rootView.viewModel.embeddedID = embeddedId
+            }
+            rootView.viewModel.selection = Self.parseSelection(params["selection"] as? [String: Any])
         }
 
         rootView.viewModel.size = frame.size
@@ -114,7 +124,8 @@ struct FlutterAirshipEmbeddedView: View {
                                 embeddedSize: .init(
                                     parentWidth: viewModel.size?.width,
                                     parentHeight: viewModel.size?.height
-                                )
+                                ),
+                                selection: viewModel.selection
             )
         } else {
             Text("Please set embeddedId")
@@ -125,6 +136,7 @@ struct FlutterAirshipEmbeddedView: View {
     class ViewModel: ObservableObject {
         @Published var embeddedID: String?
         @Published var size: CGSize?
+        @Published var selection: AirshipEmbeddedSelection = .priority
 
         var height: CGFloat {
             guard let height = self.size?.height, height > 0 else {
