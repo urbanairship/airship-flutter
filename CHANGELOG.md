@@ -1,5 +1,14 @@
 # Flutter Plugin Changelog
 
+## Version 12.3.0 - July 13, 2026
+
+Minor release that updates the framework proxy to 15.11.0, picking up iOS SDK 20.10.0 and Android SDK 20.9.0.
+
+### Changes
+- Updated iOS SDK to [20.10.0](https://github.com/urbanairship/ios-library/releases/tag/20.10.0)
+- Updated Android SDK to [20.9.0](https://github.com/urbanairship/android-library/releases/tag/20.9.0)
+- Fixed native (Scenes) messages failing to render in the embedded message view
+
 ## Version 12.2.0 - June 25, 2026
 
 Minor release that updates the iOS SDK to 20.8.1 and the Android SDK to 20.8.1.
