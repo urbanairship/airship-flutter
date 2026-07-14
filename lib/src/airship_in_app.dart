@@ -84,7 +84,7 @@ class AirshipInApp {
 
   void _setupEventStream() {
     _eventSubscription = _module
-        .getEventStream("com.airship.flutter/event/pending_embedded_updated")
+        .getEventStream("com.airship.flutter/event/pending_embedded_info_updated")
         .listen((event) {
       try {
         final updatedEvent = EmbeddedInfoUpdatedEvent.fromJson(event);

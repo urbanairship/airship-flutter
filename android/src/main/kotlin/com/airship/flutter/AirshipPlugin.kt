@@ -13,6 +13,7 @@ import com.urbanairship.android.framework.proxy.proxies.LiveUpdateRequest
 import com.urbanairship.android.framework.proxy.proxies.EnableUserNotificationsArgs
 import com.urbanairship.android.framework.proxy.proxies.SuspendingPredicate
 import com.urbanairship.android.framework.proxy.events.Event
+import com.urbanairship.embedded.AirshipEmbeddedObserver
 import com.urbanairship.json.JsonMap
 import com.urbanairship.json.jsonMapOf
 import com.urbanairship.json.JsonValue
@@ -80,6 +81,8 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             EventType.PENDING_EMBEDDED_UPDATED to "com.airship.flutter/event/pending_embedded_updated",
             EventType.OVERRIDE_FOREGROUND_PRESENTATION to "com.airship.flutter/event/override_presentation_options"
         )
+
+        internal const val PENDING_EMBEDDED_INFO_UPDATED_EVENT = "com.airship.flutter/event/pending_embedded_info_updated"
     }
 
     private val foregroundDisplayRequestMap =
@@ -117,6 +120,7 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         this.channel = MethodChannel(binaryMessenger, "com.airship.flutter/airship")
         this.channel.setMethodCallHandler(this)
         this.streams = generateEventStreams(binaryMessenger)
+        registerEmbeddedInfoStream(binaryMessenger)
 
         platformViewRegistry.registerViewFactory("com.airship.flutter/InboxMessageView", InboxMessageViewFactory(binaryMessenger))
         platformViewRegistry.registerViewFactory("com.airship.flutter/EmbeddedView", EmbeddedViewFactory(binaryMessenger))
@@ -156,6 +160,34 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             }
         }
         return streamMap
+    }
+
+    private fun registerEmbeddedInfoStream(binaryMessenger: BinaryMessenger) {
+        val eventChannel = EventChannel(binaryMessenger, PENDING_EMBEDDED_INFO_UPDATED_EVENT)
+        val handler = AirshipEventStreamHandler()
+        eventChannel.setStreamHandler(handler)
+
+        val observer = AirshipEmbeddedObserver(filter = { true })
+
+        scope.launch {
+            handler.eventFlow.collect { sink ->
+                if (sink != null) {
+                    observer.listener = AirshipEmbeddedObserver.Listener { infos ->
+                        val pending = infos.map { info ->
+                            mapOf(
+                                "embeddedId" to info.embeddedId,
+                                "instanceId" to info.instanceId,
+                                "priority" to info.priority,
+                                "extras" to info.extras.unwrap()
+                            )
+                        }
+                        handler.notify(mapOf("pending" to pending))
+                    }
+                } else {
+                    observer.listener = null
+                }
+            }
+        }
     }
 
 

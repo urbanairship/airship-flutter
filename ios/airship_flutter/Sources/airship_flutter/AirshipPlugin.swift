@@ -35,6 +35,9 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
 
     private var subscriptions = Set<AnyCancellable>()
 
+    @MainActor
+    private let embeddedInfoStreamHandler = EmbeddedInfoStreamHandler()
+
 
     private let lock = AirshipLock()
     
@@ -73,6 +76,12 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
         self.streams.values.forEach { stream in
             stream.register(registrar: registrar)
         }
+
+        let embeddedInfoChannel = FlutterEventChannel(
+            name: "com.airship.flutter/event/pending_embedded_info_updated",
+            binaryMessenger: registrar.messenger()
+        )
+        embeddedInfoChannel.setStreamHandler(self.embeddedInfoStreamHandler)
 
         registrar.register(AirshipInboxMessageViewFactory(registrar), withId: "com.airship.flutter/InboxMessageView")
         registrar.register(AirshipEmbeddedViewFactory(registrar), withId: "com.airship.flutter/EmbeddedView")
@@ -835,6 +844,45 @@ extension FlutterMethodCall {
     }
 }
 
+
+@MainActor
+class EmbeddedInfoStreamHandler: NSObject, FlutterStreamHandler {
+    private var eventSink: FlutterEventSink?
+    private var subscription: AnyCancellable?
+    private var observer: AirshipEmbeddedObserver?
+
+    func onListen(
+        withArguments arguments: Any?,
+        eventSink events: @escaping FlutterEventSink
+    ) -> FlutterError? {
+        self.eventSink = events
+
+        let observer = AirshipEmbeddedObserver()
+        self.observer = observer
+        self.subscription = observer.$embeddedInfos.sink { [weak self] infos in
+            let pending = infos.map { info -> [String: Any] in
+                [
+                    "embeddedId": info.embeddedID,
+                    "instanceId": info.instanceID,
+                    "priority": info.priority,
+                    "extras": (info.extras?.unWrap() as? [String: Any]) ?? [:]
+                ]
+            }
+            DispatchQueue.main.async {
+                self?.eventSink?(["pending": pending])
+            }
+        }
+
+        return nil
+    }
+
+    func onCancel(withArguments arguments: Any?) -> FlutterError? {
+        self.eventSink = nil
+        self.subscription = nil
+        self.observer = nil
+        return nil
+    }
+}
 
 class AirshipEventStreamHandler: NSObject, FlutterStreamHandler {
     private var eventSink: FlutterEventSink?
