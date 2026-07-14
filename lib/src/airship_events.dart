@@ -65,30 +65,35 @@ class MessageCenterUpdatedEvent {
   }
 }
 
-class EmbeddedInfo {
+/// Info for a pending embedded content instance.
+class PendingEmbedded {
   final String embeddedId;
   final String instanceId;
   final int priority;
   final Map<String, dynamic> extras;
 
-  EmbeddedInfo(this.embeddedId, this.instanceId, this.priority, this.extras);
+  PendingEmbedded(this.embeddedId, this.instanceId, this.priority, this.extras);
 
   @override
   String toString() =>
-      "EmbeddedInfo(embeddedId=$embeddedId, instanceId=$instanceId, priority=$priority, extras=$extras)";
+      "PendingEmbedded(embeddedId=$embeddedId, instanceId=$instanceId, priority=$priority, extras=$extras)";
 }
+
+/// Deprecated: use [PendingEmbedded] instead.
+@Deprecated('Use PendingEmbedded instead')
+typedef EmbeddedInfo = PendingEmbedded;
 
 /// Event fired when embedded view info updates.
 class EmbeddedInfoUpdatedEvent {
-  final List<EmbeddedInfo> embeddedInfos;
+  final List<PendingEmbedded> embeddedInfos;
 
   const EmbeddedInfoUpdatedEvent(this.embeddedInfos);
 
   static EmbeddedInfoUpdatedEvent fromJson(dynamic json) {
     List<dynamic> pendingList = json['pending'] as List? ?? [];
 
-    List<EmbeddedInfo> embeddedInfos = pendingList
-        .map((item) => EmbeddedInfo(
+    List<PendingEmbedded> embeddedInfos = pendingList
+        .map((item) => PendingEmbedded(
               item['embeddedId'],
               item['instanceId'],
               item['priority'],
