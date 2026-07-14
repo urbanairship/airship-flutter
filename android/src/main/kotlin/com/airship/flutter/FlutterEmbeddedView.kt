@@ -74,7 +74,7 @@ class EmbeddedViewFactory(
 
     private fun parseSelection(selection: Map<*, *>?): AirshipEmbeddedSelection {
         val instanceId = selection?.get("instanceId") as? String
-        return if (selection?.get("type") == "instance_id" && instanceId != null) {
+        return if (selection?.get("type") == "instance_id" && !instanceId.isNullOrEmpty()) {
             AirshipEmbeddedSelection.ByInstanceId(instanceId)
         } else {
             AirshipEmbeddedSelection.Priority

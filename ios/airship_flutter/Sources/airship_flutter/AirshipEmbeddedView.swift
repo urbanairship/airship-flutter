@@ -28,7 +28,9 @@ class AirshipEmbeddedViewWrapper: UIView, FlutterPlatformView {
     private static let embeddedIdKey: String = "embeddedId"
 
     private static func parseSelection(_ dict: [String: Any]?) -> AirshipEmbeddedSelection {
-        if dict?["type"] as? String == "instance_id", let instanceId = dict?["instanceId"] as? String {
+        if dict?["type"] as? String == "instance_id",
+           let instanceId = dict?["instanceId"] as? String,
+           !instanceId.isEmpty {
             return .instance(instanceId)
         }
         return .priority
