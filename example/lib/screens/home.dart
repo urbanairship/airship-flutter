@@ -15,7 +15,7 @@ class Home extends StatefulWidget {
 class HomeState extends State<Home> {
   static const Uuid _uuid = Uuid();
   static const double _embeddedViewHeight = 200.0;
-  static const String _embeddedViewId = 'test';
+  static const String _embeddedViewId = 'home-banner';
 
   bool _isLoading = false;
 
@@ -249,8 +249,14 @@ class HomeState extends State<Home> {
   Widget _buildEmbeddedViewSection(ColorScheme colorScheme) {
     return Column(
       children: [
-        AirshipEmbeddedView(
-          embeddedId: _embeddedViewId, parentHeight: _embeddedViewHeight,
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: colorScheme.outline),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: AirshipEmbeddedView(
+            embeddedId: _embeddedViewId, parentHeight: _embeddedViewHeight,
+          ),
         ),
       ],
     );
