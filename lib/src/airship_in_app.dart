@@ -4,8 +4,8 @@ import 'dart:async';
 
 class AirshipInApp {
   final AirshipModule _module;
-  List<PendingEmbedded> _embeddedInfos = [];
-  late final StreamController<List<PendingEmbedded>>
+  List<EmbeddedInfo> _embeddedInfos = [];
+  late final StreamController<List<EmbeddedInfo>>
       _embeddedInfoUpdatedController;
   StreamSubscription? _eventSubscription;
   bool _isFirstStream = true;
@@ -35,13 +35,7 @@ class AirshipInApp {
     return await _module.channel.invokeMethod('inApp#getDisplayInterval');
   }
 
-  @Deprecated('Use getPendingEmbedded instead')
-  List<PendingEmbedded> getEmbeddedInfos() => _embeddedInfos;
-
-  /// Gets the pending embedded content info for the given embedded ID.
-  List<PendingEmbedded> getPendingEmbedded(String embeddedId) => _embeddedInfos
-      .where((info) => info.embeddedId == embeddedId)
-      .toList();
+  List<EmbeddedInfo> getEmbeddedInfos() => _embeddedInfos;
 
   bool isEmbeddedAvailable({required String embeddedId}) =>
       _embeddedInfos.any((info) => info.embeddedId == embeddedId);
@@ -51,7 +45,7 @@ class AirshipInApp {
   /// then emits updates whenever the embedded info changes.
   Stream<bool> isEmbeddedAvailableStream({required String embeddedId}) {
     late StreamController<bool> controller;
-    StreamSubscription<List<PendingEmbedded>>? subscription;
+    StreamSubscription<List<EmbeddedInfo>>? subscription;
 
     controller = StreamController<bool>(
       onListen: () {
@@ -75,12 +69,12 @@ class AirshipInApp {
     return controller.stream.distinct();
   }
 
-  Stream<List<PendingEmbedded>> get onEmbeddedInfoUpdated =>
+  Stream<List<EmbeddedInfo>> get onEmbeddedInfoUpdated =>
       _embeddedInfoUpdatedController.stream;
 
   void _setupController() {
     _embeddedInfoUpdatedController =
-        StreamController<List<PendingEmbedded>>.broadcast(onListen: () {
+        StreamController<List<EmbeddedInfo>>.broadcast(onListen: () {
       if (_isFirstStream) {
         _isFirstStream = false;
         _resendLastEmbeddedEvent();
