@@ -2,12 +2,14 @@
 
 ## Version 12.3.0 - July 13, 2026
 
-Minor release that updates the framework proxy to 15.11.0, picking up iOS SDK 20.10.0 and Android SDK 20.9.0.
+Minor release that updates the framework proxy to 15.12.0, picking up iOS SDK 20.10.0 and Android SDK 20.9.0; adds improved prioritization control for embedded displays, and fixes a bug causing messages to fail to render in the embedded message view.
 
 ### Changes
 - Updated iOS SDK to [20.10.0](https://github.com/urbanairship/ios-library/releases/tag/20.10.0)
 - Updated Android SDK to [20.9.0](https://github.com/urbanairship/android-library/releases/tag/20.9.0)
 - Fixed native (Scenes) messages failing to render in the embedded message view
+- Added a `selection` parameter to `AirshipEmbeddedView` to pick which pending instance displays, by priority or a specific instance ID
+- Added `instanceId`, `priority`, and `extras` to `EmbeddedInfo`
 
 ## Version 12.2.0 - June 25, 2026
 
