@@ -57,7 +57,7 @@ class AirshipInboxMessageView : UIView, FlutterPlatformView {
     private let viewController: UIViewController
     private var isAdded = false
     private let channel: FlutterMethodChannel
-    private var webviewResult: FlutterResult = { result in print(result!) }
+    private var webviewResult: FlutterResult? = nil
 
     required init(frame: CGRect, viewId: Int64, registrar: FlutterPluginRegistrar) {
         let channelName = "com.airship.flutter/InboxMessageView_\(viewId)"
@@ -84,11 +84,12 @@ class AirshipInboxMessageView : UIView, FlutterPlatformView {
                 Task { await self.state.viewModel?.markRead() }
             case .error(let error):
                 let details = error == .messageGone ? "Message not available" : "Message load failed"
-                self.webviewResult(FlutterError(
+                self.webviewResult?(FlutterError(
                     code: "MessageLoadFailed",
                     message: "Unable to load message",
                     details: details
                 ))
+                self.webviewResult = nil
             }
         }
 
@@ -120,8 +121,6 @@ class AirshipInboxMessageView : UIView, FlutterPlatformView {
     }
 
     private func loadMessage(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        webviewResult = result
-
         guard let messageID = call.arguments as? String else {
             result(FlutterError(code: "InvalidArgument",
                                 message: "Must be a message ID",
@@ -136,6 +135,7 @@ class AirshipInboxMessageView : UIView, FlutterPlatformView {
             return
         }
 
+        webviewResult = result
         channel.invokeMethod("onLoadStarted", arguments: nil)
 
         state.phase = .loading

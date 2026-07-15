@@ -35,7 +35,7 @@ class FlutterInboxMessageView(
     )
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Main.immediate) + SupervisorJob()
     private var currentMessageId: String? = null
-    private lateinit var webviewResult: MethodChannel.Result
+    private var webviewResult: MethodChannel.Result? = null
 
     init {
         messageView.listener = object : MessageView.Listener {
@@ -49,7 +49,8 @@ class FlutterInboxMessageView(
                     MessageViewState.Error.Type.LOAD_FAILED -> "Message load failed"
                     MessageViewState.Error.Type.UNAVAILABLE -> "Message not available"
                 }
-                webviewResult.error("InvalidMessage", "Unable to load message", details)
+                webviewResult?.error("InvalidMessage", "Unable to load message", details)
+                webviewResult = null
             }
 
             override fun onRetryClicked() {
@@ -87,7 +88,6 @@ class FlutterInboxMessageView(
     }
 
     private fun loadMessage(call: MethodCall, result: MethodChannel.Result) {
-        webviewResult = result
         if (!(Airship.isTakingOff || Airship.isFlying)) {
             result.error("AIRSHIP_GROUNDED", "Takeoff not called.", null)
             return
@@ -97,6 +97,7 @@ class FlutterInboxMessageView(
             result.error("InvalidArgument", "Must be a message ID", null)
             return
         }
+        webviewResult = result
         currentMessageId = messageId
         viewModel.loadMessage(messageId)
     }
