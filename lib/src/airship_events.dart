@@ -67,11 +67,15 @@ class MessageCenterUpdatedEvent {
 
 class EmbeddedInfo {
   final String embeddedId;
+  final String instanceId;
+  final int priority;
+  final Map<String, dynamic> extras;
 
-  EmbeddedInfo(this.embeddedId);
+  EmbeddedInfo(this.embeddedId, this.instanceId, this.priority, this.extras);
 
   @override
-  String toString() => "EmbeddedInfo(embeddedId=$embeddedId)";
+  String toString() =>
+      "EmbeddedInfo(embeddedId=$embeddedId, instanceId=$instanceId, priority=$priority, extras=$extras)";
 }
 
 /// Event fired when embedded view info updates.
@@ -83,8 +87,14 @@ class EmbeddedInfoUpdatedEvent {
   static EmbeddedInfoUpdatedEvent fromJson(dynamic json) {
     List<dynamic> pendingList = json['pending'] as List? ?? [];
 
-    List<EmbeddedInfo> embeddedInfos =
-        pendingList.map((item) => EmbeddedInfo(item['embeddedId'])).toList();
+    List<EmbeddedInfo> embeddedInfos = pendingList
+        .map((item) => EmbeddedInfo(
+              item['embeddedId'],
+              item['instanceId'],
+              item['priority'],
+              Map<String, dynamic>.from(item['extras'] ?? {}),
+            ))
+        .toList();
 
     return EmbeddedInfoUpdatedEvent(embeddedInfos);
   }

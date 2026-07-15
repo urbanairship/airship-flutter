@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Color
 import android.view.View
 import android.widget.FrameLayout
+import com.urbanairship.embedded.AirshipEmbeddedSelection
 import com.urbanairship.embedded.AirshipEmbeddedView
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
@@ -15,7 +16,8 @@ import io.flutter.plugin.platform.PlatformViewFactory
 class FlutterEmbeddedView(
     private var context: Context,
     private val channel: MethodChannel,
-    private val embeddedId: String
+    private val embeddedId: String,
+    private val selection: AirshipEmbeddedSelection
 ) : PlatformView, MethodChannel.MethodCallHandler {
 
     private val frameLayout: FrameLayout = FrameLayout(context)
@@ -27,7 +29,7 @@ class FlutterEmbeddedView(
     }
     private fun setupAirshipEmbeddedView() {
 
-        airshipEmbeddedView = AirshipEmbeddedView(context, embeddedId)
+        airshipEmbeddedView = AirshipEmbeddedView(context, embeddedId, selection = selection)
         airshipEmbeddedView?.layoutParams = FrameLayout.LayoutParams(
             FrameLayout.LayoutParams.MATCH_PARENT,
             FrameLayout.LayoutParams.MATCH_PARENT
@@ -63,10 +65,19 @@ class EmbeddedViewFactory(
     override fun create(context: Context?, viewId: Int, args: Any?): PlatformView {
         val channel = MethodChannel(binaryMessenger, "com.airship.flutter/EmbeddedView_$viewId")
 
-        // Extracting embeddedId from args
-        val params = args as? Map<String, Any>
+        val params = args as? Map<*, *>
         val embeddedId = params?.get("embeddedId") as? String ?: "defaultId"
+        val selection = parseSelection(params?.get("selection") as? Map<*, *>)
 
-        return FlutterEmbeddedView(checkNotNull(context), channel, embeddedId)
+        return FlutterEmbeddedView(checkNotNull(context), channel, embeddedId, selection)
+    }
+
+    private fun parseSelection(selection: Map<*, *>?): AirshipEmbeddedSelection {
+        val instanceId = selection?.get("instanceId") as? String
+        return if (selection?.get("type") == "instance_id" && !instanceId.isNullOrEmpty()) {
+            AirshipEmbeddedSelection.ByInstanceId(instanceId)
+        } else {
+            AirshipEmbeddedSelection.Priority
+        }
     }
 }
