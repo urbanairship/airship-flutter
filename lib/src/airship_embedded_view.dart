@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
@@ -38,9 +39,8 @@ class AirshipEmbeddedViewSelectionInstanceId extends AirshipEmbeddedViewSelectio
 
 /// Embedded platform view.
 ///
-/// Note: When an embedded view is set to display with its height set to `auto`
-/// the embedded view will size to its native aspect ratio. Any remaining space
-/// in the parent view will be apparent.
+/// When [parentHeight] is omitted, the native side measures the embedded
+/// content and reports its height back, and the widget sizes to match.
 class AirshipEmbeddedView extends StatefulWidget {
   /// The embedded view Id.
   final String embeddedId;
@@ -48,9 +48,8 @@ class AirshipEmbeddedView extends StatefulWidget {
   /// Optional parent width. If not provided, the widget will use available width.
   final double? parentWidth;
 
-  /// Optional parent height. If not provided, the widget will use available height.
-  /// Use parentHeight for constant height instead of a height-constrained container.
-  /// This allows proper collapse to 0 height when the view is dismissed.
+  /// Optional fixed height. If not provided, the view sizes to its content.
+  /// Percent-sized content resolves against this height when set.
   final double? parentHeight;
 
   /// How to select which pending content to display when more than one is
@@ -73,11 +72,14 @@ class AirshipEmbeddedView extends StatefulWidget {
 
 class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
     with AutomaticKeepAliveClientMixin<AirshipEmbeddedView> {
-  late MethodChannel _channel;
+  MethodChannel? _channel;
   late Stream<bool> _readyStream;
   late final StreamSubscription<bool> _readySubscription;
 
   bool? _isEmbeddedAvailable;
+
+  // Content height reported by the native side. Null until the first report.
+  double? _contentHeight;
 
   @override
   void initState() {
@@ -99,17 +101,35 @@ class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
 
   Future<void> _methodCallHandler(MethodCall call) async {
     switch (call.method) {
+      case 'onSizeUpdate':
+        final args = (call.arguments as Map?)?.cast<String, dynamic>();
+        final height = (args?['height'] as num?)?.toDouble();
+        // Only self-size when the caller hasn't pinned an explicit height.
+        if (height != null && mounted && widget.parentHeight == null) {
+          setState(() => _contentHeight = height);
+        }
+        break;
       default:
         print('Unknown method.');
     }
   }
 
-  Future<void> _onPlatformViewCreated(int id) async {
-    _channel = MethodChannel('com.airship.flutter/EmbeddedView_$id');
-    _channel.setMethodCallHandler(_methodCallHandler);
+  void _onPlatformViewCreated(int id) {
+    _channel?.setMethodCallHandler(null);
+    _channel = MethodChannel('com.airship.flutter/EmbeddedView_$id')
+      ..setMethodCallHandler(_methodCallHandler);
   }
 
-  Widget buildReadyView(BuildContext context, Widget view, Size availableSize) {
+  Widget buildReadyView(
+      BuildContext context, Widget view, BoxConstraints constraints) {
+    final width = widget.parentWidth ??
+        (constraints.maxWidth.isFinite
+            ? constraints.maxWidth
+            : MediaQuery.of(context).size.width);
+
+    // Never zero: platform views can't be created or resized to an empty size.
+    final height = max(1.0, widget.parentHeight ?? _contentHeight ?? 1.0);
+
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 200),
       transitionBuilder: (Widget child, Animation<double> animation) {
@@ -118,8 +138,8 @@ class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
       child: _isEmbeddedAvailable == true
           ? SizedBox(
               key: ValueKey<bool>(true),
-              width: widget.parentWidth ?? availableSize.width,
-              height: widget.parentHeight ?? availableSize.height,
+              width: width,
+              height: height,
               child: view,
             )
           : SizedBox(key: ValueKey<bool>(false), height: 0),
@@ -129,9 +149,7 @@ class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
   Widget wrapWithLayoutBuilder(Widget view) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        final availableSize = MediaQuery.of(context).size;
-
-        return Center(child: buildReadyView(context, view, availableSize));
+        return Center(child: buildReadyView(context, view, constraints));
       },
     );
   }
@@ -150,6 +168,7 @@ class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
           creationParams: <String, Object?>{
             'embeddedId': widget.embeddedId,
             'selection': widget.selection?.toJson(),
+            'parentHeight': widget.parentHeight,
           },
           creationParamsCodec: const StandardMessageCodec(),
         ),
@@ -179,6 +198,7 @@ class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
             creationParams: <String, Object?>{
               'embeddedId': widget.embeddedId,
               'selection': widget.selection?.toJson(),
+              'parentHeight': widget.parentHeight,
             },
             creationParamsCodec: const StandardMessageCodec(),
             onFocus: () {
@@ -186,6 +206,7 @@ class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
             },
           )
             ..addOnPlatformViewCreatedListener(params.onPlatformViewCreated)
+            ..addOnPlatformViewCreatedListener(_onPlatformViewCreated)
             ..create();
         },
       ));
@@ -196,6 +217,7 @@ class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
         creationParams: <String, Object?>{
           'embeddedId': widget.embeddedId,
           'selection': widget.selection?.toJson(),
+          'parentHeight': widget.parentHeight,
         },
         creationParamsCodec: const StandardMessageCodec(),
       ));
@@ -205,7 +227,7 @@ class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
   @override
   void dispose() {
     _readySubscription.cancel();
-    _channel.setMethodCallHandler(null);
+    _channel?.setMethodCallHandler(null);
     super.dispose();
   }
 
