@@ -14,7 +14,6 @@ class Home extends StatefulWidget {
 
 class HomeState extends State<Home> {
   static const Uuid _uuid = Uuid();
-  static const double _embeddedViewHeight = 200.0;
   static const String _embeddedViewId = 'home-banner';
 
   bool _isLoading = false;
@@ -255,7 +254,7 @@ class HomeState extends State<Home> {
             borderRadius: BorderRadius.circular(8),
           ),
           child: AirshipEmbeddedView(
-            embeddedId: _embeddedViewId, parentHeight: _embeddedViewHeight,
+            embeddedId: _embeddedViewId,
           ),
         ),
       ],
