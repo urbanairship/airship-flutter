@@ -1,5 +1,12 @@
 # Flutter Plugin Changelog
 
+## Version 12.4.1 - July 28, 2026
+
+Patch release that fixes an Android build failure for apps compiling against `compileSdk 36`.
+
+### Changes
+- Bumped the Android `compileSdk` to 36 to match the plugin's bundled `urbanairship-*` and AndroidX dependencies, resolving `checkReleaseAarMetadata` failures ([#314](https://github.com/urbanairship/airship-flutter/issues/314))
+
 ## Version 12.4.0 - July 23, 2026
 
 Minor release that updates the Android SDK to 20.10.0 and the iOS SDK to 20.11.0.
