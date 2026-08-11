@@ -44,7 +44,7 @@ class AirshipEmbeddedViewWrapper: UIView, FlutterPlatformView {
     private let viewController: UIViewController
     private let channel: FlutterMethodChannel
 
-    private let selfSizing: Bool
+    private var selfSizing: Bool
     private var isAdded: Bool = false
     private var reportedHeight: CGFloat = -1
 
@@ -53,8 +53,8 @@ class AirshipEmbeddedViewWrapper: UIView, FlutterPlatformView {
         self.channel = FlutterMethodChannel(name: channelName, binaryMessenger: registrar.messenger())
 
         let params = args as? [String: Any]
-        let parentHeight = (params?["parentHeight"] as? NSNumber).map { CGFloat($0.doubleValue) }
-        self.selfSizing = parentHeight == nil
+        let selfSizing = (params?["sizeToContent"] as? Bool) ?? false
+        self.selfSizing = selfSizing
 
         let hostingController = UIHostingController(
             rootView: FlutterAirshipEmbeddedView(viewModel: self.viewModel)
@@ -66,7 +66,11 @@ class AirshipEmbeddedViewWrapper: UIView, FlutterPlatformView {
 
         self.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(hostingController.view)
-        hostingController.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        // The host is framed in layoutSubviews: while self sizing it is deliberately
+        // taller than this view, so content measures against a stable proposal
+        // instead of the box Flutter set, which would feed back into measurement.
+        hostingController.view.autoresizingMask = []
+        self.clipsToBounds = true
 
         if let params {
             if let embeddedId = params[Self.embeddedIdKey] as? String {
@@ -75,13 +79,13 @@ class AirshipEmbeddedViewWrapper: UIView, FlutterPlatformView {
             viewModel.selection = Self.parseSelection(params["selection"] as? [String: Any])
         }
         viewModel.parentWidth = frame.size.width
-        // Percent sized content has no parent height to resolve against, so use the window.
-        viewModel.parentHeight = parentHeight ?? Self.windowHeight()
+        viewModel.selfSizing = selfSizing
+        // While self sizing there is no imposed height for percent sized content to
+        // resolve against, so fall back to the window.
+        viewModel.parentHeight = selfSizing ? Self.windowHeight() : frame.size.height
 
-        if selfSizing {
-            viewModel.onHeightChange = { [weak self] height in
-                self?.reportContentHeight(height)
-            }
+        viewModel.onHeightChange = { [weak self] height in
+            self?.reportContentHeight(height)
         }
 
         channel.setMethodCallHandler { [weak self] (call: FlutterMethodCall, result: @escaping FlutterResult) in
@@ -111,8 +115,22 @@ class AirshipEmbeddedViewWrapper: UIView, FlutterPlatformView {
 
     override func layoutSubviews() {
         super.layoutSubviews()
+
+        // Stable measurement proposal: window height while self sizing, so the
+        // measured height cannot depend on the box Flutter just set.
+        let hostHeight = self.selfSizing
+            ? max(Self.windowHeight() ?? bounds.size.height, bounds.size.height)
+            : bounds.size.height
+        let hostFrame = CGRect(x: 0, y: 0, width: bounds.size.width, height: hostHeight)
+        if self.viewController.view.frame != hostFrame {
+            self.viewController.view.frame = hostFrame
+        }
+
         if self.viewModel.parentWidth != bounds.size.width {
             self.viewModel.parentWidth = bounds.size.width
+        }
+        if !self.selfSizing, self.viewModel.parentHeight != bounds.size.height {
+            self.viewModel.parentHeight = bounds.size.height
         }
     }
 
@@ -122,10 +140,27 @@ class AirshipEmbeddedViewWrapper: UIView, FlutterPlatformView {
         self.channel.invokeMethod("onSizeUpdate", arguments: ["height": height])
     }
 
+    private func setSelfSizing(_ value: Bool) {
+        guard self.selfSizing != value else { return }
+        self.selfSizing = value
+        // The next report is against a different measurement, so don't suppress it.
+        self.reportedHeight = -1
+        self.viewModel.selfSizing = value
+        self.viewModel.parentHeight = value ? Self.windowHeight() : bounds.size.height
+        self.setNeedsLayout()
+    }
+
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        result(FlutterError(code: "UNAVAILABLE",
-                            message: "Unknown method: \(call.method)",
-                            details: nil))
+        switch call.method {
+        case "setSizeToContent":
+            let args = call.arguments as? [String: Any]
+            setSelfSizing((args?["sizeToContent"] as? Bool) ?? false)
+            result(nil)
+        default:
+            result(FlutterError(code: "UNAVAILABLE",
+                                message: "Unknown method: \(call.method)",
+                                details: nil))
+        }
     }
 }
 
@@ -146,21 +181,25 @@ struct FlutterAirshipEmbeddedView: View {
                                 ),
                                 selection: viewModel.selection
             )
-            // Report the content's laid-out height so Flutter can size to it.
+            // Report the height every layout pass, like the SDK's airshipMeasureView;
+            // preference diffing missed the placeholder-to-content transition.
+            // The wrapper dedupes before touching the channel.
             .background(
-                GeometryReader { proxy in
-                    Color.clear.preference(
-                        key: ContentHeightPreferenceKey.self,
-                        value: proxy.size.height
-                    )
+                GeometryReader { [viewModel] proxy -> Color in
+                    let height = proxy.size.height
+                    DispatchQueue.main.async {
+                        viewModel.onHeightChange?(height)
+                    }
+                    return Color.clear
                 }
             )
-            .onPreferenceChange(ContentHeightPreferenceKey.self) { [viewModel] height in
-                // The action is @Sendable, so hop to the main actor for the view model.
-                Task { @MainActor in
-                    viewModel.onHeightChange?(height)
-                }
-            }
+            // While self sizing the host is taller than the visible box, so pin the
+            // content to the top rather than letting SwiftUI center it out of view.
+            .frame(
+                maxWidth: .infinity,
+                maxHeight: .infinity,
+                alignment: viewModel.selfSizing ? .top : .center
+            )
         } else {
             Text("Please set embeddedId")
         }
@@ -171,17 +210,10 @@ struct FlutterAirshipEmbeddedView: View {
         @Published var embeddedID: String?
         @Published var parentWidth: CGFloat?
         @Published var parentHeight: CGFloat?
+        @Published var selfSizing: Bool = false
         @Published var selection: AirshipEmbeddedSelection = .priority
 
         var onHeightChange: ((CGFloat) -> Void)?
-    }
-}
-
-private struct ContentHeightPreferenceKey: PreferenceKey {
-    static let defaultValue: CGFloat = 0
-
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
     }
 }
 

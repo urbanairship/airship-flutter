@@ -4,6 +4,7 @@ package com.airship.flutter
 
 import android.content.Context
 import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ScrollView
 import com.urbanairship.embedded.AirshipEmbeddedSelection
@@ -21,32 +22,40 @@ class FlutterEmbeddedView(
     private val channel: MethodChannel,
     private val embeddedId: String,
     private val selection: AirshipEmbeddedSelection,
-    private val parentHeight: Double?
+    selfSizing: Boolean
 ) : PlatformView, MethodChannel.MethodCallHandler {
 
-    // Without an explicit height, the content is hosted in a scroll view so it measures
-    // against an unconstrained height instead of the height Flutter imposes.
-    private val selfSizing: Boolean = parentHeight == null
-
-    private val container: FrameLayout = if (selfSizing) {
-        ScrollView(context).apply {
-            clipChildren = false
-            isVerticalScrollBarEnabled = false
-        }
-    } else {
-        FrameLayout(context)
-    }
+    // Stable view handed to Flutter. The container inside it is rebuilt when the
+    // sizing mode changes, so the view Flutter holds never has to be replaced.
+    private val root = FrameLayout(context)
 
     private val airshipEmbeddedView = AirshipEmbeddedView(context, embeddedId, selection = selection)
     private val density: Float = context.resources.displayMetrics.density
     private var reportedHeight: Double = -1.0
+    private var selfSizing: Boolean = selfSizing
+
+    private val layoutChangeListener =
+        View.OnLayoutChangeListener { view, _, _, _, _, _, _, _, _ ->
+            reportContentHeight(view.measuredHeight / density.toDouble())
+        }
 
     init {
-        setupAirshipEmbeddedView()
+        root.layoutParams = FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT,
+            FrameLayout.LayoutParams.MATCH_PARENT
+        )
+        applyContainer()
         channel.setMethodCallHandler(this)
     }
 
-    private fun setupAirshipEmbeddedView() {
+    // Rebuilds the hierarchy for the current mode. Self sizing hosts the content in
+    // a scroll view so it measures against an unconstrained height; measurement and
+    // the display-based percent fallback apply only in that mode.
+    private fun applyContainer() {
+        (airshipEmbeddedView.parent as? ViewGroup)?.removeView(airshipEmbeddedView)
+        root.removeAllViews()
+        airshipEmbeddedView.removeOnLayoutChangeListener(layoutChangeListener)
+
         airshipEmbeddedView.layoutParams = FrameLayout.LayoutParams(
             FrameLayout.LayoutParams.MATCH_PARENT,
             if (selfSizing) {
@@ -55,17 +64,35 @@ class FlutterEmbeddedView(
                 FrameLayout.LayoutParams.MATCH_PARENT
             }
         )
-        container.addView(airshipEmbeddedView)
 
         if (selfSizing) {
-            // Percent sized content has no parent height to resolve against, so use the display.
-            val displayHeight = context.resources.displayMetrics.heightPixels
-            airshipEmbeddedView.parentHeightProvider = { displayHeight }
-
-            airshipEmbeddedView.addOnLayoutChangeListener { view, _, _, _, _, _, _, _, _ ->
-                reportContentHeight(view.measuredHeight / density.toDouble())
+            airshipEmbeddedView.parentHeightProvider = {
+                context.resources.displayMetrics.heightPixels
             }
+            airshipEmbeddedView.addOnLayoutChangeListener(layoutChangeListener)
+
+            val scrollView = ScrollView(context).apply {
+                isVerticalScrollBarEnabled = false
+                layoutParams = FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                    FrameLayout.LayoutParams.MATCH_PARENT
+                )
+            }
+            scrollView.addView(airshipEmbeddedView)
+            root.addView(scrollView)
+        } else {
+            // Percent content must resolve against the box Flutter gives us here.
+            airshipEmbeddedView.parentHeightProvider = null
+            root.addView(airshipEmbeddedView)
         }
+    }
+
+    private fun setSelfSizing(value: Boolean) {
+        if (selfSizing == value) return
+        selfSizing = value
+        // The next report is against a different measurement, so don't suppress it.
+        reportedHeight = -1.0
+        applyContainer()
     }
 
     private fun reportContentHeight(height: Double) {
@@ -74,20 +101,19 @@ class FlutterEmbeddedView(
         channel.invokeMethod("onSizeUpdate", mapOf("height" to height))
     }
 
-    override fun getView(): View {
-        container.layoutParams = FrameLayout.LayoutParams(
-            FrameLayout.LayoutParams.MATCH_PARENT,
-            FrameLayout.LayoutParams.MATCH_PARENT
-        )
-        return container
-    }
+    override fun getView(): View = root
 
     override fun dispose() {
+        airshipEmbeddedView.removeOnLayoutChangeListener(layoutChangeListener)
         channel.setMethodCallHandler(null)
     }
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
+            "setSizeToContent" -> {
+                setSelfSizing(call.argument<Boolean>("sizeToContent") ?: false)
+                result.success(null)
+            }
             else -> {
                 result.error("UNAVAILABLE", "Unknown method: ${call.method}", null)
             }
@@ -105,9 +131,9 @@ class EmbeddedViewFactory(
         val params = args as? Map<*, *>
         val embeddedId = params?.get("embeddedId") as? String ?: "defaultId"
         val selection = parseSelection(params?.get("selection") as? Map<*, *>)
-        val parentHeight = (params?.get("parentHeight") as? Number)?.toDouble()
+        val selfSizing = params?.get("sizeToContent") as? Boolean ?: false
 
-        return FlutterEmbeddedView(checkNotNull(context), channel, embeddedId, selection, parentHeight)
+        return FlutterEmbeddedView(checkNotNull(context), channel, embeddedId, selection, selfSizing)
     }
 
     private fun parseSelection(selection: Map<*, *>?): AirshipEmbeddedSelection {
