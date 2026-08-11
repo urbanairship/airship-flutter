@@ -36,21 +36,17 @@ class AirshipEmbeddedViewSelectionInstanceId extends AirshipEmbeddedViewSelectio
       };
 }
 
-/// Embedded platform view.
-///
-/// Note: When an embedded view is set to display with its height set to `auto`
-/// the embedded view will size to its native aspect ratio. Any remaining space
-/// in the parent view will be apparent.
+/// Embedded platform view. Sizes from its parent's constraints; when the height
+/// is unbounded, the native side measures the auto-height scene content and the
+/// view adopts it. Scenes that cannot measure fill the space they are given.
 class AirshipEmbeddedView extends StatefulWidget {
   /// The embedded view Id.
   final String embeddedId;
 
-  /// Optional parent width. If not provided, the widget will use available width.
+  /// Optional fixed width. Prefer sizing with the parent, e.g. a [SizedBox].
   final double? parentWidth;
 
-  /// Optional parent height. If not provided, the widget will use available height.
-  /// Use parentHeight for constant height instead of a height-constrained container.
-  /// This allows proper collapse to 0 height when the view is dismissed.
+  /// Optional fixed height. Prefer sizing with the parent, e.g. a [SizedBox].
   final double? parentHeight;
 
   /// How to select which pending content to display when more than one is
@@ -73,11 +69,33 @@ class AirshipEmbeddedView extends StatefulWidget {
 
 class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
     with AutomaticKeepAliveClientMixin<AirshipEmbeddedView> {
-  late MethodChannel _channel;
+  MethodChannel? _channel;
   late Stream<bool> _readyStream;
   late final StreamSubscription<bool> _readySubscription;
 
   bool? _isEmbeddedAvailable;
+
+  // Content height reported by the native side. Null until the first report.
+  double? _contentHeight;
+
+  // The sizing mode the native view is in. Null until the first layout decides
+  // the mode to create it with.
+  bool? _nativeSelfSizing;
+
+  /// The view measures its own content only when nothing else determines its
+  /// height: no explicit [AirshipEmbeddedView.parentHeight], and a parent that
+  /// leaves the height unbounded.
+  @visibleForTesting
+  static bool isSelfSizing({
+    required BoxConstraints constraints,
+    double? parentHeight,
+  }) =>
+      parentHeight == null && !constraints.hasBoundedHeight;
+
+  bool _isSelfSizing(BoxConstraints constraints) => isSelfSizing(
+        constraints: constraints,
+        parentHeight: widget.parentHeight,
+      );
 
   @override
   void initState() {
@@ -92,21 +110,122 @@ class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
         Airship.inApp.isEmbeddedAvailableStream(embeddedId: widget.embeddedId);
     _readySubscription = _readyStream.listen((v) {
       if (mounted && v != _isEmbeddedAvailable) {
-        setState(() => _isEmbeddedAvailable = v);
+        setState(() {
+          _isEmbeddedAvailable = v;
+          // Old content's height must not size whatever arrives next.
+          if (!v) _contentHeight = null;
+        });
       }
     });
   }
 
   Future<void> _methodCallHandler(MethodCall call) async {
     switch (call.method) {
+      case 'onSizeUpdate':
+        final args = (call.arguments as Map?)?.cast<String, dynamic>();
+        final height = (args?['height'] as num?)?.toDouble();
+        // Degenerate reports happen transiently during dismissal; hold the last
+        // real height and let the availability check collapse the view instead.
+        if (height != null &&
+            height > _minContentHeight &&
+            mounted &&
+            height != _contentHeight) {
+          setState(() => _contentHeight = height);
+        }
+        break;
       default:
         print('Unknown method.');
     }
   }
 
-  Future<void> _onPlatformViewCreated(int id) async {
-    _channel = MethodChannel('com.airship.flutter/EmbeddedView_$id');
-    _channel.setMethodCallHandler(_methodCallHandler);
+  void _onPlatformViewCreated(int id) {
+    _channel?.setMethodCallHandler(null);
+    final channel = MethodChannel('com.airship.flutter/EmbeddedView_$id')
+      ..setMethodCallHandler(_methodCallHandler);
+    _channel = channel;
+
+    // The mode may have changed between the layout that supplied the creation
+    // params and the view actually being created, so restate it.
+    final selfSizing = _nativeSelfSizing;
+    if (selfSizing != null) {
+      channel
+          .invokeMethod('setSizeToContent', {'sizeToContent': selfSizing})
+          .catchError((Object _) => null);
+    }
+  }
+
+  /// Keeps the native sizing mode in step with the constraints, so a parent that
+  /// changes between bounding and not bounding the height is followed.
+  void _syncSelfSizing(bool selfSizing) {
+    if (_nativeSelfSizing == selfSizing) {
+      return;
+    }
+    final isFirstLayout = _nativeSelfSizing == null;
+    _nativeSelfSizing = selfSizing;
+
+    // The first value is carried by the creation params instead.
+    if (isFirstLayout) {
+      return;
+    }
+
+    final channel = _channel;
+    if (channel == null) {
+      return;
+    }
+    // Runs during layout, so defer out of the frame; by then the view may be
+    // gone or replaced, so bail out rather than poke a dead channel.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !identical(_channel, channel)) return;
+      channel
+          .invokeMethod('setSizeToContent', {'sizeToContent': selfSizing})
+          .catchError((Object _) => null);
+    });
+  }
+
+  /// Heights at or below this are treated as the native side failing to resolve
+  /// one, rather than as a real content height.
+  static const double _minContentHeight = 1.0;
+
+  /// Resolves the platform view's size from the parent's constraints and, when
+  /// self sizing, the last reported content height. The fallbacks apply while a
+  /// dimension is unbounded and unmeasured.
+  @visibleForTesting
+  static Size resolveSize({
+    required BoxConstraints constraints,
+    required double fallbackWidth,
+    required double fallbackHeight,
+    double? parentWidth,
+    double? parentHeight,
+    double? contentHeight,
+  }) {
+    final width = parentWidth ??
+        (constraints.hasBoundedWidth ? constraints.maxWidth : fallbackWidth);
+
+    // A report at or below the floor means "could not resolve", not "empty";
+    // gone content is handled by the availability check, so stay visible.
+    final measured = (contentHeight != null && contentHeight > _minContentHeight)
+        ? contentHeight
+        : null;
+
+    // Until a usable measurement arrives, take the available space so native has
+    // room to lay out; whatever the view does not need is returned on report.
+    final height = parentHeight ??
+        (constraints.hasBoundedHeight
+            ? constraints.maxHeight
+            : (measured ?? fallbackHeight));
+
+    return Size(width, height);
+  }
+
+  Size _resolveSize(BuildContext context, BoxConstraints constraints) {
+    return resolveSize(
+      constraints: constraints,
+      fallbackWidth: MediaQuery.of(context).size.width,
+      fallbackHeight: MediaQuery.of(context).size.height,
+      parentWidth: widget.parentWidth,
+      parentHeight: widget.parentHeight,
+      contentHeight: _contentHeight,
+    );
   }
 
   Widget buildReadyView(BuildContext context, Widget view, Size availableSize) {
@@ -127,11 +246,20 @@ class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
   }
 
   Widget wrapWithLayoutBuilder(Widget view) {
+    return _wrapWithLayoutBuilder((_) => view);
+  }
+
+  /// The platform view has to be created knowing whether it should measure its
+  /// own content, so it is built inside the layout pass that resolves that.
+  Widget _wrapWithLayoutBuilder(Widget Function(bool selfSizing) viewBuilder) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        final availableSize = MediaQuery.of(context).size;
+        final selfSizing = _isSelfSizing(constraints);
+        _syncSelfSizing(selfSizing);
+        final view = viewBuilder(selfSizing);
+        final size = _resolveSize(context, constraints);
 
-        return Center(child: buildReadyView(context, view, availableSize));
+        return Center(child: buildReadyView(context, view, size));
       },
     );
   }
@@ -141,27 +269,34 @@ class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
     super.build(context);
 
     if (defaultTargetPlatform == TargetPlatform.android) {
-      return _getAndroidView();
+      return _wrapWithLayoutBuilder(_getAndroidView);
     } else if (defaultTargetPlatform == TargetPlatform.iOS) {
-      return wrapWithLayoutBuilder(
-        UiKitView(
-          viewType: 'com.airship.flutter/EmbeddedView',
-          onPlatformViewCreated: _onPlatformViewCreated,
-          creationParams: <String, Object?>{
-            'embeddedId': widget.embeddedId,
-            'selection': widget.selection?.toJson(),
-          },
-          creationParamsCodec: const StandardMessageCodec(),
-        ),
-      );
+      return _wrapWithLayoutBuilder(_getIOSView);
     }
 
     return Text('$defaultTargetPlatform is not yet supported by this plugin');
   }
 
-  Widget _getAndroidView() {
+  Map<String, Object?> _creationParams(bool selfSizing) {
+    return <String, Object?>{
+      'embeddedId': widget.embeddedId,
+      'selection': widget.selection?.toJson(),
+      'sizeToContent': selfSizing,
+    };
+  }
+
+  Widget _getIOSView(bool selfSizing) {
+    return UiKitView(
+      viewType: 'com.airship.flutter/EmbeddedView',
+      onPlatformViewCreated: _onPlatformViewCreated,
+      creationParams: _creationParams(selfSizing),
+      creationParamsCodec: const StandardMessageCodec(),
+    );
+  }
+
+  Widget _getAndroidView(bool selfSizing) {
     if (AirshipEmbeddedView.hybridComposition) {
-      return wrapWithLayoutBuilder(PlatformViewLink(
+      return PlatformViewLink(
         viewType: 'com.airship.flutter/EmbeddedView',
         surfaceFactory:
             (BuildContext context, PlatformViewController controller) {
@@ -176,36 +311,31 @@ class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
             id: params.id,
             viewType: 'com.airship.flutter/EmbeddedView',
             layoutDirection: TextDirection.ltr,
-            creationParams: <String, Object?>{
-              'embeddedId': widget.embeddedId,
-              'selection': widget.selection?.toJson(),
-            },
+            creationParams: _creationParams(selfSizing),
             creationParamsCodec: const StandardMessageCodec(),
             onFocus: () {
               params.onFocusChanged(true);
             },
           )
             ..addOnPlatformViewCreatedListener(params.onPlatformViewCreated)
+            ..addOnPlatformViewCreatedListener(_onPlatformViewCreated)
             ..create();
         },
-      ));
+      );
     } else {
-      return wrapWithLayoutBuilder(AndroidView(
+      return AndroidView(
         viewType: 'com.airship.flutter/EmbeddedView',
         onPlatformViewCreated: _onPlatformViewCreated,
-        creationParams: <String, Object?>{
-          'embeddedId': widget.embeddedId,
-          'selection': widget.selection?.toJson(),
-        },
+        creationParams: _creationParams(selfSizing),
         creationParamsCodec: const StandardMessageCodec(),
-      ));
+      );
     }
   }
 
   @override
   void dispose() {
     _readySubscription.cancel();
-    _channel.setMethodCallHandler(null);
+    _channel?.setMethodCallHandler(null);
     super.dispose();
   }
 

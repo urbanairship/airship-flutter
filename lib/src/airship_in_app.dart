@@ -60,6 +60,11 @@ class AirshipInApp {
             controller.add(isAvailable);
           }
         });
+
+        // Ask the native side to replay the current embedded state. Without this a
+        // view that subscribes after the last update never learns about content
+        // that already exists, because the cached list is only filled by events.
+        _resendLastEmbeddedEvent();
       },
       onCancel: () {
         subscription?.cancel();
