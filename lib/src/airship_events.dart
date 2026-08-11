@@ -89,9 +89,11 @@ class EmbeddedInfoUpdatedEvent {
 
     List<EmbeddedInfo> embeddedInfos = pendingList
         .map((item) => EmbeddedInfo(
-              item['embeddedId'],
-              item['instanceId'],
-              item['priority'],
+              item['embeddedId'] as String,
+              item['instanceId'] as String,
+              // Crosses the platform channel as a double, so widen before
+              // narrowing rather than casting straight to int.
+              (item['priority'] as num?)?.toInt() ?? 0,
               Map<String, dynamic>.from(item['extras'] ?? {}),
             ))
         .toList();
