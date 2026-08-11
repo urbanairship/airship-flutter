@@ -246,18 +246,8 @@ class HomeState extends State<Home> {
   }
 
   Widget _buildEmbeddedViewSection(ColorScheme colorScheme) {
-    return Column(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            border: Border.all(color: colorScheme.outline),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: AirshipEmbeddedView(
-            embeddedId: _embeddedViewId,
-          ),
-        ),
-      ],
+    return AirshipEmbeddedView(
+      embeddedId: _embeddedViewId,
     );
   }
 
