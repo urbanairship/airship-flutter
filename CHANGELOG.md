@@ -1,5 +1,13 @@
 # Flutter Plugin Changelog
 
+## Version 12.5.0 - August 12, 2026
+
+Minor release that allows embedded views to size to their content and updates the Android SDK to 20.11.0.
+
+### Changes
+- Embedded views now size themselves to their content when the parent leaves height unbounded, and fixed two related bugs where availability always reported false and pending content wasn't replayed to late subscribers
+- Updated Android SDK to [20.11.0](https://github.com/urbanairship/android-library/releases/tag/20.11.0)
+
 ## Version 12.4.1 - July 28, 2026
 
 Patch release that fixes an Android build failure for apps compiling against `compileSdk 36`.
