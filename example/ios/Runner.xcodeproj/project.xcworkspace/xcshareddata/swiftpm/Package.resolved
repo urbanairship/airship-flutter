@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/urbanairship/airship-mobile-framework-proxy.git",
       "state" : {
-        "revision" : "08e980cafd2886bfb835629fcccb560c2d82455e",
-        "version" : "15.12.0"
+        "revision" : "8663d495928dd7e135f58df0f79e357ea4f451db",
+        "version" : "15.14.0"
       }
     },
     {
@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/urbanairship/ios-library.git",
       "state" : {
-        "revision" : "09570aba6853bab3c7c7d9986973b283eedad91b",
-        "version" : "20.10.0"
+        "revision" : "b7adc1fad1085899fe54f07f83adc7f37e31a30b",
+        "version" : "20.11.0"
       }
     }
   ],
