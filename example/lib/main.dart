@@ -112,9 +112,7 @@ class _MainNavigatorState extends State<MainNavigator> {
 
   static void _trackFeatureFlagInteraction() {
     Airship.featureFlagManager.flag("rad_flag").then((flag) {
-      if (flag != null) {
-        Airship.featureFlagManager.trackInteraction(flag);
-      }
+      Airship.featureFlagManager.trackInteraction(flag);
     }).catchError((e) {
       debugPrint('Error: $e');
     });
