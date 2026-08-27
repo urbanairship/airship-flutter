@@ -1,5 +1,12 @@
 # Flutter Plugin Changelog
 
+## Version 12.6.0 - August 27, 2026
+
+Minor release that updates the Android SDK to 20.12.0.
+
+### Changes
+- Updated Android SDK to [20.12.0](https://github.com/urbanairship/android-library/releases/tag/20.12.0)
+
 ## Version 12.5.1 - August 19, 2026
 
 Patch release that updates the Android SDK to 20.11.1.
