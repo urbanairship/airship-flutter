@@ -1,5 +1,56 @@
 # Migration Guide
 
+# 12.5.x to 12.6.0
+
+## Feature Flags
+
+### `flag()` now throws instead of returning null
+
+`Airship.featureFlagManager.flag()` used to catch every error, log it, and
+return `null`. It now returns a non-null `FeatureFlag` and throws a
+`PlatformException` when the flag cannot be resolved, matching the React Native
+plugin and the native SDKs. Errors that were previously silent - including a
+flag that failed to download or Airship not being ready - now surface to the
+caller.
+
+#### Before (12.5.x)
+
+```dart
+final flag = await Airship.featureFlagManager.flag("my_flag");
+if (flag == null) {
+  // Could be an error, no way to tell
+  return;
+}
+Airship.featureFlagManager.trackInteraction(flag);
+```
+
+#### After (12.6.0)
+
+```dart
+try {
+  final flag = await Airship.featureFlagManager.flag("my_flag");
+  Airship.featureFlagManager.trackInteraction(flag);
+} on PlatformException catch (e) {
+  // Handle the failure
+  debugPrint("Failed to fetch flag: $e");
+}
+```
+
+### `useResultCache` now defaults to true
+
+The `useResultCache` argument on `flag()` defaults to `true`, matching the
+React Native plugin and the native SDKs. Pass `useResultCache: false` to keep
+the old behavior.
+
+```dart
+// 12.5.x behavior
+final flag = await Airship.featureFlagManager.flag(
+  "my_flag",
+  useResultCache: false,
+);
+```
+
+
 # 10.x to 11.x
 
 ## Min iOS Version
