@@ -214,6 +214,10 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
         case "channel#getTags":
             return try AirshipProxy.shared.channel.tags
 
+        case "channel#enableChannelCreation":
+            try AirshipProxy.shared.channel.enableChannelCreation()
+            return nil
+
         case "channel#editTagGroups":
             let operation = try JSONDecoder().decode(
                 [TagGroupOperation].self,
@@ -740,6 +744,39 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
 
             try AirshipProxy.shared.featureFlagManager.trackInteraction(flag: featureFlagProxy)
 
+            return nil
+
+        case "featureFlagManager#resultCacheGetFlag":
+            let flag = try await AirshipProxy.shared.featureFlagManager.resultCache.flag(
+                name: try call.requireStringArg()
+            )
+            return try AirshipJSON.wrap(flag).unWrap()
+
+        case "featureFlagManager#resultCacheSetFlag":
+            let args = try call.requireMapArg()
+
+            guard
+                let flagJSON = args["flag"] as? String,
+                let jsonData = flagJSON.data(using: .utf8),
+                let featureFlagProxy = try? JSONDecoder().decode(FeatureFlagProxy.self, from: jsonData)
+            else {
+                throw AirshipErrors.error("Call requires a flag json string that's decodable to FeatureFlagProxy")
+            }
+
+            guard let ttl = args["ttl"] as? NSNumber else {
+                throw AirshipErrors.error("Call requires a ttl in milliseconds")
+            }
+
+            try await AirshipProxy.shared.featureFlagManager.resultCache.cache(
+                flag: featureFlagProxy,
+                ttl: ttl.doubleValue / 1000.0
+            )
+            return nil
+
+        case "featureFlagManager#resultCacheRemoveFlag":
+            try await AirshipProxy.shared.featureFlagManager.resultCache.removeCachedFlag(
+                name: try call.requireStringArg()
+            )
             return nil
 
         default:

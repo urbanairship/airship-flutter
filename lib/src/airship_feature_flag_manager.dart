@@ -9,9 +9,13 @@ class AirshipFeatureFlagManager {
   AirshipFeatureFlagManager(AirshipModule module) : _module = module;
 
   /// Gets and evaluates a feature flag with the given [name].
-  /// [useResultCache] determines if the cached result should be used.
-  Future<FeatureFlag?> flag(String name, {bool useResultCache = false}) async {
-  try {
+  ///
+  /// [useResultCache] determines if the result cache should be used when
+  /// evaluating the flag. Defaults to `true`.
+  ///
+  /// Throws a [PlatformException] if the flag fails to resolve, e.g. if the
+  /// flags have not yet been downloaded or Airship is not ready.
+  Future<FeatureFlag> flag(String name, {bool useResultCache = true}) async {
     var featureFlag = await _module.channel.invokeMethod(
       "featureFlagManager#flag",
       {
@@ -19,16 +23,16 @@ class AirshipFeatureFlagManager {
         "useResultCache": useResultCache,
       },
     );
+
+    if (featureFlag == null) {
+      throw PlatformException(
+        code: "AIRSHIP_ERROR",
+        message: "Failed to fetch feature flag: $name",
+        details: "Method: featureFlagManager#flag",
+      );
+    }
+
     return FeatureFlag._fromJson(featureFlag);
-  } on PlatformException catch (e) {
-    // Catches only PlatformException 
-    print("Airship feature flag error: $e");
-    return null;
-  } catch (e) {
-    // Catches any other exception type
-    print("Unexpected error: $e");
-    return null;
-  }
   }
 
   /// Tracks interaction with feature flag
@@ -37,7 +41,8 @@ class AirshipFeatureFlagManager {
         .invokeMethod("featureFlagManager#trackInteraction", flag.toJSON());
   }
 
-  /// Gets a flag from the result cache.
+  /// Gets a flag from the result cache. Returns null if the flag is not
+  /// cached or the cached value has expired.
   Future<FeatureFlag?> getFlagFromResultCache(String flagName) async {
     var featureFlag = await _module.channel.invokeMethod(
       "featureFlagManager#resultCacheGetFlag",
@@ -46,7 +51,7 @@ class AirshipFeatureFlagManager {
     return featureFlag != null ? FeatureFlag._fromJson(featureFlag) : null;
   }
 
-  /// Sets a flag in the result cache.
+  /// Sets a flag in the result cache with the given [ttl].
   Future<void> setFlagInResultCache(FeatureFlag flag, Duration ttl) async {
     await _module.channel.invokeMethod(
       "featureFlagManager#resultCacheSetFlag",
