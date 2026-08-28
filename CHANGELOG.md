@@ -2,9 +2,12 @@
 
 ## Version 12.6.0 - August 27, 2026
 
-Minor release that updates the Android SDK to 20.12.0 and the iOS SDK to 20.12.0.
+Minor release that fixes several missing iOS feature flag and channel APIs, changes `flag()` to throw instead of returning null on error, and updates the Android and iOS SDKs to 20.12.0.
 
 ### Changes
+- Fixed `channel.enableChannelCreation` and the feature flag result cache APIs (`resultCacheGetFlag`, `resultCacheSetFlag`, `resultCacheRemoveFlag`) failing at runtime on iOS; they were invoked from Dart but never implemented natively. Also added `resultCacheGetFlag` on Android, which was missing there too.
+- Changed `featureFlagManager.flag()` to throw a `PlatformException` instead of silently returning `null` on error, matching the React Native plugin and native SDKs. See `MIGRATION.md`.
+- Changed `useResultCache` to default to `true` instead of `false`, matching the React Native plugin and native SDKs.
 - Updated Android SDK to [20.12.0](https://github.com/urbanairship/android-library/releases/tag/20.12.0)
 - Updated iOS SDK to [20.12.0](https://github.com/urbanairship/ios-library/releases/tag/20.12.0)
 
