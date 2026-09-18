@@ -2,12 +2,7 @@ import Flutter
 import UIKit
 import AirshipFrameworkProxy
 import Combine
-
-#if canImport(AirshipCore)
-import AirshipCore
-#else
-import AirshipKit
-#endif
+@_spi(AirshipInternal) import AirshipCore
 
 public class AirshipPlugin: NSObject, FlutterPlugin {
     private static let eventNames: [AirshipProxyEventType: String] = [
@@ -22,7 +17,8 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
         .pushReceived: "com.airship.flutter/event/push_received",
         .notificationStatusChanged: "com.airship.flutter/event/notification_status_changed",
         .pendingEmbeddedUpdated: "com.airship.flutter/event/pending_embedded_updated",
-        .overridePresentationOptions: "com.airship.flutter/event/override_presentation_options"
+        .overridePresentationOptions: "com.airship.flutter/event/override_presentation_options",
+        .featureFlagStatusChanged: "com.airship.flutter/event/feature_flag_status_changed"
     ]
 
     private let streams: [AirshipProxyEventType: AirshipEventStream] = {
@@ -776,6 +772,18 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
         case "featureFlagManager#resultCacheRemoveFlag":
             try await AirshipProxy.shared.featureFlagManager.resultCache.removeCachedFlag(
                 name: try call.requireStringArg()
+            )
+            return nil
+
+        case "featureFlagManager#status":
+            let status = try await AirshipProxy.shared.featureFlagManager.status
+            return status.rawValue
+
+        case "featureFlagManager#waitRefresh":
+            let args = call.arguments as? [String: Any]
+            let maxTimeMillis = args?["maxTimeMillis"] as? NSNumber
+            try await AirshipProxy.shared.featureFlagManager.waitRefresh(
+                maxTime: maxTimeMillis.map { $0.doubleValue / 1000.0 }
             )
             return nil
 

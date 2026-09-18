@@ -169,4 +169,53 @@ void main() {
       expect(calls.first.arguments, "rad_flag");
     });
   });
+
+  group('status', () {
+    test('parses up_to_date', () async {
+      mockChannel(response: "up_to_date");
+
+      final status = await Airship.featureFlagManager.status();
+
+      expect(calls, hasLength(1));
+      expect(calls.first.method, "featureFlagManager#status");
+      expect(status, FeatureFlagStatus.upToDate);
+    });
+
+    test('parses stale', () async {
+      mockChannel(response: "stale");
+
+      final status = await Airship.featureFlagManager.status();
+
+      expect(status, FeatureFlagStatus.stale);
+    });
+
+    test('parses out_of_date', () async {
+      mockChannel(response: "out_of_date");
+
+      final status = await Airship.featureFlagManager.status();
+
+      expect(status, FeatureFlagStatus.outOfDate);
+    });
+  });
+
+  group('waitRefresh', () {
+    test('sends maxTimeMillis when provided', () async {
+      mockChannel(response: null);
+
+      await Airship.featureFlagManager
+          .waitRefresh(maxTime: const Duration(seconds: 10));
+
+      expect(calls, hasLength(1));
+      expect(calls.first.method, "featureFlagManager#waitRefresh");
+      expect(calls.first.arguments, {"maxTimeMillis": 10000});
+    });
+
+    test('sends a null maxTimeMillis when not provided', () async {
+      mockChannel(response: null);
+
+      await Airship.featureFlagManager.waitRefresh();
+
+      expect(calls.first.arguments, {"maxTimeMillis": null});
+    });
+  });
 }

@@ -1,12 +1,8 @@
 import Foundation
 import SwiftUI
 import Flutter
-
-#if canImport(AirshipCore)
 import AirshipCore
-#else
-import AirshipKit
-#endif
+import AirshipScenes
 
 class AirshipEmbeddedViewFactory: NSObject, FlutterPlatformViewFactory {
     let registrar: FlutterPluginRegistrar
@@ -28,7 +24,11 @@ class AirshipEmbeddedViewWrapper: UIView, FlutterPlatformView {
     private static let embeddedIdKey: String = "embeddedId"
 
     private static func windowHeight() -> CGFloat? {
-        return try? AirshipUtils.mainWindow()?.screen.bounds.height
+        let keyWindow = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap { $0.windows }
+            .first { $0.isKeyWindow }
+        return keyWindow?.screen.bounds.height
     }
 
     private static func parseSelection(_ dict: [String: Any]?) -> AirshipEmbeddedSelection {

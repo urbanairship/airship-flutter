@@ -26,7 +26,7 @@ The official Airship Flutter plugin for iOS and Android.
 Add the dependency to your `pubspec.yaml`:
 ```yaml
 dependencies:
-  airship_flutter: ^12.6.0
+  airship_flutter: ^13.0.0
 ```
 
 Then run:
@@ -64,23 +64,24 @@ For a more detailed setup guide, please see the full [Getting Started Documentat
 
 | Airship Flutter Version | Airship SDK Version | Flutter Version | Support Status |
 | :---------------------- | :------------------ | :-------------- | :------------- |
-| **12.x**                | 20.x                | 3.24.0+         | **Active**     |
+| **13.x**                | 21.x                | 3.24.0+         | **Active**     |
+| **12.x**                | 20.x                | 3.24.0+         | Maintenance    |
 | **11.x**                | 20.x                | 3.0.2+          | Maintenance    |
 | **10.x**                | 19.x                | 3.0.2+          | Unsupported    |
 
-*Table last updated: May 7, 2026*
+*Table last updated: September 18, 2026*
 
-The iOS plugin supports both Swift Package Manager and CocoaPods. SPM is used automatically when enabled in your app (`flutter config --enable-swift-package-manager`); otherwise CocoaPods is used.
+The iOS plugin is distributed via Swift Package Manager only. CocoaPods is no longer supported, matching the native iOS SDK. Make sure your app has SPM enabled (`flutter config --enable-swift-package-manager` on Flutter versions where it isn't the default) — see [MIGRATION.md](MIGRATION.md) if you're upgrading from a CocoaPods-based setup.
 
 ## Requirements
 
 ### iOS
 - iOS 16.0+
-- Xcode 14+
+- Xcode 27+
 - Swift 5.0+
 
 ### Android
-- minSdkVersion 23
+- minSdkVersion 26
 - compileSdkVersion 36
 - Java 17
 - Kotlin 2.0.21+

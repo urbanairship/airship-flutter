@@ -1,5 +1,45 @@
 # Migration Guide
 
+# 12.x to 13.0
+
+## iOS: CocoaPods Removed
+
+CocoaPods is no longer supported on iOS, matching native iOS SDK 21. The
+plugin is now distributed via Swift Package Manager only;
+`airship_flutter.podspec` has been removed.
+
+If your app runs `flutter config --enable-swift-package-manager` (the default
+on recent Flutter versions), no action is needed. If it's still on CocoaPods:
+
+1. Enable SPM: `flutter config --enable-swift-package-manager`
+2. Remove any Airship pods from your `ios/Podfile` and re-run `flutter pub get`
+3. See the [Flutter SPM app-developer guide](https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers)
+   if you hit issues
+
+## Android: Minimum SDK raised to 26
+
+Native Android SDK 21 requires `minSdkVersion` 26 (Android 8.0). Raise your
+app's `minSdkVersion` in `android/app/build.gradle` if it's currently lower.
+
+## Feature Flags: status and waitRefresh
+
+Added `featureFlagManager.status()`, `featureFlagManager.waitRefresh()`, and a
+`featureFlagManager.statusUpdates` event stream, mirroring the same additions
+in the native SDKs.
+
+```dart
+// Get the current on-device status of the flag listing.
+final status = await Airship.featureFlagManager.status();
+
+// Wait for a refresh to complete, or a timeout.
+await Airship.featureFlagManager.waitRefresh(maxTime: Duration(seconds: 10));
+
+// Listen for status changes.
+Airship.featureFlagManager.statusUpdates.listen((event) {
+  print("Feature flag status changed: ${event.status}");
+});
+```
+
 # 12.5.x to 12.6.0
 
 ## Feature Flags

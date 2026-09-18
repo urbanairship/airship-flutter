@@ -1,5 +1,18 @@
 # Flutter Plugin Changelog
 
+## Version 13.0.0 - September 18, 2026
+
+Major release that updates the Android SDK to 21.0.1 and iOS SDK to 21.0.1; drops CocoaPods support on iOS in favor of Swift Package Manager; raises Android's minimum SDK to 26; and adds feature flag status and `waitRefresh` APIs. See `MIGRATION.md` for upgrade steps.
+
+### Changes
+- **Breaking:** iOS no longer supports CocoaPods. The plugin is distributed via Swift Package Manager only, matching the native iOS SDK 21. Apps must have SPM enabled (`flutter config --enable-swift-package-manager` on Flutter versions where it isn't the default).
+- **Breaking:** Raised Android's `minSdkVersion` to 26, matching the native Android SDK 21 requirement.
+- Updated Android SDK to [21.0.1](https://github.com/urbanairship/android-library/releases/tag/21.0.1)
+- Updated iOS SDK to [21.0.1](https://github.com/urbanairship/ios-library/releases/tag/21.0.1)
+- Added `featureFlagManager.status()` to get the on-device status of the feature flag listing (`upToDate`, `stale`, or `outOfDate`).
+- Added `featureFlagManager.statusUpdates`, a stream of `FeatureFlagStatusChangedEvent`s fired when the feature flag status changes.
+- Added `featureFlagManager.waitRefresh()` to suspend until the feature flag listing refreshes, or an optional `maxTime` elapses.
+
 ## Version 12.6.0 - August 27, 2026
 
 Minor release that fixes several missing iOS feature flag and channel APIs, changes `flag()` to throw instead of returning null on error, and updates the Android and iOS SDKs to 20.12.0.
