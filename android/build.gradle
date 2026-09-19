@@ -33,7 +33,9 @@ def isHmsEnabled() {
 }
 
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
+if (project.extensions.findByName('kotlin') == null) {
+    apply plugin: 'kotlin-android'
+}
 
 android {
     compileSdk 36
