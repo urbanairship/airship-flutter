@@ -26,7 +26,6 @@
 		99041C232CC29E0300031558 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99041C222CC29E0300031558 /* NotificationService.swift */; };
 		99041C272CC29E0300031558 /* AirshipExampleNotificationServiceExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 99041C202CC29E0300031558 /* AirshipExampleNotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		991A20A62CC5807D0025F15C /* ExampleWidgetsAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99041C192CC1DB1D00031558 /* ExampleWidgetsAttributes.swift */; };
-		99A0698F2E32E9C60054FC6F /* airship-flutter in Frameworks */ = {isa = PBXBuildFile; productRef = 99A0698E2E32E9C60054FC6F /* airship-flutter */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -107,7 +106,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				99A0698F2E32E9C60054FC6F /* airship-flutter in Frameworks */,
 				78A318202AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -246,7 +244,6 @@
 			name = Runner;
 			packageProductDependencies = (
 				78A3181F2AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage */,
-				99A0698E2E32E9C60054FC6F /* airship-flutter */,
 			);
 			productName = Runner;
 			productReference = 97C146EE1CF9000F007C117D /* Runner.app */;
@@ -321,7 +318,6 @@
 			mainGroup = 97C146E51CF9000F007C117D;
 			packageReferences = (
 				781AD8BC2B33823900A9FFBB /* XCLocalSwiftPackageReference "Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage" */,
-				99A0698B2E32E92A0054FC6F /* XCLocalSwiftPackageReference "../../ios/airship_flutter" */,
 				45B52C3F2EE1632500DF7D5E /* XCRemoteSwiftPackageReference "ios-library" */,
 			);
 			productRefGroup = 97C146EF1CF9000F007C117D /* Products */;
@@ -1013,10 +1009,6 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage;
 		};
-		99A0698B2E32E92A0054FC6F /* XCLocalSwiftPackageReference "../../ios/airship_flutter" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../../ios/airship_flutter;
-		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCRemoteSwiftPackageReference section */
@@ -1039,10 +1031,6 @@
 		78A3181F2AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FlutterGeneratedPluginSwiftPackage;
-		};
-		99A0698E2E32E9C60054FC6F /* airship-flutter */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = "airship-flutter";
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
