@@ -21,25 +21,6 @@ on recent Flutter versions), no action is needed. If it's still on CocoaPods:
 Native Android SDK 21 requires `minSdkVersion` 26 (Android 8.0). Raise your
 app's `minSdkVersion` in `android/app/build.gradle` if it's currently lower.
 
-## Feature Flags: status and waitRefresh
-
-Added `featureFlagManager.status()`, `featureFlagManager.waitRefresh()`, and a
-`featureFlagManager.statusUpdates` event stream, mirroring the same additions
-in the native SDKs.
-
-```dart
-// Get the current on-device status of the flag listing.
-final status = await Airship.featureFlagManager.status();
-
-// Wait for a refresh to complete, or a timeout.
-await Airship.featureFlagManager.waitRefresh(maxTime: Duration(seconds: 10));
-
-// Listen for status changes.
-Airship.featureFlagManager.statusUpdates.listen((event) {
-  print("Feature flag status changed: ${event.status}");
-});
-```
-
 # 12.5.x to 12.6.0
 
 ## Feature Flags

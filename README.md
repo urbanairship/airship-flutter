@@ -1,9 +1,9 @@
 # Airship Flutter
 
-The official Airship Flutter plugin for iOS and Android.
-
 [![pub package](https://img.shields.io/pub/v/airship_flutter.svg)](https://pub.dev/packages/airship_flutter)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
+The official Airship Flutter plugin for iOS and Android.
 
 ## Features
 
@@ -60,16 +60,9 @@ void main() async {
 
 For a more detailed setup guide, please see the full [Getting Started Documentation](https://www.airship.com/docs/developer/sdk-integration/flutter/installation/getting-started/).
 
-## Supported Versions
+## Versions and Support
 
-| Airship Flutter Version | Airship SDK Version | Flutter Version | Support Status |
-| :---------------------- | :------------------ | :-------------- | :------------- |
-| **13.x**                | 21.x                | 3.24.0+         | **Active**     |
-| **12.x**                | 20.x                | 3.24.0+         | Maintenance    |
-| **11.x**                | 20.x                | 3.0.2+          | Maintenance    |
-| **10.x**                | 19.x                | 3.0.2+          | Unsupported    |
-
-*Table last updated: September 18, 2026*
+For the current Support Status of each module major, EOL dates, and the full lifecycle policy, see the [Airship SDK Support Policy](https://www.airship.com/docs/reference/sdk-support-policy/).
 
 The iOS plugin is distributed via Swift Package Manager only. CocoaPods is no longer supported, matching the native iOS SDK. Make sure your app has SPM enabled (`flutter config --enable-swift-package-manager` on Flutter versions where it isn't the default) — see [MIGRATION.md](MIGRATION.md) if you're upgrading from a CocoaPods-based setup.
 
@@ -90,6 +83,7 @@ The iOS plugin is distributed via Swift Package Manager only. CocoaPods is no lo
 
 - **[Documentation](https://www.airship.com/docs/developer/sdk-integration/flutter/installation/getting-started/)** - Complete SDK integration guides
 - **[API Reference](https://docs.airship.com/reference/libraries/flutter/latest/)** - Detailed API documentation
+- **[SDK Support Policy](https://www.airship.com/docs/reference/sdk-support-policy/)** - Version lifecycle, support windows, and EOL dates across all Airship SDKs
 - **[GitHub Issues](https://github.com/urbanairship/airship-flutter/issues)** - Report bugs and request features
 - **[Changelog](https://github.com/urbanairship/airship-flutter/blob/main/CHANGELOG.md)** - Release notes and version history
 - **[Migration Guide](https://github.com/urbanairship/airship-flutter/blob/main/MIGRATION.md)** - Upgrade guides between major versions
