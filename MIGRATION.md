@@ -1,5 +1,44 @@
 # Migration Guide
 
+# 12.x to 13.0
+
+## iOS: CocoaPods Removed
+
+CocoaPods is no longer supported on iOS, matching native iOS SDK 21. The
+plugin is now distributed via Swift Package Manager only;
+`airship_flutter.podspec` has been removed.
+
+If your app runs `flutter config --enable-swift-package-manager` (the default
+on recent Flutter versions), no action is needed. If it's still on CocoaPods:
+
+1. Enable SPM: `flutter config --enable-swift-package-manager`
+2. Remove any Airship pods from your `ios/Podfile` and re-run `flutter pub get`
+3. See the [Flutter SPM app-developer guide](https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers)
+   if you hit issues
+
+## Minimum Flutter version raised to 3.44.0
+
+3.44.0 is the first stable Flutter release with Swift Package Manager enabled
+by default. On earlier versions SPM exists but is off, so a plugin with no
+podspec cannot be resolved at all: `flutter pub get` fails for every target
+platform, Android included, with an error that mentions neither SPM nor a
+version. Upgrade Flutter to 3.44.0 or later before upgrading this plugin.
+
+## iOS 27: UIScene lifecycle required
+
+iOS SDK 21 requires Xcode 27, and iOS 27 terminates apps built against its SDK
+that have not adopted the UIScene lifecycle. This is a Flutter and UIKit
+requirement rather than an Airship one, but upgrading to this release is what
+moves most apps onto Xcode 27. If your app's `Info.plist` has no
+`UIApplicationSceneManifest`, follow the
+[Flutter UIScene migration guide](https://docs.flutter.dev/release/breaking-changes/uiscenedelegate)
+or your app will crash at launch on iOS 27 before any Dart code runs.
+
+## Android: Minimum SDK raised to 26
+
+Native Android SDK 21 requires `minSdkVersion` 26 (Android 8.0). Raise your
+app's `minSdkVersion` in `android/app/build.gradle` if it's currently lower.
+
 # 12.5.x to 12.6.0
 
 ## Feature Flags

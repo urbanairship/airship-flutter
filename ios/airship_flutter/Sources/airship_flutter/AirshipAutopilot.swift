@@ -1,11 +1,6 @@
 import Flutter
 import AirshipFrameworkProxy
-
-#if canImport(AirshipCore)
-import AirshipCore
-#else
-import AirshipKit
-#endif
+@_spi(AirshipInternal) import AirshipCore
 
 public class AirshipAutopilot: NSObject {
     

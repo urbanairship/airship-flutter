@@ -1,13 +1,8 @@
 import Foundation
 import SwiftUI
 import Flutter
-
-#if canImport(AirshipCore)
 import AirshipCore
 import AirshipMessageCenter
-#else
-import AirshipKit
-#endif
 
 class AirshipInboxMessageViewFactory : NSObject, FlutterPlatformViewFactory {
 

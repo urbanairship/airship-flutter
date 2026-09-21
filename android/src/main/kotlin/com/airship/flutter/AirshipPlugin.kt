@@ -78,7 +78,8 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             EventType.BACKGROUND_PUSH_RECEIVED to "com.airship.flutter/event/background_push_received",
             EventType.NOTIFICATION_STATUS_CHANGED to "com.airship.flutter/event/notification_status_changed",
             EventType.PENDING_EMBEDDED_UPDATED to "com.airship.flutter/event/pending_embedded_updated",
-            EventType.OVERRIDE_FOREGROUND_PRESENTATION to "com.airship.flutter/event/override_presentation_options"
+            EventType.OVERRIDE_FOREGROUND_PRESENTATION to "com.airship.flutter/event/override_presentation_options",
+            EventType.FEATURE_FLAG_STATUS_CHANGED to "com.airship.flutter/event/feature_flag_status_changed"
         )
     }
 
@@ -396,6 +397,14 @@ class AirshipPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 val ttl = args.get("ttl")?.getLong(0)
                 val milliseconds = requireNotNull(ttl?.milliseconds)
                 proxy.featureFlagManager.resultCache.cache(flag, milliseconds)
+            }
+
+            "featureFlagManager#status" -> result.resolve(scope, call) { proxy.featureFlagManager.status }
+
+            "featureFlagManager#waitRefresh" -> result.resolve(scope, call) {
+                val args = call.arguments as? Map<*, *>
+                val maxTimeMillis = (args?.get("maxTimeMillis") as? Number)?.toLong()
+                proxy.featureFlagManager.waitRefresh(maxTimeMillis)
             }
 
             else -> result.notImplemented()

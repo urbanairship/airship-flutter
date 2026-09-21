@@ -1,12 +1,8 @@
 import Foundation
 import SwiftUI
 import Flutter
-
-#if canImport(AirshipCore)
 import AirshipCore
-#else
-import AirshipKit
-#endif
+import AirshipScenes
 
 class AirshipEmbeddedViewFactory: NSObject, FlutterPlatformViewFactory {
     let registrar: FlutterPluginRegistrar
@@ -27,8 +23,20 @@ class AirshipEmbeddedViewFactory: NSObject, FlutterPlatformViewFactory {
 class AirshipEmbeddedViewWrapper: UIView, FlutterPlatformView {
     private static let embeddedIdKey: String = "embeddedId"
 
+    /// The height of the screen the app is being displayed on, used as the
+    /// height proposal for self sizing content. A scene knows its own screen,
+    /// so this does not depend on a window having become key yet.
+    @MainActor
     private static func windowHeight() -> CGFloat? {
-        return try? AirshipUtils.mainWindow()?.screen.bounds.height
+        let windowScenes = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+
+        // `connectedScenes` is unordered, so prefer by activation state.
+        let scene = windowScenes.first { $0.activationState == .foregroundActive }
+            ?? windowScenes.first { $0.activationState == .foregroundInactive }
+            ?? windowScenes.first
+
+        return scene?.screen.bounds.height
     }
 
     private static func parseSelection(_ dict: [String: Any]?) -> AirshipEmbeddedSelection {

@@ -6,14 +6,13 @@ on:
       - "[0-9]+.[0-9]+.[0-9]+*"
 
 env:
-  DEVELOPER_DIR: /Applications/Xcode_26.4.app/Contents/Developer
-  FLUTTER_VERSION: 3.38.3
+  FLUTTER_VERSION: 3.47.5
   JAVA_VERSION: "17.x"
   JAVA_DISTRIBUTION: 'zulu'
 
 jobs:
   ci:
-    runs-on: macos-26-xlarge
+    runs-on: xcode-27-xlarge
 
     steps:
       - uses: actions/checkout@v3
@@ -24,6 +23,8 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{env.FLUTTER_VERSION}}
+      - name: Enable Swift Package Manager
+        run: flutter config --enable-swift-package-manager
       - name: Run CI
         run: bash ./scripts/run_ci_tasks.sh
 
@@ -66,6 +67,8 @@ jobs:
         uses: subosito/flutter-action@44ac965b96f18d999802d4b807e3256d5a3f9fa1
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
+      - name: Enable Swift Package Manager
+        run: flutter config --enable-swift-package-manager
       - run: flutter pub get
 
       - name: Github Release

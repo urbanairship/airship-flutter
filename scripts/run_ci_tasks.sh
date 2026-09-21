@@ -68,6 +68,13 @@ if $IOS; then
       cp ios/AirshipConfig.plist.sample ios/AirshipConfig.plist
     fi
 
+    # Device, release: the configuration customers actually ship.
     flutter build ios --release --no-codesign
+
+    # Simulator, debug: the only build that can be launched. Worth the second
+    # compile - a build alone cannot catch a crash that happens at launch.
+    flutter build ios --simulator --debug
     cd ..
+
+    bash "$(dirname "${0}")/smoke_ios.sh"
 fi

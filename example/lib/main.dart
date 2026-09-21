@@ -21,7 +21,7 @@ Future<void> backgroundMessageHandler(PushReceivedEvent event) async {
   debugPrint("Background Push Received $event");
 }
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -44,7 +44,7 @@ void main() {
     ),
   );
 
-  Airship.takeOff(config);
+  await Airship.takeOff(config);
 
   Airship.push.android.setBackgroundPushReceivedHandler(backgroundMessageHandler);
 

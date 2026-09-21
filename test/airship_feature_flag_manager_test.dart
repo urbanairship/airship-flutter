@@ -169,4 +169,108 @@ void main() {
       expect(calls.first.arguments, "rad_flag");
     });
   });
+
+  group('status', () {
+    test('parses up_to_date', () async {
+      mockChannel(response: "up_to_date");
+
+      final status = await Airship.featureFlagManager.status();
+
+      expect(calls, hasLength(1));
+      expect(calls.first.method, "featureFlagManager#status");
+      expect(status, FeatureFlagStatus.upToDate);
+    });
+
+    test('parses stale', () async {
+      mockChannel(response: "stale");
+
+      final status = await Airship.featureFlagManager.status();
+
+      expect(status, FeatureFlagStatus.stale);
+    });
+
+    test('parses out_of_date', () async {
+      mockChannel(response: "out_of_date");
+
+      final status = await Airship.featureFlagManager.status();
+
+      expect(status, FeatureFlagStatus.outOfDate);
+    });
+  });
+
+  group('waitRefresh', () {
+    test('sends maxTimeMillis when provided', () async {
+      mockChannel(response: null);
+
+      await Airship.featureFlagManager
+          .waitRefresh(maxTime: const Duration(seconds: 10));
+
+      expect(calls, hasLength(1));
+      expect(calls.first.method, "featureFlagManager#waitRefresh");
+      expect(calls.first.arguments, {"maxTimeMillis": 10000});
+    });
+
+    test('omits maxTimeMillis when not provided', () async {
+      mockChannel(response: null);
+
+      await Airship.featureFlagManager.waitRefresh();
+
+      expect(calls.first.arguments, <String, Object?>{});
+    });
+  });
+
+  group('statusUpdates', () {
+    const String eventChannelName =
+        "com.airship.flutter/event/feature_flag_status_changed";
+    const StandardMethodCodec codec = StandardMethodCodec();
+
+    setUp(() {
+      // An EventChannel negotiates listen/cancel over a method channel.
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+        const MethodChannel(eventChannelName, codec),
+        (MethodCall call) async => null,
+      );
+    });
+
+    tearDown(() {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+              const MethodChannel(eventChannelName, codec), null);
+    });
+
+    Future<void> emit(Object? event) {
+      return TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .handlePlatformMessage(
+        eventChannelName,
+        codec.encodeSuccessEnvelope(event),
+        (ByteData? _) {},
+      );
+    }
+
+    test('parses the status out of the event body', () async {
+      final Future<FeatureFlagStatusChangedEvent> event =
+          Airship.featureFlagManager.statusUpdates.first;
+      await Future<void>.delayed(Duration.zero);
+
+      await emit({"status": "stale"});
+
+      expect((await event).status, FeatureFlagStatus.stale);
+    });
+
+    test('surfaces an unrecognized status instead of reporting out of date',
+        () async {
+      // The expectation has to be attached before the event is emitted, or the
+      // error completes a future nobody is listening to and escapes the zone.
+      final Future<void> expectation = expectLater(
+        Airship.featureFlagManager.statusUpdates.first,
+        throwsArgumentError,
+      );
+      await Future<void>.delayed(Duration.zero);
+
+      await emit({"status": "not_a_real_status"});
+
+      await expectation;
+    });
+  });
 }

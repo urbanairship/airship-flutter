@@ -69,6 +69,84 @@ class AirshipFeatureFlagManager {
       flagName,
     );
   }
+
+  /// Gets the current on-device status of the feature flag listing.
+  ///
+  /// Throws an [ArgumentError] if the platform reports a status this
+  /// version of the plugin does not recognize.
+  Future<FeatureFlagStatus> status() async {
+    final status = await _module.channel.invokeMethod(
+      "featureFlagManager#status",
+    );
+    return FeatureFlagStatus._fromJson(status);
+  }
+
+  /// Suspends until the feature flag listing is up to date, or [maxTime]
+  /// elapses. Waits indefinitely if [maxTime] is not provided.
+  Future<void> waitRefresh({Duration? maxTime}) async {
+    await _module.channel.invokeMethod(
+      "featureFlagManager#waitRefresh",
+      maxTime == null
+          ? <String, Object?>{}
+          : {"maxTimeMillis": maxTime.inMilliseconds},
+    );
+  }
+
+  /// A stream of feature flag status changed events.
+  ///
+  /// The stream emits an [ArgumentError] if the platform reports a status
+  /// this version of the plugin does not recognize, so listeners that care
+  /// about those should pass an `onError` handler.
+  Stream<FeatureFlagStatusChangedEvent> get statusUpdates {
+    return _module
+        .getEventStream("com.airship.flutter/event/feature_flag_status_changed")
+        .map((dynamic value) => FeatureFlagStatusChangedEvent._fromJson(value));
+  }
+}
+
+/// The on-device status of the feature flag listing.
+enum FeatureFlagStatus {
+  /// The listing was refreshed within its configured refresh interval.
+  upToDate,
+
+  /// The listing is outside its refresh interval, but a stale, previously
+  /// up-to-date listing is available.
+  stale,
+
+  /// The listing has never successfully refreshed.
+  outOfDate;
+
+  static FeatureFlagStatus _fromJson(dynamic json) {
+    switch (json) {
+      case "up_to_date":
+        return FeatureFlagStatus.upToDate;
+      case "stale":
+        return FeatureFlagStatus.stale;
+      case "out_of_date":
+        return FeatureFlagStatus.outOfDate;
+      default:
+        throw ArgumentError("Invalid feature flag status: $json");
+    }
+  }
+}
+
+/// Event fired when the feature flag status changes.
+class FeatureFlagStatusChangedEvent {
+  /// The updated feature flag status.
+  final FeatureFlagStatus status;
+
+  const FeatureFlagStatusChangedEvent._internal(this.status);
+
+  static FeatureFlagStatusChangedEvent _fromJson(dynamic json) {
+    return FeatureFlagStatusChangedEvent._internal(
+      FeatureFlagStatus._fromJson(json["status"]),
+    );
+  }
+
+  @override
+  String toString() {
+    return "FeatureFlagStatusChangedEvent(status=$status)";
+  }
 }
 
 /// Airship feature flag object.
