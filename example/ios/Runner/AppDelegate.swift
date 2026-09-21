@@ -3,11 +3,7 @@
 import UIKit
 import Flutter
 
-#if canImport(AirshipCore)
 import AirshipCore
-#else
-import AirshipKit
-#endif
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {

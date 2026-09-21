@@ -71,6 +71,9 @@ class AirshipFeatureFlagManager {
   }
 
   /// Gets the current on-device status of the feature flag listing.
+  ///
+  /// Throws an [ArgumentError] if the platform reports a status this
+  /// version of the plugin does not recognize.
   Future<FeatureFlagStatus> status() async {
     final status = await _module.channel.invokeMethod(
       "featureFlagManager#status",
@@ -83,11 +86,17 @@ class AirshipFeatureFlagManager {
   Future<void> waitRefresh({Duration? maxTime}) async {
     await _module.channel.invokeMethod(
       "featureFlagManager#waitRefresh",
-      {"maxTimeMillis": maxTime?.inMilliseconds},
+      maxTime == null
+          ? <String, Object?>{}
+          : {"maxTimeMillis": maxTime.inMilliseconds},
     );
   }
 
   /// A stream of feature flag status changed events.
+  ///
+  /// The stream emits an [ArgumentError] if the platform reports a status
+  /// this version of the plugin does not recognize, so listeners that care
+  /// about those should pass an `onError` handler.
   Stream<FeatureFlagStatusChangedEvent> get statusUpdates {
     return _module
         .getEventStream("com.airship.flutter/event/feature_flag_status_changed")
@@ -114,8 +123,9 @@ enum FeatureFlagStatus {
       case "stale":
         return FeatureFlagStatus.stale;
       case "out_of_date":
-      default:
         return FeatureFlagStatus.outOfDate;
+      default:
+        throw ArgumentError("Invalid feature flag status: $json");
     }
   }
 }

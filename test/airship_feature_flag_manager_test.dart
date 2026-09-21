@@ -210,12 +210,67 @@ void main() {
       expect(calls.first.arguments, {"maxTimeMillis": 10000});
     });
 
-    test('sends a null maxTimeMillis when not provided', () async {
+    test('omits maxTimeMillis when not provided', () async {
       mockChannel(response: null);
 
       await Airship.featureFlagManager.waitRefresh();
 
-      expect(calls.first.arguments, {"maxTimeMillis": null});
+      expect(calls.first.arguments, <String, Object?>{});
+    });
+  });
+
+  group('statusUpdates', () {
+    const String eventChannelName =
+        "com.airship.flutter/event/feature_flag_status_changed";
+    const StandardMethodCodec codec = StandardMethodCodec();
+
+    setUp(() {
+      // An EventChannel negotiates listen/cancel over a method channel.
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+        const MethodChannel(eventChannelName, codec),
+        (MethodCall call) async => null,
+      );
+    });
+
+    tearDown(() {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+              const MethodChannel(eventChannelName, codec), null);
+    });
+
+    Future<void> emit(Object? event) {
+      return TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .handlePlatformMessage(
+        eventChannelName,
+        codec.encodeSuccessEnvelope(event),
+        (ByteData? _) {},
+      );
+    }
+
+    test('parses the status out of the event body', () async {
+      final Future<FeatureFlagStatusChangedEvent> event =
+          Airship.featureFlagManager.statusUpdates.first;
+      await Future<void>.delayed(Duration.zero);
+
+      await emit({"status": "stale"});
+
+      expect((await event).status, FeatureFlagStatus.stale);
+    });
+
+    test('surfaces an unrecognized status instead of reporting out of date',
+        () async {
+      // The expectation has to be attached before the event is emitted, or the
+      // error completes a future nobody is listening to and escapes the zone.
+      final Future<void> expectation = expectLater(
+        Airship.featureFlagManager.statusUpdates.first,
+        throwsArgumentError,
+      );
+      await Future<void>.delayed(Duration.zero);
+
+      await emit({"status": "not_a_real_status"});
+
+      await expectation;
     });
   });
 }

@@ -11,6 +11,9 @@ Major release that updates the Android SDK to 21.0.2 and iOS SDK to 21.0.2; drop
 - **Potentially breaking:** Native Android SDK 21 and iOS SDK 21 are major version bumps with their own breaking changes. If your app also integrates the native Airship SDK directly (not just through this plugin), review the [Android SDK migration guide](https://github.com/urbanairship/android-library/blob/main/documentation/migration/migration-guide-20-21.md) and [iOS SDK migration guide](https://github.com/urbanairship/ios-library/blob/main/Documentation/Migration/migration-guide-20-21.md) before upgrading.
 - **Breaking:** iOS no longer supports CocoaPods. The plugin is distributed via Swift Package Manager only, matching the native iOS SDK 21. Apps must have SPM enabled (`flutter config --enable-swift-package-manager` on Flutter versions where it isn't the default).
 - **Breaking:** Raised Android's `minSdkVersion` to 26, matching the native Android SDK 21 requirement.
+- **Breaking:** Raised the minimum Flutter version to 3.44.0 (and the Dart SDK floor to 3.10.0, which ships with it), the first stable release with Swift Package Manager enabled by default. Earlier versions can only resolve this plugin after `flutter config --enable-swift-package-manager`, and fail `flutter pub get` on every platform without it.
+- The example app now adopts the UIScene lifecycle, which iOS 27 requires of apps built against its SDK.
+- Fixed the embedded view falling back to no height when no window reported as key, which could collapse a self-sizing `AirshipEmbeddedView`.
 - Updated Android SDK to [21.0.2](https://github.com/urbanairship/android-library/releases/tag/21.0.2)
 - Updated iOS SDK to [21.0.2](https://github.com/urbanairship/ios-library/releases/tag/21.0.2)
 - Added `featureFlagManager.status()` to get the on-device status of the feature flag listing (`upToDate`, `stale`, or `outOfDate`).
