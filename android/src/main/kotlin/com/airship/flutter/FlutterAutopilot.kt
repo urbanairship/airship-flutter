@@ -4,9 +4,9 @@ import android.content.Context
 import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import androidx.datastore.preferences.preferencesDataStoreFile
 import com.airship.flutter.AirshipBackgroundExecutor.Companion.handleBackgroundMessage
 import com.urbanairship.Airship
 import com.urbanairship.analytics.Extension
@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 
 class FlutterAutopilot : BaseAutopilot() {
 
@@ -48,26 +49,45 @@ class FlutterAutopilot : BaseAutopilot() {
     }
 
     override fun onMigrateData(context: Context, proxyStore: ProxyStore) {
-        runBlocking {
-            context.airshipFlutterPluginStore.data.map { preferences ->
-                val key = preferences[APP_KEY] ?: return@map null
-                val secret = preferences[APP_SECRET] ?: return@map null
-                ProxyConfig.Environment(key, secret, null)
-            }.first()?.let {
-                context.airshipFlutterPluginStore.edit { preferences ->
-                    preferences.clear()
+        // Called on the main thread during takeOff, so the store is opened only when its file
+        // is actually there. Nothing writes that file any more: it exists only for apps
+        // upgrading from a plugin version that kept the app key and secret in it.
+        val storeFile = context.applicationContext.preferencesDataStoreFile(PLUGIN_STORE_NAME)
+        if (!storeFile.exists()) {
+            return
+        }
+
+        try {
+            runBlocking {
+                withTimeout(MIGRATION_TIMEOUT_MS) {
+                    context.airshipFlutterPluginStore.data.map { preferences ->
+                        val key = preferences[APP_KEY] ?: return@map null
+                        val secret = preferences[APP_SECRET] ?: return@map null
+                        ProxyConfig.Environment(key, secret, null)
+                    }.first()?.let {
+                        proxyStore.airshipConfig = ProxyConfig(defaultEnvironment = it)
+                    }
                 }
-                proxyStore.airshipConfig = ProxyConfig(defaultEnvironment = it)
             }
+
+            // Deleting the file rather than clearing its contents is what lets every later
+            // launch skip the store entirely.
+            storeFile.delete()
+        } catch (e: Exception) {
+            // Left in place so the next launch retries: an app whose config lives only in the
+            // store cannot take off without it.
+            Log.e("FlutterAutopilot", "Failed to migrate the Airship config from the plugin store", e)
         }
     }
 
     companion object {
+        private const val PLUGIN_STORE_NAME = "airshipFlutterPlugin"
+        private const val MIGRATION_TIMEOUT_MS = 3_000L
         private val APP_KEY = stringPreferencesKey("app_key")
         private val APP_SECRET = stringPreferencesKey("app_secret")
     }
 
     private val Context.airshipFlutterPluginStore: DataStore<Preferences> by preferencesDataStore(
-            name = "airshipFlutterPlugin"
+            name = PLUGIN_STORE_NAME
     )
 }
