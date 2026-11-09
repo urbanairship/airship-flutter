@@ -17,6 +17,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -39,7 +40,14 @@ class FlutterAutopilotMigrationTest {
         return constructor.newInstance(context)
     }
 
-    /** True if a DataStore can be opened on [file], i.e. no other instance holds it. */
+    /**
+     * True if a DataStore can be opened on [file], i.e. no other instance already holds it.
+     *
+     * Rests on two things: DataStore keeps a process-global registry of the files it has open and
+     * refuses a second instance for one, and the migration never releases the instance it creates.
+     * [assertCleanSlate] checks the matching assumption that each test method starts with the file
+     * unclaimed, so a shared path fails there rather than as a confusing failure here.
+     */
     private fun canClaim(file: File): Boolean {
         val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
         return try {
@@ -70,17 +78,23 @@ class FlutterAutopilotMigrationTest {
         }
     }
 
+    @Before
+    fun assertCleanSlate() {
+        assertFalse(
+            "each test needs its own data store path; this one was left by an earlier test",
+            storeFile.parentFile!!.exists()
+        )
+    }
+
     @Test
     fun migrationWithNoStoreDoesNotOpenTheDataStore() {
         val proxyStore = newProxyStore()
 
         FlutterAutopilot().onMigrateData(context, proxyStore)
 
-        // DataStore refuses a second instance for a file one is already active on, and the
-        // migration never releases the one it creates, so claiming the file here succeeds only
-        // if the migration left it alone.
-        assertTrue("the store must not be opened when there is no file to migrate", canClaim(storeFile))
         assertFalse(storeFile.exists())
+        assertFalse("the migration must not create the store directory", storeFile.parentFile!!.exists())
+        assertTrue("the store must not be opened when there is no file to migrate", canClaim(storeFile))
         assertNull(proxyStore.airshipConfig)
     }
 
