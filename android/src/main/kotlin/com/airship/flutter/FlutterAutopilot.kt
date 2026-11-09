@@ -50,9 +50,8 @@ class FlutterAutopilot : BaseAutopilot() {
     }
 
     override fun onMigrateData(context: Context, proxyStore: ProxyStore) {
-        // Called on the main thread during takeOff, so the store is opened only when its file
-        // is actually there. Nothing writes that file any more: it exists only for apps
-        // upgrading from a plugin version that kept the app key and secret in it.
+        // Called on the main thread during takeOff, so the store is opened only when there is
+        // a file to read.
         val storeFile = context.applicationContext.preferencesDataStoreFile(PLUGIN_STORE_NAME)
         if (!storeFile.exists()) {
             return
@@ -81,8 +80,8 @@ class FlutterAutopilot : BaseAutopilot() {
             return
         }
 
-        // Deleting the file rather than clearing its contents is what lets every later launch
-        // skip the store entirely.
+        // The gate above keys on the file existing, so the file itself has to go: clearing its
+        // contents would leave every later launch opening the store.
         if (!storeFile.delete()) {
             // A surviving file migrates again next launch, overwriting a config the app has
             // set from Dart in the meantime.
@@ -91,6 +90,7 @@ class FlutterAutopilot : BaseAutopilot() {
     }
 
     companion object {
+        // Written by plugin versions before 7.0.0; nothing has written it since.
         private const val PLUGIN_STORE_NAME = "airshipFlutterPlugin"
         private const val MIGRATION_TIMEOUT_MS = 3_000L
         private val APP_KEY = stringPreferencesKey("app_key")
