@@ -1,0 +1,10 @@
+{
+  "pending": [
+    {
+      "embeddedId": "home-banner",
+      "instanceId": "f0a1b2c3-d4e5-4f60-8192-a3b4c5d6e7f8",
+      "priority": 0,
+      "extras": { "campaign": "fall-sale" }
+    }
+  ]
+}
