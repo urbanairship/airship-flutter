@@ -33,7 +33,7 @@ class InboxMessageView extends StatelessWidget {
       this.onLoadError,
       this.onClose});
 
-  Future<void> onPlatformViewCreated(id) async {
+  Future<void> onPlatformViewCreated(int id) async {
     var channel = MethodChannel('com.airship.flutter/InboxMessageView_$id');
     channel.setMethodCallHandler(methodCallHandler);
     channel.invokeMethod('loadMessage', messageId).catchError((error) {
