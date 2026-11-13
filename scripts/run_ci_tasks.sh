@@ -51,6 +51,13 @@ if $ANALYZE; then
     # Perform publish dry run to ensure the package can be published
     dart analyze --fatal-infos
     flutter pub pub publish --dry-run --skip-validation
+
+    # pub.dev scores the published package with pana, which checks things the
+    # analyzer does not: license detection, platform support and dependency
+    # currency. The threshold is the deficit the package already carries, so a
+    # new loss fails the build; lower it as that deficit is paid down.
+    dart pub global activate pana
+    dart pub global run pana --no-warning --exit-code-threshold 10 .
 fi
 
 # Android
