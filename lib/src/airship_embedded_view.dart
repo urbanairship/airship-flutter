@@ -57,6 +57,7 @@ class AirshipEmbeddedView extends StatefulWidget {
   static bool hybridComposition = false;
 
   AirshipEmbeddedView({
+    super.key,
     required this.embeddedId,
     this.parentWidth,
     this.parentHeight,
@@ -70,8 +71,7 @@ class AirshipEmbeddedView extends StatefulWidget {
 class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
     with AutomaticKeepAliveClientMixin<AirshipEmbeddedView> {
   MethodChannel? _channel;
-  late Stream<bool> _readyStream;
-  late final StreamSubscription<bool> _readySubscription;
+  StreamSubscription<bool>? _readySubscription;
 
   bool? _isEmbeddedAvailable;
 
@@ -100,15 +100,31 @@ class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
   @override
   void initState() {
     super.initState();
+    _watchAvailability();
+  }
 
-    // Get seed value once
+  /// Flutter reuses this state when the widget is rebuilt, so availability has
+  /// to be rebound whenever the ID it tracks changes.
+  @override
+  void didUpdateWidget(AirshipEmbeddedView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.embeddedId == widget.embeddedId) {
+      return;
+    }
+    _readySubscription?.cancel();
+    // The previous ID's content and measurement must not carry over.
+    _contentHeight = null;
+    _nativeSelfSizing = null;
+    _watchAvailability();
+  }
+
+  void _watchAvailability() {
     _isEmbeddedAvailable =
         Airship.inApp.isEmbeddedAvailable(embeddedId: widget.embeddedId);
 
-    // Then listen for changes
-    _readyStream =
-        Airship.inApp.isEmbeddedAvailableStream(embeddedId: widget.embeddedId);
-    _readySubscription = _readyStream.listen((v) {
+    _readySubscription = Airship.inApp
+        .isEmbeddedAvailableStream(embeddedId: widget.embeddedId)
+        .listen((v) {
       if (mounted && v != _isEmbeddedAvailable) {
         setState(() {
           _isEmbeddedAvailable = v;
@@ -118,6 +134,13 @@ class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
       }
     });
   }
+
+  /// Identifies the platform view by the inputs that are only read when it is
+  /// created, so changing either rebuilds it instead of leaving the native side
+  /// on the previous content.
+  Key get _platformViewKey => ValueKey<String>(
+        '${widget.embeddedId}|${widget.selection?.toJson()}',
+      );
 
   Future<void> _methodCallHandler(MethodCall call) async {
     switch (call.method) {
@@ -287,6 +310,7 @@ class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
 
   Widget _getIOSView(bool selfSizing) {
     return UiKitView(
+      key: _platformViewKey,
       viewType: 'com.airship.flutter/EmbeddedView',
       onPlatformViewCreated: _onPlatformViewCreated,
       creationParams: _creationParams(selfSizing),
@@ -297,6 +321,7 @@ class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
   Widget _getAndroidView(bool selfSizing) {
     if (AirshipEmbeddedView.hybridComposition) {
       return PlatformViewLink(
+        key: _platformViewKey,
         viewType: 'com.airship.flutter/EmbeddedView',
         surfaceFactory:
             (BuildContext context, PlatformViewController controller) {
@@ -324,6 +349,7 @@ class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
       );
     } else {
       return AndroidView(
+        key: _platformViewKey,
         viewType: 'com.airship.flutter/EmbeddedView',
         onPlatformViewCreated: _onPlatformViewCreated,
         creationParams: _creationParams(selfSizing),
@@ -334,7 +360,7 @@ class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
 
   @override
   void dispose() {
-    _readySubscription.cancel();
+    _readySubscription?.cancel();
     _channel?.setMethodCallHandler(null);
     super.dispose();
   }
