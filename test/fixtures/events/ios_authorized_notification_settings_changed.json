@@ -1,0 +1,7 @@
+{
+  "authorizedSettings": [
+    "alert", "sound", "badge", "lock_screen", "car_play",
+    "notification_center", "critical_alert", "announcement",
+    "scheduled_delivery", "time_sensitive"
+  ]
+}

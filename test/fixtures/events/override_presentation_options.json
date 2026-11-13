@@ -1,0 +1,10 @@
+{
+  "requestId": "6b1c2d3e-4f50-4a61-9273-8495a6b7c8d9",
+  "pushPayload": {
+    "notificationId": "0:1700000000000000%abcdef12",
+    "alert": "Flash sale ends tonight",
+    "title": "Last chance",
+    "subtitle": null,
+    "extras": { "campaign": "flash-sale" }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "actionId": "view_order",
+  "isForeground": true,
+  "pushPayload": {
+    "notificationId": "0:1700000000000000%abcdef12",
+    "alert": "Your order has shipped",
+    "title": "On its way",
+    "subtitle": "Arriving Friday",
+    "extras": { "^d": "example://orders/42", "order_id": "42" }
+  }
+}
