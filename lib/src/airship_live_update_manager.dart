@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import 'airship_module.dart';
 import 'live_update.dart';
 
@@ -53,5 +55,16 @@ class AirshipLiveUpdateManager {
   /// @returns A Future with the result.
   Future<void> end(LiveUpdateEndRequest request) async {
     await _module.channel.invokeMethod('liveUpdate#end', request.toJson());
+  }
+
+  /// Ends every Live Update this app has started.
+  ///
+  /// Android only. Does nothing on iOS, where Live Activities are ended
+  /// individually through [AirshipLiveActivityManager].
+  Future<void> clearAll() async {
+    if (defaultTargetPlatform != TargetPlatform.android) {
+      return;
+    }
+    await _module.channel.invokeMethod('liveUpdate#clearAll');
   }
 }

@@ -5,6 +5,7 @@ import 'airship_events.dart';
 import 'push_payload.dart';
 import 'ios_push_options.dart';
 import 'push_notification_status.dart';
+import 'airship_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart' hide Notification;
 import 'airship_utils.dart';
@@ -180,6 +181,35 @@ class AndroidPush {
     });
   }
 
+  /// Whether the notification channel with the given [channelId] is enabled in
+  /// the system settings.
+  ///
+  /// A user can disable an individual channel while leaving notifications on
+  /// for the app, so this is narrower than the overall notification status.
+  ///
+  /// @param channelId The notification channel ID.
+  /// @returns A future with true if the channel is enabled.
+  Future<bool> isNotificationChannelEnabled(String channelId) async {
+    if (defaultTargetPlatform != TargetPlatform.android) {
+      return false;
+    }
+    return await _module.channel
+        .invokeMethod('push#android#isNotificationChannelEnabled', channelId);
+  }
+
+  /// Replaces the notification config set at takeoff.
+  ///
+  /// Applies to notifications posted after this call; already posted
+  /// notifications keep the config they were posted with.
+  ///
+  /// @param config The notification config to apply.
+  Future<void> setNotificationConfig(AndroidNotificationConfig config) async {
+    if (defaultTargetPlatform != TargetPlatform.android) {
+      return;
+    }
+    await _module.channel
+        .invokeMethod('push#android#setNotificationConfig', config.toJson());
+  }
 }
 
 @pragma('vm:entry-point')
