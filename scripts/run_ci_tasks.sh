@@ -54,9 +54,13 @@ if $ANALYZE; then
 
     # pub.dev scores the published package with pana, which checks things the
     # analyzer does not: license detection, platform support and dependency
-    # currency. The threshold is the deficit the package already carries, so a
-    # new loss fails the build; lower it as that deficit is paid down.
-    dart pub global activate pana
+    # currency. Pinned because its scoring changes between versions, and this
+    # script gates the publish; bump it deliberately.
+    #
+    # The threshold is the deficit the package already carries, the ten points
+    # lost to files under lib/ that are not dart formatted, so a new loss fails
+    # the build. Set it to 0 in the change that formats them.
+    dart pub global activate pana 0.23.19
     dart pub global run pana --no-warning --exit-code-threshold 10 .
 fi
 
