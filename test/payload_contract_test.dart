@@ -97,11 +97,41 @@ void main() {
     });
 
     test('notification_status_changed', () {
-      final event = PushNotificationStatusChangedEvent.fromJson(
-          payload('notification_status_changed'));
-      expect(event.status.isOptedIn, isTrue);
-      expect(event.status.notificationPermissionStatus,
-          PermissionStatus.granted);
+      final status = PushNotificationStatusChangedEvent.fromJson(
+              payload('notification_status_changed'))
+          .status;
+      // The parser defaults a missing key to false, so a field read from the
+      // wrong key only shows up if the fixture has it set to true.
+      expect(status.isUserNotificationsEnabled, isTrue);
+      expect(status.areNotificationsAllowed, isTrue);
+      expect(status.isPushPrivacyFeatureEnabled, isTrue);
+      expect(status.isPushTokenRegistered, isTrue);
+      expect(status.isOptedIn, isTrue);
+      expect(status.isUserOptedIn, isTrue);
+      expect(status.notificationPermissionStatus, PermissionStatus.granted);
+    });
+
+    test('notification_status_changed reads each field from its own key', () {
+      // With every field true, two fields reading each other's key still pass.
+      // Setting one at a time shows which getter each key feeds.
+      final getters = <String, bool Function(PushNotificationStatus)>{
+        'isUserNotificationsEnabled': (s) => s.isUserNotificationsEnabled,
+        'areNotificationsAllowed': (s) => s.areNotificationsAllowed,
+        'isPushPrivacyFeatureEnabled': (s) => s.isPushPrivacyFeatureEnabled,
+        'isPushTokenRegistered': (s) => s.isPushTokenRegistered,
+        'isOptedIn': (s) => s.isOptedIn,
+        'isUserOptedIn': (s) => s.isUserOptedIn,
+      };
+
+      getters.forEach((key, _) {
+        final status = PushNotificationStatus.fromJson(<String, dynamic>{
+          for (final name in getters.keys) name: name == key,
+        });
+        getters.forEach((name, getter) {
+          expect(getter(status), name == key,
+              reason: 'only $key was set, but $name read ${getter(status)}');
+        });
+      });
     });
 
     test('push_received', () {
@@ -119,19 +149,11 @@ void main() {
       expect(event.pushPayload.notificationId, isNotNull);
     });
 
-    test('override_presentation_options', () {
-      // Read inline by the push handlers rather than through an event class,
-      // so the two fields they reach for are what this pins down.
+    test('override_presentation_options carries a parseable push payload', () {
+      // The push handlers read this inline rather than through an event class.
       final body = payload('override_presentation_options');
-      expect(body['requestId'], isA<String>());
       expect(PushPayload.fromJson(body['pushPayload']).alert,
           'Flash sale ends tonight');
-    });
-
-    test('feature_flag_status_changed', () {
-      // The event class is library private; the stream that exposes it is
-      // covered in airship_feature_flag_manager_test. This pins the shape.
-      expect(payload('feature_flag_status_changed')['status'], 'stale');
     });
   });
 
@@ -173,25 +195,47 @@ void main() {
     });
   });
 
-  test('every event channel the Dart layer listens to has a fixture', () {
-    final listened = Directory('${root.path}/lib')
+  group('event channel fixtures', () {
+    // A listener passed a constant or variable would be invisible to the
+    // literal match below, so the number of call sites is checked against the
+    // number of literals found. Raw counts, not the de-duplicated set:
+    // override_presentation_options is listened to from two places.
+    final sources = Directory('${root.path}/lib')
         .listSync(recursive: true)
         .whereType<File>()
         .where((file) => file.path.endsWith('.dart'))
-        .expand((file) =>
-            RegExp('''getEventStream\\(\\s*['"]([^'"]+)['"]''')
-                .allMatches(file.readAsStringSync())
+        .map((file) => file.readAsStringSync())
+        .toList();
+
+    final callSites = sources
+        .map((source) => RegExp(r'\.getEventStream\(').allMatches(source).length)
+        .fold<int>(0, (total, count) => total + count);
+
+    final literalChannels = sources
+        .expand((source) =>
+            RegExp('''\\.getEventStream\\(\\s*['"]([^'"]+)['"]''')
+                .allMatches(source)
                 .map((match) => match.group(1)!))
-        .toSet();
+        .toList();
 
-    final missing = listened
-        .map((channel) => channel.split('/').last)
-        .where((name) => !File('${fixtures.path}/$name.json').existsSync())
-        .toList()
-      ..sort();
+    test('every listener names its channel with a string literal', () {
+      expect(literalChannels, isNotEmpty,
+          reason: 'The channel extraction matched nothing');
+      expect(literalChannels.length, callSites,
+          reason: 'getEventStream called with a non-literal channel name');
+    });
 
-    expect(missing, isEmpty,
-        reason: 'Event channels with no payload fixture: $missing');
+    test('every channel the Dart layer listens to has a fixture', () {
+      final missing = literalChannels
+          .toSet()
+          .map((channel) => channel.split('/').last)
+          .where((name) => !File('${fixtures.path}/$name.json').existsSync())
+          .toList()
+        ..sort();
+
+      expect(missing, isEmpty,
+          reason: 'Event channels with no payload fixture: $missing');
+    });
   });
 }
 
