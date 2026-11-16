@@ -717,6 +717,9 @@ public class AirshipPlugin: NSObject, FlutterPlugin {
         case "liveUpdate#end":
             throw AirshipErrors.error("Not available on iOS")
 
+        case "liveUpdate#clearAll":
+            throw AirshipErrors.error("Not available on iOS")
+
             // Feature Flag
         case "featureFlagManager#flag":
             guard let args = try? call.requireAnyArg() as? [String: Any],

@@ -187,8 +187,12 @@ class AndroidPush {
   /// A user can disable an individual channel while leaving notifications on
   /// for the app, so this is narrower than the overall notification status.
   ///
+  /// Also false when the channel does not exist yet, so a false result does not
+  /// by itself mean the user turned it off. Always false on iOS, which has no
+  /// channels.
+  ///
   /// @param channelId The notification channel ID.
-  /// @returns A future with true if the channel is enabled.
+  /// @returns A future with true if the channel exists and is enabled.
   Future<bool> isNotificationChannelEnabled(String channelId) async {
     if (defaultTargetPlatform != TargetPlatform.android) {
       return false;
