@@ -3,6 +3,11 @@
 [Migration Guide](https://github.com/urbanairship/airship-flutter/blob/main/MIGRATION.md)
 [All Releases](https://github.com/urbanairship/airship-flutter/releases)
 
+## Unreleased
+
+### Changes
+- Fixed `AirshipEmbeddedView` keeping the previous slot's content after its `embeddedId` or `selection` changed. The view now rebinds and recreates its platform view, and accepts a `Key`.
+
 ## Version 13.0.0 - September 21, 2026
 
 Major release that updates the Android SDK to 21.0.2 and iOS SDK to 21.0.2; drops CocoaPods support on iOS in favor of Swift Package Manager; raises Android's minimum SDK to 26; and adds feature flag status and `waitRefresh` APIs. The Dart plugin API itself has no breaking changes — existing `Airship.*` calls are unaffected. See the [Migration Guide](https://github.com/urbanairship/airship-flutter/blob/main/MIGRATION.md) for upgrade steps.

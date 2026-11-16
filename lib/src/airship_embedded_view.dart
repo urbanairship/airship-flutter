@@ -103,19 +103,27 @@ class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
     _watchAvailability();
   }
 
-  /// Flutter reuses this state when the widget is rebuilt, so availability has
-  /// to be rebound whenever the ID it tracks changes.
+  /// Flutter reuses this state when the widget is rebuilt in the same position,
+  /// so whatever is bound to the previous content has to be rebound here.
   @override
   void didUpdateWidget(AirshipEmbeddedView oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.embeddedId == widget.embeddedId) {
+    if (_viewIdentity(oldWidget) == _viewIdentity(widget)) {
       return;
     }
-    _readySubscription?.cancel();
-    // The previous ID's content and measurement must not carry over.
+
+    // The platform view is recreated for a new identity, so the previous one's
+    // measurement, sizing mode and channel must not carry over. Detaching the
+    // channel keeps a late size report from the old view out of the new one.
     _contentHeight = null;
     _nativeSelfSizing = null;
-    _watchAvailability();
+    _channel?.setMethodCallHandler(null);
+    _channel = null;
+
+    if (oldWidget.embeddedId != widget.embeddedId) {
+      _readySubscription?.cancel();
+      _watchAvailability();
+    }
   }
 
   void _watchAvailability() {
@@ -135,12 +143,16 @@ class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
     });
   }
 
-  /// Identifies the platform view by the inputs that are only read when it is
-  /// created, so changing either rebuilds it instead of leaving the native side
-  /// on the previous content.
-  Key get _platformViewKey => ValueKey<String>(
-        '${widget.embeddedId}|${widget.selection?.toJson()}',
-      );
+  /// What the native view shows. Both inputs are only read when it is created,
+  /// so a change to either needs a new platform view. No selection means
+  /// priority ordering, which is also what native does for a null selection.
+  static String _viewIdentity(AirshipEmbeddedView view) {
+    final selection =
+        view.selection ?? const AirshipEmbeddedViewSelectionPriority();
+    return '${view.embeddedId}|${selection.toJson()}';
+  }
+
+  Key get _platformViewKey => ValueKey<String>(_viewIdentity(widget));
 
   Future<void> _methodCallHandler(MethodCall call) async {
     switch (call.method) {
