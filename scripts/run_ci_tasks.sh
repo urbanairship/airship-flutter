@@ -58,6 +58,9 @@ if $ANDROID ; then
     cd example
     # Build sample using flutter tool
     flutter build apk --release
+    # The plugin's own unit tests. Run from the example, which is where the Flutter
+    # tool configures the plugin module as a Gradle project.
+    (cd android && ./gradlew :airship_flutter:testDebugUnitTest)
     cd ..
 fi
 
