@@ -57,6 +57,7 @@ class AirshipEmbeddedView extends StatefulWidget {
   static bool hybridComposition = false;
 
   AirshipEmbeddedView({
+    super.key,
     required this.embeddedId,
     this.parentWidth,
     this.parentHeight,
@@ -70,8 +71,7 @@ class AirshipEmbeddedView extends StatefulWidget {
 class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
     with AutomaticKeepAliveClientMixin<AirshipEmbeddedView> {
   MethodChannel? _channel;
-  late Stream<bool> _readyStream;
-  late final StreamSubscription<bool> _readySubscription;
+  StreamSubscription<bool>? _readySubscription;
 
   bool? _isEmbeddedAvailable;
 
@@ -100,15 +100,39 @@ class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
   @override
   void initState() {
     super.initState();
+    _watchAvailability();
+  }
 
-    // Get seed value once
+  /// Flutter reuses this state when the widget is rebuilt in the same position,
+  /// so whatever is bound to the previous content has to be rebound here.
+  @override
+  void didUpdateWidget(AirshipEmbeddedView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (_viewIdentity(oldWidget) == _viewIdentity(widget)) {
+      return;
+    }
+
+    // The platform view is recreated for a new identity, so the previous one's
+    // measurement, sizing mode and channel must not carry over. Detaching the
+    // channel keeps a late size report from the old view out of the new one.
+    _contentHeight = null;
+    _nativeSelfSizing = null;
+    _channel?.setMethodCallHandler(null);
+    _channel = null;
+
+    if (oldWidget.embeddedId != widget.embeddedId) {
+      _readySubscription?.cancel();
+      _watchAvailability();
+    }
+  }
+
+  void _watchAvailability() {
     _isEmbeddedAvailable =
         Airship.inApp.isEmbeddedAvailable(embeddedId: widget.embeddedId);
 
-    // Then listen for changes
-    _readyStream =
-        Airship.inApp.isEmbeddedAvailableStream(embeddedId: widget.embeddedId);
-    _readySubscription = _readyStream.listen((v) {
+    _readySubscription = Airship.inApp
+        .isEmbeddedAvailableStream(embeddedId: widget.embeddedId)
+        .listen((v) {
       if (mounted && v != _isEmbeddedAvailable) {
         setState(() {
           _isEmbeddedAvailable = v;
@@ -118,6 +142,17 @@ class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
       }
     });
   }
+
+  /// What the native view shows. Both inputs are only read when it is created,
+  /// so a change to either needs a new platform view. No selection means
+  /// priority ordering, which is also what native does for a null selection.
+  static String _viewIdentity(AirshipEmbeddedView view) {
+    final selection =
+        view.selection ?? const AirshipEmbeddedViewSelectionPriority();
+    return '${view.embeddedId}|${selection.toJson()}';
+  }
+
+  Key get _platformViewKey => ValueKey<String>(_viewIdentity(widget));
 
   Future<void> _methodCallHandler(MethodCall call) async {
     switch (call.method) {
@@ -287,6 +322,7 @@ class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
 
   Widget _getIOSView(bool selfSizing) {
     return UiKitView(
+      key: _platformViewKey,
       viewType: 'com.airship.flutter/EmbeddedView',
       onPlatformViewCreated: _onPlatformViewCreated,
       creationParams: _creationParams(selfSizing),
@@ -297,6 +333,7 @@ class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
   Widget _getAndroidView(bool selfSizing) {
     if (AirshipEmbeddedView.hybridComposition) {
       return PlatformViewLink(
+        key: _platformViewKey,
         viewType: 'com.airship.flutter/EmbeddedView',
         surfaceFactory:
             (BuildContext context, PlatformViewController controller) {
@@ -324,6 +361,7 @@ class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
       );
     } else {
       return AndroidView(
+        key: _platformViewKey,
         viewType: 'com.airship.flutter/EmbeddedView',
         onPlatformViewCreated: _onPlatformViewCreated,
         creationParams: _creationParams(selfSizing),
@@ -334,7 +372,7 @@ class AirshipEmbeddedViewState extends State<AirshipEmbeddedView>
 
   @override
   void dispose() {
-    _readySubscription.cancel();
+    _readySubscription?.cancel();
     _channel?.setMethodCallHandler(null);
     super.dispose();
   }
