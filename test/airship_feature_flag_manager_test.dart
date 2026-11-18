@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:airship_flutter/airship_flutter.dart';
 import 'package:flutter/services.dart';
@@ -253,7 +254,12 @@ void main() {
           Airship.featureFlagManager.statusUpdates.first;
       await Future<void>.delayed(Duration.zero);
 
-      await emit({"status": "stale"});
+      // The payload shape the native side sends, shared with the contract tests.
+      final payload = jsonDecode(
+        File('test/fixtures/events/feature_flag_status_changed.json')
+            .readAsStringSync(),
+      );
+      await emit(payload);
 
       expect((await event).status, FeatureFlagStatus.stale);
     });

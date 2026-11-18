@@ -1,0 +1,11 @@
+{
+  "status": {
+    "isUserNotificationsEnabled": true,
+    "areNotificationsAllowed": true,
+    "isPushPrivacyFeatureEnabled": true,
+    "isPushTokenRegistered": true,
+    "isOptedIn": true,
+    "isUserOptedIn": true,
+    "notificationPermissionStatus": "granted"
+  }
+}
