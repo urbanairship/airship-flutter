@@ -3,6 +3,15 @@
 [Migration Guide](https://github.com/urbanairship/airship-flutter/blob/main/MIGRATION.md)
 [All Releases](https://github.com/urbanairship/airship-flutter/releases)
 
+## Version 13.1.0 - November 16, 2026
+
+Minor release that updates the Android and iOS SDKs to 21.2.0, which fixes reporting for Scenes launched from a push, and reduces Android startup work.
+
+### Changes
+- Updated Android SDK to [21.2.0](https://github.com/urbanairship/android-library/releases/tag/21.2.0)
+- Updated iOS SDK to [21.2.0](https://github.com/urbanairship/ios-library/releases/tag/21.2.0)
+- Reduced repeated work on Android before Airship takes off, which could contribute to ANRs
+
 ## Version 13.0.0 - September 21, 2026
 
 Major release that updates the Android SDK to 21.0.2 and iOS SDK to 21.0.2; drops CocoaPods support on iOS in favor of Swift Package Manager; raises Android's minimum SDK to 26; and adds feature flag status and `waitRefresh` APIs. The Dart plugin API itself has no breaking changes — existing `Airship.*` calls are unaffected. See the [Migration Guide](https://github.com/urbanairship/airship-flutter/blob/main/MIGRATION.md) for upgrade steps.
