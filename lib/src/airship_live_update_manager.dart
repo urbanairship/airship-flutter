@@ -54,4 +54,12 @@ class AirshipLiveUpdateManager {
   Future<void> end(LiveUpdateEndRequest request) async {
     await _module.channel.invokeMethod('liveUpdate#end', request.toJson());
   }
+
+  /// Ends every Live Update this app has started.
+  ///
+  /// Android only. Throws on iOS, like the other Live Update methods, where
+  /// Live Activities are ended individually through [AirshipLiveActivityManager].
+  Future<void> clearAll() async {
+    await _module.channel.invokeMethod('liveUpdate#clearAll');
+  }
 }

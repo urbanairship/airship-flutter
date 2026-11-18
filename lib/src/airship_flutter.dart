@@ -55,6 +55,19 @@ class Airship {
     return await _module.channel.invokeMethod('takeOff', config.toJson());
   }
 
+  /// Whether Airship has been taken off.
+  ///
+  /// On Android this is also true while takeoff is still in progress, so it
+  /// does not mean every Airship call will succeed yet. Calls made before
+  /// Airship is flying are rejected by the native side, which lets apps that
+  /// take off with credentials fetched at runtime tell "not ready yet" apart
+  /// from a failure.
+  ///
+  /// @returns A future with true once Airship has been taken off.
+  static Future<bool> get isFlying async {
+    return await _module.channel.invokeMethod('isFlying');
+  }
+
   /// Gets deep link event stream.
   static Stream<DeepLinkEvent> get onDeepLink {
     return _module

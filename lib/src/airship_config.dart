@@ -170,7 +170,7 @@ class AndroidConfig {
     return {
       "appStoreUri": appStoreUri,
       "fcmFirebaseAppName": fcmFirebaseAppName,
-      "notificationConfig": notificationConfig?._toJson()
+      "notificationConfig": notificationConfig?.toJson()
     };
   }
 }
@@ -191,7 +191,7 @@ class AndroidNotificationConfig {
   AndroidNotificationConfig(
       {this.icon, this.largeIcon, this.defaultChannelId, this.accentColor});
 
-  Map<String, Object?> _toJson() {
+  Map<String, Object?> toJson() {
     return {
       "icon": icon,
       "largeIcon": largeIcon,
